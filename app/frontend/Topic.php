@@ -182,7 +182,10 @@ class Topic extends Frontend
             'child_topics'=>TopicModel::getTopicByIds(TopicModel::getTopicWithChildIds($topic_info['id']))
         ]);
 
-        $seo_title = $topic_info['seo_title'] ? : $topic_info['title'];
+        $default_topic_title = trim(strip_tags($topic_info['title'])) . '话题讨论、相关问题与文章聚合';
+        $custom_seo_title = trim(strip_tags((string)$topic_info['seo_title']));
+        $custom_title_len = function_exists('mb_strlen') ? mb_strlen($custom_seo_title, 'UTF-8') : strlen($custom_seo_title);
+        $seo_title = ($custom_seo_title && $custom_title_len >= 8) ? $custom_seo_title : $default_topic_title;
         $seo_keywords = $topic_info['seo_keywords'] ? : Analysis::getKeywords($topic_info['description'], 5);
         $seo_description = $topic_info['seo_description'] ? : str_cut(strip_tags($topic_info['description']),0,200);
         $this->TDK($seo_title, $seo_keywords, $seo_description);

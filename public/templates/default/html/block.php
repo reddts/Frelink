@@ -17,7 +17,7 @@
     <title>{block name="meta_title"} {$_page_title|default=""} {/block}</title>
     <meta name="keywords" content="{block name='meta_keywords'}{$_page_keywords|default=""}{/block}">
     <meta name="description" content="{block name='meta_description'} {$_page_description|default=""} {/block}">
-    <meta name="robots" content="index,follow">
+    <meta name="robots" content="{$_page_robots|default='index,follow'}">
     <link rel="canonical" href="{:request()->domain().request()->baseUrl()}">
     {if $thisController=='index' && $thisAction=='index'}
     <link rel="preload" as="image" href="{$static_url}images/top-img.webp" type="image/webp">

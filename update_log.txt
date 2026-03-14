@@ -19,6 +19,28 @@ API 安全与逻辑：
 - 收敛跨域策略，修复默认宽松放行风险。
 - 详细审计与整改计划见 `api优化.md`。
 
+【2026-03-15 SEO专项修复（Bing告警处理）】
+问题与原因：
+- 修复“元描述重复”问题：参数页（如 `?sort=hot`、`?page=2`）与主内容页共享内容，且文章描述兜底策略区分度不足。
+- 修复“标题过短”问题：话题页优先使用后台短 `seo_title`（如单词/短词），用户主页标题原规则信息量不足。
+
+代码调整：
+- 文章详情页（PC/移动）描述兜底改为“标题 + 正文前160字（清洗后）”，提升描述唯一性。
+- 文章详情参数页新增 `noindex,follow`，主详情页保持 `index,follow`，并继续保留 canonical 指向主 URL。
+- 模板 `robots` 改为可变量控制（默认 `index,follow`）。
+- 话题页（PC/移动）新增标题长度兜底：当自定义 `seo_title` 过短时自动使用“话题讨论、相关问题与文章聚合”长标题模板。
+- 用户主页（PC/移动）标题改为“主页动态、问答与文章内容”描述型标题。
+
+涉及文件：
+- `app/frontend/Article.php`
+- `app/mobile/Article.php`
+- `app/common/traits/Common.php`
+- `public/templates/default/html/block.php`
+- `app/frontend/Topic.php`
+- `app/mobile/Topic.php`
+- `app/frontend/People.php`
+- `app/mobile/People.php`
+
 【FreCenter v4.0 更新日志】
 由 WeCenter V4.1.1 优化升级而来。
 

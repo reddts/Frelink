@@ -101,7 +101,12 @@ class Article extends Frontend
 
         $seo_title = $article_info['seo_title'] ? : $article_info['title'];
         $seo_keywords = $article_info['seo_keywords'] ? : Analysis::getKeywords($article_info['title'], 4);
-        $seo_description = $article_info['seo_description'] ? : str_cut(strip_tags($article_info['message']),0,200);
+        $plain_message = preg_replace('/\s+/u', ' ', trim(strip_tags($article_info['message'])));
+        $fallback_description = str_cut($plain_message, 0, 160);
+        if ($fallback_description) {
+            $fallback_description = str_cut(trim(strip_tags($article_info['title'])) . ' - ' . $fallback_description, 0, 160);
+        }
+        $seo_description = $article_info['seo_description'] ? : $fallback_description;
         $this->TDK($seo_title, $seo_keywords, $seo_description);
         
         hook('article_detail_get_after',$this->request->param());

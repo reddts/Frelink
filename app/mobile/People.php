@@ -43,7 +43,8 @@ class People extends Frontend
         $this->assign('answer_count',LogHelper::getActionLogCount('publish_answer',$user['uid'],$this->user_id));
         $this->assign('article_count',LogHelper::getActionLogCount('publish_article',$user['uid'],$this->user_id));
         $this->assign('user',$user);
-        $this->TDK($user['nick_name'].'的主页');
+        $seo_title = trim(strip_tags($user['nick_name'])) . '的主页动态、问答与文章内容';
+        $this->TDK($seo_title);
         return $this->fetch();
     }
 

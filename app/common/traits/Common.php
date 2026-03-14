@@ -23,6 +23,7 @@ trait Common
             '_page_title' =>$title ? $title .' - '.get_setting('seo_title'): get_setting('seo_title'),
             '_page_keywords' => $keywords ?: get_setting('seo_keywords'),
             '_page_description' => $description ?: get_setting('seo_description'),
+            '_page_robots' => 'index,follow',
         );
         $this->assign($tdk);
     }
