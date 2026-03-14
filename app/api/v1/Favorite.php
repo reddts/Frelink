@@ -18,6 +18,8 @@ use app\model\UsersFavorite;
 
 class Favorite extends Api
 {
+    protected $needLogin = ['*'];
+
 	// 收藏标签
 	public function index()
 	{

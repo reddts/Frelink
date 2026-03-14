@@ -17,11 +17,9 @@ use app\common\traits\Jump;
 use app\model\Users;
 use think\App;
 
-//解决跨域问题
-header('Access-Control-Allow-Origin:*');//允许所有来源访问
-header("Access-Control-Allow-Credentials:true");
-header('Access-Control-Allow-Method:GET,POST,OPTIONS');//允许访问的方式
-header("Access-Control-Allow-Headers:Content-Type,AccessToken,version,UserToken,ClientType,origin");//OPTIONS请求，直接返回
+// 预检请求基础响应，具体跨域放行由 checkCrossRequest 控制
+header('Access-Control-Allow-Methods: GET,POST,OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type,AccessToken,version,UserToken,ClientType,origin');
 if (request()->method() == "OPTIONS") {
     exit();
 }

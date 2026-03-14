@@ -206,22 +206,179 @@ class ImageHelper
     public static function replaceImageUrl($images,$url='')
     {
         if(!$images) return false;
-        $url = $url ?: request()->domain();
+        $url = rtrim($url ?: request()->domain(), '/');
         if(is_array($images) )
         {
             foreach ($images as $k=>$v) {
-                if(!strstr( $v,'http') && !strstr( $v,'https'))
+                if(!strstr($v,'http') && !strstr($v,'https') && strpos($v, '//') !== 0)
                 {
-                    $images[$k] = $url.$v;
+                    $images[$k] = strpos($v, '/') === 0 ? $url.$v : $url.'/'.$v;
                 }
             }
         }else{
-            if(!strstr( $images,'http') && !strstr( $images,'https'))
+            if(!strstr($images,'http') && !strstr($images,'https') && strpos($images, '//') !== 0)
             {
-                $images = $url.$images;
+                $images = strpos($images, '/') === 0 ? $url.$images : $url.'/'.$images;
             }
         }
         return $images;
+    }
+
+    /**
+     * 列表缩略图URL（本地文件存在时优先返回缩略图，不存在则尝试生成）
+     * @param string $image
+     * @param int $width
+     * @param int $height
+     * @return string
+     */
+    public static function buildThumbUrl(string $image, int $width = 480, int $height = 320): string
+    {
+        if (!$image || $width < 1 || $height < 1) {
+            return $image;
+        }
+
+        $parsed = parse_url($image);
+        $path = $parsed['path'] ?? $image;
+        $scheme = $parsed['scheme'] ?? '';
+        $host = $parsed['host'] ?? '';
+
+        // 仅处理站内 storage 资源，外链直接返回原图
+        if (strpos($path, '/storage/') !== 0 && strpos($path, 'storage/') !== 0) {
+            return $image;
+        }
+
+        $normalizedPath = strpos($path, '/') === 0 ? $path : '/'.$path;
+        $ext = strtolower(pathinfo($normalizedPath, PATHINFO_EXTENSION));
+        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
+            return $image;
+        }
+
+        $thumbPath = preg_replace('/\.([a-zA-Z0-9]+)$/', '.thumb.'.$width.'x'.$height.'.$1', $normalizedPath);
+        if (!$thumbPath) {
+            return $image;
+        }
+
+        $srcAbs = rtrim(public_path(ltrim($normalizedPath, '/')), '/\\');
+        $thumbAbs = rtrim(public_path(ltrim($thumbPath, '/')), '/\\');
+        if (!is_file($srcAbs)) {
+            return $image;
+        }
+
+        if (!is_file($thumbAbs)) {
+            self::createListThumb($srcAbs, $thumbAbs, $ext, $width, $height);
+        }
+
+        if (!is_file($thumbAbs)) {
+            return $image;
+        }
+
+        if ($scheme && $host) {
+            $port = isset($parsed['port']) ? ':'.$parsed['port'] : '';
+            return $scheme.'://'.$host.$port.$thumbPath;
+        }
+
+        // 保持和原始风格一致：原始没有前导 / 时，返回相同风格
+        return strpos($path, '/') === 0 ? $thumbPath : ltrim($thumbPath, '/');
+    }
+
+    /**
+     * 批量生成缩略图地址
+     * @param array $images
+     * @param int $width
+     * @param int $height
+     * @return array
+     */
+    public static function mapThumbUrls(array $images, int $width = 120, int $height = 120): array
+    {
+        if (!$images) {
+            return [];
+        }
+        foreach ($images as $k => $img) {
+            $images[$k] = self::buildThumbUrl((string)$img, $width, $height);
+        }
+        return $images;
+    }
+
+    /**
+     * 生成列表缩略图（保持纵横比缩放，居中留白）
+     */
+    private static function createListThumb(string $srcAbs, string $thumbAbs, string $ext, int $targetW, int $targetH): bool
+    {
+        if (!function_exists('getimagesize')) {
+            return false;
+        }
+
+        $size = @getimagesize($srcAbs);
+        if (!$size || empty($size[0]) || empty($size[1])) {
+            return false;
+        }
+        $srcW = (int)$size[0];
+        $srcH = (int)$size[1];
+
+        switch ($ext) {
+            case 'jpg':
+            case 'jpeg':
+                if (!function_exists('imagecreatefromjpeg')) return false;
+                $srcImg = @imagecreatefromjpeg($srcAbs);
+                break;
+            case 'png':
+                if (!function_exists('imagecreatefrompng')) return false;
+                $srcImg = @imagecreatefrompng($srcAbs);
+                break;
+            case 'webp':
+                if (!function_exists('imagecreatefromwebp')) return false;
+                $srcImg = @imagecreatefromwebp($srcAbs);
+                break;
+            default:
+                return false;
+        }
+
+        if (!$srcImg || !function_exists('imagecreatetruecolor')) {
+            return false;
+        }
+
+        $dstImg = imagecreatetruecolor($targetW, $targetH);
+        if (!$dstImg) {
+            imagedestroy($srcImg);
+            return false;
+        }
+
+        // 背景填充（JPG/WEBP白底，PNG透明）
+        if ($ext === 'png') {
+            imagealphablending($dstImg, false);
+            imagesavealpha($dstImg, true);
+            $bg = imagecolorallocatealpha($dstImg, 255, 255, 255, 127);
+            imagefilledrectangle($dstImg, 0, 0, $targetW, $targetH, $bg);
+        } else {
+            $bg = imagecolorallocate($dstImg, 255, 255, 255);
+            imagefilledrectangle($dstImg, 0, 0, $targetW, $targetH, $bg);
+        }
+
+        $scale = min($targetW / $srcW, $targetH / $srcH);
+        $drawW = max(1, (int)floor($srcW * $scale));
+        $drawH = max(1, (int)floor($srcH * $scale));
+        $dstX = (int)floor(($targetW - $drawW) / 2);
+        $dstY = (int)floor(($targetH - $drawH) / 2);
+        imagecopyresampled($dstImg, $srcImg, $dstX, $dstY, 0, 0, $drawW, $drawH, $srcW, $srcH);
+
+        $dir = dirname($thumbAbs);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+
+        $saved = false;
+        if ($ext === 'jpg' || $ext === 'jpeg') {
+            $saved = @imagejpeg($dstImg, $thumbAbs, 82);
+        } elseif ($ext === 'png') {
+            // PNG 压缩级别 0-9，越大压缩越高
+            $saved = @imagepng($dstImg, $thumbAbs, 6);
+        } elseif ($ext === 'webp' && function_exists('imagewebp')) {
+            $saved = @imagewebp($dstImg, $thumbAbs, 80);
+        }
+
+        imagedestroy($dstImg);
+        imagedestroy($srcImg);
+        return (bool)$saved;
     }
 
     /**

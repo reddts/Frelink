@@ -9,6 +9,8 @@ use think\exception\ValidateException;
 
 class Topic extends Api
 {
+    protected $needLogin = ['save_setting', 'create'];
+
     // 话题列表
     public function index()
     {

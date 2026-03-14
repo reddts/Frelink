@@ -7,7 +7,7 @@
                 <tbody>
                 <tr class="border-0">
                     <td style="text-align: left" class="border-0">
-                        <b>当前版本：</b>WeCenter V{:config('version.version')}
+                        <b>当前版本：</b>FreCenter v{:config('version.version')}
                         {if $info.code==200}
                         <span class="badge badge-danger"><i class="glyphicon glyphicon-info-sign"></i> {$info.msg}</span>
                         {if isset($info.data.bind)}

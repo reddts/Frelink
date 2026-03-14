@@ -23,6 +23,8 @@ use think\exception\ValidateException;
 
 class Question extends Api
 {
+    protected $needLogin = ['publish', 'remove_answer', 'remove_question', 'manager', 'save_question_invite', 'answer_editor', 'save_answer', 'set_best_answer', 'remove_answer_comment'];
+
     //问题列表
     public function index()
     {
@@ -566,12 +568,14 @@ class Question extends Api
     public function search_question()
     {
         $keyword = $this->request->param('keyword','','trim');
-        $keyword=preg_replace('/[\'.,:;*?~`!@#$%^&+=)(<>{}]|\]|\[|\/|\\\|\"|\|/', '', trim($keyword));
-        $keyword = sqlFilter($keyword);
-
-        $sql1 = "title regexp '".$keyword."'";
+        $keyword = preg_replace('/[\'.,:;*?~`!@#$%^&+=)(<>{}]|\]|\[|\/|\\\|\"|\|/', '', trim($keyword));
+        $keyword = mb_substr((string)$keyword, 0, 64);
+        if ($keyword === '') {
+            $this->apiResult([]);
+        }
         $data = db('question')
-            ->whereRaw('status=1 AND '.$sql1)
+            ->where('status', 1)
+            ->where('title', 'regexp', $keyword)
             ->field('title,id,answer_count,focus_count')
             ->page(1,15)
             ->select()

@@ -13,7 +13,7 @@
         {if $info.data.version}
         <div class="card-body">
             <p style="color: red">
-                最新版本：WeCenter V{$info.data.version} {$info.data ? $info.data.authorize : '学习版'}
+                最新版本：FreCenter v{$info.data.version} {$info.data ? $info.data.authorize : '学习版'}
             </p>
             <p class="mb-3 font-weight-bold">更新内容：</p>
             <div class="border p-3 rounded">

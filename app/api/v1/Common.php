@@ -12,6 +12,8 @@ use app\common\library\helper\ImageHelper;
 
 class Common extends Api
 {
+    protected $needLogin = ['set_vote', 'update_focus', 'get_access_key', 'upload', 'remove_attach', 'save_draft'];
+
     /**
      * 获取分类列表
      * @return void
@@ -105,12 +107,17 @@ class Common extends Api
      */
     public function sms()
     {
-        $mobile = $this->request->param('mobile','','intval');
+        $mobile = $this->request->param('mobile','','trim');
 
-        if(!$mobile)
+        if (!preg_match('/^1[3-9]\d{9}$/', $mobile))
         {
             $this->apiResult([],-1,'请输入正确的手机号');
         }
+        $smsLockKey = 'sms_send_lock_' . md5($mobile . '|' . $this->request->ip());
+        if (cache($smsLockKey)) {
+            $this->apiResult([],-1,'请求过于频繁，请稍后再试');
+        }
+        cache($smsLockKey, 1, 60);
 
         $result = hook('sms',['mobile'=>$mobile]);
 
@@ -129,7 +136,7 @@ class Common extends Api
         {
             $this->apiResult([],-1,$result['msg']);
         }
-        $this->apiResult(['code'=>$code],1,$result['msg']);
+        $this->apiResult([],1,$result['msg']);
     }
 
     /**

@@ -130,6 +130,7 @@
                                     </div>
 
                                     <script>
+                                        window.__onDomReady(function () {
                                         $(".login-button").click(function () {
                                             var token = $("input[name='token']").val();
                                             var name = $("#mobile").val();
@@ -170,6 +171,7 @@
                                                 })
                                             }
                                         })
+                                        });
                                     </script>
                                     {else/}
                                     <input type="hidden" name="captcha" id="captcha">
@@ -199,6 +201,7 @@
                                     </div>
 
                                     <script>
+                                        window.__onDomReady(function () {
                                         $(".login-button").click(function () {
                                             {if $setting.enable_frontend_captcha=='Y'}
                                             $('#captcha').captcha({
@@ -284,6 +287,7 @@
                                                 }
                                             {/if}
                                         })
+                                        });
                                     </script>
                                     {/if}
                                 </div>

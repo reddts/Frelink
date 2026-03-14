@@ -6,6 +6,8 @@ use plugins\pay\model\OrderDetail;
 
 class Pay extends Api
 {
+    protected $needLogin = ['createOrder', 'qrcode', 'balance'];
+
     private $pay_config;
     public function initialize()
     {

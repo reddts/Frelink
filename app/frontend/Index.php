@@ -11,6 +11,7 @@
 
 namespace app\frontend;
 use app\common\controller\Frontend;
+use think\response\Response;
 
 class Index extends Frontend
 {
@@ -18,11 +19,29 @@ class Index extends Frontend
     {
         $sort = $this->request->param('sort','new');
         $type = $this->request->param('type');
+        $page = $this->request->param('page', 1, 'intval');
+        $isAjax = $this->request->isAjax() || $this->request->isPjax() || intval($this->request->param('_ajax', 0)) === 1 || intval($this->request->param('_ajax_open', 0)) === 1;
+        $canPageCache = !$this->user_id && !$isAjax && $page === 1;
+        $cacheKey = 'page_cache:index:' . md5(json_encode([
+            'sort' => (string)$sort,
+            'type' => (string)$type,
+            'lang' => (string)$this->request->cookie('aws_lang', ''),
+        ]));
+
+        if ($canPageCache && ($cachedHtml = cache($cacheKey))) {
+            return response($cachedHtml)->header(['X-Page-Cache' => 'HIT']);
+        }
+
         $this->assign([
             'sort'=> $sort,
             'type'=>$type
         ]);
         $this->TDK(get_setting('site_name'));
-		return $this->fetch();
+        $html = $this->fetch();
+        if ($canPageCache) {
+            cache($cacheKey, $html, 60);
+            return response($html)->header(['X-Page-Cache' => 'MISS']);
+        }
+		return $html;
 	}
 }

@@ -6,6 +6,8 @@ use app\model\Report;
 
 class Permission extends Api
 {
+    protected $needLogin = ['report'];
+
     //内容举报
     public function report()
     {

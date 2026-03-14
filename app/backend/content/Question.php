@@ -108,17 +108,21 @@ class Question extends Backend
         }
 
         if ($this->request->param('_list')) {
-            // 排序规则
-            $orderByColumn = $this->request->param('orderByColumn') ?? 'id';
+            $sortableColumns = ['id', 'answer_count', 'comment_count', 'view_count', 'create_time', 'update_time'];
+            $orderByColumn = (string)$this->request->param('orderByColumn', 'id');
+            if (!in_array($orderByColumn, $sortableColumns, true)) {
+                $orderByColumn = 'id';
+            }
             $isAsc = $this->request->param('isAsc') ?? 'desc';
+            $isAsc = strtolower((string)$isAsc) === 'asc' ? 'asc' : 'desc';
             $where = $this->makeBuilder->getWhere($search);
             $pageSize = $this->request->param('pageSize',get_setting("contents_per_page",15));
-            // 排序处理
+
             return db($this->table)
                 ->alias('q')
                 ->where($where)
                 ->where(['q.status' => $status])
-                ->order([$orderByColumn => $isAsc])
+                ->order(['q.' . $orderByColumn => $isAsc])
                 ->join('users u', 'q.uid=u.uid')
                 ->field('q.*,u.user_name,u.url_token')
                 ->paginate([

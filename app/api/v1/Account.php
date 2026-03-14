@@ -15,6 +15,7 @@ use app\common\controller\Api;
 class Account extends Api
 {
     protected string $wxPlatform = 'wxMiniApp';
+    protected $needLogin = ['my'];
 
     public function login()
     {
@@ -111,11 +112,7 @@ class Account extends Api
         if (!$uid) $this->apiError(Users::getError());
         // 微信小程序和用户绑定
         if ($uid && $data['register_type'] == $this->wxPlatform) {
-            db('third')->insert([
-                'uid' => $uid,
-                'openid' => $data['openid'],
-                'platform' => $this->wxPlatform
-            ]);
+            $this->bindWxPlatformAccount($uid, $data['openid'] ?? '');
         }
 
         $this->apiSuccess('注册成功', $this->getUserInfo($uid));
@@ -126,8 +123,12 @@ class Account extends Api
     public function wxminiapp_login()
     {
        try {
+            $code = trim((string)$this->request->get('code', ''));
+            if ($code === '') {
+                $this->apiError('缺少登录凭证');
+            }
             $app = WeChatHelper::instance()->getMiniProgram();
-            $data = $app->auth->session($this->request->get('code'));
+            $data = $app->auth->session($code);
             if (isset($data['errcode']) && !$data['errcode']) {
                 $wxMinAppUser = db('third')->where('platform', $this->wxPlatform)->where('openid', $data['openid'])->find(); // 微信小程序用户
                 $data['is_bind'] = $wxMinAppUser ? 1 : 0;
@@ -185,7 +186,7 @@ class Account extends Api
 
             $uid = Users::loginByMobile($data['mobile'], $data['code'], $data, 0, true, $this->wxPlatform);
         } else {
-            $data['email'] =  trim($data['trim']);
+            $data['email'] =  trim($data['email'] ?? '');
             $data['username'] = trim($data['username']);
             $data['password'] = trim($data['password']);
             // 微信输入内容安全检测
@@ -210,11 +211,7 @@ class Account extends Api
         if (!$uid) $this->apiError(Users::getError());
         // 微信小程序和用户绑定
         if ($uid) {
-            db('third')->insert([
-                'uid' => $uid,
-                'openid' => $data['openid'],
-                'platform' => $this->wxPlatform
-            ]);
+            $this->bindWxPlatformAccount($uid, $data['openid'] ?? '');
         }
 
         $userInfo = Users::getUserInfo($uid);
@@ -255,6 +252,8 @@ class Account extends Api
         if (!preg_match('/^1[3-9]\d{9}$/', $data['mobile'])) $this->apiError('请输入正确的手机号');
         if (!(get_plugins_config('sms','base') && get_plugins_config('sms','base')!='N')) $this->apiError('网站尚未安装或配置短信插件');
         if(!$data['code'] || cache('sms_'.$data['mobile']) != $data['code']) $this->apiError('短信验证码不正确');
+        $checkPassword = wcCheckPassword($data['password']);
+        if ($checkPassword !== true) $this->apiError($checkPassword);
         $uid = Users::loginByMobile($data['mobile'], $data['code'], [], 0, true);
         if (!$uid) $this->apiError(Users::getError());
         if (Users::updateUserFiled($uid, ['password' => $data['password']])) {
@@ -291,5 +290,24 @@ class Account extends Api
             'birthday' => $userInfo['birthday'] ? date('Y-m-d', $userInfo['birthday']) : '',
             'avatar' => $userInfo['avatar'] ? ImageHelper::replaceImageUrl($userInfo['avatar']) : $this->request->domain().'/static/common/image/default-avatar.svg'
         ];
+    }
+
+    protected function bindWxPlatformAccount(int $uid, string $openid): void
+    {
+        $openid = trim($openid);
+        if ($uid <= 0 || $openid === '') {
+            $this->apiError('缺少绑定参数');
+        }
+        $bindInfo = db('third')->where(['platform' => $this->wxPlatform, 'openid' => $openid])->find();
+        if ($bindInfo && intval($bindInfo['uid']) !== $uid) {
+            $this->apiError('该微信账号已绑定其他用户');
+        }
+        if (!$bindInfo) {
+            db('third')->insert([
+                'uid' => $uid,
+                'openid' => $openid,
+                'platform' => $this->wxPlatform
+            ]);
+        }
     }
 }

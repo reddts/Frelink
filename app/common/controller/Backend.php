@@ -142,10 +142,23 @@ class Backend extends Base
             $this->assign('email_tips',1);
         }
 
+        $isPartialRequest = $this->request->isAjax()
+            || $this->request->isPjax()
+            || intval($this->request->param('_ajax', 0)) === 1
+            || intval($this->request->param('_ajax_open', 0)) === 1;
+        $notifyCount = 0;
+        $notifyList = [];
+        if (!$isPartialRequest) {
+            $notifyCount = NotifyHelper::getNotifyCount();
+            $notifyList = NotifyHelper::getNotifyTextList();
+        }
+
         $this->assign([
             'baseUrl'=> $this->baseUrl,
-            'notify_count'=>NotifyHelper::getNotifyCount(),
-            'notify_list'=>NotifyHelper::getNotifyTextList(),
+            'thisController' => parse_name($this->request->controller()),
+            'thisAction' => strtolower($this->request->action()),
+            'notify_count'=>$notifyCount,
+            'notify_list'=>$notifyList,
             'user_id'=>$this->user_id,
             'version'=>env('APP_DEBUG') ? time() : config('version.version'),
             'user_info'=>$this->user_info,

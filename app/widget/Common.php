@@ -36,13 +36,37 @@ class Common extends Widget
         {
             return $this->view->display($html);
         }
+
+        $page = $this->request->param('page', 1, 'intval');
+        $canCache = !$this->user_id && strtolower($this->request->controller()) === 'index';
+        $cacheKey = 'widget_common_lists:' . md5(json_encode([
+            'item_type' => (string)$item_type,
+            'sort' => (string)$sort,
+            'topic_ids' => is_array($topic_ids) ? implode(',', $topic_ids) : (string)$topic_ids,
+            'category_id' => (string)$category_id,
+            'page' => (int)$page,
+            'focus' => (int)($sort === 'focus'),
+            'lang' => (string)$this->request->cookie('aws_lang', ''),
+        ]));
+        if ($canCache && ($cachedHtml = cache($cacheKey))) {
+            return $cachedHtml;
+        }
+
 		$data = PostRelation::getPostRelationList($this->user_id,$item_type,$sort,$topic_ids,$category_id,$this->request->param('page',1));
 		$this->assign($data);
 		if($sort=='focus')
         {
-            return $this->fetch('common/focus');
+            $html = $this->fetch('common/focus');
+            if ($canCache) {
+                cache($cacheKey, $html, 60);
+            }
+            return $html;
         }
-		return $this->fetch('common/lists');
+        $html = $this->fetch('common/lists');
+        if ($canCache) {
+            cache($cacheKey, $html, 60);
+        }
+		return $html;
 	}
 
     /**
@@ -67,7 +91,11 @@ class Common extends Widget
      */
     public function links()
     {
-        $links = db('links')->where('status',1)->select()->toArray();
+        $links = cache('widget_common_links');
+        if ($links === null) {
+            $links = db('links')->where('status',1)->select()->toArray();
+            cache('widget_common_links', $links, 300);
+        }
         foreach ($links as $k=>$v)
         {
             $links[$k]['url'] = htmlspecialchars_decode($v['url']);

@@ -12,6 +12,7 @@
 namespace app\common\logic\common;
 
 use app\common\library\helper\ReputationHelper;
+use app\common\library\helper\SitemapHelper;
 
 class CronLogic
 {
@@ -65,6 +66,11 @@ class CronLogic
     // 每日执行
     public static function day()
     {
+        // 每日生成 sitemap，提高搜索引擎抓取与收录时效
+        try {
+            SitemapHelper::generate();
+        } catch (\Exception $e) {
+        }
         hook('cronDay');
     }
 

@@ -20,46 +20,56 @@ class Index extends Backend
 
     public function index()
     {
-        $sys_info['os'] = PHP_OS;
-        $sys_info['zlib'] = function_exists('gzclose') ? 'YES' : 'NO';//zlib
-        $sys_info['safe_mode'] = (boolean)ini_get('safe_mode') ? 'YES' : 'NO';//safe_mode = Off
-        $sys_info['timezone'] = function_exists("date_default_timezone_get") ? date_default_timezone_get() : "no_timezone";
-        $sys_info['curl'] = function_exists('curl_init') ? 'YES' : 'NO';
-        $sys_info['web_server'] = $this->request->server('SERVER_SOFTWARE');
-        $sys_info['php_version'] = phpversion();
-        $sys_info['ip'] = getServerIp();
-        $sys_info['file_upload'] = @ini_get('file_uploads') ? ini_get('upload_max_filesize') : 'unknown';
-        $sys_info['max_ex_time'] = @ini_get("max_execution_time").'s'; //脚本最大执行时间
-        $sys_info['domain'] = $this->request->server('HTTP_HOST');
-        $sys_info['memory_limit'] = ini_get('memory_limit');
-        $sys_info['version'] = config('version.version');
-        $mysqlInfo = \think\facade\Db::query("SELECT VERSION() as version");
-        $sys_info['mysql_version'] = $mysqlInfo[0]['version'];
-        if (function_exists("gd_info"))
-        {
-            $gd = gd_info();
-            $sys_info['gd_info'] = $gd['GD Version'];
-        } else
-        {
-            $sys_info['gd_info'] = "未知";
+        $sysInfoCacheKey = 'admin_index_sys_info:' . md5($this->request->server('SERVER_SOFTWARE') . '|' . $this->request->server('HTTP_HOST'));
+        $sys_info = cache($sysInfoCacheKey);
+        if (!$sys_info) {
+            $sys_info['os'] = PHP_OS;
+            $sys_info['zlib'] = function_exists('gzclose') ? 'YES' : 'NO';//zlib
+            $sys_info['safe_mode'] = (boolean)ini_get('safe_mode') ? 'YES' : 'NO';//safe_mode = Off
+            $sys_info['timezone'] = function_exists("date_default_timezone_get") ? date_default_timezone_get() : "no_timezone";
+            $sys_info['curl'] = function_exists('curl_init') ? 'YES' : 'NO';
+            $sys_info['web_server'] = $this->request->server('SERVER_SOFTWARE');
+            $sys_info['php_version'] = phpversion();
+            $sys_info['ip'] = getServerIp();
+            $sys_info['file_upload'] = @ini_get('file_uploads') ? ini_get('upload_max_filesize') : 'unknown';
+            $sys_info['max_ex_time'] = @ini_get("max_execution_time").'s'; //脚本最大执行时间
+            $sys_info['domain'] = $this->request->server('HTTP_HOST');
+            $sys_info['memory_limit'] = ini_get('memory_limit');
+            $sys_info['version'] = config('version.version');
+            $mysqlInfo = \think\facade\Db::query("SELECT VERSION() as version");
+            $sys_info['mysql_version'] = $mysqlInfo[0]['version'];
+            if (function_exists("gd_info"))
+            {
+                $gd = gd_info();
+                $sys_info['gd_info'] = $gd['GD Version'];
+            } else
+            {
+                $sys_info['gd_info'] = "未知";
+            }
+            cache($sysInfoCacheKey, $sys_info, 300);
         }
 
         // 用户数据
 
-        $users_info = [
-            'users_count' => db('users')->where('status', 1)->count(),
-            'users_valid_email_count' => db('users')->where('is_valid_email', 1)->count(),
-            'column_count' => db('column')->count(),
-            'article_count' => db('article')->where('status', 1)->count(),
-            'question_count' => db('question')->where('status', 1)->count(),
-            'answer_count' => db('answer')->where('status', 1)->count(),
-            'no_answer_count' => db('question')->where('answer_count', 0)->count(),
-            'best_answer_count' => db('answer')->where('is_best', 1)->count(),
-            'topic_count' => db('topic')->where('status', 1)->count(),
-            'attach_count' => db('attach')->where('status', 1)->count(),
-            'approval_question_count' => db('approval')->where(['status' => 0, 'type' => 'question'])->count(),
-            'approval_answer_count' => db('approval')->where(['status' => 0, 'type' => 'answer'])->count(),
-        ];
+        $usersInfoCacheKey = 'admin_index_users_info';
+        $users_info = cache($usersInfoCacheKey);
+        if (!$users_info) {
+            $users_info = [
+                'users_count' => db('users')->where('status', 1)->count(),
+                'users_valid_email_count' => db('users')->where('is_valid_email', 1)->count(),
+                'column_count' => db('column')->count(),
+                'article_count' => db('article')->where('status', 1)->count(),
+                'question_count' => db('question')->where('status', 1)->count(),
+                'answer_count' => db('answer')->where('status', 1)->count(),
+                'no_answer_count' => db('question')->where('answer_count', 0)->count(),
+                'best_answer_count' => db('answer')->where('is_best', 1)->count(),
+                'topic_count' => db('topic')->where('status', 1)->count(),
+                'attach_count' => db('attach')->where('status', 1)->count(),
+                'approval_question_count' => db('approval')->where(['status' => 0, 'type' => 'question'])->count(),
+                'approval_answer_count' => db('approval')->where(['status' => 0, 'type' => 'answer'])->count(),
+            ];
+            cache($usersInfoCacheKey, $users_info, 60);
+        }
 
         $this->view->assign('sysInfo',$sys_info);
         $this->view->assign('usersInfo', $users_info);

@@ -22,6 +22,8 @@ use app\model\api\v1\UsersInbox;
  */
 class Notify extends Api
 {
+    protected $needLogin = ['*'];
+
 	public function index()
 	{
         $group = NotifyModel::getNotifyGroupInfo($this->user_id);

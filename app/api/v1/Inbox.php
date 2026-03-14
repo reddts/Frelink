@@ -16,6 +16,8 @@ use app\model\Notify as NotifyModel;
 
 class Inbox extends Api
 {
+    protected $needLogin = ['*'];
+
 	public function index()
 	{
 	    $params = $this->request->get();

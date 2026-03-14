@@ -732,7 +732,6 @@ class Users extends BaseModel
         $list = db('users')
             ->where([['uid','<>',$uid]])
             ->where($where)
-            ->orderRaw('RAND()')
             ->order($order)
             ->limit($per_page)
             ->select()

@@ -90,7 +90,7 @@
                         <tbody>
                         <tr>
                             <td align="right">当前版本</td>
-                            <td>WeCenter V{$sysInfo.version}</td>
+                            <td>FreCenter v{$sysInfo.version}</td>
                             <td align="right">服务器IP</td>
                             <td>{$sysInfo.ip}</td>
                         </tr>

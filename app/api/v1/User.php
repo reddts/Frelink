@@ -18,6 +18,8 @@ use think\exception\ValidateException;
 
 class User extends Api
 {
+    protected $needLogin = ['my', 'save_profile', 'get_notify_config', 'logout', 'modify_password', 'integral', 'draft', 'remove_draft', 'verified', 'removeUser'];
+
     // 大咖
     public function lists()
     {
@@ -114,11 +116,19 @@ class User extends Api
     // 个人主页
     public function homepage()
     {
-        $name = $this->request->get('name');
-        // 防止sql注入报错
-        if (!$name = str_replace(['"','"'],'', $name)) $this->apiResult([], 0, '访问页面不存在');
+        $name = trim((string)$this->request->get('name', ''));
+        if ($name === '') {
+            $this->apiResult([], 0, '访问页面不存在');
+        }
+        if (mb_strlen($name) > 64) {
+            $this->apiResult([], 0, '访问页面不存在');
+        }
 
-        $uid = db('users')->whereRaw("user_name='{$name}' OR nick_name='{$name}' OR url_token='{$name}'")->value('uid');
+        $uid = db('users')
+            ->where('user_name', $name)
+            ->whereOr('nick_name', $name)
+            ->whereOr('url_token', $name)
+            ->value('uid');
         if (!$uid) $this->apiResult([], 0, '用户不存在');
 
         $user = UsersModel::getUserInfo($uid);

@@ -139,14 +139,14 @@ class TemplateTag
                 $result_list[$key]['answer_info']['user_info'] = $users_info[$last_answers[$data['id']]['uid']]??['url'=>'javascript:;','uid'=>0,'name'=>'未知用户','avatar'=>'static/common/image/default-avatar.svg'];
                 $result_list[$key]['answer_info']['vote_value'] = isset($last_answers[$data['id']])?Vote::getVoteByType($last_answers[$data['id']]['id'],'answer',$uid):0;
                 $result_list[$key]['answer_info']['content'] = str_cut(strip_tags($result_list[$key]['answer_info']['content']),0,150);
-                $result_list[$key]['answer_info']['img_list'] = ImageHelper::srcList($result_list[$key]['answer_info']['content']);
+                $result_list[$key]['answer_info']['img_list'] = ImageHelper::mapThumbUrls(ImageHelper::srcList($result_list[$key]['answer_info']['content']),120,120);
             }
 
             $result_list[$key]['has_focus'] = FocusLogic::checkUserIsFocus($uid,'question',$data['id']);
 
             $result_list[$key]['vote_value'] = Vote::getVoteByType($data['id'],'question',$uid);
 
-            $result_list[$key]['img_list'] = ImageHelper::srcList($result_list[$key]['detail']);
+            $result_list[$key]['img_list'] = ImageHelper::mapThumbUrls(ImageHelper::srcList($result_list[$key]['detail']),120,120);
 
             $result_list[$key]['detail'] = str_cut(strip_tags(htmlspecialchars_decode($result_list[$key]['detail'])),0,150);
 
@@ -272,7 +272,8 @@ class TemplateTag
             $result_list[$key]['title'] = htmlspecialchars_decode($data['title']);
             $result_list[$key]['message'] = str_cut(strip_tags(htmlspecialchars_decode($data['message'])),0,120);
             $cover  = ImageHelper::srcList(htmlspecialchars_decode($data['message']));
-            $result_list[$key]['img_list'] = $cover?:[];
+            $result_list[$key]['img_list'] = ImageHelper::mapThumbUrls($cover?:[],480,320);
+            $result_list[$key]['cover'] = ImageHelper::buildThumbUrl((string)($data['cover'] ?? ''),480,320);
             $result_list[$key]['topics'] = $topic_infos[$data['id']] ?? [];
             $result_list[$key]['user_info'] = $users_info[$data['uid']] ?? ['url'=>'javascript:;','uid'=>0,'name'=>'未知用户'];
             $result_list[$key]['vote_value'] = Vote::getVoteByType($data['id'],'article',$uid);
@@ -592,14 +593,14 @@ class TemplateTag
                         $result_list[$key]['answer_info']['user_info'] = $users_info[$last_answers[$data['item_id']]['uid']]??['url'=>'javascript:;','uid'=>0,'name'=>'未知用户','avatar'=>'static/common/image/default-avatar.svg'];
                         $result_list[$key]['answer_info']['vote_value'] = Vote::getVoteByType($last_answers[$data['item_id']]['id'],'answer',$uid);
                         $result_list[$key]['answer_info']['content'] = str_cut(strip_tags($result_list[$key]['answer_info']['content']),0,150);
-                        $result_list[$key]['answer_info']['img_list'] = ImageHelper::srcList($result_list[$key]['answer_info']['content']);
+                        $result_list[$key]['answer_info']['img_list'] = ImageHelper::mapThumbUrls(ImageHelper::srcList($result_list[$key]['answer_info']['content']),120,120);
                     }
 
                     $result_list[$key]['has_focus'] = FocusLogic::checkUserIsFocus($uid,'question',$data['item_id']);
 
                     //$detail = $result_list[$key]['answer_info'] ? $result_list[$key]['answer_info']['content'] : $result_list[$key]['detail'];
                     $result_list[$key]['vote_value'] = Vote::getVoteByType($data['item_id'],'question',$uid);
-                    $result_list[$key]['img_list'] = ImageHelper::srcList($result_list[$key]['detail']);
+                    $result_list[$key]['img_list'] = ImageHelper::mapThumbUrls(ImageHelper::srcList($result_list[$key]['detail']),120,120);
 
                     $result_list[$key]['detail'] = str_cut(strip_tags($result_list[$key]['detail']),0,150);
 
@@ -626,7 +627,8 @@ class TemplateTag
 
                     $result_list[$key]['item_type'] = 'article';
                     $cover  = ImageHelper::srcList($article_infos[$data['item_id']]['message']);
-                    $result_list[$key]['img_list'] = $cover;
+                    $result_list[$key]['img_list'] = ImageHelper::mapThumbUrls($cover ?: [],480,320);
+                    $result_list[$key]['cover'] = ImageHelper::buildThumbUrl((string)($result_list[$key]['cover'] ?? ''),480,320);
                     $result_list[$key]['topics'] = $topic_infos['article'][$data['item_id']] ?? [];
                     $result_list[$key]['user_info'] = $users_info[$data['uid']] ?? ['url'=>'javascript:;','uid'=>0,'name'=>'未知用户'];
                     $result_list[$key]['vote_value'] = Vote::getVoteByType($data['item_id'],'article',$uid);

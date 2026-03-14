@@ -49,7 +49,12 @@ class Sidebar extends Widget
      */
     public function focusTopic($uid)
     {
-        $topic_list = Topic::getFocusTopicByRand($uid);
+        $cache_key = 'widget_sidebar_focus_topic_' . intval($uid);
+        $topic_list = cache($cache_key);
+        if ($topic_list === null) {
+            $topic_list = Topic::getFocusTopicByRand($uid);
+            cache($cache_key, $topic_list, 120);
+        }
         $this->assign('topic_list',$topic_list);
         return $this->fetch('sidebar/focus_topic');
     }
@@ -64,7 +69,12 @@ class Sidebar extends Widget
      */
 	public function hotTopic($uid,array $where=[],array $order=[],int $limit=5)
 	{
-		$topic_list = Topic::getHotTopics($uid,$where,$order,$limit);
+        $cache_key = 'widget_sidebar_hot_topic_' . intval($uid) . '_' . md5(json_encode([$where,$order,$limit]));
+        $topic_list = cache($cache_key);
+        if ($topic_list === null) {
+            $topic_list = Topic::getHotTopics($uid,$where,$order,$limit);
+            cache($cache_key, $topic_list, 120);
+        }
 		$this->assign('topic_list',$topic_list['data']);
 		return $this->fetch('sidebar/hot_topic');
 	}
@@ -79,7 +89,12 @@ class Sidebar extends Widget
      */
 	public function hotUsers(int $uid=0, $where=[], $order=[], $limit=5)
     {
-        $people_list = Users::getHotUsers($uid,$where,$order,$limit);
+        $cache_key = 'widget_sidebar_hot_users_' . intval($uid) . '_' . md5(json_encode([$where,$order,$limit]));
+        $people_list = cache($cache_key);
+        if ($people_list === null) {
+            $people_list = Users::getHotUsers($uid,$where,$order,$limit);
+            cache($cache_key, $people_list, 120);
+        }
         $this->assign('people_list',$people_list);
         return $this->fetch('sidebar/hot_users');
     }
@@ -140,7 +155,12 @@ class Sidebar extends Widget
                 $where[]=['recommend','=',1];
                 break;
         }
-        $list =  db('column')->where($where)->orderRaw('RAND()')->order($order)->page($page,$per_page)->select()->toArray();
+        $cache_key = 'widget_sidebar_hot_column_' . intval($uid) . '_' . $sort . '_' . intval($page) . '_' . intval($per_page);
+        $list = cache($cache_key);
+        if ($list === null) {
+            $list =  db('column')->where($where)->order($order)->page($page,$per_page)->select()->toArray();
+            cache($cache_key, $list, 120);
+        }
         foreach ($list as $key => $value)
         {
             $list[$key]['description'] = str_cut(strip_tags(htmlspecialchars_decode($value['description'])),0,50) ;
@@ -154,12 +174,17 @@ class Sidebar extends Widget
     //公告
     public function announce($page=1,$per_page=3)
     {
-        $announce_list =  db('announce')
-            ->where(['status'=>1])
-            ->order(['set_top_time'=>'DESC','sort'=>'DESC'])
-            ->page($page,$per_page)
-            ->select()
-            ->toArray();
+        $cache_key = 'widget_sidebar_announce_' . intval($page) . '_' . intval($per_page);
+        $announce_list = cache($cache_key);
+        if ($announce_list === null) {
+            $announce_list =  db('announce')
+                ->where(['status'=>1])
+                ->order(['set_top_time'=>'DESC','sort'=>'DESC'])
+                ->page($page,$per_page)
+                ->select()
+                ->toArray();
+            cache($cache_key, $announce_list, 120);
+        }
 
         if($announce_list)
         {

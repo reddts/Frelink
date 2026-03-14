@@ -1,7 +1,9 @@
-User-agent: Googlebot
-Disallow: /nogooglebot/
-
 User-agent: *
 Allow: /
+Disallow: /admin.php
+Disallow: /install/
+Disallow: /runtime/
+Disallow: /update/
+Disallow: /plugins/
 
 Sitemap: https://www.frelink.top/sitemap.xml

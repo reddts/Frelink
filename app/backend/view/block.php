@@ -2,6 +2,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {php}
+    $controllerName = strtolower((string)($thisController ?? request()->controller()));
+    $actionName = strtolower((string)($thisAction ?? request()->action()));
+    // 后台资源按需策略在部分页面会导致依赖缺失，先恢复核心资源全量加载保证功能稳定
+    $needTableAssets = true;
+    $needTreeAssets = true;
+    $needEditorAssets = true;
+    {/php}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>{:isset($page_title) && $page_title  ? $page_title : (isset($breadCrumb['left']) ? $breadCrumb['left'][0] : get_setting('site_name'))} - 后台管理</title>
@@ -10,17 +18,25 @@
     <base href="{$baseUrl}/" /><!--[if IE]></base><![endif]-->
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
     <link rel="stylesheet" href="/static/libs/layui/css/layui.css?v={$version|default='1.0.0'}">
-    <link rel="stylesheet" href="/static/libs/jstree/dist/themes/default/style.css?v={$version|default='1.0.0'}">
     <link rel="stylesheet" href="/static/libs/webuploader/webuploader.css?v={$version|default='1.0.0'}">
     <!--<link rel="stylesheet" href="/static/common/css/ui.css">-->
     <link rel="stylesheet" type="text/css" href="{$cdnUrl}/static/common/js/module/module.min.css?v={$version}" media="screen" />
     <link rel="stylesheet" href="{$cdnUrl}/static/libs/select2/css/select2.min.css?v={$version|default='1.0.0'}">
+    {if $needTableAssets}
     <link rel="stylesheet" href="{$cdnUrl}/static/libs/bootstrap-table/bootstrap-table.min.css?v={$version|default='1.0.0'}"/>
     <link rel="stylesheet" href="{$cdnUrl}/static/libs/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.min.css?v={$version|default='1.0.0'}"/>
+    {/if}
+    {if $needEditorAssets}
     <link rel="stylesheet" href="{$cdnUrl}/static/libs/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css?v={$version|default='1.0.0'}"/>
-    <link rel="stylesheet" href="{$cdnUrl}/static/libs/bootstrap-table/extensions/editable/css/bootstrap-editable.css?v={$version|default='1.0.0'}"/>
     <link rel="stylesheet" href="{$cdnUrl}/static/libs/codemirror/codemirror.css?v={$version|default='1.0.0'}">
     <link rel="stylesheet" href="{$cdnUrl}/static/libs/codemirror/theme/material.css?v={$version|default='1.0.0'}">
+    {/if}
+    {if $needTableAssets}
+    <link rel="stylesheet" href="{$cdnUrl}/static/libs/bootstrap-table/extensions/editable/css/bootstrap-editable.css?v={$version|default='1.0.0'}"/>
+    {/if}
+    {if $needTreeAssets}
+    <link rel="stylesheet" href="/static/libs/jstree/dist/themes/default/style.css?v={$version|default='1.0.0'}">
+    {/if}
     <link rel="stylesheet" href="{$cdnUrl}/static/admin/plugins/fontawesome-free/css/all.min.css?v={$version|default='1.0.0'}">
     <link rel="stylesheet" href="{$cdnUrl}/static/admin/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css?v={$version|default='1.0.0'}">
     <link rel="stylesheet" href="{$cdnUrl}/static/admin/plugins/icheck-bootstrap/icheck-bootstrap.min.css?v={$version|default='1.0.0'}">
@@ -48,10 +64,13 @@
     <script src="{$cdnUrl}/static/libs/webuploader/webuploader.js?v={$version|default='1.0.0'}"></script>
     <script src="{$cdnUrl}/static/libs/pjax/jquery.pjax.js"></script>
     <script src="{$cdnUrl}/static/libs/select2/js/select2.full.min.js?v={$version|default='1.0.0'}"></script>
+    {if $needTreeAssets}
     <script type="text/javascript" src="{$cdnUrl}/static/libs/ztree/js/jquery.ztree.core.js?v={$version|default='1.0.0'}"></script>
     <script type="text/javascript" src="{$cdnUrl}/static/libs/ztree/js/jquery.ztree.excheck.js?v={$version|default='1.0.0'}"></script>
     <script src="{$cdnUrl}/static/libs/jstree/dist/jstree.min.js?v={$version|default='1.0.0'}"></script>
+    {/if}
 
+    {if $needTableAssets}
     <script src="{$cdnUrl}/static/libs/bootstrap-table/bootstrap-table.min.js?v={$version|default='1.0.0'}"></script>
     <script src="{$cdnUrl}/static/libs/bootstrap-table/locale/bootstrap-table-zh-CN.min.js?v={$version|default='1.0.0'}"></script>
 
@@ -65,6 +84,8 @@
     <script src="{$cdnUrl}/static/libs/bootstrap-table/extensions/multiple-sort/bootstrap-table-multiple-sort.js?v={$version|default='1.0.0'}"></script>
     <script src="{$cdnUrl}/static/libs/bootstrap-table/extensions/editable/js/bootstrap-editable.min.js?v={$version|default='1.0.0'}"></script>
     <script src="{$cdnUrl}/static/libs/bootstrap-table/extensions/editable/bootstrap-table-editable.min.js?v={$version|default='1.0.0'}"></script>
+    {/if}
+    {if $needEditorAssets}
     <script src="{$cdnUrl}/static/libs/codemirror/codemirror.js?v={$version|default='1.0.0'}"></script>
     <script src="{$cdnUrl}/static/libs/codemirror/mode/css/css.js?v={$version|default='1.0.0'}"></script>
     <script src="{$cdnUrl}/static/libs/codemirror/mode/xml/xml.js?v={$version|default='1.0.0'}"></script>
@@ -72,6 +93,7 @@
     <script src="{$cdnUrl}/static/libs/codemirror/mode/htmlmixed/htmlmixed.js?v={$version|default='1.0.0'}"></script>
 
     <script src="{$cdnUrl}/static/libs/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js?v={$version|default='1.0.0'}"></script>
+    {/if}
     <script type="text/javascript" src="{$cdnUrl}/static/common/js/module/module.min.js?v={$version}"></script>
     <script type="text/javascript" src="{$cdnUrl}/static/libs/swiper/swiper.min.js?v={$version|default='1.0.0'}"></script>
     <script>
@@ -257,10 +279,10 @@
 
     {block name="footer"}
     <footer class="main-footer">
-        <strong>Copyright © {:date('Y')} <a href="https://wenda.isimpo.com">WeCenter</a>.</strong>
+        <strong>Copyright © {:date('Y')}.</strong>
         All rights reserved.
         <div class="float-right d-none d-sm-inline-block">
-            <b><a class="font-w600" href="https://wenda.isimpo.com" target="_blank">WeCenter V{:config('version.version')}</a></b>
+            <b>v{:config('version.version')}</b>
         </div>
     </footer>
     {/block}

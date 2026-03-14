@@ -20,6 +20,8 @@ use app\model\api\v1\Column;
 
 class Article extends Api
 {
+    protected $needLogin = ['publish', 'manager', 'remove_article'];
+
     //文章列表
     public function index()
     {

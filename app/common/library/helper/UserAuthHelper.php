@@ -71,6 +71,13 @@ class UserAuthHelper {
             $checkPath = strtolower(request()->controller()).'/'.strtolower(request()->action());
         }
 
+        $isLogin = $this->getUserId() ? 1 : 0;
+        $cacheKey = 'user_auth_nav:' . md5($menu_type . '|' . $checkPath . '|' . $isLogin);
+        $cachedNav = cache($cacheKey);
+        if ($cachedNav !== null) {
+            return $cachedNav;
+        }
+
         $_menu =db('menu_rule')
             ->where(['status'=>1,'group'=>$menu_type])
             ->order(['sort'=>'asc','id'=>'asc'])
@@ -122,7 +129,9 @@ class UserAuthHelper {
             }
             $menu[$key]['url'] = htmlspecialchars_decode($menu[$key]['url']);
         }
-        return TreeHelper::instance()->init($menu)->getTreeArray(0);
+        $result = TreeHelper::instance()->init($menu)->getTreeArray(0);
+        cache($cacheKey, $result, 300);
+        return $result;
     }
 
     public function getUserId()

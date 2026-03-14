@@ -22,6 +22,12 @@ use think\helper\Str;
 class NotifyHelper
 {
     /**
+     * 当前请求内缓存，避免同一请求重复统计
+     * @var array|null
+     */
+    protected static $notifyCountData = null;
+
+    /**
      * 获取通知数量
      * @return int
      */
@@ -40,7 +46,18 @@ class NotifyHelper
     //返回通知数量
     public static function notifyCount(): array
     {
-        return [
+        if (self::$notifyCountData !== null) {
+            return self::$notifyCountData;
+        }
+
+        $cacheKey = 'admin_notify_count_all';
+        $cached = cache($cacheKey);
+        if (is_array($cached)) {
+            self::$notifyCountData = $cached;
+            return $cached;
+        }
+
+        $data = [
             'question_approval_count' => db('approval')->where(['type' => 'question', 'status' => 0])->count(),
             'article_approval_count' => db('approval')->where(['type' => 'article', 'status' => 0])->count(),
             'answer_approval_count' => db('approval')->where(['type' => 'answer', 'status' => 0])->count(),
@@ -53,6 +70,10 @@ class NotifyHelper
             'verify_approval_count' => db('users_verify')->where(['status' => 1])->count(),
             'column_approval_count' => db('column')->where(['verify' => 0])->count(),
         ];
+
+        cache($cacheKey, $data, 30);
+        self::$notifyCountData = $data;
+        return $data;
     }
 
     /**

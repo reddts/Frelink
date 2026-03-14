@@ -1,7 +1,21 @@
 {extend name="$theme_block" /}
 {block name="header"}
 {if get_theme_setting('home.search_enable')=='Y'}
-<div class="w-top-img" style="background: url('{$theme_config['home']['search_bg']|default=$static_url.'images/top-img.png'}') center center; background-size:auto 100%;">
+<style>
+    .w-top-img-default {
+        background: url('{$static_url}images/top-img.png') center center;
+        background-size: auto 100%;
+    }
+    @supports (background-image: image-set(url("x.webp") 1x)) {
+        .w-top-img-default {
+            background-image: image-set(
+                url('{$static_url}images/top-img.webp') 1x,
+                url('{$static_url}images/top-img.png') 1x
+            );
+        }
+    }
+</style>
+<div class="w-top-img {if empty($theme_config['home']['search_bg'])}w-top-img-default{/if}" {if !empty($theme_config['home']['search_bg'])}style="background: url('{$theme_config['home']['search_bg']}') center center; background-size:auto 100%;"{/if}>
     {include file="global/nav"}
     <div class="container index-search">
         <div class="row">

@@ -240,6 +240,11 @@ class AuthHelper
         //当前URL
 
         $route = $route ?: Request::controller() . '/' . lcfirst(Request::action());
+        $cacheKey = 'admin_breadcrumb:' . md5((string)$route);
+        $cached = cache($cacheKey);
+        if (is_array($cached)) {
+            return $cached;
+        }
 
         //查找名称
         $data = db($this->config['auth_rule'])->where('name', '=', $route)->find();
@@ -274,6 +279,7 @@ class AuthHelper
                 'icon'  => 'fa fa-dashboard',
             ];
         }
+        cache($cacheKey, $result, 300);
         return $result;
     }
 
@@ -367,6 +373,19 @@ class AuthHelper
         //检验权限地址
         $checkPath = $controller.'/'.strtolower($actionName);
         $plugin = request()->plugin;
+
+        $cacheKey = 'admin_tree_menu:' . md5(json_encode([
+            'uid' => intval(session('admin_login_uid')),
+            'path' => (string)$checkPath,
+            'plugin' => (string)$plugin,
+            'menu_type' => (string)get_setting('admin_menu_type'),
+            'mobile' => Request::isMobile() ? 1 : 0,
+        ]));
+        $cached = cache($cacheKey);
+        if (is_array($cached)) {
+            return $cached;
+        }
+
         $_menu =db($this->config['auth_rule'])->where('status', 1)
             ->order(['sort'=>'asc','id'=>'asc'])
             ->select()
@@ -447,7 +466,9 @@ class AuthHelper
             TreeHelper::instance()->init($_menu);
             $menu = TreeHelper::instance()->getTreeMenu(0, '<li class="nav-item"><a href="@url" class="nav-link @class" data-pjax="mainTab"><i class="@icon"></i> <p>@title <i class="right fas fa-angle-left"></i></p></a> @childlist</li>', [$select_id], '', 'ul', 'class="nav nav-treeview"');
         }
-        return ['_menu'=>$menu, '_nav'=>$nav, '_current_menu'=>$selected];
+        $result = ['_menu'=>$menu, '_nav'=>$nav, '_current_menu'=>$selected];
+        cache($cacheKey, $result, 120);
+        return $result;
     }
 	/**
 	 * 获取配置文件

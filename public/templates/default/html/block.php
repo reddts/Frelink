@@ -17,27 +17,60 @@
     <title>{block name="meta_title"} {$_page_title|default=""} {/block}</title>
     <meta name="keywords" content="{block name='meta_keywords'}{$_page_keywords|default=""}{/block}">
     <meta name="description" content="{block name='meta_description'} {$_page_description|default=""} {/block}">
-    <link rel="stylesheet" href="{$cdnUrl}/static/libs/swiper/swiper.min.css">
-    <link rel="stylesheet" href="{$cdnUrl}/static/libs/layui/css/layui.css?v={$version}">
-    <link rel="stylesheet" href="{$cdnUrl}/static/libs/highlight/styles/tomorrow.css?v={$version}">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="{:request()->domain().request()->baseUrl()}">
+    {if $thisController=='index' && $thisAction=='index'}
+    <link rel="preload" as="image" href="{$static_url}images/top-img.webp" type="image/webp">
+    <link rel="preload" as="image" href="{$static_url}images/top-img.png" type="image/png">
+    {/if}
+    <link rel="preload" as="font" href="{$cdnUrl}/static/common/fonts/fontawesome-webfont.woff2?v=4.7.0" type="font/woff2" crossorigin>
+    <link rel="preload" as="font" href="{$cdnUrl}/static/common/fonts/iconfont.woff2?t=1649211101792" type="font/woff2" crossorigin>
+    <link rel="preload" as="style" href="{$cdnUrl}/static/libs/swiper/swiper.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" as="style" href="{$cdnUrl}/static/libs/layui/css/layui.css?v={$version}" onload="this.onload=null;this.rel='stylesheet'">
+    {if $needHighlightAssets}
+    <link rel="preload" as="style" href="{$cdnUrl}/static/libs/highlight/styles/tomorrow.css?v={$version}" onload="this.onload=null;this.rel='stylesheet'">
+    {/if}
     <link rel="stylesheet" href="{$cdnUrl}/static/common/fonts/fonts.min.css?v={$version|default='1.0.0'}">
     <link rel="stylesheet" href="{$cdnUrl}/static/common/css/bootstrap.min.css?v={$version}">
-    <link rel="stylesheet" type="text/css" href="{$cdnUrl}/static/common/js/module/module.min.css?v={$version}" media="screen" />
-    <link rel="stylesheet" type="text/css" href="{$cdnUrl}/static/libs/captcha/css/captcha.css?v={$version}" />
+    <link rel="preload" as="style" href="{$cdnUrl}/static/common/js/module/module.min.css?v={$version}" onload="this.onload=null;this.rel='stylesheet'">
+    {if $needCaptchaAssets}
+    <link rel="preload" as="style" href="{$cdnUrl}/static/libs/captcha/css/captcha.css?v={$version}" onload="this.onload=null;this.rel='stylesheet'">
+    {/if}
     <link rel="stylesheet" type="text/css" href="{$static_url}css/{:env('app_debug') ? 'app.css':'app.min.css'}">
+    <noscript>
+        <link rel="stylesheet" href="{$cdnUrl}/static/libs/swiper/swiper.min.css">
+        <link rel="stylesheet" href="{$cdnUrl}/static/libs/layui/css/layui.css?v={$version}">
+        {if $needHighlightAssets}
+        <link rel="stylesheet" href="{$cdnUrl}/static/libs/highlight/styles/tomorrow.css?v={$version}">
+        {/if}
+        <link rel="stylesheet" href="{$cdnUrl}/static/common/js/module/module.min.css?v={$version}">
+        {if $needCaptchaAssets}
+        <link rel="stylesheet" href="{$cdnUrl}/static/libs/captcha/css/captcha.css?v={$version}">
+        {/if}
+    </noscript>
     {block name="meta_style"}{/block}
     <!--[if lt IE 9]>
     <script type="text/javascript" src="{$cdnUrl}/static/common/js/html5.min.js?v={$version}"></script>
     <script type="text/javascript" src="{$cdnUrl}/static/common/js/respond.min.js?v={$version}"></script>
     <![endif]-->
     <script type="text/javascript" src="{$cdnUrl}/static/admin/plugins/jquery/jquery.min.js?v={$version}"></script>
-    <script type="text/javascript" src="{$cdnUrl}/static/admin/plugins/jquery-ui/jquery-ui.min.js?v={$version}"></script>
-    <script type="text/javascript" src="{$cdnUrl}/static/admin/plugins/bootstrap/js/bootstrap.bundle.min.js?v={$version}"></script>
-    <script type="text/javascript" src="{$cdnUrl}/static/libs/swiper/swiper.min.js"></script>
-    <script type="text/javascript" src="{$cdnUrl}/static/libs/layui/layui.all.js?v={$version}"></script>
-    <script type="text/javascript" src="{$cdnUrl}/static/libs/webuploader/webuploader.js?v={$version}"></script>
-    <script type="text/javascript" src="{$cdnUrl}/static/common/js/module/module.min.js?v={$version}"></script>
+    <script defer type="text/javascript" src="{$cdnUrl}/static/admin/plugins/jquery-ui/jquery-ui.min.js?v={$version}"></script>
+    <script defer type="text/javascript" src="{$cdnUrl}/static/admin/plugins/bootstrap/js/bootstrap.bundle.min.js?v={$version}"></script>
+    <script defer type="text/javascript" src="{$cdnUrl}/static/libs/swiper/swiper.min.js"></script>
+    <script defer type="text/javascript" src="{$cdnUrl}/static/libs/layui/layui.all.js?v={$version}"></script>
+    {if $needUploaderAssets}
+    <script defer type="text/javascript" src="{$cdnUrl}/static/libs/webuploader/webuploader.js?v={$version}"></script>
+    {/if}
+    <script defer type="text/javascript" src="{$cdnUrl}/static/common/js/module/module.min.js?v={$version}"></script>
     <script>
+        window.__onDomReady = function (callback) {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', callback);
+            } else {
+                callback();
+            }
+        };
+
         window.userId = parseInt("{$user_id|default='0'}");
         window.userName = "{$user_info['nick_name']|default=''}";
         window.baseUrl = '{$baseUrl}';
@@ -53,17 +86,20 @@
         window.isAjaxOpen = parseInt("{$_ajax_open?1:0}");
         window.pjaxEnable =  "{$setting.pjax_enable=='Y' ? 1 : 0}" ;
         window.cronEnable = "{$setting.cron_enable=='Y' ? 1 : 0}"
-        //代码高亮
-        document.addEventListener('DOMContentLoaded', (event) => {
-            document.querySelectorAll('pre code').forEach((block) => {
+        // 代码高亮（依赖 hljs）
+        window.__onDomReady(function () {
+            if (!window.hljs) return;
+            document.querySelectorAll('pre code').forEach(function (block) {
                 hljs.highlightBlock(block);
             });
         });
     </script>
-    <script type="text/javascript" src="{$cdnUrl}/static/libs/captcha/captcha.js?v={$version}"></script>
-    <script src="{$cdnUrl}/static/common/js/tools.js?v={$version}" type="text/javascript"></script>
-    <script src="{$cdnUrl}/static/common/js/aws.js?v={$version}" type="text/javascript"></script>
-    <script src="{$cdnUrl}/static/common/js/app.js?v={$version}"></script>
+    {if $needCaptchaAssets}
+    <script defer type="text/javascript" src="{$cdnUrl}/static/libs/captcha/captcha.js?v={$version}"></script>
+    {/if}
+    <script defer src="{$cdnUrl}/static/common/js/tools.js?v={$version}" type="text/javascript"></script>
+    <script defer src="{$cdnUrl}/static/common/js/aws.js?v={$version}" type="text/javascript"></script>
+    <script defer src="{$cdnUrl}/static/common/js/app.js?v={$version}"></script>
     {:hook('globalAssert')}
     {block name="meta_script"} {/block}
 </head>
@@ -273,7 +309,7 @@
 <div class="foot">
     <div class="container justify-content-center">
         <div class="py-3 footauto clearfix">
-            <div class="float-left ">All Rights Reserved Frelink ©{:date('Y',time())}  Powered By WeCenter <a target="_blank" class="ml-3" rel="noopener noreferrer" href="https://beian.miit.gov.cn/">{$setting.icp}</a></div>
+            <div class="float-left ">All Rights Reserved Frelink ©{:date('Y',time())} <a target="_blank" class="ml-3" rel="noopener noreferrer" href="https://beian.miit.gov.cn/">{$setting.icp}</a></div>
             {if $footerMenu}
             <div class="float-right">
                 <ul>
@@ -288,55 +324,67 @@
 </div>
 <a class="aw-back-top hidden-xs" href="javascript:;" onclick="$.scrollTo(1, 600, {queue:true});"><i class="icon-arrow-up-circle"></i></a>
 <script>
-    $(function () {
-        let topNavSwiper = new Swiper('.swiper-nav-container', {
+    __onDomReady(function () {
+        if (!window.Swiper) return;
+        new Swiper('.swiper-nav-container', {
             speed: 600,
             grabCursor: true,
             slidesPerView: "auto",
             initialSlide: 0,
             slidesPerGroup: 1
-        })
-    })
+        });
+    });
 </script>
 {if $user_id && !$user_info['is_valid_email'] && $user_info['email'] && $setting['register_valid_type']=='email'}
 <script>
-    var str = '<div class="p-3"><a href="javascript:;" class="aw-ajax-get text-danger" data-url="{:url('account/send_valid_mail')}">{:L('你的邮箱 %s 还未验证,点击这里重新发送验证邮件',$user_info.email)}</a></div>';
-    var width =$(window).width() > 600 ? '600px' : '85%';
-    layer.open({
-        title: '',
-        type: 1,
-        scrollbar: false,
-        shade: 0.7,
-        area: [width],
-        content: str,
-    })
+    __onDomReady(function () {
+        if (!window.layer || !window.jQuery) return;
+        var str = '<div class="p-3"><a href="javascript:;" class="aw-ajax-get text-danger" data-url="{:url('account/send_valid_mail')}">{:L('你的邮箱 %s 还未验证,点击这里重新发送验证邮件',$user_info.email)}</a></div>';
+        var width = window.jQuery(window).width() > 600 ? '600px' : '85%';
+        layer.open({
+            title: '',
+            type: 1,
+            scrollbar: false,
+            shade: 0.7,
+            area: [width],
+            content: str,
+        });
+    });
 </script>
 {/if}
 
 {if $user_id && $user_info['is_first_login']}
 <script>
-    AWS.User.firstLogin();
+    __onDomReady(function () {
+        if (window.AWS && AWS.User) {
+            AWS.User.firstLogin();
+        }
+    });
 </script>
 {/if}
 
 <script>
-    //导航悬浮
-    var topMain = $(".navbox").height();
-    $(window).scroll(function(){
-        if ($(window).scrollTop()>topMain + 200){
-            $('.navbox').addClass('suspension');
-        }
-        else
-        {
-            $('.navbox').removeClass('suspension');
-        }
+    __onDomReady(function () {
+        if (!window.jQuery) return;
+        var $ = window.jQuery;
+        //导航悬浮
+        var topMain = $(".navbox").height();
+        $(window).scroll(function(){
+            if ($(window).scrollTop()>topMain + 200){
+                $('.navbox').addClass('suspension');
+            }
+            else
+            {
+                $('.navbox').removeClass('suspension');
+            }
 
-        //更换logo
-        if($('.navbox').hasClass('suspension')){
-            $(".logoimg").attr('src',"{$setting['site_logo']|default=$static_url.'images/logo-color.jpg'}");
-        }else(
-            $(".logoimg").attr('src',"{:get_theme_setting('common.bg_logo') ? : $static_url.'images/logo-write.png'}")
-        )
+            //更换logo
+            if($('.navbox').hasClass('suspension')){
+                $(".logoimg").attr('src',"{$setting['site_logo']|default=$static_url.'images/logo-color.jpg'}");
+            } else {
+                $(".logoimg").attr('src',"{:get_theme_setting('common.bg_logo') ? : $static_url.'images/logo-write.png'}");
+            }
+        });
     });
 </script>
 
@@ -376,18 +424,21 @@
     </div>
 </div>
 <script>
-    var mb = AWS.common.browser();
-    if ("IE10" !== mb  && "FF" !== mb && "Chrome" !== mb && "Safari" !== mb) {
-        var width =$(window).width() > 600 ? '600px' : '85%';
-        layer.open({
-            title: '',
-            type: 1,
-            scrollbar: false,
-            shade: 0.7,
-            area: [width],
-            content: $('#browserCheck').html(),
-        })
-    }
+    __onDomReady(function () {
+        if (!window.AWS || !AWS.common || !window.layer || !window.jQuery) return;
+        var mb = AWS.common.browser();
+        if ("IE10" !== mb  && "FF" !== mb && "Chrome" !== mb && "Safari" !== mb) {
+            var width = window.jQuery(window).width() > 600 ? '600px' : '85%';
+            layer.open({
+                title: '',
+                type: 1,
+                scrollbar: false,
+                shade: 0.7,
+                area: [width],
+                content: window.jQuery('#browserCheck').html(),
+            })
+        }
+    });
 </script>
 {/if}
 {if !$_ajax && !$_ajax_open}

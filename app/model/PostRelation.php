@@ -11,7 +11,6 @@
 namespace app\model;
 use app\common\library\helper\ImageHelper;
 use app\common\library\helper\LogHelper;
-use app\logic\common\FocusLogic;
 use think\Model;
 
 class PostRelation extends Model
@@ -327,6 +326,93 @@ class PostRelation extends Model
             $question_infos = Question::getQuestionByIds($question_ids);
         }
 
+        $question_ids = array_values(array_unique(array_filter($question_ids)));
+        $answer_ids = array_values(array_unique(array_filter($answer_ids)));
+
+        $question_answered_map = [];
+        $question_focus_map = [];
+        $question_vote_map = [];
+        $article_vote_map = [];
+        $answer_vote_map = [];
+        $question_answer_users = [];
+
+        if ($uid && $question_ids) {
+            $question_answered_map = db('answer')
+                ->where(['uid' => intval($uid), 'status' => 1])
+                ->whereIn('question_id', $question_ids)
+                ->column('id', 'question_id');
+
+            $question_focus_map = db('question_focus')
+                ->where(['uid' => intval($uid), 'status' => 1])
+                ->whereIn('question_id', $question_ids)
+                ->column('id', 'question_id');
+
+            $question_vote_map = Vote::getVoteByItemIds('question', $question_ids, null, $uid) ?: [];
+        }
+
+        if ($uid && $article_ids) {
+            $article_vote_map = Vote::getVoteByItemIds('article', $article_ids, null, $uid) ?: [];
+        }
+
+        $related_answer_ids = [];
+        if ($last_answers) {
+            foreach ($last_answers as $last_answer) {
+                if (!empty($last_answer['id'])) {
+                    $related_answer_ids[] = intval($last_answer['id']);
+                }
+            }
+        }
+        if ($answers) {
+            foreach ($answers as $answer) {
+                if (!empty($answer['id'])) {
+                    $related_answer_ids[] = intval($answer['id']);
+                }
+            }
+        }
+        $related_answer_ids = array_values(array_unique(array_filter($related_answer_ids)));
+        if ($uid && $related_answer_ids) {
+            $answer_vote_map = Vote::getVoteByItemIds('answer', $related_answer_ids, null, $uid) ?: [];
+        }
+
+        $enableAnswerUsers = get_setting('list_answer_users_enable', 'N') === 'Y';
+        if ($enableAnswerUsers && $question_ids) {
+            $answer_user_rows = db('answer')
+                ->where(['status' => 1])
+                ->whereIn('question_id', $question_ids)
+                ->field('question_id,uid,agree_count,id')
+                ->order('question_id', 'asc')
+                ->order('agree_count', 'desc')
+                ->order('id', 'desc')
+                ->select()
+                ->toArray();
+
+            $question_user_uids = [];
+            $question_answer_uid_map = [];
+            foreach ($answer_user_rows as $row) {
+                $qid = intval($row['question_id']);
+                if (!isset($question_answer_uid_map[$qid])) {
+                    $question_answer_uid_map[$qid] = [];
+                }
+                if (count($question_answer_uid_map[$qid]) >= 3) {
+                    continue;
+                }
+                $question_answer_uid_map[$qid][] = intval($row['uid']);
+                $question_user_uids[] = intval($row['uid']);
+            }
+
+            if ($question_user_uids) {
+                $question_user_info = Users::getUserInfoByIds(array_values(array_unique($question_user_uids)),'user_name,avatar,nick_name,uid');
+                foreach ($question_answer_uid_map as $qid => $uids) {
+                    $question_answer_users[$qid] = [];
+                    foreach ($uids as $auid) {
+                        if (isset($question_user_info[$auid])) {
+                            $question_answer_users[$qid][] = $question_user_info[$auid];
+                        }
+                    }
+                }
+            }
+        }
+
 		$users_info = Users::getUserInfoByIds($data_list_uid,'user_name,avatar,nick_name,uid',99);
 
 		foreach ($contents as $key => $data)
@@ -339,28 +425,26 @@ class PostRelation extends Model
                     $result_list[$key]['answer_info'] = $last_answers[$data['item_id']] ?? false;
 
                     //是否已回答
-                    $result_list[$key]['is_answer'] = $uid ? db('answer')->where(['uid'=>$uid,'question_id'=>$data['item_id'],'status'=>1])->value('id') : 0;
+                    $result_list[$key]['is_answer'] = $uid ? intval($question_answered_map[$data['item_id']] ?? 0) : 0;
 
                     //回答用户
-                    $answerUidLists = db('answer')->where(['question_id'=>$data['id'],'status'=>1])->order('agree_count','DESC')->limit(3)->column('uid');
-                    $result_list[$key]['answer_users'] = $answerUidLists ? Users::getUserInfoByIds($answerUidLists,'user_name,avatar,nick_name,uid'):[];
+                    $result_list[$key]['answer_users'] = $question_answer_users[$data['item_id']] ?? [];
 
                     if($result_list[$key]['answer_info']){
                         $result_list[$key]['answer_info']['user_info'] = $users_info[$last_answers[$data['item_id']]['uid']]??['url'=>'javascript:;','uid'=>0,'name'=>'未知用户','avatar'=>'/static/common/image/default-avatar.svg'];
-                        $result_list[$key]['answer_info']['vote_value'] = Vote::getVoteByType($last_answers[$data['item_id']]['id'],'answer',$uid);
+                        $result_list[$key]['answer_info']['vote_value'] = intval($answer_vote_map[$last_answers[$data['item_id']]['id']]['vote_value'] ?? 0);
                         $result_list[$key]['answer_info']['content'] = str_cut(strip_tags($result_list[$key]['answer_info']['content']),0,150);
-                        $result_list[$key]['answer_info']['img_list'] = ImageHelper::srcList($result_list[$key]['answer_info']['content']);
+                        $result_list[$key]['answer_info']['img_list'] = ImageHelper::mapThumbUrls(ImageHelper::srcList($result_list[$key]['answer_info']['content']),120,120);
                     }
 
-                    $result_list[$key]['has_focus'] = FocusLogic::checkUserIsFocus($uid,'question',$data['item_id']);
+                    $result_list[$key]['has_focus'] = $uid ? intval($question_focus_map[$data['item_id']] ?? 0) : 0;
 
                     //$detail = $result_list[$key]['answer_info'] ? $result_list[$key]['answer_info']['content'] : $result_list[$key]['detail'];
-                    $result_list[$key]['vote_value'] = Vote::getVoteByType($data['item_id'],'question',$uid);
+                    $result_list[$key]['vote_value'] = intval($question_vote_map[$data['item_id']]['vote_value'] ?? 0);
 
                     $result_list[$key]['detail'] = str_cut(strip_tags($result_list[$key]['detail']),0,150);
                     $cover = ImageHelper::srcList($result_list[$key]['detail']);
-
-                    $result_list[$key]['img_list'] = $cover;
+                    $result_list[$key]['img_list'] = ImageHelper::mapThumbUrls($cover ?: [],120,120);
                     $result_list[$key]['item_type'] = 'question';
                     $result_list[$key]['topics'] = $topic_infos['question'][$data['item_id']] ?? [];
                     $result_list[$key]['user_info'] = $users_info[$data['uid']] ?? ['url'=>'javascript:;','uid'=>0,'name'=>'未知用户','avatar'=>'/static/common/image/default-avatar.svg'];
@@ -384,10 +468,11 @@ class PostRelation extends Model
 
                     $result_list[$key]['item_type'] = 'article';
                     $cover  = ImageHelper::srcList($article_infos[$data['item_id']]['message']);
-                    $result_list[$key]['img_list'] = $cover;
+                    $result_list[$key]['img_list'] = ImageHelper::mapThumbUrls($cover ?: [],480,320);
+                    $result_list[$key]['cover'] = ImageHelper::buildThumbUrl((string)($result_list[$key]['cover'] ?? ''),480,320);
                     $result_list[$key]['topics'] = $topic_infos['article'][$data['item_id']] ?? [];
                     $result_list[$key]['user_info'] = $users_info[$data['uid']] ?? ['url'=>'javascript:;','uid'=>0,'name'=>'未知用户'];
-                    $result_list[$key]['vote_value'] = Vote::getVoteByType($data['item_id'],'article',$uid);
+                    $result_list[$key]['vote_value'] = intval($article_vote_map[$data['item_id']]['vote_value'] ?? 0);
                     $result_list[$key]['item_id'] = intval($data['item_id']);
                     $result_list[$key]['item_type'] = $data['item_type'];
                     $result_list[$key]['post_id'] = intval($data['id']);
@@ -402,27 +487,25 @@ class PostRelation extends Model
                     $result_list[$key]['answer_info'] = $answers[$data['item_id']];
 
                     //是否已回答
-                    $result_list[$key]['is_answer'] = $uid ? db('answer')->where(['uid'=>$uid,'question_id'=>$question_id,'status'=>1])->value('id') : 0;
+                    $result_list[$key]['is_answer'] = $uid ? intval($question_answered_map[$question_id] ?? 0) : 0;
 
                     //回答用户
-                    $answerUidLists = db('answer')->where(['id'=>$data['item_id'],'status'=>1])->order('agree_count','DESC')->limit(3)->column('uid');
-                    $result_list[$key]['answer_users'] = $answerUidLists ? Users::getUserInfoByIds($answerUidLists,'user_name,avatar,nick_name,uid'):[];
+                    $result_list[$key]['answer_users'] = $question_answer_users[$question_id] ?? [];
 
                     if($result_list[$key]['answer_info']){
                         $result_list[$key]['answer_info']['user_info'] = $users_info[$answers[$data['item_id']]['uid']]??['url'=>'javascript:;','uid'=>0,'name'=>'未知用户','avatar'=>'/static/common/image/default-avatar.svg'];
-                        $result_list[$key]['answer_info']['vote_value'] = Vote::getVoteByType($answers[$data['item_id']]['id'],'answer',$uid);
+                        $result_list[$key]['answer_info']['vote_value'] = intval($answer_vote_map[$answers[$data['item_id']]['id']]['vote_value'] ?? 0);
                         $result_list[$key]['answer_info']['content'] = str_cut(strip_tags($result_list[$key]['answer_info']['content']),0,150);
-                        $result_list[$key]['answer_info']['img_list'] = ImageHelper::srcList($result_list[$key]['answer_info']['content']);
+                        $result_list[$key]['answer_info']['img_list'] = ImageHelper::mapThumbUrls(ImageHelper::srcList($result_list[$key]['answer_info']['content']),120,120);
                     }
 
-                    $result_list[$key]['has_focus'] = FocusLogic::checkUserIsFocus($uid,'question',$question_id);
+                    $result_list[$key]['has_focus'] = $uid ? intval($question_focus_map[$question_id] ?? 0) : 0;
 
-                    $result_list[$key]['vote_value'] = Vote::getVoteByType($question_id,'question',$uid);
+                    $result_list[$key]['vote_value'] = intval($question_vote_map[$question_id]['vote_value'] ?? 0);
 
                     $result_list[$key]['detail'] = str_cut(strip_tags($result_list[$key]['detail']),0,150);
                     $cover = ImageHelper::srcList($result_list[$key]['detail']);
-
-                    $result_list[$key]['img_list'] = $cover;
+                    $result_list[$key]['img_list'] = ImageHelper::mapThumbUrls($cover ?: [],120,120);
                     $result_list[$key]['topics'] = $topic_infos['question'][$question_id] ?? [];
                     $result_list[$key]['user_info'] = $users_info[$data['uid']] ?? ['url'=>'javascript:;','uid'=>0,'name'=>'未知用户','avatar'=>'/static/common/image/default-avatar.svg'];
                     $result_list[$key]['item_id'] = intval($question_id);

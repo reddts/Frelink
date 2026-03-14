@@ -276,22 +276,27 @@ class Users extends Backend
             if ($forbiddenIp) {
                 $where[] = ['forbidden_ip', '=', 1];
             } else {
-                $where = [
+                $where = array_merge($where, [
                     ['status', '=', $status],
                     ['forbidden_ip', '=', 0]
-                ];
+                ]);
             }
 
             if($user_name = $this->request->post('user_name'))
             {
-                $where[] = ['user_name','LIKE',$user_name];
+                $where[] = ['user_name','LIKE','%'.$user_name.'%'];
             }
 
-            // 排序规则
+            $sortableColumns = ['uid', 'create_time', 'last_login_time', 'reputation_group_id', 'integral_group_id', 'group_id'];
+            $orderByColumn = (string)$this->request->param('orderByColumn', 'uid');
+            if (!in_array($orderByColumn, $sortableColumns, true)) {
+                $orderByColumn = 'uid';
+            }
             $isAsc = $this->request->param('isAsc') ?? 'desc';
+            $isAsc = strtolower((string)$isAsc) === 'asc' ? 'asc' : 'desc';
             $pageSize = $this->request->param('pageSize',get_setting("contents_per_page",15));
             return db('users')
-                ->order('uid',$isAsc)
+                ->order($orderByColumn, $isAsc)
                 ->where($where)
                 ->paginate([
                     'query'     => Request::get(),

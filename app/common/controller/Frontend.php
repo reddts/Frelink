@@ -2,6 +2,7 @@
 namespace app\common\controller;
 use app\common\library\helper\CheckHelper;
 use app\common\library\helper\StringHelper;
+use app\common\library\helper\SitemapHelper;
 use app\common\library\helper\TemplateHelper;
 use app\common\library\helper\UserAuthHelper;
 use app\common\library\helper\WeChatHelper;
@@ -10,6 +11,7 @@ use app\model\Users;
 use think\App;
 use think\exception\HttpResponseException;
 use think\facade\Config;
+use think\facade\Db;
 use think\facade\Request;
 use think\helper\Str;
 
@@ -35,10 +37,14 @@ class Frontend extends Base
     protected $userAuth;
     protected $themePath;
     protected $baseUrl;
+    protected $requestStartTime = 0.0;
+    protected $sqlTimings = [];
+    protected $slowSql = [];
 
     public function __construct(App $app)
     {
         parent::__construct($app);
+        $this->requestStartTime = microtime(true);
 
         //检查IP封禁
         $this->checkIpAllowed();
@@ -49,6 +55,7 @@ class Frontend extends Base
         $root = '/'.ltrim($root,'/');
         $this->baseUrl = rtrim(Request::domain().$root,'/');
         $this->theme = TemplateHelper::instance()->getDefaultTheme();
+        $this->autoRefreshSitemap();
 
         $this->settings = get_setting();
         $this->themePath = get_setting('cdn_url',$this->baseUrl).'/templates/'.$this->theme.'/static/';
@@ -78,6 +85,10 @@ class Frontend extends Base
         $this->controller = $controller;
 
         $this->action = Str::snake($this->request->action());
+        $this->bootSqlPerfMonitor();
+        $needCaptchaAssets = in_array($this->controller, ['account', 'question', 'article']);
+        $needUploaderAssets = in_array($this->controller, ['question', 'article', 'setting', 'upload']);
+        $needHighlightAssets = in_array($this->controller, ['question', 'article', 'search', 'topic', 'feature']);
         $theme_block = public_path().'templates/'.$this->theme.'/html/block.php';
         $this->assign([
             'baseUrl'=> $this->baseUrl,
@@ -98,7 +109,10 @@ class Frontend extends Base
             'footerMenu'=>$this->userAuth->getNav($this->controller.'/'.$this->action,'footer'),//底部导航
             'integral_rule'=>db('integral_rule')->where(['status'=>1])->cache(true)->column('integral','name'),
             'theme_block'=>$theme_block,
-            'theme_config'=>get_theme_setting()
+            'theme_config'=>get_theme_setting(),
+            'needCaptchaAssets'=>$needCaptchaAssets ? 1 : 0,
+            'needUploaderAssets'=>$needUploaderAssets ? 1 : 0,
+            'needHighlightAssets'=>$needHighlightAssets ? 1 : 0
         ]);
 
         //站点关闭检查
@@ -143,6 +157,100 @@ class Frontend extends Base
 
         // 控制器初始化
         $this->initialize();
+    }
+
+    /**
+     * 核心列表页 SQL P95 采样：首页/问题/文章/话题
+     */
+    protected function bootSqlPerfMonitor(): void
+    {
+        $targetRoutes = [
+            'index/index',
+            'question/index',
+            'article/index',
+            'topic/index',
+        ];
+        $route = $this->controller . '/' . $this->action;
+        if (!in_array($route, $targetRoutes, true)) {
+            return;
+        }
+        if ($this->request->isAjax() || $this->request->isPjax()) {
+            return;
+        }
+
+        Db::listen(function ($sql, $time = 0) {
+            $duration = is_numeric($time) ? (float)$time : 0.0;
+            // TP 中 listen 的 time 常见为秒；统一换算到 ms
+            if ($duration > 0 && $duration < 1) {
+                $duration *= 1000;
+            }
+            $this->sqlTimings[] = $duration;
+            if ($duration >= 50) {
+                $sqlText = is_string($sql) ? $sql : (is_object($sql) && method_exists($sql, '__toString') ? (string)$sql : '');
+                $this->slowSql[] = ['ms' => round($duration, 3), 'sql' => substr($sqlText, 0, 300)];
+            }
+        });
+
+        register_shutdown_function(function () {
+            $totalMs = (microtime(true) - $this->requestStartTime) * 1000;
+            $sqlCount = count($this->sqlTimings);
+            $sqlTotalMs = $sqlCount ? array_sum($this->sqlTimings) : 0;
+            $p95Ms = 0.0;
+            if ($sqlCount > 0) {
+                $times = $this->sqlTimings;
+                sort($times);
+                $index = (int)ceil($sqlCount * 0.95) - 1;
+                if ($index < 0) {
+                    $index = 0;
+                }
+                $p95Ms = (float)$times[$index];
+            }
+
+            $log = [
+                'time' => date('Y-m-d H:i:s'),
+                'route' => $this->controller . '/' . $this->action,
+                'query' => $this->request->query(),
+                'request_ms' => round($totalMs, 3),
+                'sql_count' => $sqlCount,
+                'sql_total_ms' => round($sqlTotalMs, 3),
+                'sql_p95_ms' => round($p95Ms, 3),
+                'slow_sql_count' => count($this->slowSql),
+                'slow_sql_top3' => array_slice($this->slowSql, 0, 3),
+            ];
+
+            $logDir = runtime_path() . 'log';
+            if (!is_dir($logDir)) {
+                @mkdir($logDir, 0755, true);
+            }
+            @file_put_contents($logDir . DIRECTORY_SEPARATOR . 'perf_sql.log', json_encode($log, JSON_UNESCAPED_UNICODE) . PHP_EOL, FILE_APPEND);
+        });
+    }
+
+    /**
+     * 自动维护 sitemap，避免手动生成
+     */
+    protected function autoRefreshSitemap(): void
+    {
+        if ($this->request->isAjax() || $this->request->isPost() || $this->request->isPjax()) {
+            return;
+        }
+
+        // 10分钟内仅检查一次，避免频繁 IO
+        if (cache('sitemap_auto_check_lock')) {
+            return;
+        }
+        cache('sitemap_auto_check_lock', 1, 600);
+
+        $sitemapFile = public_path() . 'sitemap.xml';
+        $needRefresh = !is_file($sitemapFile) || (time() - filemtime($sitemapFile) > 86400);
+        if (!$needRefresh) {
+            return;
+        }
+
+        try {
+            SitemapHelper::generate($this->baseUrl);
+        } catch (\Exception $e) {
+        }
     }
 
     public function initialize()

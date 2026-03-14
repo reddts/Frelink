@@ -17,6 +17,8 @@ use app\model\api\v1\Invitation as InvitationModel;
 
 class Invitation extends Api
 {
+    protected $needLogin = ['*'];
+
     public function index()
     {
         $page = $this->request->param('page',1,'intval');
@@ -27,7 +29,7 @@ class Invitation extends Api
             'records'=>InvitationModel::records($where, $page, $page_size),
             'quota'=>InvitationModel::availableCount($this->user_info),
             'hasInvite'=>InvitationModel::hadInvitationCount($this->user_id),
-            'hasRegister'=>InvitationModel::whereRaw('active_uid IS NOT NULL AND uid='.$this->user_id.' AND active_status=2')->count()
+            'hasRegister'=>InvitationModel::whereNotNull('active_uid')->where(['uid'=>$this->user_id, 'active_status'=>2])->count()
         ];
         $this->apiResult($data,1,'获取成功');
     }
@@ -51,7 +53,7 @@ class Invitation extends Api
 
         if ($type=='email') {
             if (!$invitation_email || !MailHelper::isEmail($invitation_email))  $this->apiResult([],0,L('请填写正确的邮箱地址'));
-            if (Users::checkUserExist($invitation_email)) $ $this->apiResult([],0,L('该邮箱已被使用请更换邮箱'));
+            if (Users::checkUserExist($invitation_email)) $this->apiResult([],0,L('该邮箱已被使用请更换邮箱'));
             if (InvitationModel::emailHadInvitation($this->user_id, $invitation_email))  $this->apiResult([],0,'该邮箱已在邀请注册中');
             $data['invitation_email'] = $invitation_email;
         }
@@ -74,8 +76,9 @@ class Invitation extends Api
     {
         $page = $this->request->param('page',1,'intval');
         $page_size =  $this->request->param('page_size',10,'intval');
-        $invite_ids = InvitationModel::whereRaw('active_uid IS NOT NULL AND uid='.$this->user_id.' AND active_status=2')->column('active_uid');
-        $data = $invite_ids ? \app\model\api\v1\Users::getUserList('uid IN ('.implode(',',$invite_ids).') AND status=1', '', $page,$page_size, $this->user_id) : [];
+        $invite_ids = InvitationModel::whereNotNull('active_uid')->where(['uid'=>$this->user_id, 'active_status'=>2])->column('active_uid');
+        $invite_ids = array_filter(array_map('intval', (array)$invite_ids));
+        $data = $invite_ids ? \app\model\api\v1\Users::getUserList([['uid', 'in', $invite_ids], ['status', '=', 1]], '', $page,$page_size, $this->user_id) : [];
         $this->apiResult($data,1,'获取成功');
     }
 }

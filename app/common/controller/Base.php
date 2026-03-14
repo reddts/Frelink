@@ -64,8 +64,8 @@ abstract class Base
             }
         }
 
-        //缓存配置
-        $cache_type = get_setting('cache_type','file',true);
+        // 缓存配置，避免每次请求强制刷新配置
+        $cache_type = get_setting('cache_type','file');
         Config::set([
             // 服务器地址
             'host' => get_setting('cache_host','127.0.0.1'),
@@ -78,10 +78,14 @@ abstract class Base
         if($cache_type!='file')
         {
             try {
-                if(!Cache::store($cache_type)->set('aws_cache_test', 'WeCenter'))
+                // 远程缓存健康检查降频，避免每次请求都进行网络IO
+                $cache_check_key = 'aws_cache_store_checked_' . $cache_type;
+                if (!cache($cache_check_key) && !Cache::store($cache_type)->set('aws_cache_test', 'WeCenter', 60))
                 {
-                   Cache::store('file');
+                    Cache::store('file');
                     db('config')->where(['name'=>'cache_type'])->update(['value'=>'file']);
+                } else {
+                    cache($cache_check_key, 1, 300);
                 }
             }catch (\Exception $e){
                 Cache::store('file');

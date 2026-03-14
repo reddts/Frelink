@@ -22,9 +22,12 @@ class CheckHelper
     {
         if (get_setting('online_check')=='Y')
         {
-            //删除过期用户
-            $map[] = array('last_login_time','<', time() - (int)get_setting('online_check_time') * 60);
-            db('users_online')->where($map)->delete();
+            // 删除过期用户操作做节流，避免每个请求都执行 delete
+            if (!cache('users_online_cleanup_lock')) {
+                $map[] = array('last_login_time','<', time() - (int)get_setting('online_check_time') * 60);
+                db('users_online')->where($map)->delete();
+                cache('users_online_cleanup_lock', 1, 300);
+            }
 
             //更新在线过期时间
             $user_info = session('login_user_info');
@@ -50,7 +53,7 @@ class CheckHelper
                         db('users_online')->insert($updateData);
                     }
 
-                    cache('last_login_time_'.$user_info['uid'],$last_login_time,60);
+                    cache('last_login_time_'.$user_info['uid'], time(), 60);
                 }
             }
         }

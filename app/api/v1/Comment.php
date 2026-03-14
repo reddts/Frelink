@@ -9,6 +9,8 @@ use app\model\Question as QuestionModel;
 
 class Comment extends Api
 {
+    protected $needLogin = ['save_comment', 'remove_comment'];
+
     //获取评论列表
     public function get_comments()
     {

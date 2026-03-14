@@ -181,15 +181,15 @@ trait Jump
     {
         if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN']) {
             $info = parse_url($_SERVER['HTTP_ORIGIN']);
-            /*if(config('app.cors_request_domain'))
-            {
-                $domainArr = explode(',', config('app.cors_request_domain'));
-            }*/
-            $domainArr=['*'];
-
+            $corsRequestDomain = (string)config('app.cors_request_domain', '');
+            $domainArr = $corsRequestDomain ? array_filter(array_map('trim', explode(',', $corsRequestDomain))) : [];
             $domainArr[] = request()->host(true);
-            if (in_array("*", $domainArr) || in_array($_SERVER['HTTP_ORIGIN'], $domainArr) || (isset($info['host']) && in_array($info['host'], $domainArr))) {
+            $domainArr = array_values(array_unique($domainArr));
+            $allowAll = in_array('*', $domainArr, true);
+
+            if ($allowAll || in_array($_SERVER['HTTP_ORIGIN'], $domainArr, true) || (isset($info['host']) && in_array($info['host'], $domainArr, true))) {
                 header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
+                header("Vary: Origin");
             } else {
                 $response = Response::create('跨域检测无效', 'html', 403);
                 throw new HttpResponseException($response);

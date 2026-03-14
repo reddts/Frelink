@@ -13,6 +13,8 @@ use app\model\api\v1\Column as ColumnModel;
 
 class Column extends Api
 {
+    protected $needLogin = ['my', 'apply', 'collect'];
+
     // 专栏列表
     public function index()
     {

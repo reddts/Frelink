@@ -45,7 +45,7 @@
                                     <dl class="position-relative">
                                         <dt>
                                             <a href="{:url('topic/detail',['id'=>$v['id']])}">
-                                                <div style='background-image:url("{$v.pic|default='/static/common/image/topic.svg'}") ;background-size: cover;width:64px;height:64px' class="rounded"></div>
+                                                <img src="{$v.pic|default='/static/common/image/topic.svg'}" class="rounded" alt="{$v.title|default='topic'}" width="64" height="64" loading="lazy" decoding="async" style="object-fit:cover;">
                                             </a>
                                         </dt>
                                         <dd class="info position-relative">
