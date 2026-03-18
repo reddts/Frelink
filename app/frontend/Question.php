@@ -11,6 +11,7 @@
 
 namespace app\frontend;
 use app\common\library\helper\FormatHelper;
+use app\common\library\helper\HtmlHelper;
 use app\common\library\helper\PopularHelper;
 use app\model\Approval;
 use app\model\Attach;
@@ -331,6 +332,8 @@ class Question extends Frontend
         //更新问题热度值
         PopularHelper::calcQuestionPopularValue($question_id);
 
+        $question_info['detail'] = HtmlHelper::normalizeContentHtml($question_info['detail']);
+
 		//问题用户信息
 		$question_info['user_info'] = Users::getUserInfo($question_info['uid']);
 		$question_info['user_focus'] = (bool)Users::checkFocus($this->user_id, $question_info['uid']);
@@ -388,6 +391,7 @@ class Question extends Frontend
 
             foreach ($answer['data'] as $key=>$val)
             {
+                $answer['data'][$key]['content'] = HtmlHelper::normalizeContentHtml(html_entity_decode($val['content']));
                 $answer['data'][$key]['user_focus'] = (bool)Users::checkFocus($this->user_id, $val['uid']);
                 $answer['data'][$key]['vote_value'] = Vote::getVoteByType($val['id'],'answer',$this->user_id);
                 $answer['data'][$key]['has_thanks'] = db('answer_thanks')->where(['answer_id'=>$val['id'],'uid'=>$this->user_id])->value('id') ? 1 : 0;
@@ -445,6 +449,7 @@ class Question extends Frontend
 		$answer = Answer::getAnswerByQid($data,$order);
 		foreach ($answer['data'] as $key=>$val)
         {
+            $answer['data'][$key]['content'] = HtmlHelper::normalizeContentHtml(html_entity_decode($val['content']));
             $answer['data'][$key]['has_uninterested'] = db('uninterested')->where(['item_id'=>$val['id'],'item_type'=>'answer','uid'=>$this->user_id])->value('id')  ? 1 : 0;
             $answer['data'][$key]['has_thanks'] = db('answer_thanks')->where(['answer_id'=>$val['id'],'uid'=>$this->user_id])->value('id') ? 1 : 0;
             $answer['data'][$key]['vote_value'] = Vote::getVoteByType($val['id'],'answer',$this->user_id);

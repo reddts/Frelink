@@ -6,11 +6,11 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse newnavbar" id="navbarNavDropdown" style="justify-content: space-between">
-                <div class="swiper-nav-container position-relative" style="max-width: 370px;z-index: 1">
-                    <ul class="navbar-nav navbar-new-nav swiper-wrapper">
+                <div class="nav-links-container position-relative" style="max-width: 370px;z-index: 1">
+                    <ul class="navbar-nav navbar-new-nav">
                         {foreach $navMenu as $k=>$v}
                         {if $k<5}
-                        <li class="nav-item swiper-slide {$v.active ? 'cur' : ''} clearfix" style="width: auto!important">
+                        <li class="nav-item {$v.active ? 'cur' : ''} clearfix" style="width: auto!important">
                             {if $v.child_list}
                             <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{$v.title}</a>
                             <div class="dropdown-menu text-center" aria-labelledby="navbarDropdownMenuLink">
@@ -25,7 +25,7 @@
                         {/if}
                         {/foreach}
                         {if count($navMenu)>5}
-                        <li class="nav-item swiper-slide {$v.active ? 'cur' : ''} clearfix" style="width: auto!important">
+                        <li class="nav-item {$v.active ? 'cur' : ''} clearfix" style="width: auto!important">
                             <a class="nav-link dropdown-toggle" href="#"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{:L('更多')}</a>
                             <div class="dropdown-menu text-center" aria-labelledby="navbarDropdownMenuLink">
                                 {foreach $navMenu as $k=>$v1}
@@ -39,6 +39,7 @@
                     </ul>
                 </div>
                 <div class="nav-form position-relative" style="text-align:right;z-index: 2">
+                    <div class="nav-search-actions d-flex align-items-center justify-content-end">
                     <form class="position-relative aw-form-search d-inline-block" action="{:url('search/index')}" method="get" id="awGlobalSearch">
                         <div class="searchbox">
                             <input id="globalSearchInput" class="aw-search-input" autocomplete="off" placeholder="{:L('请输入您想搜索的内容')}" value="{:input('get.q')}"  name="q" type="text">
@@ -56,7 +57,12 @@
                             </div>
                         </div>
                     </form>
+                    {if !$user_id}
+                    <a {if $theme_config['common']['login_type']=='dialog'}href="javascript:;" onclick="AWS.User.login()" {else/}href="{:url('account/login')}"{/if} class="btn btn-sm gradientBtn px-3 logon-but d-inline-flex align-items-center justify-content-center">{:L('登录')}</a>
+                    {/if}
+                    </div>
                     {if $user_id}
+                    <div class="nav-user-actions d-flex align-items-center">
                     <div class="dropdown d-inline-block mr-4 position-relative">
                         <a href="javascript:;" class="btn btn-sm gradientBtn px-3 text-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             {:L('发起')}
@@ -145,11 +151,27 @@
                             </div>
                         </div>
                     </div>
-                    {else/}
-                    <a {if $theme_config['common']['login_type']=='dialog'}href="javascript:;" onclick="AWS.User.login()" {else/}href="{:url('account/login')}"{/if} class="btn btn-sm gradientBtn px-3 logon-but d-inline-block">{:L('登录')}</a>
-                    {/if}
                     {if get_setting('enable_multilingual','N')=='Y'}
-                    <div class="dropdown d-inline-block position-relative">
+                    <div class="dropdown d-inline-block position-relative nav-lang-switch">
+                        <a href="javascript:;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="d-none d-sm-inline-block ml-1"><i class="fa fa-language font-12"></i></span>
+                        </a>
+                        <div class="dropdown-menu p-0 border-0 font-size-sm" aria-labelledby="page-header-user-dropdown">
+                            <div class="p-2 text-center">
+                                <a class="dropdown-item align-items-center aw-ajax-get" data-url="{:url('ajax/change_lang',['lang'=>'zh-cn'])}" href="JavaScript:;">
+                                    <span>{:L('中文')}</span>
+                                </a>
+                                <a class="dropdown-item align-items-center aw-ajax-get" data-url="{:url('ajax/change_lang',['lang'=>'en-us'])}" href="JavaScript:;">
+                                    <span>{:L('英文')}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {/if}
+                    </div>
+                    {/if}
+                    {if !$user_id && get_setting('enable_multilingual','N')=='Y'}
+                    <div class="dropdown d-inline-block position-relative nav-lang-switch">
                         <a href="javascript:;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="d-none d-sm-inline-block ml-1"><i class="fa fa-language font-12"></i></span>
                         </a>

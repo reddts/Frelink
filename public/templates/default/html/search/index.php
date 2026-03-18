@@ -16,7 +16,11 @@
                     <div class="search-detail-list bg-white" id="tabMain">
                         <div class="search-detail-info mb-2 clearfix px-3 pt-3">
                             <div class="search-discuss-info">
+                                {if $keywords}
                                 "<em style="font-style: normal;color: red">{:urldecode($keywords)}</em>" {:L('搜索结果')},{:L('为您找到约')} {$total} {:L('条结果')}
+                                {else/}
+                                {:L('请输入关键词开始搜索')}
+                                {/if}
                             </div>
                         </div>
                         {if !empty($list)}

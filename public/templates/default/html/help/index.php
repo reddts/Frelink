@@ -8,10 +8,10 @@
 {/block}
 {block name="main"}
 <div class="container" style="margin-top: -100px">
-    <div class="bg-white p-3" style="border-radius: 10px">
+    <div class="bg-white p-3 aw-content-shell help-shell" style="border-radius: 10px">
         <div class="text-center py-3">
-            <h2 class="col-12 font-weight-bolder">{:L('快速找到解决方案，轻松解决问题')}</h2>
-            <p class="mb-3 w-100 text-muted mt-3">3 {:L('分钟快速创建你的知识社区')}</p>
+            <h2 class="col-12 font-weight-bolder aw-content-title">{:L('快速找到解决方案，轻松解决问题')}</h2>
+            <p class="mb-3 w-100 text-muted mt-3 help-summary-inline">3 {:L('分钟快速创建你的知识社区')}</p>
         </div>
         <div class="col-12 pb-3">
             <form action="{:url('search/index')}" method="get" id="homeSearch">
@@ -28,7 +28,7 @@
     <div class="row">
         {foreach $list as $k=>$v}
         <div class="col-md-3">
-            <div class="bg-white p-3" style="border-radius: 10px">
+            <div class="bg-white p-3 aw-content-shell help-card" style="border-radius: 10px">
                 <div class="d-flex pb-2">
                     {if $v.image}
                     <div class="flex-fill mr-2" style="background-image:url({$v.image});background-size:cover;width: 1.5rem;max-width:1.5rem;height: 1.5rem;border-radius: 5px;"></div>

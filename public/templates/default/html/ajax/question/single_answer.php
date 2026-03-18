@@ -21,9 +21,9 @@
     </div>
     {/if}
 </div>
-<div class="aw-content">
+<div class="aw-content aw-content-body aw-answer-content-wrap">
     <div class="aw-answer-content overflow-hidden">
-        {:html_entity_decode($info.content)}
+        {$info.content|raw}
     </div>
     {if $info.content}
     <div class="aw-answer-show aw-alpha-hidden" style="display: none">
@@ -142,9 +142,9 @@
         </div>
         {/if}
     </div>
-    <div class="aw-content">
+    <div class="aw-content aw-content-body aw-answer-content-wrap">
         <div class="aw-answer-content overflow-hidden">
-            {:html_entity_decode($info.content)}
+            {$info.content|raw}
         </div>
         {if $info.content}
         <div class="aw-answer-show aw-alpha-hidden" style="display: none">

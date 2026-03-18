@@ -290,7 +290,15 @@ class AuthHelper
 	 */
 	public function match($authArr = null): bool
     {
-		$authArr = is_array($authArr) ? $authArr : explode(',', $authArr);
+		if (is_array($authArr)) {
+			$authArr = $authArr;
+		} else {
+			$authArr = trim((string) $authArr);
+			$authArr = $authArr === '' ? [] : explode(',', $authArr);
+		}
+		$authArr = array_values(array_filter(array_map('trim', $authArr), static function ($item) {
+			return $item !== '';
+		}));
 		if (!$authArr) {
 			return false;
 		}

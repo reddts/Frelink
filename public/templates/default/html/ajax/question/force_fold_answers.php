@@ -1,6 +1,6 @@
 {if $list}
 {foreach $list as $k=>$v}
-<div class="aw-answer-item p-3 mb-1 bg-white" data-uninterested_count="{$v.uninterested_count}" id="question-answer-{$v.id}" data-answer-id="{$v.id}">
+<div class="aw-answer-item aw-content-shell p-3 mb-1 bg-white" data-uninterested_count="{$v.uninterested_count}" id="question-answer-{$v.id}" data-answer-id="{$v.id}">
     <div class="user-details-card pt-0 pb-2 position-relative clearfix">
         <div class="user-details-card-avatar float-left" style="position: relative">
             {if $v.is_anonymous}
@@ -27,9 +27,9 @@
         {/if}
     </div>
 
-    <div class="aw-content">
+    <div class="aw-content aw-content-body aw-answer-content-wrap">
         <div class="aw-answer-content overflow-hidden">
-            {:html_entity_decode($v.content)}
+            {$v.content|raw}
         </div>
         {if $v.content}
         <div class="aw-answer-show aw-alpha-hidden" style="display: none">

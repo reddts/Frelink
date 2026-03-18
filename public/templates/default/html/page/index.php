@@ -3,14 +3,14 @@
 <div class="container mt-2">
     <div class="row justify-content-between">
         <div class="aw-left radius col-md-9 mb-2">
-            <div class="bg-white p-3">
-                <h2 class="my-3 text-center">{$info.title|raw}</h2>
+            <div class="bg-white p-3 aw-page-card aw-content-shell">
+                <h2 class="my-3 text-center aw-page-title aw-content-title">{$info.title|raw}</h2>
                 {if $info.description}
-                <div class="bg-light my-2 p-3">
+                <div class="bg-light my-2 p-3 aw-page-summary aw-content-meta">
                     {$info.description|raw}
                 </div>
                 {/if}
-                <div class="aw-content">
+                <div class="aw-content aw-page-content aw-content-body">
                     {$info.contents|raw}
                 </div>
             </div>

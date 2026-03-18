@@ -2,6 +2,7 @@
 namespace app\frontend;
 
 use app\common\controller\Frontend;
+use app\common\library\helper\HtmlHelper;
 use app\model\Help as HelpModel;
 class Help extends Frontend
 {
@@ -20,6 +21,7 @@ class Help extends Frontend
         $info = db('help_chapter')->where(['url_token'=>$token,'status'=>1])->find();
         if(!$info) $this->error('帮助章节不存在','index');
         $data = HelpModel::getRelationHelpChapterList($info['id'],$page);
+        $info['description'] = HtmlHelper::normalizeContentHtml(htmlspecialchars_decode((string) $info['description']));
 
         $this->assign($data);
         $this->assign([

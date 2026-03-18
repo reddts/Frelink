@@ -65,6 +65,8 @@ class PhpAnalysis
     private $simpleResult = array();
     //最终结果(用空格分开的词汇列表)
     private $finallyResult = '';
+    //最终结果索引
+    private $finallyIndex = array();
     
     //是否已经载入词典
     public $isLoadDic = false;

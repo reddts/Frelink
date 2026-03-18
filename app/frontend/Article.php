@@ -13,6 +13,7 @@ namespace app\frontend;
 
 use app\common\controller\Frontend;
 use app\common\library\helper\FormatHelper;
+use app\common\library\helper\HtmlHelper;
 use app\common\library\helper\LogHelper;
 use app\common\library\helper\PopularHelper;
 use app\model\Approval;
@@ -267,6 +268,7 @@ class Article extends Frontend
         PopularHelper::calcArticlePopularValue($id);
 
         $article_info['title'] = htmlspecialchars_decode($article_info['title']);
+        $article_info['message'] = HtmlHelper::normalizeContentHtml($article_info['message']);
 
 		//举报状态
 		$article_info['is_report'] = Report::getReportInfo($article_info['id'], 'article', $this->user_id);

@@ -478,7 +478,7 @@ class Topic extends BaseModel
             {
                 $val['url_token'] = $pinyin->permalink($val['title'],'');
             }
-            $val['description'] = str_cut(strip_tags(htmlspecialchars_decode($val['description'])),0,150);
+            $val['description'] = str_cut(strip_tags(htmlspecialchars_decode($val['description'] ?? '')),0,150);
             $result[$val['id']] = $val;
         }
         return $result;
@@ -489,7 +489,7 @@ class Topic extends BaseModel
     {
         if (!$topic = db('topic')->where('id', $id)->find()) return false;
         $topic['url_token'] = (new Pinyin())->permalink($topic['title'],'');
-        $topic['description'] = str_cut(strip_tags(htmlspecialchars_decode($topic['description'])),0,150);
+        $topic['description'] = str_cut(strip_tags(htmlspecialchars_decode($topic['description'] ?? '')),0,150);
         return $topic;
     }
 

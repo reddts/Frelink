@@ -1385,6 +1385,10 @@ var AWS = {
     },
 
     Dropdown:{
+        isMobileSearch: function ()
+        {
+            return window.matchMedia && window.matchMedia('(max-width: 990px)').matches;
+        },
         // 下拉菜单功能绑定
         bind_dropdown_list: function(selector, type)
         {
@@ -1392,6 +1396,10 @@ var AWS = {
             {
                 $(selector).focus(function()
                 {
+                    if (AWS.Dropdown.isMobileSearch()) {
+                        $(selector).parent().find('div.aw-dropdown').hide();
+                        return;
+                    }
                     $(selector).parent().find('div.aw-dropdown').show();
                 });
             }
@@ -1419,6 +1427,11 @@ var AWS = {
 
                 if (type == 'search')
                 {
+                    if (AWS.Dropdown.isMobileSearch())
+                    {
+                        $(selector).parent().find('.aw-dropdown').hide();
+                        return;
+                    }
                     $(selector).parent().find('.search').show().children('a').text($(selector).val());
                 }
 

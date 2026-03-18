@@ -2,6 +2,7 @@
 namespace app\frontend;
 
 use app\common\controller\Frontend;
+use app\common\library\helper\HtmlHelper;
 
 /**
  * 站点公告
@@ -21,7 +22,7 @@ class Announce extends Frontend
         {
             $this->error('公告不存在');
         }
-        $info['message'] = htmlspecialchars_decode($info['message']);
+        $info['message'] = HtmlHelper::normalizeContentHtml(htmlspecialchars_decode($info['message']));
         $this->assign([
             'info'=>$info
         ]);

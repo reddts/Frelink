@@ -10,7 +10,7 @@
 
 {block name="main"}
 <div class="container" style="margin-top: -100px">
-    <div class="bg-white p-3" style="border-radius: 10px">
+    <div class="bg-white p-3 aw-content-shell help-shell" style="border-radius: 10px">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb px-0 pt-0" style="background: transparent">
                 <li class="breadcrumb-item"><a href="{$baseUrl}">{:L('社区')}</a></li>
@@ -22,17 +22,17 @@
             {if $info.image}
             <div class="flex-fill mr-2" style="background-image:url({$info.image});background-size:cover;width:38px;max-width:38px;height: 38px;border-radius: 5px;"></div>
             {/if}
-            <h2 class="font-weight-bolder">{$info.title}</h2>
+            <h2 class="font-weight-bolder aw-content-title mb-0">{$info.title}</h2>
         </div>
 
-        <p class="mb-3 w-100 text-muted mt-3">{$info.description|raw}</p>
+        <div class="mb-3 w-100 text-muted mt-3 aw-content-meta help-summary">{$info.description|raw}</div>
     </div>
 </div>
 
 <div class="container aw-wrap mt-2">
-    <div class="bg-white p-3">
+    <div class="bg-white p-3 aw-content-shell help-list-shell">
         {if !empty($list)}
-        <ul class="pb-2">
+        <ul class="pb-2 help-link-list">
             {foreach $list as $k=>$v}
             <li class="py-1 aw-one-line"><a href="{:url($v['item_type'].'/detail',['id'=>$v['item_id']])}" target="_blank">{$v.info.title}</a></li>
             {/foreach}

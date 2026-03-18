@@ -37,7 +37,17 @@ class Search extends Frontend
         $keywords = sqlFilter($keywords);
         if(!$keywords)
         {
-            $this->redirect();
+            $this->assign([
+                'type'=>$type,
+                'sort'=>$order,
+                'list'=>[],
+                'total'=>0,
+                'keywords'=>'',
+                'page'=>'',
+                'tab_list'=>db('search_engine')->where(['status'=>1,'search_engine'=>'regexp'])->column('name,title'),
+                'search_list'=>Common::getHotSearchList(1,10)
+            ]);
+            return $this->fetch();
         }
 
         $cache_key = 'search_result_q'.md5(trim($keywords).'_search_type'.$type.'_page'.$page);

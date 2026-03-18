@@ -13,6 +13,47 @@ namespace app\common\library\helper;
 
 class HtmlHelper
 {
+    /**
+     * 统一清理富文本内容中常见的编辑器残留属性与空链接
+     * @param string|null $content
+     * @return string
+     */
+    public static function normalizeContentHtml(?string $content): string
+    {
+        $content = (string) $content;
+        if ($content === '') {
+            return '';
+        }
+
+        $patterns = [
+            '/\sdata-[a-z0-9_-]+=(["\']).*?\1/is',
+            '/\sdir=(["\']).*?\1/is',
+            '/\scontenteditable=(["\']).*?\1/is',
+            '/\sstyle=(["\'])\s*(?:background-color:\s*rgb\(255,\s*255,\s*255\);?\s*|font-size:\s*1rem;?\s*)+\1/is',
+            '/<a\b([^>]*)\shref=(["\'])\s*\2([^>]*)>(.*?)<\/a>/is',
+            '/<a\b([^>]*)>(\s*)<\/a>/is',
+        ];
+
+        $replacements = [
+            '',
+            '',
+            '',
+            '',
+            '<span$1$3>$4</span>',
+            '$2',
+        ];
+
+        $content = preg_replace($patterns, $replacements, $content);
+        $content = preg_replace('/<pre>\s*(?:(?:<div[^>]*>\s*)|(?:<\/div>\s*))+\s*<code([^>]*)>/is', '<pre><code$1>', $content);
+        $content = preg_replace('/<\/code>\s*(?:<\/div>\s*)+<\/pre>/is', '</code></pre>', $content);
+        $content = preg_replace('/<pre>\s*(?:<div>\s*<\/div>\s*)+/is', '<pre>', $content);
+        $content = preg_replace('/<pre>\s*<code([^>]*)>\s*/is', '<pre><code$1>', $content);
+        $content = preg_replace('/\s*<\/code>\s*<\/pre>/is', '</code></pre>', $content);
+        $content = preg_replace('/<p>\s*<\/p>/is', '', $content);
+
+        return $content ?: '';
+    }
+
 	/**
 	 * 替换内容中的图片地址
 	 * @param string $content 内容原始html

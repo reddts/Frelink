@@ -10,8 +10,13 @@
 {block name="main"}
 <div class="aw-wrap mt-2">
     <div class="container">
+        <button type="button" class="article-actions-handle d-md-none" id="articleActionsHandle" aria-expanded="false" aria-controls="articleActionsDrawer">
+            <i class="icon-more-horizontal"></i>
+            <span>{:L('工具')}</span>
+        </button>
+        <div class="article-actions-backdrop d-md-none" id="articleActionsBackdrop"></div>
         <div class="row">
-            <div class="col-md-1 text-center d-xs-none actions">
+            <div class="col-md-1 text-center d-xs-none actions article-actions-drawer" id="articleActionsDrawer">
                 <label class="px-1 py-2 bg-white rounded d-block mb-2">
                     <a href="javascript:;" class="aw-ajax-agree {$article_info['vote_value']==1 ? 'active' : ''}" onclick="AWS.User.agree(this,'article','{$article_info.id}');">
                         <i class="icon-thumb_up font-12"></i>
@@ -115,12 +120,12 @@
 
             </div>
             <div class="col-md-8 px-0 col-sm-12 mb-1">
-                <div class="bg-white p-3 aw-article-wrap rounded">
+                <div class="bg-white p-3 aw-article-wrap aw-content-shell rounded">
                     <!--文章内容主页面 详情顶部钩子-->
                     {:hook('article_detail_page_main_top',['article_info'=>$article_info])}
                     {:hook('pageDetailTop',['info'=>$article_info])}
                     <article class="aw-article">
-                        <h2 class="font-14 mb-3">{if $article_info.set_top}
+                        <h2 class="aw-content-title mb-3">{if $article_info.set_top}
                             <i class="iconfont icon-zhiding text-warning font-14"></i>{/if}{:htmlspecialchars_decode($article_info.title)}
                             {:hook('extend_title_label',['area'=>'article_detail','info'=>$article_info])}
                         </h2>
@@ -142,7 +147,7 @@
                                 <p class="float-right text-muted "><span>{$article_info.agree_count}</span>&nbsp;{:L('人点赞了该文章')} · {:L('%s 浏览',$article_info.view_count)}</p>
                             </div>
                         </div>
-                        <div class="aw-content mt-3">
+                        <div class="aw-content aw-content-body mt-3">
                             {$article_info.message|raw}
                         </div>
                     </article>
@@ -187,7 +192,7 @@
                             {/if}
                         </div>
                     </div>
-                    <div class="actions d-sm-none">
+                    <div class="actions d-sm-none aw-article-mobile-actions">
                         <label class="mr-3 mb-0">
                             <a href="javascript:;" class="{$article_info['vote_value']==1 ? 'active' : ''} aw-ajax-agree" onclick="AWS.User.agree(this,'article','{$article_info.id}');">
                                 <i class="icon-thumb_up"></i> {:L('赞同')} <span class="agree-count">{$article_info['agree_count'] ? $article_info['agree_count'] : ''}</span>
@@ -539,4 +544,42 @@
         </div>
     </div>
 </div>
+<script>
+    __onDomReady(function () {
+        var handle = document.getElementById('articleActionsHandle');
+        var drawer = document.getElementById('articleActionsDrawer');
+        var backdrop = document.getElementById('articleActionsBackdrop');
+        if (!handle || !drawer || !backdrop) return;
+
+        var closeDrawer = function () {
+            drawer.classList.remove('is-open');
+            backdrop.classList.remove('is-open');
+            handle.setAttribute('aria-expanded', 'false');
+            document.body.classList.remove('article-actions-open');
+        };
+
+        var openDrawer = function () {
+            drawer.classList.add('is-open');
+            backdrop.classList.add('is-open');
+            handle.setAttribute('aria-expanded', 'true');
+            document.body.classList.add('article-actions-open');
+        };
+
+        handle.addEventListener('click', function () {
+            if (drawer.classList.contains('is-open')) {
+                closeDrawer();
+            } else {
+                openDrawer();
+            }
+        });
+
+        backdrop.addEventListener('click', closeDrawer);
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeDrawer();
+            }
+        });
+    });
+</script>
 {/block}

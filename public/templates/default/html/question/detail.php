@@ -43,7 +43,7 @@
         {/if}
         <div class="row">
             <div class="aw-left col-md-9 px-xs-0 mb-1">
-                <div class="aw-question-container bg-white pt-3 pb-3 mb-2">
+                <div class="aw-question-container aw-content-shell bg-white pt-3 pb-3 mb-2">
                     <div class="container position-relative">
                         <div class="extend-info position-absolute d-xs-none">
                             <div class="d-flex text-center text-muted">
@@ -59,7 +59,7 @@
                             </div>
                         </div>
                         <div style="min-height: 70px">
-                            <h2 class="mb-3 title font-13 font-weight-bold">
+                            <h2 class="mb-3 title aw-content-title">
                                 {if $question_info.set_top}
                                 <i class="iconfont icon-zhiding text-warning font-14"></i>
                                 {/if}
@@ -85,7 +85,7 @@
                         <div class="aw-content-info">
                             {:hook('pageDetailTop',['info'=>$question_info])}
 
-                            <div class="aw-content position-relative" id="question-content">
+                            <div class="aw-content aw-content-body position-relative" id="question-content">
                                 <div id="show-all" >{$question_info.detail|raw}</div>
                                 {if $question_info.detail}
                                 <div class="aw-question-show aw-alpha-hidden" style="display: none">
@@ -355,7 +355,7 @@
                     <div class="aw-answer-body aw-answer-list" id="aw-answer-list" data-id="{$question_info.id}" data-aid="{$answer_id}">
                         {if !empty($data)}
                         {volist name="data" id="v"}
-                        <div class="aw-answer-item p-3 mb-1 bg-white" data-uninterested_count="{$v.uninterested_count}" id="question-answer-{$v.id}" data-answer-id="{$v.id}">
+                        <div class="aw-answer-item aw-content-shell p-3 mb-1 bg-white" data-uninterested_count="{$v.uninterested_count}" id="question-answer-{$v.id}" data-answer-id="{$v.id}">
                             <div class="user-details-card pt-0 pb-2 position-relative clearfix">
                                 <div class="user-details-card-avatar float-left" style="position: relative">
                                     {if $v.is_anonymous}
@@ -382,9 +382,9 @@
                                 {/if}
                             </div>
 
-                            <div class="aw-content">
+                            <div class="aw-content aw-content-body aw-answer-content-wrap">
                                 <div class="aw-answer-content overflow-hidden">
-                                    {:html_entity_decode($v.content)}
+                                    {$v.content|raw}
                                 </div>
                                 {if $v.content}
                                 <div class="aw-answer-show aw-alpha-hidden" style="display: none">

@@ -10,6 +10,7 @@
 // +----------------------------------------------------------------------
 namespace app\frontend;
 use app\common\controller\Frontend;
+use app\common\library\helper\HtmlHelper;
 
 class Page extends Frontend
 {
@@ -31,7 +32,7 @@ class Page extends Frontend
         $info = db('page')->where($where)->find();
         if($info)
         {
-            $info['contents'] = htmlspecialchars_decode($info['contents']);
+            $info['contents'] = HtmlHelper::normalizeContentHtml(htmlspecialchars_decode($info['contents']));
             $this->assign(['info' => $info]);
             $this->TDK($info['title'],$info['keywords'],$info['description']);
             return $this->fetch();
