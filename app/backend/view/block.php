@@ -119,7 +119,7 @@
     <script src="{$cdnUrl}/static/admin/js/aws-admin.js?v={$version|default='1.0.0'}"></script>
 </head>
 
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed aw-overflow-auto">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed aw-overflow-auto admin-layout">
 <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__shake" src="static/common/image/logo.png" alt="{$setting.site_name}" height="60">
 </div>
@@ -127,13 +127,13 @@
 {if !$_ajax_open}
 <div class="wrapper" id="wrapMain">
     {block name="top"}
-    <nav class="main-header navbar navbar-expand navbar-white">
+    <nav class="main-header navbar navbar-expand navbar-white admin-topbar">
         <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
         </ul>
-        <div class="swiper-container navbar-nav">
+        <div class="swiper-container navbar-nav admin-topbar-nav">
             <ul class="js_left_menu top-nav swiper-wrapper" id="topNav">
                 {$_nav|raw}
             </ul>
@@ -211,9 +211,10 @@
     {/block}
 
     {block name="left"}
-    <aside class="main-sidebar sidebar-dark-primary">
-        <a href="{$baseUrl}" class="brand-link bg-white">
+    <aside class="main-sidebar sidebar-dark-primary admin-sidebar">
+        <a href="{$baseUrl}" class="brand-link bg-white admin-brand">
              <img src="{$setting.site_logo}" alt="{$setting.site_name}" class="brand-image">
+             <span class="brand-text">{$setting.site_name}</span>
         </a>
         <div class="sidebar" id="sidebar">
             <nav class="mt-3 mb-2">
@@ -226,12 +227,12 @@
     </aside>
     {/block}
 
-    <div class="content-wrapper aw-overflow-auto">
+    <div class="content-wrapper aw-overflow-auto admin-content-wrapper">
         <div id="mainTab">
             <!--后台全局页面提示钩子-->
             {:hook('adminTips')}
             {if $breadCrumb && $breadCrumb.left.0}
-            <div class="bg-white mb-1">
+            <div class="bg-white mb-1 admin-page-header">
                 <div class="p-3">
                     <div class="container-fluid">
                         <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
@@ -251,7 +252,7 @@
                 </div>
             </div>
             {/if}
-            <div class="container-fluid">
+            <div class="container-fluid admin-system-alerts">
                 <!--{if !$version_info.data || $version_info.data.authorize=='免费版'}
                 <div class="alert alert-danger mt-3">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
@@ -278,9 +279,9 @@
     </div>
 
     {block name="footer"}
-    <footer class="main-footer">
-        <strong>Copyright © {:date('Y')}.</strong>
-        All rights reserved.
+    <footer class="main-footer admin-footer">
+        <strong>FreCenter Admin © {:date('Y')}</strong>
+        <span class="text-muted ml-2">统一管理后台</span>
         <div class="float-right d-none d-sm-inline-block">
             <b>v{:config('version.version')}</b>
         </div>

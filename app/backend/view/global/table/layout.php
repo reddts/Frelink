@@ -11,7 +11,7 @@
     }
     .select2-container--default .select2-selection--multiple{/*background: none;*/border: none;border-color: unset}
 </style>
-<section class="p-3">
+<section class="p-3 admin-page-shell">
     <!--额外CSS代码-->
     {$extra_css|raw|default=''}
     <!--额外HTML代码-->
@@ -39,8 +39,8 @@
             {/if}
             <!--搜索区域开始-->
             {if $search OR $page_tips_search }
-            <div class="col-12 search-collapse">
-                <fieldset>
+            <div class="col-12 search-collapse mb-3">
+                <fieldset class="admin-search-panel">
                     <legend>{:L('条件选项')}</legend>
                     <form id="search_form" class="mb-0">
                         <div class="select-list">
@@ -153,7 +153,9 @@
             {/if}
             <!--列表区域开始-->
             <div class="col-sm-12 select-table table-striped">
-                <div class="btn-group-sm" id="toolbar" role="group">
+                <div class="card admin-panel">
+                    <div class="card-body">
+                <div class="btn-group-sm admin-toolbar" id="toolbar" role="group">
                 {volist name="top_buttons" id="top_button"}
                 <a class="{$top_button.class|default=''}" {if isset($top_button['href']) && $top_button['href']}href="{$top_button.href|default=''}"{/if}{if isset($top_button['target']) && $top_button['target']} target="{$top_button.target|default=''}"{/if}{if isset($top_button['onclick']) && $top_button['onclick']} onclick="{$top_button.onclick|default=''}"{/if} title="{$top_button.title|default=''}" {if isset($top_button['url']) && $top_button['url']} data-url="{$top_button.url|default=''}"{/if} >
                     <i class="{$top_button.icon|default=''}"></i> {:L($top_button.title)}
@@ -174,6 +176,8 @@
                 {/if}
 
                 <table id="bootstrap-table" data-mobile-responsive="true"></table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
