@@ -37,7 +37,7 @@ class RegexpSearch
      */
     public function search($keywords,string $type='',int $uid=0,array $sort=[],$page=1,$per_page=10)
     {
-        //$keywords = implode('|', $keywords);
+        $keywords = $this->normalizeKeywords($keywords);
         $page = $page>1 ? intval(intval($page)-1) : 0;
         $limit = $page * $per_page;
         if(!$type)
@@ -74,7 +74,7 @@ class RegexpSearch
             }
             $union_sql =implode( ' UNION ',$sql);
             $searchResult = db()->query($union_sql.' LIMIT '.intval($limit).','.intval($per_page));
-            $totalCount =  db()->query($union_sql);
+            $totalCount = db()->query('SELECT COUNT(*) AS total FROM ('.$union_sql.') AS search_union');
         }else{
             $search_type = db('search_engine')->where(['name'=>trim($type),'status'=>1,'search_engine'=>get_setting('search_handle','regexp')])->field('name,search_field,pk,union_sql')->find();
             $search_field = explode('|',$search_type['search_field']);
@@ -104,10 +104,21 @@ class RegexpSearch
                     ->fetchSql()
                     ->select();
             $searchResult = db()->query($sql.' LIMIT '.intval($limit).','.intval($per_page));
-            $totalCount =  db()->query($sql);
+            $totalCount = db()->query('SELECT COUNT(*) AS total FROM ('.$sql.') AS search_union');
         }
-        $totalCount = count($totalCount);
+        $totalCount = isset($totalCount[0]['total']) ? (int) $totalCount[0]['total'] : 0;
         return $this->parseMixResult($keywords,$searchResult,$uid,$totalCount);
+    }
+
+    protected function normalizeKeywords($keywords)
+    {
+        if (is_array($keywords)) {
+            return array_values(array_filter(array_map(function ($keyword) {
+                return str_replace("'", "\\'", preg_quote(trim((string) $keyword), '/'));
+            }, $keywords)));
+        }
+
+        return str_replace("'", "\\'", preg_quote(trim((string) $keywords), '/'));
     }
 
     /**

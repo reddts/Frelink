@@ -74,6 +74,25 @@ class Report extends BaseModel
 		return db('report')->where(['item_id' => $item_id, 'uid' => $uid, 'item_type' => $item_type])->find();
 	}
 
+    public static function getReportMap(array $item_ids, string $item_type, int $uid): array
+    {
+        $item_ids = array_values(array_unique(array_filter(array_map('intval', $item_ids))));
+        if (!$item_ids || !$item_type || !$uid) {
+            return [];
+        }
+
+        $rows = db('report')
+            ->where(['uid' => $uid, 'item_type' => $item_type])
+            ->whereIn('item_id', $item_ids)
+            ->column('item_id');
+
+        $result = [];
+        foreach ($rows as $item_id) {
+            $result[(int) $item_id] = 1;
+        }
+        return $result;
+    }
+
     /**
      * 处理举报
      * @param $id

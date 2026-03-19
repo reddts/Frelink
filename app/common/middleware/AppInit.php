@@ -11,7 +11,10 @@ class AppInit
         if(!defined('ENTRANCE'))
         {
             $AccessToken = request()->header('AccessToken');
-            $version = request()->header('version ');
+            $version = request()->header('version');
+            if ($version === null || $version === '') {
+                $version = request()->header('version ');
+            }
             $apiEnable = false;
             $client = authCode($AccessToken);
             $isClient = db('app_token')
@@ -84,7 +87,13 @@ class AppInit
         {
             if(db_field_exits('menu_rule', 'is_home'))
             {
-                if($menu_rule = db('menu_rule')->where(['is_home'=>1,'status'=>1,'type'=>1,'group'=>'nav'])->value('name'))
+                $menuRuleCacheKey = 'route_default_home_menu_rule';
+                $menu_rule = cache($menuRuleCacheKey);
+                if ($menu_rule === null) {
+                    $menu_rule = db('menu_rule')->where(['is_home'=>1,'status'=>1,'type'=>1,'group'=>'nav'])->value('name') ?: '';
+                    cache($menuRuleCacheKey, $menu_rule, 300);
+                }
+                if($menu_rule)
                 {
                     $menus = explode('/',$menu_rule);
                     app()->config->set([

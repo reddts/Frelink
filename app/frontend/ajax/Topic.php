@@ -83,8 +83,8 @@ class Topic extends Frontend
         {
             $param = $this->request->post();
             $keyWord = $param['keyWord']??'';
-            $page = $param['page']??1;
-            $rows = $param['rows']??10;
+            $page = max(1, intval($param['page']??1));
+            $rows = max(1, intval($param['rows']??10));
             $value = $param['value']??'';
             if($value)
             {
@@ -93,10 +93,10 @@ class Topic extends Frontend
             }elseif($keyWord)
             {
                 $topics = db('topic')->page($page,$rows)->where([['title','like','%'.$keyWord.'%']])->column('id,title');
-                $total = db('topic')->page($page,$rows)->where([['title','like','%'.$keyWord.'%']])->count();
+                $total = db('topic')->where([['title','like','%'.$keyWord.'%']])->count();
             }else{
                 $topics = db('topic')->page($page,$rows)->column('id,title');
-                $total = db('topic')->page($page,$rows)->count();
+                $total = db('topic')->count();
             }
 
             $result = [];

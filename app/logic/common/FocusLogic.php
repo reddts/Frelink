@@ -185,6 +185,46 @@ class FocusLogic
         return db($dbName)->where($where)->value('id');
     }
 
+    public static function getFocusMap($uid = null, $item_type = null, array $item_ids = []): array
+    {
+        $uid = (int) $uid;
+        $item_ids = array_values(array_unique(array_filter(array_map('intval', $item_ids))));
+        if (!$uid || !$item_type || !$item_ids) {
+            return [];
+        }
+
+        $dbName = '';
+        $field = '';
+        $where = ['uid' => $uid];
+        switch ($item_type) {
+            case 'question':
+                $dbName = 'question_focus';
+                $field = 'question_id';
+                break;
+            case 'topic':
+                $dbName = 'topic_focus';
+                $field = 'topic_id';
+                break;
+            case 'column':
+                $dbName = 'column_focus';
+                $field = 'column_id';
+                break;
+            case 'favorite':
+                $dbName = 'users_favorite_focus';
+                $field = 'tag_id';
+                break;
+            default:
+                return [];
+        }
+
+        $ids = db($dbName)->where($where)->whereIn($field, $item_ids)->column($field);
+        $result = [];
+        foreach ($ids as $id) {
+            $result[(int) $id] = 1;
+        }
+        return $result;
+    }
+
     /**
      * 更新关注数量
      * @param $item_id

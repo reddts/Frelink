@@ -209,14 +209,14 @@ class Ajax extends Frontend
         $mobile = $this->request->param('mobile','','intval');
         if(!$mobile)
         {
-            return ['code'=>0,'msg'=>'请输入正确的手机号'];
+            $this->ajaxResult(['code'=>0,'msg'=>'请输入正确的手机号']);
         }
         $result = hook('sms',['mobile'=>$mobile]);
         if($result=='')
         {
-            return ['code'=>0,'msg'=>'短信功能未启用'];
+            $this->ajaxResult(['code'=>0,'msg'=>'短信功能未启用']);
         }
-        return json_decode($result,true);
+        $this->ajaxResult(json_decode($result,true));
     }
 
     /**
@@ -536,6 +536,6 @@ class Ajax extends Frontend
     {
         $question_id = $this->request->param('question_id',0,'intval');
         $users = QuestionModel::getQuestionFocusUsers($question_id);
-        $this->result($users);
+        $this->ajaxResult($users);
     }
 }

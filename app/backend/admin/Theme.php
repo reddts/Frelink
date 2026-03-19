@@ -22,13 +22,13 @@ class Theme extends Backend
             // 获取模板列表
             $list = $this->TemplateHelper->getTemplatesList();
             // 渲染输出
-            return [
+            return json([
                 'total'        => count($list),
                 'per_page'     => 1000,
                 'current_page' => 1,
                 'last_page'    => 1,
                 'data'         => $list,
-            ];
+            ]);
         }
         $columns = [
             ['title', '模板名称'],

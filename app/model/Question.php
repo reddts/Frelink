@@ -253,16 +253,34 @@ class Question extends BaseModel
 				'query'=>request()->param()
 			])->toArray();
 
+        $commentIds = array_column($list['data'], 'id');
+        $userIds = array_column($list['data'], 'uid');
+        $currentUid = intval(session('login_uid'));
+        $usersInfo = $userIds ? (Users::getUserInfoByIds($userIds) ?: []) : [];
+        $voteChecks = $currentUid && $commentIds ? Vote::getVoteByItemIds('question_comment', $commentIds, 1, $currentUid) : [];
+        $reports = $currentUid && $commentIds ? Report::getReportMap($commentIds, 'question_comment', $currentUid) : [];
+        $voteCountRows = $commentIds
+            ? db('question_vote')
+                ->field('item_id,COUNT(*) AS total')
+                ->where('item_type', 'question_comment')
+                ->where('vote_value', 1)
+                ->whereIn('item_id', $commentIds)
+                ->group('item_id')
+                ->select()
+                ->toArray()
+            : [];
+        $voteCounts = [];
+        foreach ($voteCountRows as $row) {
+            $voteCounts[(int) $row['item_id']] = (int) $row['total'];
+        }
+
 		foreach ($list['data'] as $key => $value) {
-            $list['data'][$key]['user_info'] = Users::getUserInfo($value['uid']);
-            $list['data'][$key]['check'] = Common::checkVote([
-					'uid'=>intval(session('login_uid')),
-					'item_type'=>'question_comment',
-					'item_id'=>$value['id'],
-					'vote_value'=>1,
-				],'question_comment')?1:0;
-            $list['data'][$key]['report'] = Report::getReportInfo($value['id'],'question_comment',intval(session('login_uid')));
-            $list['data'][$key]['vote_count'] = self::getQuestionCommentVoteCount($value['id']);
+            $commentId = (int) $value['id'];
+            $userId = (int) $value['uid'];
+            $list['data'][$key]['user_info'] = $usersInfo[$userId] ?? Users::getUserInfo($userId);
+            $list['data'][$key]['check'] = isset($voteChecks[$commentId]) ? 1 : 0;
+            $list['data'][$key]['report'] = $reports[$commentId] ?? 0;
+            $list['data'][$key]['vote_count'] = $voteCounts[$commentId] ?? 0;
             $list['data'][$key]['create_time_label'] = date_friendly($value['create_time']);
 		}
 
@@ -820,9 +838,14 @@ class Question extends BaseModel
 
         $pageVar = $list->render();
         $allList = $list->toArray();
-        $users_info = Users::getUserInfoByIds(array_column($allList['data'],'uid'),'user_name,avatar,nick_name,uid');
-        $last_answers = Answer::getLastAnswerByIds(array_column($allList['data'],'id'));
-        $topic_infos = Topic::getTopicByItemIds(array_column($allList['data'],'id'), 'question');
+        $questionIds = array_column($allList['data'], 'id');
+        $users_info = Users::getUserInfoByIds(array_column($allList['data'],'uid'),'user_name,avatar,nick_name,uid') ?: [];
+        $last_answers = Answer::getLastAnswerByIds($questionIds);
+        $topic_infos = Topic::getTopicByItemIds($questionIds, 'question');
+        $questionVotes = $uid && $questionIds ? Vote::getVoteByItemIds('question', $questionIds, null, $uid) : [];
+        $questionFocus = $uid && $questionIds ? FocusLogic::getFocusMap($uid, 'question', $questionIds) : [];
+        $answerIds = $last_answers ? array_column($last_answers, 'id') : [];
+        $answerVotes = $uid && $answerIds ? Vote::getVoteByItemIds('answer', $answerIds, null, $uid) : [];
         $result_list = [];
 
         foreach ($allList['data'] as $key=>$data)
@@ -832,13 +855,13 @@ class Question extends BaseModel
             $result_list[$key]['answer_info'] = $last_answers[$data['id']] ?? false;
             if($result_list[$key]['answer_info']){
                 $result_list[$key]['answer_info']['user_info'] = $users_info[$last_answers[$data['id']]['uid']] ?? '';
-                $result_list[$key]['answer_info']['vote_value'] = Vote::getVoteByType($last_answers[$data['id']]['id'],'answer',$uid);
+                $result_list[$key]['answer_info']['vote_value'] = isset($answerVotes[$last_answers[$data['id']]['id']]) ? (int) $answerVotes[$last_answers[$data['id']]['id']]['vote_value'] : 0;
             }else{
-                $result_list[$key]['has_focus'] = FocusLogic::checkUserIsFocus($uid,'question',$data['id']);
+                $result_list[$key]['has_focus'] = isset($questionFocus[$data['id']]) ? 1 : 0;
             }
 
             $detail = $result_list[$key]['answer_info'] ? $result_list[$key]['answer_info']['content'] : $result_list[$key]['detail'];
-            $result_list[$key]['vote_value'] = Vote::getVoteByType($data['id'],'question',$uid);
+            $result_list[$key]['vote_value'] = isset($questionVotes[$data['id']]) ? (int) $questionVotes[$data['id']]['vote_value'] : 0;
             $result_list[$key]['detail'] = $result_list[$key]['answer_info'] && isset($users_info[$last_answers[$data['id']]['uid']]) ?  ($result_list[$key]['answer_info']['is_anonymous'] ? '<a href="javascript:;" class="aw-username" >匿名用户</a> :' : '<a href="'.$result_list[$key]['answer_info']['user_info']['url'].'" class="aw-username" >'.$result_list[$key]['answer_info']['user_info']['nick_name'].'</a> :').str_cut(strip_tags($result_list[$key]['answer_info']['content']),0,150) : str_cut(strip_tags(htmlspecialchars_decode($result_list[$key]['detail'])),0,150);
 
             if($result_list[$key]['answer_info'] && !isset($users_info[$last_answers[$data['id']]['uid']]))

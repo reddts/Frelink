@@ -131,8 +131,9 @@ trait Jump
             'time' => time(),
             'data' => $data,
         ];
-        $type     = $type ?: $this->getResponseType();
-        $response = Response::create($result, $type)->header($header);
+        // Structured result payloads are always JSON. Falling back to html here can crash when crawlers
+        // hit AJAX-style endpoints without the expected XHR headers.
+        $response = Response::create($result, 'json')->header($header);
         throw new HttpResponseException($response);
     }
 

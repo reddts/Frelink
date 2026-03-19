@@ -102,31 +102,70 @@ class SitemapHelper
     {
         $domain = trim($domain);
         if ($domain) {
-            return rtrim($domain, '/');
+            return self::normalizeDomain($domain);
         }
 
         try {
             $requestDomain = request()->domain();
             if ($requestDomain) {
-                return rtrim($requestDomain, '/');
+                return self::normalizeDomain($requestDomain);
             }
         } catch (\Exception $e) {
         }
 
         $appHost = config('app.app_host', '');
         if ($appHost) {
-            if (strpos($appHost, 'http://') !== 0 && strpos($appHost, 'https://') !== 0) {
-                $appHost = 'https://' . ltrim($appHost, '/');
-            }
-            return rtrim($appHost, '/');
+            return self::normalizeDomain($appHost);
         }
 
         $cdnUrl = trim((string)get_setting('cdn_url', ''));
         if ($cdnUrl && (strpos($cdnUrl, 'http://') === 0 || strpos($cdnUrl, 'https://') === 0)) {
-            return rtrim($cdnUrl, '/');
+            return self::normalizeDomain($cdnUrl);
         }
 
         return '';
+    }
+
+    protected static function normalizeDomain(string $domain): string
+    {
+        $domain = trim($domain);
+        if ($domain === '') {
+            return '';
+        }
+
+        if (strpos($domain, 'http://') !== 0 && strpos($domain, 'https://') !== 0) {
+            $domain = 'https://' . ltrim($domain, '/');
+        }
+
+        $parts = parse_url($domain);
+        if (!$parts || empty($parts['host'])) {
+            return rtrim($domain, '/');
+        }
+
+        $scheme = strtolower($parts['scheme'] ?? 'https');
+        $host = strtolower($parts['host']);
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+        $path = isset($parts['path']) ? rtrim($parts['path'], '/') : '';
+
+        // Bare domains are normalized onto the www host to avoid invalid host variants in sitemap links.
+        if (self::shouldForceWww($host)) {
+            $host = 'www.' . $host;
+        }
+
+        return $scheme . '://' . $host . $port . $path;
+    }
+
+    protected static function shouldForceWww(string $host): bool
+    {
+        if ($host === '' || strpos($host, 'www.') === 0) {
+            return false;
+        }
+
+        if ($host === 'localhost' || filter_var($host, FILTER_VALIDATE_IP)) {
+            return false;
+        }
+
+        return substr_count($host, '.') === 1;
     }
 
     protected static function formatDate($time): string

@@ -168,14 +168,14 @@ class Article extends Backend
                 {
                     return json(['error'=>0, 'msg'=>'删除成功!']);
                 }else{
-                    return ['error' => 1, 'msg' => '删除失败'];
+                    return json(['error' => 1, 'msg' => '删除失败']);
                 }
             }
             if(ArticleModel::removeArticle($id))
             {
                 return json(['error'=>0,'msg'=>'删除成功!']);
             }
-            return ['error' => 1, 'msg' => '删除失败'];
+            return json(['error' => 1, 'msg' => '删除失败']);
         }
     }
 

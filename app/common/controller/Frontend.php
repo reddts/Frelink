@@ -12,6 +12,7 @@ use think\App;
 use think\exception\HttpResponseException;
 use think\facade\Config;
 use think\facade\Db;
+use think\facade\Env;
 use think\facade\Request;
 use think\helper\Str;
 
@@ -164,6 +165,10 @@ class Frontend extends Base
      */
     protected function bootSqlPerfMonitor(): void
     {
+        if (!filter_var((string) Env::get('app.sql_perf_log', 'false'), FILTER_VALIDATE_BOOLEAN)) {
+            return;
+        }
+
         $targetRoutes = [
             'index/index',
             'question/index',
@@ -231,6 +236,10 @@ class Frontend extends Base
      */
     protected function autoRefreshSitemap(): void
     {
+        if (!filter_var((string) Env::get('app.auto_refresh_sitemap', 'false'), FILTER_VALIDATE_BOOLEAN)) {
+            return;
+        }
+
         if ($this->request->isAjax() || $this->request->isPost() || $this->request->isPjax()) {
             return;
         }

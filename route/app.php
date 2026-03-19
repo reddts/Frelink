@@ -4,9 +4,19 @@ use think\facade\Route;
 if(get_setting('url_rewrite_enable')=='Y' && ENTRANCE!='api')
 {
     $prefix = app()->db->getConfig('connections.mysql.prefix');
-    if(db()->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE table_name ='{$prefix}route_rule'")[0]['COUNT(*)'])
+    $routeTableExists = cache('route_rule_table_exists');
+    if ($routeTableExists === null) {
+        $routeTableExists = (bool) db()->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE table_name ='{$prefix}route_rule'")[0]['COUNT(*)'];
+        cache('route_rule_table_exists', $routeTableExists ? 1 : 0, 300);
+    }
+    if($routeTableExists)
     {
-        $routes = db('route_rule')->where(['status'=>1])->where('entrance','<>','api')->select()->toArray();
+        $cacheKey = 'route_rules_non_api';
+        $routes = cache($cacheKey);
+        if ($routes === null) {
+            $routes = db('route_rule')->where(['status'=>1])->where('entrance','<>','api')->select()->toArray();
+            cache($cacheKey, $routes, 300);
+        }
         foreach ($routes as $k=>$v)
         {
             //通用路由
@@ -64,7 +74,12 @@ if(ENTRANCE=='api')
     Route::rule(':controller/:function', $version.'.:controller/:function');
     if(get_setting('url_rewrite_enable')=='Y')
     {
-        $routes = db('route_rule')->where(['status'=>1,'entrance'=>'api'])->select()->toArray();
+        $cacheKey = 'route_rules_api';
+        $routes = cache($cacheKey);
+        if ($routes === null) {
+            $routes = db('route_rule')->where(['status'=>1,'entrance'=>'api'])->select()->toArray();
+            cache($cacheKey, $routes, 300);
+        }
         foreach ($routes as $k=>$v)
         {
             if($v['method']!='*')

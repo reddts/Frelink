@@ -44,13 +44,13 @@ class Group extends Backend
                 ->select()
                 ->toArray();
             // 渲染输出
-            return [
+            return json([
                 'total'        => count($list),
                 'per_page'     => 1000,
                 'current_page' => 1,
                 'last_page'    => 1,
                 'data'         => $list,
-            ];
+            ]);
         }
         // 构建页面
         return $this->tableBuilder

@@ -1,4 +1,5 @@
 <div class="navbox">
+    {php}$hideNavSearch = !request()->plugin && $thisController=='index' && $thisAction=='index' && get_theme_setting('home.search_enable')=='Y';{/php}
     <div class="container nav-auto">
         <div class="navbar navbar-expand-lg navbar-light">
             <a href="{$baseUrl}" class="navbar-brand">{if $setting.site_logo}<img class="logoimg-2" style="max-width: 192px;" src="{$setting.site_logo|default=$static_url.'images/logo-write.png'}">{else/}<span class="text-primary font-weight-bold">{$setting.site_name}</span>{/if}</a>
@@ -40,6 +41,7 @@
                 </div>
                 <div class="nav-form position-relative" style="text-align:right;z-index: 2">
                     <div class="nav-search-actions d-flex align-items-center justify-content-end">
+                    {if !$hideNavSearch}
                     <form class="position-relative aw-form-search d-inline-block" action="{:url('search/index')}" method="get" id="awGlobalSearch">
                         <div class="searchbox">
                             <input id="globalSearchInput" class="aw-search-input" autocomplete="off" placeholder="{:L('请输入您想搜索的内容')}" value="{:input('get.q')}"  name="q" type="text">
@@ -57,6 +59,7 @@
                             </div>
                         </div>
                     </form>
+                    {/if}
                     {if !$user_id}
                     <a {if $theme_config['common']['login_type']=='dialog'}href="javascript:;" onclick="AWS.User.login()" {else/}href="{:url('account/login')}"{/if} class="btn btn-sm gradientBtn px-3 logon-but d-inline-flex align-items-center justify-content-center">{:L('登录')}</a>
                     {/if}

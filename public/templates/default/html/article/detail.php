@@ -23,14 +23,14 @@
                         <span class="d-block">{$article_info['agree_count']}</span>
                     </a>
                 </label>
-                {if $user_id}
-                {if $user_id!=$article_info['uid']}
                 <label class="px-1 py-2 bg-white rounded d-block">
                     <a href="javascript:;"  style="color: #76839b" class="font-weight-bold aw-ajax-against {$article_info['vote_value']==-1 ? 'active' : ''}" onclick="AWS.User.against(this,'article','{$article_info.id}');">
                         <i class="icon-thumb_down font-12"></i>
                         <span class="d-block">{:L('反对')}</span>
                     </a>
                 </label>
+                {if $user_id}
+                {if $user_id!=$article_info['uid']}
                 <label class="px-1 py-2 bg-white rounded d-block"  onclick="AWS.User.report(this,'article','{$article_info.id}');">
                     <a href="javascript:;"  style="color: #76839b" class="font-weight-bold">
                         <i class="icon-warning font-12"></i>
