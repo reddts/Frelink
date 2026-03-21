@@ -11,8 +11,8 @@
 {block name="header"}
 <header class="aui-header">
     <div class="aui-header-left"><a href="{$baseUrl}" class="text-muted" data-pjax="pageMain"><i class="fa fa-home font-11"></i></a></div>
-    <div class="aui-header-title">{:L('文章详情')}</div>
-    <a class="aui-header-right" onclick="AWS_MOBILE.api.dialog('{:L(\'文章操作\')}',$('.articleAction').html())"><i class="fa fa-ellipsis-v" style="font-size: 0.9rem;"></i></a>
+    <div class="aui-header-title">{:L('内容详情')}</div>
+    <a class="aui-header-right" onclick="AWS_MOBILE.api.dialog('{:L(\'内容操作\')}',$('.articleAction').html())"><i class="fa fa-ellipsis-v" style="font-size: 0.9rem;"></i></a>
 </header>
 
 <script type="text/html" class="articleAction">
@@ -38,7 +38,7 @@
         <div class="col-4 mb-4">
             <a href="javascript:;"  class="aw-ajax-get text-muted" data-url="{:url('article/action',['type'=>'recommend','is_recommend'=>$article_info['is_recommend'],'article_id'=>$article_info['id']])}">
                 <i class="fa fa-chevron-circle-up  font-14"></i><br>
-                <span class="d-block font-9 mt-1">{$article_info['is_recommend'] ? L('取消推荐') : L('推荐文章')}</span>
+                <span class="d-block font-9 mt-1">{$article_info['is_recommend'] ? L('取消推荐') : '推荐内容'}</span>
             </a>
         </div>
         {/if}
@@ -46,7 +46,7 @@
         <div class="col-4 mb-4">
             <a href="javascript:;" class="aw-ajax-get text-muted" data-url="{:url('article/action',['type'=>'set_top','set_top'=>$article_info['set_top'],'article_id'=>$article_info['id']])}">
                 <i class="far fa-hand-point-up  font-14"></i><br>
-                <span class="d-block font-9 mt-1">{$article_info['set_top'] ? L('取消置顶') : L('置顶文章')}</span>
+                <span class="d-block font-9 mt-1">{$article_info['set_top'] ? L('取消置顶') : '置顶内容'}</span>
             </a>
         </div>
         {/if}
@@ -55,7 +55,7 @@
         <div class="col-4 mb-4">
             <a href="{:url('article/publish',['id'=>$article_info['id']])}" class="text-muted">
                 <i class="fa fa-edit font-14"></i><br>
-                <span class="d-block font-9 mt-1">{:L('编辑文章')}</span>
+                <span class="d-block font-9 mt-1">编辑内容</span>
             </a>
         </div>
         {/if}
@@ -63,7 +63,7 @@
         <div class="col-4 mb-4">
             <a href="javascript:;" class="aw-ajax-get text-muted" data-confirm="{:L('确定要删除吗')}？" data-url="{:url('article/remove_article',['id'=>$article_info['id']])}">
                 <i class="fa fa-trash-alt font-14"></i><br>
-                <span class="d-block font-9 mt-1">{:L('删除文章')}</span>
+                <span class="d-block font-9 mt-1">删除内容</span>
             </a>
         </div>
 
@@ -118,6 +118,9 @@
                     <i class="iconfont icon-zhiding text-warning font-14"></i>{/if}{:htmlspecialchars_decode($article_info.title)}
                 </h2>
             </h2>
+            <div class="mb-2">
+                <span class="badge badge-primary">{$article_info['article_type_label']}</span>
+            </div>
             <div class="text-muted font-8">
                 <span class="mr-2">{:L('评论')} {$article_info.comment_count}</span>.
                 <span class="ml-2 mr-2">{:L('浏览')} {$article_info.view_count}</span>.
@@ -149,22 +152,56 @@
             </dl>
         </div>
         {:hook('pageDetailTop',['info'=>$article_info])}
+        {if !empty($summary_points)}
+        <div class="bg-light border rounded p-3 mb-3">
+            <div class="font-weight-bold mb-2">30 秒看懂</div>
+            <ul class="mb-0 pl-3 text-muted">
+                {volist name="summary_points" id="point"}
+                <li class="mb-1">{$point}</li>
+                {/volist}
+            </ul>
+        </div>
+        {/if}
         <div class="aw-content position-relative">
             {$article_info.message|raw}
         </div>
         {:hook('pageDetailBottom',['info'=>$article_info])}
+        {if !empty($next_reads)}
+        <div class="bg-light border rounded p-3 mt-3">
+            <div class="font-weight-bold mb-2">下一步阅读</div>
+            {volist name="next_reads" id="item"}
+            <a class="d-block py-2 border-bottom text-body" href="{$item.url}" data-pjax="pageMain">
+                <div class="font-8 text-primary mb-1">{$item.label}</div>
+                <div class="font-weight-bold mb-1">{$item.title}</div>
+                {if $item.desc}<div class="text-muted font-8">{$item.desc}</div>{/if}
+            </a>
+            {/volist}
+        </div>
+        {/if}
+        {if !empty($archive_chapters)}
+        <div class="bg-light border rounded p-3 mt-3">
+            <div class="font-weight-bold mb-2">{:L('已归档到知识章节')}</div>
+            <div class="text-muted font-8 mb-2">{:L('这条内容已经进入知识归档，可从章节继续延展阅读。')}</div>
+            {volist name="archive_chapters" id="chapter"}
+            <a class="d-block py-2 border-bottom text-body" href="{:url('help/detail',['token'=>$chapter['url_token']])}" data-pjax="pageMain">
+                <div class="font-weight-bold mb-1">{$chapter.title}</div>
+                {if !empty($chapter.description)}<div class="text-muted font-8">{:str_cut(strip_tags((string)$chapter['description']),0,80)}</div>{/if}
+            </a>
+            {/volist}
+        </div>
+        {/if}
     </div>
     <div class="swiper-container bg-white">
         <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block px-2 bg-white swiper-wrapper" style="flex-wrap: nowrap;">
             <li class="nav-item swiper-slide" data-type="comments" >
-                <a class="nav-link active" href="javascript:;">{:L('文章评论')}</a>
+                <a class="nav-link active" href="javascript:;">{:L('内容评论')}</a>
             </li>
             <li class="nav-item swiper-slide" data-type="relation">
-                <a class="nav-link" href="javascript:;">{:L('相关文章')}</a>
+                <a class="nav-link" href="javascript:;">{:L('相关内容')}</a>
             </li>
             {if $attach_list}
             <li class="nav-item swiper-slide" data-type="attach" >
-                <a class="nav-link" href="javascript:;">{:L('文章附件')}</a>
+                <a class="nav-link" href="javascript:;">内容附件</a>
             </li>
             {/if}
         </ul>
@@ -205,7 +242,7 @@
 <footer class="aui-footer row-before px-3">
     <div class="footerCommentBox w-100">
         <div class="commentForm d-flex">
-            <input {if !$user_id}onclick="AWS_MOBILE.User.login()" readonly="readonly"{/if} type="text" class="commentInput flex-fill {if $user_id}aw-ajax-open{/if}" data-title="文章评论" {if $user_id}data-url="{:url('comment/comment_editor',['id'=>$article_info.id,'at_uid'=>0])}"{/if}
+            <input {if !$user_id}onclick="AWS_MOBILE.User.login()" readonly="readonly"{/if} type="text" class="commentInput flex-fill {if $user_id}aw-ajax-open{/if}" data-title="{:L('内容评论')}" {if $user_id}data-url="{:url('comment/comment_editor',['id'=>$article_info.id,'at_uid'=>0])}"{/if}
             placeholder="{$user_id ? L('输入您的评论内容') : L('请登录后进行评论')}...">
             <div class="flex-fill ml-3" style="line-height: 55px">
                 <a href="javascript:;" class="aw-ajax-agree text-muted {$article_info['vote_value']==1 ? 'active' : ''}" onclick="AWS_MOBILE.User.agree(this,'article','{$article_info.id}');">
@@ -337,6 +374,14 @@
             }
         }
     });
+    if (window.FrelinkAnalytics) {
+        window.FrelinkAnalytics.trackDetailView({
+            item_type: 'article',
+            item_id: {$article_info['id']},
+            list_key: 'detail',
+            source: 'mobile_article_detail'
+        });
+    }
 </script>
 {/block}
 {block name="footer"}{/block}

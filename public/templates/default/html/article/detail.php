@@ -78,23 +78,23 @@
                         <div class="text-center d-block py-2" style="min-width: 100px">
                             {if get_user_permission('recommend_post')=='Y'}
                             <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-url="{:url('ajax.article/action',['type'=>'recommend','is_recommend'=>$article_info['is_recommend'],'article_id'=>$article_info['id']])}">
-                                <span>{$article_info['is_recommend'] ? L('取消推荐') : L('推荐文章')}</span>
+                                <span>{$article_info['is_recommend'] ? L('取消推荐') : '推荐内容'}</span>
                             </a>
                             {/if}
                             {if get_user_permission('set_top_post')=='Y'}
                             <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-url="{:url('ajax.article/action',['type'=>'set_top','set_top'=>$article_info['set_top'],'article_id'=>$article_info['id']])}">
-                                <span>{$article_info['set_top'] ? L('取消置顶') : L('置顶文章')}</span>
+                                <span>{$article_info['set_top'] ? L('取消置顶') : '置顶内容'}</span>
                             </a>
                             {/if}
 
                             {if $user_id && (get_user_permission('modify_article')=='Y' || $user_info['uid']==$article_info['uid'])}
                             <a href="{:url('article/publish',['id'=>$article_info['id']])}" class="py-1 text-muted dropdown-item" target="_blank">
-                                <span>{:L('编辑文章')}</span>
+                                <span>编辑内容</span>
                             </a>
                             {/if}
                             {if $user_id && (get_user_permission('remove_article')=='Y' || $user_info['uid']==$article_info['uid'])}
                             <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-confirm="{:L('确定要删除吗')}？" data-url="{:url('ajax.article/remove_article',['id'=>$article_info['id']])}">
-                                <span>{:L('删除文章')}</span>
+                                <span>删除内容</span>
                             </a>
 
                             {if !$article_info['column_id'] && ($user_info['uid']==$article_info['uid'] || isNormalAdmin() || isSuperAdmin())}
@@ -124,11 +124,24 @@
                     <!--文章内容主页面 详情顶部钩子-->
                     {:hook('article_detail_page_main_top',['article_info'=>$article_info])}
                     {:hook('pageDetailTop',['info'=>$article_info])}
+                    {if !empty($summary_points)}
+                    <section class="bg-info-light rounded p-3 mb-3">
+                        <div class="font-weight-bold mb-2">30 秒看懂</div>
+                        <ul class="mb-0 pl-3 text-muted">
+                            {volist name="summary_points" id="point"}
+                            <li class="mb-1">{$point}</li>
+                            {/volist}
+                        </ul>
+                    </section>
+                    {/if}
                     <article class="aw-article">
                         <h2 class="aw-content-title mb-3">{if $article_info.set_top}
                             <i class="iconfont icon-zhiding text-warning font-14"></i>{/if}{:htmlspecialchars_decode($article_info.title)}
                             {:hook('extend_title_label',['area'=>'article_detail','info'=>$article_info])}
                         </h2>
+                        <div class="mb-3">
+                            <span class="badge badge-primary">{$article_info['article_type_label']}</span>
+                        </div>
                         <div class="aw-author-info mb-3">
                             <div class="aw-user overflow-hidden">
                                 <dl class="overflow-hidden float-left mb-0">
@@ -144,13 +157,37 @@
                                         </h6>
                                     </dd>
                                 </dl>
-                                <p class="float-right text-muted "><span>{$article_info.agree_count}</span>&nbsp;{:L('人点赞了该文章')} · {:L('%s 浏览',$article_info.view_count)}</p>
+                                <p class="float-right text-muted "><span>{$article_info.agree_count}</span>&nbsp;人认可了这条内容 · {:L('%s 浏览',$article_info.view_count)}</p>
                             </div>
                         </div>
                         <div class="aw-content aw-content-body mt-3">
                             {$article_info.message|raw}
                         </div>
                     </article>
+                    {if !empty($next_reads)}
+                    <section class="bg-light rounded p-3 mb-3">
+                        <div class="font-weight-bold mb-2">下一步阅读</div>
+                        {volist name="next_reads" id="item"}
+                        <a class="d-block py-2 border-bottom text-dark" href="{$item.url}">
+                            <div class="text-primary font-12 mb-1">{$item.label}</div>
+                            <div class="font-weight-bold mb-1">{$item.title}</div>
+                            {if $item.desc}<div class="text-muted font-12">{$item.desc}</div>{/if}
+                        </a>
+                        {/volist}
+                    </section>
+                    {/if}
+                    {if !empty($archive_chapters)}
+                    <section class="bg-white border rounded p-3 mb-3">
+                        <div class="font-weight-bold mb-2">{:L('已归档到知识章节')}</div>
+                        <div class="text-muted font-12 mb-2">{:L('这条内容已经进入知识归档，可从章节视角继续查找相关资料。')}</div>
+                        {volist name="archive_chapters" id="chapter"}
+                        <a class="d-block py-2 border-bottom text-dark" href="{:url('help/detail',['token'=>$chapter['url_token']])}">
+                            <div class="font-weight-bold mb-1">{$chapter.title}</div>
+                            {if !empty($chapter.description)}<div class="text-muted font-12">{:str_cut(strip_tags((string)$chapter['description']),0,80)}</div>{/if}
+                        </a>
+                        {/volist}
+                    </section>
+                    {/if}
 
                     {if $attach_list}
                     {if get_plugins_config('paid_attach','enable')=='Y'}
@@ -248,23 +285,23 @@
                                 <div class="text-center d-block py-2" style="min-width: 100px">
                                     {if get_user_permission('recommend_post')=='Y'}
                                     <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-url="{:url('ajax.article/action',['type'=>'recommend','is_recommend'=>$article_info['is_recommend'],'article_id'=>$article_info['id']])}">
-                                        <span>{$article_info['is_recommend'] ? L('取消推荐') : L('推荐文章')}</span>
+                                        <span>{$article_info['is_recommend'] ? L('取消推荐') : '推荐内容'}</span>
                                     </a>
                                     {/if}
                                     {if get_user_permission('set_top_post')=='Y'}
                                     <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-url="{:url('ajax.article/action',['type'=>'set_top','set_top'=>$article_info['set_top'],'article_id'=>$article_info['id']])}">
-                                        <span>{$article_info['set_top'] ? L('取消置顶') : L('置顶文章')}</span>
+                                        <span>{$article_info['set_top'] ? L('取消置顶') : '置顶内容'}</span>
                                     </a>
                                     {/if}
 
                                     {if $user_id && (get_user_permission('modify_article') || $user_info['uid']==$article_info['uid'])}
                                     <a href="{:url('article/publish',['id'=>$article_info['id']])}" class=" py-1 text-muted dropdown-item" target="_blank">
-                                        <span>{:L('编辑文章')}</span>
+                                        <span>编辑内容</span>
                                     </a>
                                     {/if}
                                     {if $user_id && (get_user_permission('remove_article') || $user_info['uid']==$article_info['uid'])}
                                     <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-confirm="{:L('确定要删除吗')}?" data-url="{:url('ajax.article/remove_article',['id'=>$article_info['id']])}">
-                                        <span>{:L('删除文章')}</span>
+                                        <span>删除内容</span>
                                     </a>
                                     {/if}
 
@@ -463,7 +500,7 @@
                 {if $relation_article && $theme_config['article_detail']['sidebar_show_relation_article']=='Y'}
                 <div class="r-box mb-2 hot-topic">
                     <div class="r-title">
-                        <h4>{:L('相关文章')}</h4>
+                        <h4>{:L('相关内容')}</h4>
                         <a href="{:url('article/index',['sort'=>'hot'])}" target="_blank"><label class="iconfont">&#xe660;</label></a>
                     </div>
                     <div>
@@ -579,6 +616,17 @@
             if (event.key === 'Escape') {
                 closeDrawer();
             }
+        });
+    });
+</script>
+<script>
+    __onDomReady(function () {
+        if (!window.FrelinkAnalytics) return;
+        window.FrelinkAnalytics.trackDetailView({
+            item_type: 'article',
+            item_id: {$article_info['id']},
+            list_key: 'detail',
+            source: 'desktop_article_detail'
         });
     });
 </script>

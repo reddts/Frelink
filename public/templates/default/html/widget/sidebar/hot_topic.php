@@ -1,7 +1,7 @@
 {if !empty($topic_list)}
 <div class="r-box mb-2 hot-topic">
     <div class="r-title">
-        <h4>{:L('热门话题')}</h4>
+        <h4>{:L('核心主题')}</h4>
         <a href="{:url('topic/index',['type'=>'discuss'])}" target="_blank"><label class="iconfont">&#xe660;</label></a>
     </div>
     <div class="hot-list">

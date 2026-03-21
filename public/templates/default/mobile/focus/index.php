@@ -13,7 +13,7 @@
     <div class="swiper-container bg-white">
         <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block px-2 bg-white swiper-wrapper" style="flex-wrap: nowrap;">
             <li class="nav-item swiper-slide">
-                <a class="nav-link {$type=='question' ? 'active' : ''}" data-pjax="pageMain" href="{:url('focus/index',['type'=>'question'])}">{:L('问题')}</a>
+                <a class="nav-link {$type=='question' ? 'active' : ''}" data-pjax="pageMain" href="{:url('focus/index',['type'=>'question'])}">{:L('FAQ')}</a>
             </li>
             <li class="nav-item swiper-slide">
                 <a class="nav-link {$type=='topic' ? 'active' : ''}" data-pjax="pageMain" href="{:url('focus/index',['type'=>'topic'])}">{:L('话题')}</a>

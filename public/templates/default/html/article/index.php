@@ -1,4 +1,86 @@
 {extend name="$theme_block" /}
+{block name="style"}
+<style>
+    .aw-article-subnav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px 24px;
+        border-top: 1px solid #eef2f7;
+        border-bottom: 1px solid #eef2f7;
+        background: #fbfdff;
+    }
+    .aw-article-subnav .nav-link {
+        padding: 6px 14px;
+        border-radius: 999px;
+        border: 1px solid #dbe7f3;
+        color: #60758b;
+        font-size: 13px;
+        line-height: 1.2;
+        background: #fff;
+    }
+    .aw-article-subnav .nav-link.active,
+    .aw-article-subnav .nav-link:hover {
+        color: #fff;
+        background: #1d4ed8;
+        border-color: #1d4ed8;
+        text-decoration: none;
+    }
+    .aw-knowledge-hero {
+        padding: 20px 24px 10px;
+        border-bottom: 1px solid #eef2f7;
+        background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
+    }
+    .aw-knowledge-hero h1 {
+        margin: 0 0 8px;
+        font-size: 24px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .aw-knowledge-hero p {
+        margin: 0;
+        color: #64748b;
+        line-height: 1.7;
+    }
+    .aw-knowledge-lanes {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        padding: 14px 24px 18px;
+        border-bottom: 1px solid #eef2f7;
+        background: #fff;
+    }
+    .aw-knowledge-lane {
+        display: block;
+        padding: 14px;
+        border: 1px solid #e5edf6;
+        border-radius: 14px;
+        background: #fbfdff;
+        color: #0f172a;
+    }
+    .aw-knowledge-lane:hover {
+        text-decoration: none;
+        transform: translateY(-1px);
+        transition: all .2s ease;
+    }
+    .aw-knowledge-lane strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 15px;
+    }
+    .aw-knowledge-lane span {
+        display: block;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    @media (max-width: 991.98px) {
+        .aw-knowledge-lanes {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{/block}
 {block name="main"}
 <div class="aw-wrap mt-2" id="wrapMain">
     {if $setting.enable_category=='Y'}
@@ -7,27 +89,62 @@
     <div class="container">
         <div class="row justify-content-between">
             <div class="aw-left radius col-md-9 bg-white mb-2">
+                <div class="aw-knowledge-hero">
+                    <h1>{:frelink_article_type_label($article_type)}</h1>
+                    <p>
+                        {if $article_type=='research'}
+                        {:L('这里沉淀的是系统化综述，用来整理脉络、分歧和阶段性结论。')}
+                        {elseif $article_type=='fragment'/}
+                        {:L('这里沉淀的是观察记录，用来保留判断、线索和仍在形成中的洞见。')}
+                        {elseif $article_type=='faq'/}
+                        {:L('这里沉淀的是帮助内容，用来复用明确答案、规则和术语解释。')}
+                        {elseif $article_type=='tutorial'/}
+                        {:L('这里沉淀的是方法内容，用来输出步骤、实践和可执行方案。')}
+                        {else/}
+                        {:L('这里沉淀的是热点解释，用来回答“这件事为什么重要”。')}
+                        {/if}
+                    </p>
+                </div>
+                <div class="aw-knowledge-lanes">
+                    <a class="aw-knowledge-lane" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" data-pjax="wrapMain">
+                        <strong>{:L('最新更新')}</strong>
+                        <span>{:L('先看最近新增的内容，快速确认这一类知识最近补了什么。')}</span>
+                    </a>
+                    <a class="aw-knowledge-lane" href="{:url('article/index',['sort'=>'hot','category_id'=>$category,'type'=>$article_type])}" data-pjax="wrapMain">
+                        <strong>{:L('高关注内容')}</strong>
+                        <span>{:L('优先查看被持续阅读和讨论的条目，判断哪些主题最值得追踪。')}</span>
+                    </a>
+                    <a class="aw-knowledge-lane" href="{:url('topic/index')}">
+                        <strong>{:L('转到主题')}</strong>
+                        <span>{:L('如果你想看一组内容之间的关系和变化，继续沿主题入口展开。')}</span>
+                    </a>
+                </div>
                 <div class="nav nav-tabs aw-pjax-a px-4" role="tablist">
-                    <a class="nav-item nav-link {if $sort=='recommend'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'recommend','category_id'=>$category])}">{:L('推荐')}</a>
-                    <a class="nav-item nav-link {if $sort=='new'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'new','category_id'=>$category])}">{:L('最新')}</a>
-                    <a class="nav-item nav-link {if $sort=='hot'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'hot','category_id'=>$category])}">{:L('热门')}</a>
+                    <a class="nav-item nav-link {if $sort=='recommend'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'recommend','category_id'=>$category,'type'=>$article_type])}">{:L('精选')}</a>
+                    <a class="nav-item nav-link {if $sort=='new'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}">{:L('更新')}</a>
+                    <a class="nav-item nav-link {if $sort=='hot'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'hot','category_id'=>$category,'type'=>$article_type])}">{:L('高关注')}</a>
+                </div>
+                <div class="aw-article-subnav aw-pjax-a">
+                    {foreach $article_type_options as $typeKey => $label}
+                    <a class="nav-link {if $article_type==$typeKey}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>$sort,'category_id'=>$category,'type'=>$typeKey])}">{$label}</a>
+                    {/foreach}
                 </div>
 
                 <div id="tabMain" class="tab-content" >
                     <div class="tab-pane fade show active">
                         <div class="aw-common-list">
-                            {we:article sort="$sort" category_id="$category"}
+                            {we:article sort="$sort" category_id="$category" type="$article_type"}
                             <!--自定义内容列表页拓展钩子,可自定义内容页插入内如，如每多少条内容显示一条广告-->
                             {:hook('postsListsExtend',['info'=>$v,'key'=>$key,'type'=>'article'])}
-                            <dl>
+                            <dl class="js-analytics-impression" data-analytics-type="article" data-analytics-id="{$v['id']}" data-analytics-list="article_index" data-analytics-position="{$key + 1}" data-analytics-source="desktop_article_index">
                                 <dd>
                                     <div class="n-title">
-                                        <span class="tip-s2 badge badge-secondary">{:L('文章')}</span>
+                                        <span class="tip-s2 badge badge-secondary">{:frelink_article_type_label(isset($v['article_type']) ? $v['article_type'] : 'normal')}</span>
                                         {:hook('article_badge',$v)}
                                         {if $v.set_top}
                                         <span class="tip-d badge badge-secondary">{:L('顶')}</span>
                                         {/if}
-                                        <a href="{:url('article/detail',['id'=>$v['id']])}" target="_blank">{$v['title']|raw}</a>
+                                        <a href="{:url('article/detail',['id'=>$v['id']])}" target="_blank" class="js-analytics-click" data-analytics-type="article" data-analytics-id="{$v['id']}" data-analytics-list="article_index" data-analytics-position="{$key + 1}" data-analytics-source="desktop_article_index">{$v['title']|raw}</a>
                                         {:hook('extend_title_label',['area'=>'article_list','info'=>$v])}
                                     </div>
                                     <div class="pcon {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}row{/if}">

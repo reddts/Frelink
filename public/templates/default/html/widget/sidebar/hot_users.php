@@ -1,7 +1,7 @@
 {if !empty($people_list)}
 <div class="r-box mb-2">
     <div class="r-title">
-        <h4>{:L('热门用户')}</h4>
+        <h4>{:L('活跃作者')}</h4>
         <a href="{:url('people/lists')}" target="_blank"><label class="iconfont">&#xe660;</label></a>
     </div>
     <div class="hot-list hot-yh-list">

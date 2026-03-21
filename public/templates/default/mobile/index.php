@@ -1,8 +1,290 @@
 {extend name="$theme_block" /}
 {block name="main"}
 <div class="aui-content mescroll" id="ajaxPage">
+    <style>
+        .aw-mobile-hero {
+            margin: 12px;
+            padding: 18px 16px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f5f8ff 0%, #eef7f3 100%);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+        .aw-mobile-hero-title {
+            margin-bottom: 8px;
+            color: #0f172a;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+        .aw-mobile-hero-desc {
+            margin-bottom: 14px;
+            color: #475569;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .aw-mobile-search-form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .aw-mobile-search-input {
+            flex: 1;
+            height: 42px;
+            padding: 0 14px;
+            border: 1px solid #dbe4ee;
+            border-radius: 12px;
+            background: #fff;
+            font-size: 14px;
+        }
+        .aw-mobile-search-btn {
+            height: 42px;
+            padding: 0 16px;
+            border: 0;
+            border-radius: 12px;
+            background: #2563eb;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .aw-mobile-quick-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .aw-mobile-quick-card {
+            display: block;
+            padding: 12px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.92);
+            color: #0f172a;
+        }
+        .aw-mobile-quick-card strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .aw-mobile-quick-card span {
+            display: block;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .aw-mobile-section {
+            margin: 12px;
+            padding: 14px;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+        }
+        .aw-mobile-section-title {
+            margin-bottom: 10px;
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .aw-mobile-chip-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .aw-mobile-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 12px;
+        }
+        .aw-mobile-feature-item {
+            display: block;
+            padding: 10px 0;
+            border-bottom: 1px solid #eef2f7;
+            color: #0f172a;
+        }
+        .aw-mobile-feature-item:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+        .aw-mobile-feature-item small {
+            display: block;
+            margin-bottom: 4px;
+            color: #2563eb;
+        }
+        .aw-mobile-feature-item p {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .aw-mobile-secondary {
+            margin: 12px;
+        }
+        .aw-mobile-lane-list a {
+            display: block;
+            padding: 10px 0;
+            border-bottom: 1px solid #eef2f7;
+            color: #0f172a;
+        }
+        .aw-mobile-lane-list a:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+        .aw-mobile-lane-list small {
+            display: block;
+            margin-bottom: 4px;
+            color: #2563eb;
+        }
+        .aw-mobile-lane-list p {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .aw-mobile-secondary summary {
+            color: #64748b;
+            font-size: 13px;
+            cursor: pointer;
+            list-style: none;
+        }
+        .aw-mobile-secondary summary::-webkit-details-marker {
+            display: none;
+        }
+        .aw-mobile-feed-filter {
+            display: flex;
+            gap: 8px;
+            padding: 0 12px 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .aw-mobile-feed-filter a {
+            flex: 0 0 auto;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid #dbe7f3;
+            background: #fff;
+            color: #60758b;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .aw-mobile-feed-filter a.active {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            color: #fff;
+        }
+        .aw-mobile-feed-note {
+            padding: 0 12px 12px;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+        .aw-mobile-feed-head {
+            padding: 0 12px 10px;
+        }
+        .aw-mobile-feed-head h4 {
+            margin: 0 0 4px;
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .aw-mobile-feed-head p {
+            margin: 0;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+    </style>
+    <section class="aw-mobile-hero">
+        <div class="aw-mobile-hero-title">{:L('公开、开放、可检索的知识系统')}</div>
+        <div class="aw-mobile-hero-desc">{:L('用综述沉淀脉络，用主题追踪变化，用观察保留判断，用 FAQ 承接检索，不再依赖问答社区逻辑。')}</div>
+        <form class="aw-mobile-search-form" action="{:url('search/index')}" method="get">
+            <input class="aw-mobile-search-input" type="search" name="q" placeholder="{:L('搜索问题、文章、主题或帮助文档')}">
+            <button class="aw-mobile-search-btn" type="submit">{:L('搜索')}</button>
+        </form>
+        <div class="aw-mobile-quick-grid">
+            <a class="aw-mobile-quick-card" href="{:url('article/index',['type'=>'research'])}">
+                <strong>{:L('综述')}</strong>
+                <span>{:L('集中整理资料、分歧和阶段性结论')}</span>
+            </a>
+            <a class="aw-mobile-quick-card" href="{:url('topic/index')}">
+                <strong>{:L('主题')}</strong>
+                <span>{:L('按主题聚合变化、资料和后续追踪点')}</span>
+            </a>
+            <a class="aw-mobile-quick-card" href="{:url('article/index',['type'=>'fragment'])}">
+                <strong>{:L('观察')}</strong>
+                <span>{:L('记录判断、灵感和未完全展开但值得保留的线索')}</span>
+            </a>
+            <a class="aw-mobile-quick-card" href="{:url('question/index')}">
+                <strong>{:L('FAQ')}</strong>
+                <span>{:L('高频问题、术语解释和可快速复用的明确答案')}</span>
+            </a>
+            <a class="aw-mobile-quick-card" href="{:url('help/index')}">
+                <strong>{:L('帮助')}</strong>
+                <span>{:L('适合查看术语、规则和入门说明')}</span>
+            </a>
+        </div>
+    </section>
+    {if !empty($search_keywords)}
+    <section class="aw-mobile-section">
+        <div class="aw-mobile-section-title">最近有人在搜</div>
+        <div class="aw-mobile-chip-list">
+            {volist name="search_keywords" id="item"}
+            <a class="aw-mobile-chip" href="{:url('search/index',['q'=>$item['keyword']])}">{$item.keyword}</a>
+            {/volist}
+        </div>
+    </section>
+    {/if}
+    {if !empty($featured_content)}
+    <section class="aw-mobile-section">
+        <div class="aw-mobile-section-title">{:L('本周值得看')}</div>
+        {volist name="featured_content" id="item"}
+        <a class="aw-mobile-feature-item" href="{$item.url}" data-pjax="pageMain">
+            <small>{$item.item_type} · {:L('阅读')} {$item.detail_views}</small>
+            <strong>{$item.title}</strong>
+            {if $item.summary}<p>{$item.summary}</p>{/if}
+        </a>
+        {/volist}
+    </section>
+    {/if}
+    {if !empty($archive_chapters)}
+    <section class="aw-mobile-section">
+        <div class="aw-mobile-section-title">{:L('知识归档')}</div>
+        <div class="aw-mobile-lane-list">
+            {volist name="archive_chapters" id="chapter"}
+            <a href="{:url('help/detail',['token'=>$chapter['url_token']])}" data-pjax="pageMain">
+                <small>{:L('归档章节')} · {$chapter.relation_count|default=0} {:L('条内容')}</small>
+                <strong>{$chapter.title}</strong>
+                <p>{if !empty($chapter['chapters'][0]['info']['title'])}{$chapter['chapters'][0]['info']['title']}{else/}{:str_cut(strip_tags((string)$chapter['description']),0,60)}{/if}</p>
+            </a>
+            {/volist}
+        </div>
+    </section>
+    {/if}
+    <section class="aw-mobile-section">
+        <div class="aw-mobile-section-title">{:L('内容结构')}</div>
+        <div class="aw-mobile-lane-list">
+            <a href="{:url('article/index',['type'=>'research'])}" data-pjax="pageMain">
+                <small>{:L('综述')}</small>
+                <strong>{:L('先看脉络、分歧和阶段结论')}</strong>
+                <p>{:L('适合做长期沉淀和系统理解。')}</p>
+            </a>
+            <a href="{:url('article/index',['type'=>'fragment'])}" data-pjax="pageMain">
+                <small>{:L('观察')}</small>
+                <strong>{:L('先看快速判断和当下观察')}</strong>
+                <p>{:L('适合保留思考现场和形成连续输出。')}</p>
+            </a>
+            <a href="{:url('question/index')}" data-pjax="pageMain">
+                <small>{:L('FAQ')}</small>
+                <strong>{:L('先看高频问题和明确答案')}</strong>
+                <p>{:L('适合快速检索、复用和补齐站内知识缺口。')}</p>
+            </a>
+        </div>
+    </section>
     {:widget('sidebar/announce')}
-    <!--热门用户、话题-->
+    <details class="aw-mobile-secondary">
+        <summary>{:L('展开次级入口')}</summary>
+        <!--热门用户、话题-->
     {if get_theme_setting('mobile.index_hot_banner_enable','Y')=='Y'}
     <div class="hotUserTopic d-flex p-2">
         <div class="flex-fill mr-1">
@@ -18,26 +300,55 @@
     </div>
     {/if}
 
-    {:widget('sidebar/hotColumn',['uid'=>$user_id,'sort'=>'hot','per_page'=>get_setting('contents_per_page',15)])}
+    {:widget('sidebar/hotTopic',['uid'=>$user_id])}
+    </details>
+    <div class="aw-mobile-feed-head">
+        <h4>{:L('持续更新')}</h4>
+        <p>{:L('这里保留会持续滚动更新的知识流，用来补充综述、观察、FAQ 和帮助内容。')}</p>
+    </div>
+    <div class="aw-mobile-feed-filter">
+        <a class="{if !$type || $current_sort=='unresponsive'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort])}">{:L('全部内容')}</a>
+        <a class="{if $type=='question'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'question'])}">{:L('FAQ')}</a>
+        {if $current_sort!='unresponsive'}
+        <a class="{if $type=='article' && $article_type=='research'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'research'])}">{:L('综述')}</a>
+        <a class="{if $type=='article' && $article_type=='fragment'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'fragment'])}">{:L('观察')}</a>
+        <a class="{if $type=='article' && $article_type=='faq'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'faq'])}">{:L('帮助')}</a>
+        {/if}
+    </div>
+    <div class="aw-mobile-feed-note">
+        {if $current_sort=='unresponsive'}
+        {:L('当前只看仍待补充的 FAQ 条目，方便快速找到仍缺答案的内容。')}
+        {elseif $type=='question'}
+        {:L('当前只看 FAQ 条目，优先承接检索和高频问题。')}
+        {elseif $type=='article' && $article_type=='research'/}
+        {:L('当前只看综述，适合系统理解和长期跟踪。')}
+        {elseif $type=='article' && $article_type=='fragment'/}
+        {:L('当前只看观察，适合快速判断和思考现场。')}
+        {elseif $type=='article' && $article_type=='faq'/}
+        {:L('当前只看帮助内容，适合快速检索和直接取用。')}
+        {else/}
+        {:L('首页会混排综述、观察、FAQ 和帮助条目，帮助用户先找到合适的知识入口。')}
+        {/if}
+    </div>
 
     <div class="swiper-container">
         <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block px-2 bg-white swiper-wrapper" style="flex-wrap: nowrap;">
             {if $user_id}
             <li class="nav-item swiper-slide">
-                <a class="nav-link {if $sort=='focus'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>'focus'])}">{:L('关注')}</a>
+                <a class="nav-link {if $current_sort=='focus'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>'focus'])}">{:L('关注主题')}</a>
             </li>
             {/if}
             <li class="nav-item swiper-slide" data-type="new">
-                <a class="nav-link {if $sort=='new'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>'new'])}">{:L('最新')}</a>
+        <a class="nav-link {if $current_sort=='new'}active{/if}" data-pjax="pageMain" href="{:url('index/index',array_merge(['sort'=>'new'],$feed_query))}">{:L('更新')}</a>
             </li>
             <li class="nav-item swiper-slide" data-type="recommend">
-                <a class="nav-link {if $sort=='recommend'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>'recommend'])}">{:L('推荐')}</a>
+        <a class="nav-link {if $current_sort=='recommend'}active{/if}" data-pjax="pageMain" href="{:url('index/index',array_merge(['sort'=>'recommend'],$feed_query))}">{:L('精选')}</a>
             </li>
             <li class="nav-item swiper-slide" data-type="hot">
-                <a class="nav-link {if $sort=='hot'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>'hot'])}">{:L('热门')}</a>
+        <a class="nav-link {if $current_sort=='hot'}active{/if}" data-pjax="pageMain" href="{:url('index/index',array_merge(['sort'=>'hot'],$feed_query))}">{:L('高关注')}</a>
             </li>
             <li class="nav-item swiper-slide" data-type="unresponsive">
-                <a class="nav-link {if $sort=='unresponsive'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>'unresponsive'])}" >{:L('待回答')}</a>
+                <a class="nav-link {if $current_sort=='unresponsive'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>'unresponsive'])}" >{:L('待补充 FAQ')}</a>
             </li>
         </ul>
     </div>
@@ -58,7 +369,7 @@
                 $.ajax({
                     url: "{:url('ajax/lists')}?page="+pageNum,
                     type:"POST",
-                    data:{sort:'{$sort}'},
+                    data:{sort:'{$sort}',item_type:'{$type}',article_type:'{$article_type}'},
                     success: function(result) {
                         var curPageData = result.data.list || result.data.data;
                         var totalPage = result.data.total;

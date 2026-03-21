@@ -13,9 +13,9 @@
     <div class="container overflow-hidden">
         <h3 class="mb-0 float-left">{:htmlspecialchars_decode($question_info.title)}</h3>
         <div class="float-right">
-            <button onclick="AWS.User.focus(this,'question','{$question_info.id}')" class="btn btn-primary btn-sm px-3 mr-3 {if $question_info['has_focus']}active ygz{/if}">{$question_info['has_focus'] ? L('已关注') : L('关注问题')}</button>
+            <button onclick="AWS.User.focus(this,'question','{$question_info.id}')" class="btn btn-primary btn-sm px-3 mr-3 {if $question_info['has_focus']}active ygz{/if}">{$question_info['has_focus'] ? L('已关注') : L('关注 FAQ')}</button>
             <button class="btn btn-outline-primary btn-sm px-3 awsAnswerEditor" data-enable="{$user_id && $user_info['permission']['publish_answer_enable']=='N' ? 1 : 0}" data-question-id="{$question_info['id']}" data-answern-id="0">
-                {:L("回答问题")}</button>
+                {:L('补充答案')}</button>
         </div>
     </div>
 </div>
@@ -37,7 +37,7 @@
         {if $question_info['is_lock']}
         <div class="row">
             <div class="col-sm-12 pl-0">
-                <div class="alert alert-danger"><i class="icon icon-info"></i> {:L('该问题已被锁定')}！</div>
+                <div class="alert alert-danger"><i class="icon icon-info"></i> {:L('该 FAQ 已被锁定！')}</div>
             </div>
         </div>
         {/if}
@@ -84,6 +84,16 @@
                         </div>
                         <div class="aw-content-info">
                             {:hook('pageDetailTop',['info'=>$question_info])}
+                            {if !empty($summary_points)}
+                            <section class="bg-info-light rounded p-3 mb-3">
+                                <div class="font-weight-bold mb-2">{:L('30 秒看懂')}</div>
+                                <ul class="mb-0 pl-3 text-muted">
+                                    {volist name="summary_points" id="point"}
+                                    <li class="mb-1">{$point}</li>
+                                    {/volist}
+                                </ul>
+                            </section>
+                            {/if}
 
                             <div class="aw-content aw-content-body position-relative" id="question-content">
                                 <div id="show-all" >{$question_info.detail|raw}</div>
@@ -98,6 +108,30 @@
                             </div>
 
                             {:hook('pageDetailBottom',['info'=>$question_info])}
+                            {if !empty($next_reads)}
+                            <section class="bg-light rounded p-3 mb-3">
+                                <div class="font-weight-bold mb-2">{:L('下一步阅读')}</div>
+                                {volist name="next_reads" id="item"}
+                                <a class="d-block py-2 border-bottom text-dark" href="{$item.url}">
+                                    <div class="text-primary font-12 mb-1">{$item.label}</div>
+                                    <div class="font-weight-bold mb-1">{$item.title}</div>
+                                    {if $item.desc}<div class="text-muted font-12">{$item.desc}</div>{/if}
+                                </a>
+                                {/volist}
+                            </section>
+                            {/if}
+                            {if !empty($archive_chapters)}
+                            <section class="bg-white border rounded p-3 mb-3">
+                                <div class="font-weight-bold mb-2">{:L('已归档到知识章节')}</div>
+                                <div class="text-muted font-12 mb-2">{:L('这个 FAQ 已进入知识归档，后续可以从章节视角继续补充和维护。')}</div>
+                                {volist name="archive_chapters" id="chapter"}
+                                <a class="d-block py-2 border-bottom text-dark" href="{:url('help/detail',['token'=>$chapter['url_token']])}">
+                                    <div class="font-weight-bold mb-1">{$chapter.title}</div>
+                                    {if !empty($chapter.description)}<div class="text-muted font-12">{:str_cut(strip_tags((string)$chapter['description']),0,80)}</div>{/if}
+                                </a>
+                                {/volist}
+                            </section>
+                            {/if}
                             {if !$log}
                             <div class="actions">
                                 {if $isMobile}
@@ -109,8 +143,8 @@
                                         {:L('回复')}</button>
                                 </label>
                                 <label class="mr-3">
-                                    <a href="javascript:;" class="btn btn-outline-secondary btn-sm {$question_info['vote_value']==1 ? 'active' : ''}" onclick="AWS.User.agree(this,'question','{$question_info.id}');" title="{:L('这是个好问题')}"><i class="fa fa-thumbs-up"></i>
-                                        {:L('好问题')}</a>
+                                    <a href="javascript:;" class="btn btn-outline-secondary btn-sm {$question_info['vote_value']==1 ? 'active' : ''}" onclick="AWS.User.agree(this,'question','{$question_info.id}');" title="这条 FAQ 很有价值"><i class="fa fa-thumbs-up"></i>
+                                        {:L('高价值')}</a>
                                 </label>
                                 <div class="dropdown d-inline-block float-right">
                                     <a href="javascript:;" data-toggle="dropdown" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false">
@@ -123,44 +157,44 @@
                                             <a href="javascript:;" class="dropdown-item" onclick="AWS.User.favorite(this,'question','{$question_info.id}')">{if $checkFavorite} {:L('已收藏')}{else}{:L('收藏')}{/if} </a>
                                             <a href="javascript:;" class="dropdown-item" {if !$checkReport} onclick="AWS.User.report(this,'question','{$question_info.id}')" {/if} >{if $checkReport}{:L('已举报')}{else}{:L('举报')}{/if}</a>
                                             <a href="javascript:;" class="dropdown-item" onclick="AWS.User.invite(this,'{$question_info.id}')">
-                                                <span>{:L('邀请回答')}</span>
+                                                <span>{:L('邀请补充')}</span>
                                             </a>
                                             <a class="dropdown-item" href="{:url('question/detail',['id'=>$question_info['id'],'log'=>1])}">
                                                 <span>{:L('修改记录')}</span>
                                             </a>
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('modify_question')=='Y'}
-                                            <a href="{:url('question/publish?id='.$question_info['id'])}" class="dropdown-item"><span>{:L('编辑问题')}</span></a>
+                                            <a href="{:url('question/publish?id='.$question_info['id'])}" class="dropdown-item"><span>{:L('编辑 FAQ')}</span></a>
                                             {/if}
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('remove_question')=='Y'}
                                             <a class="aw-ajax-get dropdown-item"  href="javascript:;" data-confirm="{:L('是否删除该问题')}?" data-url="{:url('ajax.Question/remove_question',['id'=>$question_info['id']])}">
-                                                <span>{:L('删除问题')}</span>
+                                                <span>{:L('删除 FAQ')}</span>
                                             </a>
                                             {/if}
                                             {if isSuperAdmin() || isNormalAdmin() || get_user_permission('recommend_post')=='Y'}
                                             <a href="javascript:;" class="aw-ajax-get dropdown-item" data-url="{:url('ajax.Question/manager',['id'=>$question_info['id'],'type'=>$question_info['is_recommend'] ? 'un_recommend' : 'recommend'])}">
-                                                <span>{$question_info['is_recommend'] ? L('取消推荐') : L('推荐问题')}</span>
+                                                <span>{$question_info['is_recommend'] ? L('取消推荐') : L('推荐 FAQ')}</span>
                                             </a>
                                             {/if}
                                             {if isSuperAdmin() || isNormalAdmin() || get_user_permission('set_top_post')=='Y'}
                                             <a  href="javascript:;" class="aw-ajax-get dropdown-item" data-url="{:url('ajax.Question/manager',['id'=>$question_info['id'],'type'=> $question_info['set_top'] ? 'unset_top' : 'set_top'])}">
-                                                <span>{$question_info['set_top'] ? L('取消置顶') : L('置顶问题')}</span>
+                                                <span>{$question_info['set_top'] ? L('取消置顶') : L('置顶 FAQ')}</span>
                                             </a>
                                             {/if}
 
                                             {if (isSuperAdmin() || isNormalAdmin() || get_user_permission('lock_question')=='Y') && !$question_info['is_lock']}
-                                            <a class="aw-ajax-get dropdown-item" data-title="锁定问题" href="javascript:;" data-url="{:url('ajax.Question/lock_question',['question_id'=>$question_info['id']])}">
-                                                <span>{:L('锁定问题')}</span>
+                                            <a class="aw-ajax-get dropdown-item" data-title="{:L('锁定 FAQ')}" href="javascript:;" data-url="{:url('ajax.Question/lock_question',['question_id'=>$question_info['id']])}">
+                                                <span>{:L('锁定 FAQ')}</span>
                                             </a>
                                             {/if}
 
                                             {if isSuperAdmin() || isNormalAdmin() || get_user_permission('redirect_question')=='Y'}
-                                            <a class="aw-ajax-open dropdown-item" data-title="问题重定向" href="javascript:;" data-url="{:url('ajax.Question/redirect_content',['item_id'=>$question_info['id'],'item_type'=>'question'])}">
-                                                <span>{:L('问题重定向')}</span>
+                                            <a class="aw-ajax-open dropdown-item" data-title="{:L('FAQ 重定向')}" href="javascript:;" data-url="{:url('ajax.Question/redirect_content',['item_id'=>$question_info['id'],'item_type'=>'question'])}">
+                                                <span>{:L('FAQ 重定向')}</span>
                                             </a>
                                             {/if}
 
                                             {if isSuperAdmin() || isNormalAdmin()}
-                                            <a class="aw-ajax-open dropdown-item" data-title="添加到帮助" href="javascript:;" data-url="{:url('ajax.Help/select_chapter',['item_id'=>$question_info['id'],'item_type'=>'question'])}">
+                                            <a class="aw-ajax-open dropdown-item" data-title="{:L('添加到帮助')}" href="javascript:;" data-url="{:url('ajax.Help/select_chapter',['item_id'=>$question_info['id'],'item_type'=>'question'])}">
                                                 <span>{:L('添加到帮助')}</span>
                                             </a>
                                             {/if}
@@ -169,19 +203,19 @@
                                 </div>
                                 {else/}
                                 <label class="mr-3">
-                                    <button onclick="AWS.User.focus(this,'question','{$question_info.id}')" class="btn btn-primary btn-sm px-3 {if $question_info['has_focus']}active ygz{/if}">{$question_info['has_focus'] ? L('已关注') : L('关注问题')}</button>
+                                    <button onclick="AWS.User.focus(this,'question','{$question_info.id}')" class="btn btn-primary btn-sm px-3 {if $question_info['has_focus']}active ygz{/if}">{$question_info['has_focus'] ? L('已关注') : L('关注 FAQ')}</button>
                                 </label>
                                 <label class="mr-3">
                                     <button class="btn btn-outline-primary btn-sm px-3 awsAnswerEditor" data-enable="{$user_id && $user_info['permission']['publish_answer_enable']=='N' ? 1 : 0}" data-question-id="{$question_info['id']}" data-answern-id="0">
-                                        {:L('回答问题')}</button>
+                                        {:L('补充答案')}</button>
                                 </label>
                                 <label class="mr-4">
                                     <button class="btn btn-outline-secondary btn-sm px-3" onclick="AWS.User.invite(this,'{$question_info.id}')">
-                                        {:L('邀请回答')}</button>
+                                        {:L('邀请补充')}</button>
                                 </label>
                                 <label class="mr-3">
-                                    <a href="javascript:;" class="{$question_info['vote_value']==1 ? 'active' : ''}" onclick="AWS.User.agree(this,'question','{$question_info.id}');" title="{:L('这是个好问题')}"><i class="fa fa-thumbs-up"></i>
-                                        {:L('好问题')}</a>
+                                    <a href="javascript:;" class="{$question_info['vote_value']==1 ? 'active' : ''}" onclick="AWS.User.agree(this,'question','{$question_info.id}');" title="这条 FAQ 很有价值"><i class="fa fa-thumbs-up"></i>
+                                        {:L('高价值')}</a>
                                 </label>
                                 <label class="mr-3 questionCommentBtn" data-id="{$question_info['id']}">
                                     <a href="javascript:;"><i class="fa fa-keyboard"></i> <span class="question-comment-count">{$question_info['comment_count']}</span> {:L('评论')}</a>
@@ -229,36 +263,36 @@
                                                 <span>{:L('修改记录')}</span>
                                             </a>
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('modify_question')=='Y'}
-                                            <a href="{:url('question/publish?id='.$question_info['id'])}" class="dropdown-item"><span>{:L('编辑问题')}</span></a>
+                                            <a href="{:url('question/publish?id='.$question_info['id'])}" class="dropdown-item"><span>{:L('编辑 FAQ')}</span></a>
                                             {/if}
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('remove_question')=='Y'}
                                             <a class="aw-ajax-get dropdown-item"  href="javascript:;" data-confirm="{:L('是否删除该问题')}?" data-url="{:url('ajax.Question/remove_question',['id'=>$question_info['id']])}">
-                                                <span>{:L('删除问题')}</span>
+                                                <span>{:L('删除 FAQ')}</span>
                                             </a>
                                             {/if}
                                             {if isSuperAdmin() || isNormalAdmin() || get_user_permission('recommend_post')=='Y'}
                                             <a href="javascript:;" class="aw-ajax-get dropdown-item" data-url="{:url('ajax.Question/manager',['id'=>$question_info['id'],'type'=>$question_info['is_recommend'] ? 'un_recommend' : 'recommend'])}">
-                                                <span>{$question_info['is_recommend'] ? L('取消推荐') : L('推荐问题')}</span>
+                                                <span>{$question_info['is_recommend'] ? L('取消推荐') : L('推荐 FAQ')}</span>
                                             </a>
                                             {/if}
                                             {if isSuperAdmin() || isNormalAdmin() || get_user_permission('set_top_post')=='Y'}
                                             <a  href="javascript:;" class="aw-ajax-get dropdown-item" data-url="{:url('ajax.Question/manager',['id'=>$question_info['id'],'type'=> $question_info['set_top'] ? 'unset_top' : 'set_top'])}">
-                                                <span>{$question_info['set_top'] ? L('取消置顶') : L('置顶问题')}</span>
+                                                <span>{$question_info['set_top'] ? L('取消置顶') : L('置顶 FAQ')}</span>
                                             </a>
                                             {/if}
                                             {if (isSuperAdmin() || isNormalAdmin() || get_user_permission('lock_question')=='Y') && !$question_info['is_lock']}
-                                            <a class="aw-ajax-get dropdown-item" data-title="锁定问题" href="javascript:;" data-url="{:url('ajax.Question/lock_question',['question_id'=>$question_info['id']])}">
-                                                <span>{:L('锁定问题')}</span>
+                                            <a class="aw-ajax-get dropdown-item" data-title="{:L('锁定 FAQ')}" href="javascript:;" data-url="{:url('ajax.Question/lock_question',['question_id'=>$question_info['id']])}">
+                                                <span>{:L('锁定 FAQ')}</span>
                                             </a>
                                             {/if}
                                             {if isSuperAdmin() || isNormalAdmin() || get_user_permission('redirect_question')=='Y'}
-                                            <a class="aw-ajax-open dropdown-item" data-title="问题重定向" href="javascript:;" data-url="{:url('ajax.Question/redirect_content',['item_id'=>$question_info['id']])}">
-                                                <span>{:L('问题重定向')}</span>
+                                            <a class="aw-ajax-open dropdown-item" data-title="{:L('FAQ 重定向')}" href="javascript:;" data-url="{:url('ajax.Question/redirect_content',['item_id'=>$question_info['id']])}">
+                                                <span>{:L('FAQ 重定向')}</span>
                                             </a>
                                             {/if}
 
                                             {if isSuperAdmin() || isNormalAdmin()}
-                                            <a class="aw-ajax-open dropdown-item" data-title="添加到帮助" href="javascript:;" data-url="{:url('ajax.Help/select_chapter',['item_id'=>$question_info['id'],'item_type'=>'question'])}">
+                                            <a class="aw-ajax-open dropdown-item" data-title="{:L('添加到帮助')}" href="javascript:;" data-url="{:url('ajax.Help/select_chapter',['item_id'=>$question_info['id'],'item_type'=>'question'])}">
                                                 <span>{:L('添加到帮助')}</span>
                                             </a>
                                             {/if}
@@ -840,6 +874,17 @@
             $(this).hide();
             $(this).parents('.aw-answer-item').find('.aw-answer-content').show().css('height','200px');
             $(this).parents('.aw-answer-item').find('.aw-answer-show').show();
+        });
+    });
+</script>
+<script>
+    __onDomReady(function () {
+        if (!window.FrelinkAnalytics) return;
+        window.FrelinkAnalytics.trackDetailView({
+            item_type: 'question',
+            item_id: {$question_info['id']},
+            list_key: 'detail',
+            source: 'desktop_question_detail'
         });
     });
 </script>

@@ -5,7 +5,7 @@
 {:hook('postsListsExtend',['info'=>$v,'key'=>$key,'type'=>'index'])}
 
 {if($v['item_type']=="question")}
-<dl>
+<dl class="js-analytics-impression" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="desktop_home_feed" data-analytics-position="{$key + 1}" data-analytics-source="home_feed">
     <dt>
         {if (!$v['answer_info'])}
         {if $v.is_anonymous}
@@ -17,7 +17,7 @@
             <img src="{$v['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['user_info']['name']}" loading="lazy" decoding="async">{$v['user_info']['name']}
         </a>
         {/if}
-        <i>{:L('发起了提问')}</i>
+        <i>{:L('补充了 FAQ')}</i>
         <em class="time">{:date_friendly($v['update_time'])}</em>
         {else/}
         {if $v['answer_info']['is_anonymous']}
@@ -29,7 +29,7 @@
             <img src="{$v['answer_info']['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['answer_info']['user_info']['name']}" loading="lazy" decoding="async">{$v['answer_info']['user_info']['name']}
         </a>
         {/if}
-        <i>{:L('回复了问题')}</i>
+        <i>{:L('更新了 FAQ 答案')}</i>
         <em class="time">{:date_friendly($v['answer_info']['create_time'])}</em>
         {/if}
         {if isset($v['topics']) && !empty($v['topics'])}
@@ -42,13 +42,14 @@
     </dt>
     <dd>
         <div class="n-title">
-            <span class="tip-s1 badge badge-secondary">{:L('问答')}</span>
+            <span class="tip-s1 badge badge-secondary">{:L('FAQ')}</span>
             {if $v.set_top}
             <span class="tip-d badge badge-secondary">{:L('顶')}</span>
             {/if}
-            <a href="{:url('question/detail',['id'=>$v['id']])}" target="_blank">{$v.title|raw}</a>
+            <a href="{:url('question/detail',['id'=>$v['id']])}" target="_blank" class="js-analytics-click" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="desktop_home_feed" data-analytics-position="{$key + 1}" data-analytics-source="home_feed">{$v.title|raw}</a>
             {:hook('extend_title_label',['area'=>'widget_list','info'=>$v])}
         </div>
+        <div class="text-muted mb-2" style="font-size: 13px;">沉淀高频问题、明确答案和后续补充说明，作为知识系统的检索入口。</div>
         <div class="pcon {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}row{/if}">
             {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}
             <div class="col-md-12 t-imglist row">
@@ -93,7 +94,7 @@
     <dd>
         {if (!$v['answer_info'])}
         <label>
-            <a type="button" href="javascript:;" class="{$v['has_focus'] ? 'ygz' : 'gz'} btn btn-primary btn-sm" onclick="AWS.User.focus(this,'question','{$v.id}')">{$v['has_focus'] ? L('已关注') : L('关注问题')} <span class="badge focus-count">{$v.focus_count}</span></a>
+            <a type="button" href="javascript:;" class="{$v['has_focus'] ? 'ygz' : 'gz'} btn btn-primary btn-sm" onclick="AWS.User.focus(this,'question','{$v.id}')">{$v['has_focus'] ? L('已关注') : L('关注 FAQ')} <span class="badge focus-count">{$v.focus_count}</span></a>
         </label>
         <label class="ml-3 mr-3"><i class="iconfont">&#xe870;</i> {$v.agree_count}</label>
         <label class="mr-3"><i class="iconfont">&#xe601;</i> {:L('%s 评论',$v['comment_count'])}</label>
@@ -110,16 +111,27 @@
 </dl>
 
 {elseif($v['item_type']=="article")}
-<dl>
+<dl class="js-analytics-impression" data-analytics-type="article" data-analytics-id="{$v['id']}" data-analytics-list="desktop_home_feed" data-analytics-position="{$key + 1}" data-analytics-source="home_feed">
     <dd>
         <div class="n-title">
-            <span class="tip-s2 badge badge-secondary">{:L('文章')}</span>
+            <span class="tip-s2 badge badge-secondary">{:frelink_article_type_label(isset($v['article_type']) ? $v['article_type'] : 'normal')}</span>
             {:hook('article_badge',$v)}
             {if $v.set_top}
             <span class="tip-d badge badge-secondary">{:L('顶')}</span>
             {/if}
-            <a href="{:url('article/detail',['id'=>$v['id']])}" target="_blank">{$v['title']|raw}</a>
+            <a href="{:url('article/detail',['id'=>$v['id']])}" target="_blank" class="js-analytics-click" data-analytics-type="article" data-analytics-id="{$v['id']}" data-analytics-list="desktop_home_feed" data-analytics-position="{$key + 1}" data-analytics-source="home_feed">{$v['title']|raw}</a>
             {:hook('extend_title_label',['area'=>'widget_list','info'=>$v])}
+        </div>
+        <div class="text-muted mb-2" style="font-size: 13px;">
+            {if isset($v['article_type']) && $v['article_type']=='research'}
+            适合系统整理资料脉络、核心分歧和阶段性结论。
+            {elseif isset($v['article_type']) && $v['article_type']=='fragment'/}
+            适合保留观察、判断和仍在形成中的思考线索。
+            {elseif isset($v['article_type']) && $v['article_type']=='faq'/}
+            适合快速检索、复用和补齐高频问题答案。
+            {else/}
+            适合做热点解释、案例复盘和完整展开的主题内容。
+            {/if}
         </div>
         <div class="pcon {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}row{/if}">
             {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}

@@ -25,13 +25,13 @@
                             {$v['user_info']['name']}
                         </a>
                         {/if}
-                        <span class="d-block text-muted font-9">{:L('发起了提问')}</span>
+                        <span class="d-block text-muted font-9">{:L('补充了 FAQ')}</span>
                         <em class="time position-absolute" style="right: 0.5rem;top: 1rem;">{:date_friendly($v['create_time'])}</em>
                     </div>
                 </div>
                 <div class="img" style="min-height: 24px;height: auto">
                     <div class="img-mask font-weight-bold aw-one-line" style="background: none;height: auto;line-height: unset">
-                        <span class="tip-s1 badge badge-secondary">{:L('问')}</span>
+                        <span class="tip-s1 badge badge-secondary">{:L('FAQ')}</span>
                         <a href="{:url('question/detail',['id'=>$v['id']])}">{$v.title}</a>
                     </div>
                 </div>
@@ -48,7 +48,7 @@
                     </a>
                 </div>
                 <div class="aui-btn"><i class="iconfont iconmessage"></i><span>{$v['answer_count']}</span></div>
-                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享问题')}</div>
+                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享 FAQ')}</div>
             </div>
         </div>
     </div>
@@ -123,7 +123,7 @@
     <div class="aui-card-down row-before" style="padding: 0;">
         <div class="aui-list" style="background: none;">
             <div class="aui-list-left text-muted">
-                <span class="mr-4">{:L('文章')} {$v.post_count|num2string}</span>
+                <span class="mr-4">内容 {$v.post_count|num2string}</span>
                 <span>{:L('关注')} {$v.focus_count|num2string}</span>
             </div>
             <div class="aui-list-right">

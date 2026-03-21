@@ -75,6 +75,7 @@
         window.userName = "{$user_info['nick_name']|default=''}";
         window.baseUrl = '{$baseUrl}';
         window.cdnUrl = '{$cdnUrl}';
+        window.analyticsEndpoint = '{$baseUrl}/api/Insight/track';
         window.thisController ="{$thisController|default=''}";
         window.thisAction ="{$thisAction|default=''}";
         window.staticUrl = cdnUrl + '/static/';
@@ -99,6 +100,7 @@
     {/if}
     <script defer src="{$cdnUrl}/static/common/js/tools.js?v={$version}" type="text/javascript"></script>
     <script defer src="{$cdnUrl}/static/common/js/aws.js?v={$version}" type="text/javascript"></script>
+    <script defer src="{$cdnUrl}/static/common/js/analytics.js?v={$version}" type="text/javascript"></script>
     <script defer src="{$cdnUrl}/static/common/js/app.js?v={$version}"></script>
     {:hook('globalAssert')}
     {block name="meta_script"} {/block}
@@ -121,27 +123,27 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse newnavbar" id="navbarNavDropdown" style="justify-content: space-between">
-                    <div class="nav-links-container position-relative" style="max-width: 370px;z-index: 1">
-                        <ul class="navbar-nav navbar-new-nav">
+                    <div class="nav-links-container position-relative d-flex align-items-stretch flex-grow-1" style="max-width: none; min-width: 0; z-index: 1">
+                        <ul class="navbar-nav navbar-new-nav flex-row flex-nowrap align-items-stretch">
                             {foreach $navMenu as $k=>$v}
                             {if $k<5}
-                            <li class="nav-item {$v.active ? 'cur' : ''} clearfix" style="width: auto!important">
+                            <li class="nav-item {$v.active ? 'cur' : ''} clearfix" style="width: auto!important; flex: 0 0 auto;">
                                 {if $v.child_list}
-                                <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{$v.title}</a>
+                                <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="white-space: nowrap;">{$v.title}</a>
                                 <div class="dropdown-menu text-center" aria-labelledby="navbarDropdownMenuLink">
                                     {volist name="$v['child_list']" id="v1"}
                                     <a class="dropdown-item" href="{$v1.url}" data-pjax="pageMain" title="{$v1.title}">{$v1.title}</a>
                                     {/volist}
                                 </div>
                                 {else/}
-                                <a class="nav-link" href="{$v.url}" data-pjax="pageMain" title="{$v.title}">{$v.title}</a>
+                                <a class="nav-link" href="{$v.url}" data-pjax="pageMain" title="{$v.title}" style="white-space: nowrap;">{$v.title}</a>
                                 {/if}
                             </li>
                             {/if}
                             {/foreach}
                             {if count($navMenu)>5}
-                            <li class="nav-item {$v.active ? 'cur' : ''} clearfix" style="width: auto!important">
-                                <a class="nav-link dropdown-toggle" href="#"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{:L('更多')}</a>
+                            <li class="nav-item {$v.active ? 'cur' : ''} clearfix" style="width: auto!important; flex: 0 0 auto;">
+                                <a class="nav-link dropdown-toggle" href="#"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="white-space: nowrap;">{:L('更多')}</a>
                                 <div class="dropdown-menu text-center" aria-labelledby="navbarDropdownMenuLink">
                                     {foreach $navMenu as $k=>$v1}
                                     {if $k>=5}

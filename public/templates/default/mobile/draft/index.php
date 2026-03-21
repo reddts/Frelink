@@ -13,13 +13,13 @@
     <div class="swiper-container bg-white">
         <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block px-3 bg-white swiper-wrapper" style="flex-wrap: nowrap;">
             <li class="nav-item swiper-slide">
-                <a class="nav-link {$type=='question' ? 'active' : ''}" data-pjax="pageMain" href="{:url('draft/index',['type'=>'question'])}">{:L('问题')}</a>
+                <a class="nav-link {$type=='question' ? 'active' : ''}" data-pjax="pageMain" href="{:url('draft/index',['type'=>'question'])}">{:L('FAQ')}</a>
             </li>
             <li class="nav-item swiper-slide">
-                <a class="nav-link {$type=='article' ? 'active' : ''}" data-pjax="pageMain" href="{:url('draft/index',['type'=>'article'])}">{:L('文章')}</a>
+                <a class="nav-link {$type=='article' ? 'active' : ''}" data-pjax="pageMain" href="{:url('draft/index',['type'=>'article'])}">{:L('内容')}</a>
             </li>
             <li class="nav-item swiper-slide">
-                <a class="nav-link {$type=='answer' ? 'active' : ''}" data-pjax="pageMain" href="{:url('draft/index',['type'=>'answer'])}">{:L('回答')}</a>
+                <a class="nav-link {$type=='answer' ? 'active' : ''}" data-pjax="pageMain" href="{:url('draft/index',['type'=>'answer'])}">{:L('补充')}</a>
             </li>
         </ul>
     </div>

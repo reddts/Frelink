@@ -38,7 +38,7 @@
                                         <img src="{$v['user_info']['avatar']}"  onerror="this.src='/static/common/image/default-avatar.svg'"  class="circle" alt="{$v['user_info']['name']}">{$v['user_info']['name']}
                                     </a>
                                     {/if}
-                                    <i>{:L('发起了提问')}</i>
+                                    <i>{:L('补充了 FAQ')}</i>
                                     <em class="time">{:date_friendly($v['create_time'])}</em>
                                     {if $v['topics']}
                                     <div class="tag d-inline-block">
@@ -50,7 +50,7 @@
                                 </dt>
                                 <dd>
                                     <div class="n-title">
-                                        <span class="tip-s1 badge badge-secondary">{:L('问答')}</span>
+                                        <span class="tip-s1 badge badge-secondary">{:L('FAQ')}</span>
                                         {if $v.set_top}
                                         <span class="tip-d badge badge-secondary">{:L('顶')}</span>
                                         {/if}
@@ -81,7 +81,7 @@
                                 </dd>
                                 <dd>
                                     <label>
-                                        <a type="button" class="{$v['has_focus'] ? 'ygz' : 'gz'} btn btn-primary btn-sm" onclick="AWS.User.focus(this,'question','{$v.id}')">{$v['has_focus'] ? L('已关注') : L('关注问题')} <span class="badge focus-count">{$v.focus_count}</span></a>
+                                        <a type="button" class="{$v['has_focus'] ? 'ygz' : 'gz'} btn btn-primary btn-sm" onclick="AWS.User.focus(this,'question','{$v.id}')">{$v['has_focus'] ? L('已关注') : L('关注 FAQ')} <span class="badge focus-count">{$v.focus_count}</span></a>
                                     </label>
                                     <label class="ml-3 mr-3"><i class="iconfont">&#xe870;</i> {$v.agree_count}</label>
                                     <label class="mr-3"><i class="iconfont">&#xe601;</i> {$v['comment_count']}评论</label>
@@ -93,7 +93,7 @@
                             <dl>
                                 <dd>
                                     <div class="n-title">
-                                        <span class="tip-s2 badge badge-secondary">{:L('文章')}</span>
+                                        <span class="tip-s2 badge badge-secondary">{:frelink_article_type_label($v['article_type'] ?? 'normal')}</span>
                                         {:hook('article_badge')}
                                         {if $v.set_top}
                                         <span class="tip-d badge badge-secondary">{:L('顶')}</span>
@@ -196,7 +196,7 @@
                                         <img src="{$v['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['user_info']['name']}">{$v['user_info']['name']}
                                     </a>
                                     {/if}
-                                    <i>{:L('发起了提问')}</i>
+                                    <i>{:L('补充了 FAQ')}</i>
                                     <em class="time">{:date_friendly($v['create_time'])}</em>
                                     {else/}
                                     {if $v['answer_info']['is_anonymous']}
@@ -208,7 +208,7 @@
                                         <img src="{$v['answer_info']['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['answer_info']['user_info']['name']}">{$v['answer_info']['user_info']['name']}
                                     </a>
                                     {/if}
-                                    <i>{:L('回复了问题')}（{$v['answer_count']}{:L('回复')}）</i>
+                                    <i>{:L('补充了 FAQ')}（{$v['answer_count']}{:L('条补充')}）</i>
                                     <em class="time">{:date_friendly($v['answer_info']['create_time'])}</em>
                                     {/if}
                                     {if $v['topics']}
@@ -221,7 +221,7 @@
                                 </dt>
                                 <dd>
                                     <div class="n-title">
-                                        <span class="tip-s1 badge badge-secondary">{:L('问答')}</span>
+                                        <span class="tip-s1 badge badge-secondary">{:L('FAQ')}</span>
                                         {if $v.set_top}
                                         <span class="tip-d badge badge-secondary">{:L('顶')}</span>
                                         {/if}
@@ -257,7 +257,7 @@
                                 <dd>
                                     {if (!$v['answer_info'])}
                                     <label>
-                                        <a type="button" class="{$v['has_focus'] ? 'ygz' : 'gz'} btn btn-primary btn-sm" onclick="AWS.User.focus(this,'question','{$v.id}')">{$v['has_focus'] ? L('已关注') : L('关注问题')} <span class="badge focus-count">{$v.focus_count}</span></a>
+                                        <a type="button" class="{$v['has_focus'] ? 'ygz' : 'gz'} btn btn-primary btn-sm" onclick="AWS.User.focus(this,'question','{$v.id}')">{$v['has_focus'] ? L('已关注') : L('关注 FAQ')} <span class="badge focus-count">{$v.focus_count}</span></a>
                                     </label>
                                     <label class="ml-3 mr-3"><i class="iconfont">&#xe870;</i> {$v.agree_count}</label>
                                     <label class="mr-3"><i class="iconfont">&#xe601;</i> {$v['comment_count']}{:L('评论')}</label>

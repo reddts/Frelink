@@ -10,7 +10,7 @@
 		<div class="profile-meta aw-grid">
 			<dl class="aw-width-1-4">
 				<dt>{$user_info['question_count']}</dt>
-				<dd>{:L('问题')}</dd>
+				<dd>{:L('FAQ')}</dd>
 			</dl>
 			<dl class="aw-width-1-4">
 				<dt>{$user_info['answer_count']}</dt>
@@ -18,7 +18,7 @@
 			</dl>
 			<dl class="aw-width-1-4">
 				<dt>{$user_info['article_count']}</dt>
-				<dd>{:L('文章')}</dd>
+				<dd>{:L('综述')}</dd>
 			</dl>
 			<dl class="aw-width-1-4">
 				<dt>{$user_info['agree_count']}</dt>

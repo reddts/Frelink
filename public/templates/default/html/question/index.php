@@ -1,4 +1,61 @@
 {extend name="$theme_block" /}
+{block name="style"}
+<style>
+    .aw-faq-hero {
+        padding: 20px 24px 10px;
+        border-bottom: 1px solid #eef2f7;
+        background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
+    }
+    .aw-faq-hero h1 {
+        margin: 0 0 8px;
+        font-size: 24px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .aw-faq-hero p {
+        margin: 0;
+        color: #64748b;
+        line-height: 1.7;
+    }
+    .aw-faq-lanes {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        padding: 14px 24px 18px;
+        border-bottom: 1px solid #eef2f7;
+        background: #fff;
+    }
+    .aw-faq-lane {
+        display: block;
+        padding: 14px;
+        border: 1px solid #e5edf6;
+        border-radius: 14px;
+        background: #fbfdff;
+        color: #0f172a;
+    }
+    .aw-faq-lane:hover {
+        text-decoration: none;
+        transform: translateY(-1px);
+        transition: all .2s ease;
+    }
+    .aw-faq-lane strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 15px;
+    }
+    .aw-faq-lane span {
+        display: block;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    @media (max-width: 991.98px) {
+        .aw-faq-lanes {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{/block}
 {block name="main"}
 <div class="aw-wrap mt-2" id="wrapMain">
     {if $setting.enable_category=='Y'}
@@ -7,11 +64,29 @@
     <div class="container">
         <div class="row justify-content-between">
             <div class="aw-left radius col-md-9 bg-white mb-2">
+                <div class="aw-faq-hero">
+                    <h1>{:L('FAQ')}</h1>
+                    <p>{:L('这里承接高频问题、明确答案和可复用解释。它不再是社区问答流，而是公开知识系统里的答案入口。')}</p>
+                </div>
+                <div class="aw-faq-lanes">
+                    <a class="aw-faq-lane" href="{:url('question/index',['sort'=>'new','category_id'=>$category])}" data-pjax="wrapMain">
+                        <strong>{:L('最新补充')}</strong>
+                        <span>{:L('查看最近补入系统的 FAQ 条目，快速确认近期新增了哪些明确答案。')}</span>
+                    </a>
+                    <a class="aw-faq-lane" href="{:url('question/index',['sort'=>'unresponsive','category_id'=>$category])}" data-pjax="wrapMain">
+                        <strong>{:L('待补充 FAQ')}</strong>
+                        <span>{:L('优先发现仍缺答案或需要继续完善说明的问题入口。')}</span>
+                    </a>
+                    <a class="aw-faq-lane" href="{:url('topic/index')}">
+                        <strong>{:L('转到主题')}</strong>
+                        <span>{:L('如果单条 FAQ 不够，就沿主题继续追踪背景、资料和后续变化。')}</span>
+                    </a>
+                </div>
                 <div class="nav nav-tabs aw-pjax-a px-4" role="tablist">
-                    <a class="nav-item nav-link {if $sort=='recommend'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'recommend','category_id'=>$category])}">{:L('推荐')}</a>
-                    <a class="nav-item nav-link {if $sort=='new'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'new','category_id'=>$category])}">{:L('最新')}</a>
-                    <a class="nav-item nav-link {if $sort=='hot'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'hot','category_id'=>$category])}">{:L('热门')}</a>
-                    <a class="nav-item nav-link {if $sort=='unresponsive'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'unresponsive','category_id'=>$category])}" >{:L('待回答')}</a>
+                    <a class="nav-item nav-link {if $sort=='recommend'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'recommend','category_id'=>$category])}">{:L('精选')}</a>
+                    <a class="nav-item nav-link {if $sort=='new'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'new','category_id'=>$category])}">{:L('更新')}</a>
+                    <a class="nav-item nav-link {if $sort=='hot'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'hot','category_id'=>$category])}">{:L('高关注')}</a>
+                    <a class="nav-item nav-link {if $sort=='unresponsive'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'unresponsive','category_id'=>$category])}" >{:L('待补充 FAQ')}</a>
                 </div>
 
                 <div id="tabMain" class="tab-content" >
@@ -19,7 +94,7 @@
                         <div class="aw-common-list">
                             {we:question sort="$sort" category_id="$category"}
                             {:hook('postsListsExtend',['info'=>$v,'key'=>$key,'type'=>'question'])}
-                            <dl>
+                            <dl class="js-analytics-impression" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="question_index" data-analytics-position="{$key + 1}" data-analytics-source="desktop_question_index">
                                 <dt>
                                     {if (!$v['answer_info'])}
                                     {if $v.is_anonymous}
@@ -31,7 +106,7 @@
                                         <img src="{$v['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['user_info']['name']}" loading="lazy" decoding="async">{$v['user_info']['name']}
                                     </a>
                                     {/if}
-                                    <i>{:L('发起了提问')}</i>
+                                    <i>{:L('补充了 FAQ')}</i>
                                     <em class="time">{:date_friendly($v['update_time'])}</em>
                                     {else/}
                                     {if $v['answer_info']['is_anonymous']}
@@ -43,7 +118,7 @@
                                         <img src="{$v['answer_info']['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['answer_info']['user_info']['name']}" loading="lazy" decoding="async">{$v['answer_info']['user_info']['name']}
                                     </a>
                                     {/if}
-                                    <i>{:L('回复了问题')}</i>
+                                    <i>{:L('更新了 FAQ 答案')}</i>
                                     <em class="time">{:date_friendly($v['answer_info']['create_time'])}</em>
                                     {/if}
                                     {if isset($v['topics']) && !empty($v['topics'])}
@@ -56,13 +131,14 @@
                                 </dt>
                                 <dd>
                                     <div class="n-title">
-                                        <span class="tip-s1 badge badge-secondary">{:L('问答')}</span>
+                                        <span class="tip-s1 badge badge-secondary">{:L('FAQ')}</span>
                                         {if $v.set_top}
                                         <span class="tip-d badge badge-secondary">{:L('顶')}</span>
                                         {/if}
-                                        <a href="{:url('question/detail',['id'=>$v['id']])}" target="_blank">{$v.title|raw}</a>
+                                        <a href="{:url('question/detail',['id'=>$v['id']])}" target="_blank" class="js-analytics-click" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="question_index" data-analytics-position="{$key + 1}" data-analytics-source="desktop_question_index">{$v.title|raw}</a>
                                         {:hook('extend_title_label',['area'=>'question_list','info'=>$v])}
                                     </div>
+                                    <div class="text-muted mb-2" style="font-size: 13px;">{:L('优先沉淀高频问题、明确答案和后续补充说明。')}</div>
                                     <div class="pcon {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}row{/if}">
                                         {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}
                                         <div class="col-md-12 t-imglist row">
@@ -107,7 +183,7 @@
                                 <dd>
                                     {if (!$v['answer_info'])}
                                     <label>
-                                        <a type="button" href="javascript:;" class="{$v['has_focus'] ? 'ygz' : 'gz'} btn btn-primary btn-sm" onclick="AWS.User.focus(this,'question','{$v.id}')">{$v['has_focus'] ? L('已关注') : L('关注问题')} <span class="badge focus-count">{$v.focus_count}</span></a>
+                                        <a type="button" href="javascript:;" class="{$v['has_focus'] ? 'ygz' : 'gz'} btn btn-primary btn-sm" onclick="AWS.User.focus(this,'question','{$v.id}')">{$v['has_focus'] ? L('已关注') : L('关注 FAQ')} <span class="badge focus-count">{$v.focus_count}</span></a>
                                     </label>
                                     <label class="ml-3 mr-3"><i class="iconfont">&#xe870;</i> {$v.agree_count}</label>
                                     <label class="mr-3"><i class="iconfont">&#xe601;</i> {:L('%s 评论',$v['comment_count'])}</label>

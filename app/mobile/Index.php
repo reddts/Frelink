@@ -11,14 +11,65 @@
 
 namespace app\mobile;
 use app\common\controller\Frontend;
+use app\model\Help as HelpModel;
+use app\model\Insight as InsightModel;
 
 class Index extends Frontend
 {
-	public function index()
-	{
-        $sort = $this->request->param('sort','new');
+    protected function resolveSort(): string
+    {
+        $allowed = ['focus', 'recommend', 'new', 'hot', 'unresponsive'];
+        $sort = $this->request->param('sort', '', 'sqlFilter');
+        if ($sort && in_array($sort, $allowed, true)) {
+            return $sort;
+        }
+
+        $candidates = [
+            trim((string)$this->request->pathinfo(), '/'),
+            (string)$this->request->url(),
+            (string)$this->request->baseUrl(),
+            (string)$this->request->server('REQUEST_URI'),
+        ];
+
+        foreach ($candidates as $candidate) {
+            if ($candidate && preg_match('#/(?:m/)?explore/(focus|recommend|new|hot|unresponsive)\.html#i', '/' . ltrim($candidate, '/'), $matches)) {
+                return strtolower($matches[1]);
+            }
+        }
+
+        return 'new';
+    }
+
+    public function index()
+    {
+        $sort = $this->resolveSort();
+        $type = $this->request->param('type', '');
+        $articleType = frelink_normalize_article_type($this->request->param('article_type', 'all', 'sqlFilter'), 'all');
+        $feedQuery = [];
+        if ($type) {
+            $feedQuery['type'] = $type;
+            if ($type === 'article' && $articleType !== 'all') {
+                $feedQuery['article_type'] = $articleType;
+            }
+        }
+        $searchKeywords = [];
+        $featuredContent = [];
+
+        if (checkTableExist('analytics_event')) {
+            $searchKeywords = InsightModel::getTopKeywords(7, 6);
+            $featuredContent = InsightModel::getContentTrends(7, 3);
+        }
+
         $this->assign([
             'sort'=> $sort,
+            'current_sort' => $sort,
+            'type'=> $type,
+            'article_type' => $articleType,
+            'feed_query' => $feedQuery,
+            'article_type_options' => frelink_article_type_options(true),
+            'search_keywords' => $searchKeywords,
+            'featured_content' => $featuredContent,
+            'archive_chapters' => HelpModel::getFeaturedArchiveChapters(3, 2),
         ]);
         $this->assign('links',db('links')->where('status',1)->select()->toArray());
         $this->TDK(get_setting('site_name'));

@@ -14,19 +14,19 @@
     <ul class="sidebar-user-list">
         <li>
             <a href="{:url('index/explore',['uid'=>$user_info['uid'],'type'=>'question'])}">
-                <p><i class="icon-help-with-circle"></i>{:L('我的提问')}</p>
+                <p><i class="icon-help-with-circle"></i>{:L('我的 FAQ')}</p>
                 <em>{$user_info.question_count}</em>
             </a>
         </li>
         <li>
             <a href="{:url('index/explore',['uid'=>$user_info['uid'],'type'=>'article'])}">
-                <p><i class="icon-assignment"></i>{:L('我的文章')}</p>
+                <p><i class="icon-assignment"></i>{:L('我的内容')}</p>
                 <em>{$user_info.article_count}</em>
             </a>
         </li>
         <li>
             <a href="{:url('index/explore',['uid'=>$user_info['uid'],'type'=>'answer'])}">
-                <p><i class="icon-insert_comment"></i>{:L('我的回答')}</p>
+                <p><i class="icon-insert_comment"></i>{:L('我的补充')}</p>
                 <em>{$user_info.answer_count}</em>
             </a>
         </li>

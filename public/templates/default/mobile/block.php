@@ -36,6 +36,7 @@
         window.userName = "{$user_id ? $user_info.user_name : ''}";
         window.baseUrl = '{$baseUrl}';
         window.cdnUrl = '{$cdnUrl}';
+        window.analyticsEndpoint = '{$baseUrl}/api/Insight/track';
         window.perPage = "{:get_setting('contents_per_page',15)}";
         window.thisController ="{$thisController|default=''}";
         window.thisAction ="{$thisAction|default=''}";
@@ -55,6 +56,7 @@
     </script>
     <script type="text/javascript" src="{$cdnUrl}/static/libs/captcha/captcha.js?v={$version}"></script>
     <script type="text/javascript" src="{$static_url}mobile/js/aws_mobile.js?v={$version|default='1.0.0'}"></script>
+    <script type="text/javascript" src="{$cdnUrl}/static/common/js/analytics.js?v={$version}"></script>
     <script type="text/javascript" src="{$static_url}mobile/js/app.js?v={$version|default='1.0.0'}"></script>
     {block name="meta_script"} {/block}
 </head>
@@ -92,14 +94,14 @@
                 <div class="col-3 mb-4">
                     <a href="{:url('question/publish')}" class="text-muted">
                         <i class="icon-help-with-circle font-14"></i>
-                        <span class="d-block font-9 mt-1">{:L('问题')}</span>
+                        <span class="d-block font-9 mt-1">{:L('FAQ')}</span>
                     </a>
                 </div>
 
                 <div class="col-3 mb-4">
                     <a href="{:url('article/publish')}" class="text-muted">
                         <i class="far fa-file-alt font-14"></i>
-                        <span class="d-block font-9 mt-1">{:L('文章')}</span>
+                        <span class="d-block font-9 mt-1">{:L('综述 / 观察')}</span>
                     </a>
                 </div>
                 {volist name=":config('aws.publish')" id="v"}
@@ -115,19 +117,19 @@
         {/if}
         <footer class="aui-footer row-before">
             <div class="aui-footer-list {if $thisController=='index' && $thisAction=='index'}active{/if}">
-                <a href="{$baseUrl}"><i class="iconfont icon-faxian"></i><p class="mt-1">{:L('发现')}</p></a>
+                <a href="{$baseUrl}"><i class="iconfont icon-faxian"></i><p class="mt-1">{:L('首页')}</p></a>
             </div>
-            <div class="aui-footer-list {if ($thisController=='question' && $thisAction=='index') || ($thisController=='article' && $thisAction=='index') || ($thisController=='column' && $thisAction=='index')}active{/if}">
-                <a href="{:url('question/index')}" data-pjax="pageMain"><i class="iconfont icon-shequ"></i><p class="mt-1">{:L('社区')}</p></a>
+            <div class="aui-footer-list {if $thisController=='topic' && $thisAction=='index'}active{/if}">
+                <a href="{:url('topic/index')}" data-pjax="pageMain"><i class="iconfont icon-huati1"></i><p class="mt-1">主题</p></a>
             </div>
             <div class="aui-footer-list position-relative publishAction justify-content-center">
                 <div class="publishBtn" onclick="{if $user_id}AWS_MOBILE.api.dialog('{:L(\'发布\')}',$('.publishBtnBox').html()){else/}AWS_MOBILE.User.login(){/if}"><i class="fa fa-plus "></i></div>
             </div>
-            <div class="aui-footer-list {if $thisController=='extend' && $thisAction=='index'}active{/if}">
-                <a href="{:url('extend/index')}" data-pjax="pageMain"><i class="iconfont icon-52"></i><p class="mt-1">{:L('更多')}</p></a>
+            <div class="aui-footer-list {if $thisController=='question' && $thisAction=='index'}active{/if}">
+                <a href="{:url('question/index')}" data-pjax="pageMain"><i class="iconfont icon-help-with-circle"></i><p class="mt-1">{:L('FAQ')}</p></a>
             </div>
-            <div class="aui-footer-list {if $thisController=='creator'}active{/if}">
-                <a href="{if $user_id}{:url('creator/index')}{else/}{:url('account/login')}{/if}" data-pjax="pageMain"><i class="iconfont icon-xiazai"></i><p class="mt-1">{:L('我的')}</p></a>
+            <div class="aui-footer-list {if $thisController=='article' && $thisAction=='index'}active{/if}">
+                <a href="{:url('article/index')}" data-pjax="pageMain"><i class="far fa-file-alt"></i><p class="mt-1">{:L('综述')}</p></a>
             </div>
         </footer>
         {/block}

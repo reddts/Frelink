@@ -632,15 +632,15 @@ CREATE TABLE `aws_menu_rule`  (
 -- ----------------------------
 -- Records of aws_menu_rule
 -- ----------------------------
-INSERT INTO `aws_menu_rule` VALUES (1, 0, 'index/index', '首页', 1, 1,  50, 0, '', '', 1, 'nav');
-INSERT INTO `aws_menu_rule` VALUES (2, 0, 'question/index', '问答', 1, 1, 50, 0, '', '', 0, 'nav');
-INSERT INTO `aws_menu_rule` VALUES (3, 0, 'article/index', '文章', 1, 1, 50, 0, '', '', 0, 'nav');
-INSERT INTO `aws_menu_rule` VALUES (4, 0, 'column/index', '专栏', 1, 1, 50, 0, '', '', 0, 'nav');
-INSERT INTO `aws_menu_rule` VALUES (5, 0,  'people/lists', '大咖', 1, 1, 50, 0, '','', 0, 'nav');
-INSERT INTO `aws_menu_rule` VALUES (6, 0,  'topic/index', '话题', 1, 1, 50, 0, '','', 0, 'nav');
+INSERT INTO `aws_menu_rule` VALUES (1, 0, 'index/index', '首页', 1, 1, 10, 0, '', '', 1, 'nav');
+INSERT INTO `aws_menu_rule` VALUES (2, 0, 'question/index', '问题', 1, 1, 30, 0, '', '', 0, 'nav');
+INSERT INTO `aws_menu_rule` VALUES (3, 0, 'article/index', '文章', 1, 1, 40, 0, '', '', 0, 'nav');
+INSERT INTO `aws_menu_rule` VALUES (4, 0, 'column/index', '专栏', 1, 0, 70, 0, '', '', 0, 'nav');
+INSERT INTO `aws_menu_rule` VALUES (5, 0,  'people/lists', '创作者', 1, 0, 80, 0, '','', 0, 'nav');
+INSERT INTO `aws_menu_rule` VALUES (6, 0,  'topic/index', '主题', 1, 1, 20, 0, '','', 0, 'nav');
 INSERT INTO `aws_menu_rule` VALUES (7, 0, 'page/index', '关于我们', 1, 1, 50, 0, '', 'url_name=about', 0, 'footer');
 INSERT INTO `aws_menu_rule` VALUES (8, 0, 'page/index', '社区规范', 1, 1, 50, 0, '', 'url_name=rule', 0, 'footer');
-INSERT INTO `aws_menu_rule` VALUES (9, 0,  'help/index', '帮助', 1, 1, 50, 0, '','', 0, 'nav');
+INSERT INTO `aws_menu_rule` VALUES (9, 0,  'help/index', '帮助中心', 1, 1, 60, 0, '','', 0, 'nav');
 INSERT INTO `aws_menu_rule` VALUES (10, 0,  'feature/index', '专题', 1, 1, 50, 0, '','', 0, 'nav');
 
 DROP TABLE IF EXISTS `aws_users`;
@@ -1919,6 +1919,29 @@ CREATE TABLE `aws_search_log` (
   `create_time` int(11) DEFAULT NULL COMMENT '搜索时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='搜索记录表';
+
+DROP TABLE IF EXISTS `aws_analytics_event`;
+CREATE TABLE `aws_analytics_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `uid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '登录用户ID',
+  `visitor_token` varchar(64) NOT NULL DEFAULT '' COMMENT '匿名访客标识',
+  `item_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '内容ID',
+  `item_type` varchar(32) NOT NULL DEFAULT '' COMMENT 'question/article/topic/column',
+  `event_type` varchar(32) NOT NULL DEFAULT '' COMMENT 'impression/click/detail_view',
+  `source` varchar(64) NOT NULL DEFAULT '' COMMENT '来源页面',
+  `list_key` varchar(100) NOT NULL DEFAULT '' COMMENT '列表标识',
+  `position` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '列表位置',
+  `referrer` varchar(255) DEFAULT NULL COMMENT '来源页',
+  `ip` varchar(64) DEFAULT NULL COMMENT '访问IP',
+  `user_agent` varchar(500) DEFAULT NULL COMMENT '浏览器标识',
+  `extra` text COMMENT '附加信息',
+  `create_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '记录时间',
+  PRIMARY KEY (`id`),
+  KEY `event_time` (`event_type`,`create_time`),
+  KEY `item_event_time` (`item_type`,`item_id`,`event_type`,`create_time`),
+  KEY `list_event_time` (`list_key`,`event_type`,`create_time`),
+  KEY `visitor_event_time` (`visitor_token`,`event_type`,`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='运营分析事件表';
 
 DROP TABLE IF EXISTS `aws_users_favorite_focus`;
 CREATE TABLE `aws_users_favorite_focus` (

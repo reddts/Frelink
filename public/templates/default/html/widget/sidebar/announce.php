@@ -1,7 +1,7 @@
 {if !empty($announce_list)}
 <div class="r-box mb-2">
     <div class="r-title">
-        <h4>{:L('站点公告')}</h4>
+        <h4>{:L('公告与更新')}</h4>
         <!--<a href="{:url('announce/index')}" target="_blank"><label class="iconfont">&#xe660;</label></a>-->
     </div>
     <div class="hot-list hot-yh-list pb-2">

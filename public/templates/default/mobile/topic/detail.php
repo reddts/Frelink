@@ -87,6 +87,20 @@
             </a>
         </div>
     </div>
+    {if !empty($archive_chapters)}
+    <div class="bg-white px-3 py-2 mb-2">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>{:L('相关知识章节')}</strong>
+            <a href="{:url('help/index')}" class="text-primary font-9" data-pjax="pageMain">{:L('查看知识地图')}</a>
+        </div>
+        {foreach $archive_chapters as $chapter}
+        <a href="{:url('help/detail',['token'=>$chapter['url_token']])}" class="d-block border rounded px-3 py-2 text-dark mb-2" data-pjax="pageMain">
+            <strong class="d-block mb-1">{$chapter.title}</strong>
+            <small class="text-muted d-block">{:L('已归档内容')} {$chapter.relation_count|default=0}</small>
+        </a>
+        {/foreach}
+    </div>
+    {/if}
     <div class="swiper-container">
         <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block px-2 bg-white swiper-wrapper" style="flex-wrap: nowrap;">
             <li class="nav-item swiper-slide" >

@@ -17,8 +17,8 @@
                 <a href="{:url('topic/detail',['id'=>$v['id']])}" class="icon-arrow-right float-right"></a>
             </div>
             <p class="mt-1 mb-0">
-                <b>{$v.question_count}</b> <span>{:L('提问')}</span>
-                <b>{$v.article_count}</b> <span>{:L('文章')}</span>
+                <b>{$v.question_count}</b> <span>{:L('FAQ')}</span>
+                <b>{$v.article_count}</b> <span>{:L('内容')}</span>
             </p>
         </div>
         {/foreach}

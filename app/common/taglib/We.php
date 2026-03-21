@@ -16,8 +16,8 @@ class We extends Taglib
     // 标签定义
     protected $tags = [
         // 标签定义： attr 属性列表 close 是否闭合（0 或者1 默认1） alias 标签别名 level 嵌套层次
-        'question'            =>['attr' => 'name,uid,limit,sort,topic_ids,category_id,pjax,per_page', 'close' => 1],
-        'article'            =>['attr' => 'name,uid,limit,sort,topic_ids,category_id,pjax,per_page', 'close' => 1],
+        'question'            =>['attr' => 'name,uid,limit,sort,topic_ids,category_id,pjax,per_page,type', 'close' => 1],
+        'article'            =>['attr' => 'name,uid,limit,sort,topic_ids,category_id,pjax,per_page,type', 'close' => 1],
         'sql'      => ['attr' => 'name,limit,sort,table,field,per_page,where,sql','close' => 1],
         'nav'      => ['attr' => 'name,type','close' => 1],
         'relation'=>['attr' => 'name,type,uid,limit,sort,topic_ids,category_id,pjax,per_page','close' => 1],

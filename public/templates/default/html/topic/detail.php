@@ -173,6 +173,25 @@
             </div>
             {/if}
 
+            {if !empty($archive_chapters)}
+            <div class="r-box mb-2">
+                <div class="r-title clearfix">
+                    <h4 class="float-left">{:L('相关知识章节')}</h4>
+                    <a href="{:url('help/index')}" class="text-primary font-9 float-right" target="_blank">{:L('查看知识地图')}</a>
+                </div>
+                <div class="pb-2">
+                    {foreach $archive_chapters as $chapter}
+                    <div class="border rounded px-3 py-2 mb-2">
+                        <a href="{:url('help/detail',['token'=>$chapter['url_token']])}" class="d-block text-dark" target="_blank">
+                            <strong class="d-block mb-1">{$chapter.title}</strong>
+                            <small class="text-muted d-block">{:L('已归档内容')} {$chapter.relation_count|default=0}</small>
+                        </a>
+                    </div>
+                    {/foreach}
+                </div>
+            </div>
+            {/if}
+
             {if $top_parent_topic || $parent_topic || $child_topics}
             <div class="r-box mb-2 py-2">
                 {if $top_parent_topic}

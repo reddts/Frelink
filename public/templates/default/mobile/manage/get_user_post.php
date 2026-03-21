@@ -10,7 +10,7 @@
                 </div>
                 <div class="img" style="min-height: 24px;height: auto">
                     <div class="img-mask font-weight-bold aw-one-line" style="background: none;height: auto;line-height: unset">
-                        <span class="tip-s1 badge badge-secondary">{:L('问')}</span>
+                        <span class="tip-s1 badge badge-secondary">{:L('FAQ')}</span>
                         <a href="{:url('question/detail',['id'=>$v['id']])}">{$v.title}</a>
                     </div>
                 </div>
@@ -27,7 +27,7 @@
                     </a>
                 </div>
                 <div class="aui-btn"><i class="iconfont iconmessage"></i><span>{$v['answer_count']}</span></div>
-                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享问题')}</div>
+                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享 FAQ')}</div>
             </div>
         </div>
     </div>
@@ -44,7 +44,7 @@
                 </div>
                 <div class="img" style="min-height: 24px;height: auto">
                     <div class="img-mask font-weight-bold aw-one-line" style="background: none;height: auto;line-height: unset">
-                        <span class="tip-s2 badge badge-secondary">{:L('文')}</span>
+                        <span class="tip-s2 badge badge-secondary">{:frelink_article_type_label($v['article_type'] ?? 'normal')}</span>
                         {:hook('article_badge')}
                         <a href="{:url('article/detail',['id'=>$v['id']])}">{$v['title']}</a>
                     </div>
@@ -80,7 +80,7 @@
                 </div>
                 <div class="img" style="min-height: 24px;height: auto">
                     <div class="img-mask font-weight-bold aw-one-line" style="background: none;height: auto;line-height: unset">
-                        <span class="tip-s1 badge badge-secondary">{:L('问')}</span>
+                        <span class="tip-s1 badge badge-secondary">{:L('FAQ')}</span>
                         <a href="{:url('question/detail',['id'=>$v['id']])}">{$v.title}</a>
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                     </a>
                 </div>
                 <div class="aui-btn"><i class="iconfont iconmessage"></i><span>{$v['answer_info']['comment_count']}</span></div>
-                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享回答')}</div>
+                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享补充')}</div>
             </div>
         </div>
     </div>
@@ -175,7 +175,7 @@
     <div class="aui-card-down row-before" style="padding: 0;">
         <div class="aui-list" style="background: none;">
             <div class="aui-list-left text-muted">
-                <span class="mr-4">{:L('文章')} {$v.post_count|num2string}</span>
+                <span class="mr-4">内容 {$v.post_count|num2string}</span>
                 <span>{:L('关注')} {$v.focus_count|num2string}</span>
             </div>
             <div class="aui-list-right">

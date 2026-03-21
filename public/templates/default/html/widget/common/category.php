@@ -10,17 +10,17 @@
         <div class="swiper-container" style="margin: 0">
             <ul class="nav nav-pills n-nav swiper-wrapper" style="flex-wrap: nowrap;">
                 <li class="nav-item swiper-slide category-nav-item" data-category-key="0">
-                    <a class="nav-link mb-0 {if !$category}active c-active{/if}" data-k="0" data-pjax="wrapMain" href="{:url($thisRequest,['sort'=>$sort,'category_id'=>0])}">{:L('全部分类')}</a>
+                    <a class="nav-link mb-0 {if !$category}active c-active{/if}" data-k="0" data-pjax="wrapMain" href="{:url($thisRequest,array_merge(['sort'=>$sort,'category_id'=>0], ($thisController=='article' ? ['type'=>request()->param('type','all')] : [])))}">{:L('全部分类')}</a>
                 </li>
                 {foreach $category_list as $k => $v}
                 <li class="nav-item swiper-slide category-nav-item" data-category-key="{$k}" data-has-children="{if !empty($v.childs)}1{else/}0{/if}">
-                    <a class="nav-link {if $category==$v.id} active c-active{/if}" data-k="{$k}" data-pjax="wrapMain" href="{:url($thisRequest,['sort'=>$sort,'category_id'=>$v['id']])}">{$v.title}</a>
+                    <a class="nav-link {if $category==$v.id} active c-active{/if}" data-k="{$k}" data-pjax="wrapMain" href="{:url($thisRequest,array_merge(['sort'=>$sort,'category_id'=>$v['id']], ($thisController=='article' ? ['type'=>request()->param('type','all')] : [])))}">{$v.title}</a>
                     {if !empty($v.childs)}
                     <div class="card category-children-template" style="display: none">
                         <div class="card-body">
                             {foreach $v.childs as $child}
                             <a class="nav-link mb-0 d-inline-block {if $category==$child.id} active c-active{/if}" data-k="{$k}"
-                               data-pjax="wrapMain" href="{:url($thisRequest,['sort'=>$sort,'category_id'=>$child.id])}">{$child.title}</a>
+                               data-pjax="wrapMain" href="{:url($thisRequest,array_merge(['sort'=>$sort,'category_id'=>$child.id], ($thisController=='article' ? ['type'=>request()->param('type','all')] : [])))}">{$child.title}</a>
                             {/foreach}
                         </div>
                     </div>

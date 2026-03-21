@@ -39,7 +39,12 @@ class Ajax extends Frontend
         $sort = $this->request->post('sort','new');
         $category_id = $this->request->post('category_id',0,'intval');
         $topic_ids = $this->request->post('topic_ids',0);
-        $data = PostRelation::getPostRelationList($this->user_id,$item_type,$sort,$topic_ids,$category_id,$this->request->param('page',1));
+        $articleType = frelink_normalize_article_type($this->request->post('article_type', 'all', 'sqlFilter'), 'all');
+        if ($item_type === 'article') {
+            $data = ArticleModel::getArticleList($this->user_id, $sort, $topic_ids, $category_id, $this->request->param('page',1), 0, 0, 'pageMain', $articleType);
+        } else {
+            $data = PostRelation::getPostRelationList($this->user_id,$item_type,$sort,$topic_ids,$category_id,$this->request->param('page',1));
+        }
         $this->assign($data);
         if($sort=='focus')
         {

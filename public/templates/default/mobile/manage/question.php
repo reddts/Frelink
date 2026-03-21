@@ -2,7 +2,7 @@
 {block name="header"}
 <header class="aui-header">
     <div class="aui-header-left"><a href="javascript:;" onclick="window.history.back()"><i class="fa fa-angle-left "></i></a></div>
-    <div class="aui-header-title aw-one-line">{:L('我的问题')}</div>
+    <div class="aui-header-title aw-one-line">{:L('我的 FAQ')}</div>
 </header>
 {/block}
 

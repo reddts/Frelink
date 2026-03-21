@@ -2,7 +2,7 @@
 {block name="header"}
 <header class="aui-header">
     <div class="aui-header-left"><a href="{$baseUrl}" class="text-muted" data-pjax="pageMain"><i class="fa fa-home font-11"></i></a></div>
-    <div class="aui-header-title font-10">{:L('发布文章')}</div>
+    <div class="aui-header-title font-10">{:L('新建内容')}</div>
     <a class="aui-header-right font-10 saveArticle">{:L('发布')}</a>
 </header>
 {/block}
@@ -11,16 +11,60 @@
 <div class="main-container mt-1 bg-white" style="padding-bottom: 50px">
     <div class="card border-0">
         <div class="card-body p-2">
+            {if !empty($publish_insight)}
+            <div class="border rounded px-3 py-2 mb-3" style="background:#f8fbff;border-color:#e4eef8 !important;">
+                <div class="font-weight-bold mb-2">{:L('最近 %s 天可写方向',$publish_insight.window_days)}</div>
+                {if !empty($publish_insight.top_keywords)}
+                <div class="text-muted font-9 mb-2">{:L('最近有人在搜')}：
+                    {volist name="publish_insight.top_keywords" id="v"}
+                    <span class="mr-2 text-primary js-fill-title" data-title="{$v.keyword|htmlspecialchars}">{$v.keyword}</span>
+                    {/volist}
+                </div>
+                {/if}
+                {if !empty($publish_insight.title_ideas)}
+                <div class="font-9">
+                    {volist name="publish_insight.title_ideas" id="v"}
+                    <div class="mb-2 text-primary js-apply-idea" data-title="{$v.title|htmlspecialchars}" data-type="{$v.recommended_type|default=''}">
+                        {$v.title}
+                        {if !empty($v.recommended_type_label)}
+                        <div class="text-muted font-8 mt-1">{:L('推荐形态')}：{$v.recommended_type_label}</div>
+                        {/if}
+                    </div>
+                    {/volist}
+                </div>
+                {/if}
+                {if !empty($publish_insight.type_ideas)}
+                <div class="font-9 mt-2">
+                    <div class="font-weight-bold mb-2">{:L('建议内容形态')}</div>
+                    {volist name="publish_insight.type_ideas" id="v"}
+                    <div class="mb-2 text-primary js-apply-type" data-type="{$v.type}" data-title="{$v.title|htmlspecialchars}">{$v.label} · {$v.keyword}</div>
+                    {/volist}
+                </div>
+                {/if}
+            </div>
+            {/if}
             <form id="question_form"  method="post" action="{:url('article/publish')}" onsubmit="return false">
                 {:token_field()}
                 <input type="hidden" name="id" value="{$article_info.id|default=0}">
                 <input type="hidden" name="wait_time">
                 <input type="hidden" name="access_key" value="{$access_key}">
+                <div class="border rounded px-3 py-2 mb-3" style="background:#fbfdff;border-color:#e6edf5 !important;">
+                    <div class="font-weight-bold mb-2">{:L('内容类型建议')}</div>
+                    <div class="text-muted font-9">{:L('综述用来整理脉络，观察用来保留判断，帮助用来沉淀可复用答案。')}</div>
+                </div>
                 <div class="form-group mb-3">
-                    <input id="title" name="title" value="{$article_info.title|default=''}" class="aw-form-control" type="text" placeholder="{:L('文章标题')}">
+                    <input id="title" name="title" value="{$article_info.title|default=''}" class="aw-form-control" type="text" placeholder="{:L('输入内容标题')}">
                 </div>
                 <div class="form-group">
-                    <label class="mb-3">{:L('文章分类')}</label>
+                    <label class="mb-3">{:L('内容类型')}</label>
+                    <select class="aw-form-control" id="articleTypeSelect" name="article_type">
+                        {foreach $article_type_options as $typeKey => $label}
+                        <option value="{$typeKey}" {if isset($article_info['article_type']) && $article_info['article_type']==$typeKey}selected{/if}>{$label}</option>
+                        {/foreach}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="mb-3">{:L('内容分类')}</label>
                     <select class="aw-form-control" name="category_id" title="{:L('请选择一项分类')}" required>
                         <option value="0">{:L('选择分类')}</option>
                         {volist name="article_category_list" id="v"}
@@ -78,9 +122,33 @@
                         </ul>
                     </div>
                 </div>
+                {if !empty($help_chapter_options)}
+                <div class="form-group mb-3">
+                    <label class="mb-2">{:L('知识归档')}</label>
+                    <div class="border rounded px-3 py-2" style="background:#fbfdff;border-color:#e6edf5 !important;">
+                        <div class="text-muted font-9 mb-2">{:L('发布后可直接归档到知识章节，方便后续整理、检索和维护。')}</div>
+                        {if !empty($suggested_help_chapters)}
+                        <div class="font-weight-bold font-9 mb-2">{:L('建议归档章节')}</div>
+                        {volist name="suggested_help_chapters" id="v"}
+                        <label class="d-block mb-2">
+                            <input type="checkbox" name="help_chapter_ids[]" value="{$v.id}" {if !empty($v.selected)}checked{/if}> {$v.title}
+                        </label>
+                        {/volist}
+                        {/if}
+                        <div class="font-weight-bold font-9 mb-2">{:L('全部知识章节')}</div>
+                        {volist name="help_chapter_options" id="v"}
+                        {if empty($v.suggested)}
+                        <label class="d-block mb-2">
+                            <input type="checkbox" name="help_chapter_ids[]" value="{$v.id}" {if !empty($v.selected)}checked{/if}> {$v.title}
+                        </label>
+                        {/if}
+                        {/volist}
+                    </div>
+                </div>
+                {/if}
 
                 <div class="form-group mb-3">
-                    <label class="mb-3">{:L('文章详情')}</label>
+                    <label class="mb-3">{:L('内容正文')}</label>
                     {:hook('editor',['name'=>'message','cat'=>'article','value'=>isset($article_info['message']) ? $article_info['message']:'','access_key'=>$access_key])}
                 </div>
 
@@ -131,6 +199,36 @@
     </div>
 </div>
 <script>
+    $(document).on('click', '.js-fill-title', function () {
+        let title = $(this).data('title');
+        if (!title) {
+            return;
+        }
+        $('#title').val(title).trigger('input').trigger('focus');
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    });
+
+    $(document).on('click', '.js-apply-type', function () {
+        let type = $(this).data('type');
+        let title = $(this).data('title');
+        if (type) {
+            $('#articleTypeSelect').val(type).trigger('change');
+        }
+        if (title) {
+            $('#title').val(title).trigger('input').trigger('focus');
+        }
+    });
+
+    $(document).on('click', '.js-apply-idea', function () {
+        let title = $(this).data('title');
+        let type = $(this).data('type');
+        if (type) {
+            $('#articleTypeSelect').val(type).trigger('change');
+        }
+        if (title) {
+            $('#title').val(title).trigger('input').trigger('focus');
+        }
+    });
 
     //上传文章封面
     AWS_MOBILE.upload.webUpload('filePicker_cover','cover_preview','cover','article')

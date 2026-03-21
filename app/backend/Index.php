@@ -5,11 +5,13 @@ use app\common\library\helper\FileHelper;
 use app\common\library\helper\MailHelper;
 use app\common\library\helper\UpgradeHelper;
 use app\model\admin\MenuRule;
+use app\model\Help as HelpModel;
 use think\App;
 use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Request;
 use app\common\logic\common\StatisticLogic;
+use app\model\Insight as InsightModel;
 
 class Index extends Backend
 {
@@ -71,9 +73,205 @@ class Index extends Backend
             cache($usersInfoCacheKey, $users_info, 60);
         }
 
+        $insightDays = InsightModel::normalizeDays(intval($this->request->param('insight_days', 7)));
+        $insight = $this->getInsightPayload($insightDays);
+        $archive = HelpModel::getUnarchivedContentSummary(6);
+        $archiveBacklog = HelpModel::getArchiveChapterBacklogSummary(8);
+
         $this->view->assign('sysInfo',$sys_info);
         $this->view->assign('usersInfo', $users_info);
+        $this->view->assign('insight', $insight);
+        $this->view->assign('archive', $archive);
+        $this->view->assign('archiveBacklog', $archiveBacklog);
         return $this->view->fetch();
+    }
+
+    public function insightBrief()
+    {
+        $days = InsightModel::normalizeDays(intval($this->request->param('days', 7)));
+        $format = strtolower(trim((string)$this->request->param('format', 'markdown')));
+        $insight = $this->getInsightPayload($days, false);
+
+        if ($insight['error']) {
+            $this->error($insight['error']);
+        }
+
+        if (!$insight['enabled']) {
+            $this->error('运营洞察表尚未安装，请先执行 docs/analytics-upgrade.sql');
+        }
+
+        if ($format === 'json') {
+            return json([
+                'window_days' => $days,
+                'generated_at' => date('Y-m-d H:i:s'),
+                'summary' => $insight['summary'],
+                'opportunities' => $insight['opportunities'],
+                'content' => $insight['content'],
+                'topics' => $insight['topics'],
+                'recommendations' => $insight['recommendations'],
+                'agent_brief' => $insight['agent_brief'],
+            ]);
+        }
+
+        return response(
+            $insight['agent_brief'],
+            200,
+            ['Content-Type' => 'text/plain; charset=utf-8']
+        );
+    }
+
+    public function archivePicker()
+    {
+        $itemType = trim((string)$this->request->param('item_type', ''));
+        $itemId = intval($this->request->param('item_id', 0));
+        if (!in_array($itemType, ['question', 'article'], true) || !$itemId) {
+            $this->error('参数错误');
+        }
+
+        if ($this->request->isPost()) {
+            $chapterIds = array_values(array_unique(array_filter(array_map('intval', $this->request->post('help_chapter_ids', [])))));
+            HelpModel::syncItemArchiveChapters($itemType, $itemId, $chapterIds);
+            $this->success('归档更新成功');
+        }
+
+        $table = $itemType === 'question' ? 'question' : 'article';
+        $itemInfo = db($table)->where('id', $itemId)->field('id,title')->find();
+        if (!$itemInfo) {
+            $this->error('内容不存在');
+        }
+
+        $selectedHelpChapterIds = HelpModel::getItemArchiveChapterIds($itemType, $itemId);
+        $helpChapterOptions = HelpModel::getActiveChapterList();
+        foreach ($helpChapterOptions as $k => $chapter) {
+            $helpChapterOptions[$k]['selected'] = in_array($chapter['id'], $selectedHelpChapterIds);
+        }
+
+        $this->assign([
+            'item_type' => $itemType,
+            'item_id' => $itemId,
+            'item_info' => $itemInfo,
+            'help_chapter_options' => $helpChapterOptions,
+        ]);
+
+        return $this->fetch('index/archive_picker');
+    }
+
+    public function chapterCandidates()
+    {
+        $chapterId = intval($this->request->param('chapter_id', 0));
+        if (!$chapterId) {
+            $this->error('参数错误');
+        }
+
+        $candidates = HelpModel::getChapterCandidateContent($chapterId, 6);
+        if (empty($candidates['chapter'])) {
+            $this->error('章节不存在');
+        }
+
+        $this->assign($candidates);
+        return $this->fetch('index/chapter_candidates');
+    }
+
+    public function attachArchive()
+    {
+        $chapterId = intval($this->request->param('chapter_id', 0));
+        $itemType = trim((string)$this->request->param('item_type', ''));
+        $itemId = intval($this->request->param('item_id', 0));
+        if (!$chapterId || !$itemId || !in_array($itemType, ['question', 'article'], true)) {
+            $this->error('参数错误');
+        }
+
+        if (!HelpModel::attachItemArchiveChapter($itemType, $itemId, $chapterId)) {
+            $this->error('归档失败');
+        }
+
+        $this->success('已归档到章节');
+    }
+
+    protected function getInsightPayload(int $insightDays, bool $useCache = true): array
+    {
+        $insight = [
+            'enabled' => checkTableExist('analytics_event'),
+            'window_days' => $insightDays,
+            'summary' => [],
+            'content' => [],
+            'topics' => [],
+            'opportunities' => [],
+            'recommendations' => [],
+            'agent_brief' => '',
+            'error' => '',
+        ];
+
+        if (!$insight['enabled']) {
+            return $insight;
+        }
+
+        $insightCacheKey = 'admin_index_insight:' . $insightDays;
+        $cachedInsight = $useCache ? cache($insightCacheKey) : null;
+
+        if (!$cachedInsight) {
+            try {
+                $cachedInsight = [
+                    'summary' => InsightModel::getWindowSummary($insightDays),
+                    'content' => InsightModel::getContentTrends($insightDays, 6),
+                    'topics' => InsightModel::getTopicTrends($insightDays, 6),
+                    'opportunities' => InsightModel::getSearchOpportunities($insightDays, 6),
+                    'recommendations' => InsightModel::getRecommendations($insightDays, 6),
+                ];
+                $cachedInsight['agent_brief'] = $this->buildInsightBrief($insightDays, $cachedInsight);
+
+                if ($useCache) {
+                    cache($insightCacheKey, $cachedInsight, 300);
+                }
+            } catch (\Throwable $e) {
+                $insight['error'] = $e->getMessage();
+            }
+        }
+
+        if (!$insight['error'] && is_array($cachedInsight)) {
+            $insight = array_merge($insight, $cachedInsight);
+        }
+
+        return $insight;
+    }
+
+    protected function buildInsightBrief(int $days, array $insight): string
+    {
+        $lines = [];
+        $summary = $insight['summary'] ?? [];
+        $lines[] = 'Frelink 运营简报';
+        $lines[] = '统计窗口：最近 ' . $days . ' 天';
+        $lines[] = '搜索次数：' . intval($summary['search_count'] ?? 0)
+            . '，曝光次数：' . intval($summary['impression_count'] ?? 0)
+            . '，点击次数：' . intval($summary['click_count'] ?? 0)
+            . '，详情阅读：' . intval($summary['detail_view_count'] ?? 0)
+            . '，窗口CTR：' . ($summary['ctr'] ?? 0);
+
+        if (!empty($insight['opportunities'])) {
+            $lines[] = '';
+            $lines[] = '搜索缺口：';
+            foreach (array_slice($insight['opportunities'], 0, 3) as $item) {
+                $lines[] = '- ' . $item['keyword'] . '：搜索 ' . intval($item['search_count']) . ' 次，覆盖 ' . intval($item['matched_content_count']) . '，建议 ' . $item['suggestion'];
+            }
+        }
+
+        if (!empty($insight['content'])) {
+            $lines[] = '';
+            $lines[] = '内容热点：';
+            foreach (array_slice($insight['content'], 0, 3) as $item) {
+                $lines[] = '- [' . $item['item_type'] . '] ' . $item['title'] . '：曝光 ' . intval($item['impressions']) . '，点击 ' . intval($item['clicks']) . '，阅读 ' . intval($item['detail_views']) . '，CTR ' . $item['ctr'];
+            }
+        }
+
+        if (!empty($insight['recommendations'])) {
+            $lines[] = '';
+            $lines[] = '建议动作：';
+            foreach (array_slice($insight['recommendations'], 0, 3) as $item) {
+                $lines[] = '- [' . $item['priority'] . '] ' . $item['title'] . '：' . $item['suggestion'];
+            }
+        }
+
+        return implode(PHP_EOL, $lines);
     }
 
     //后台统计

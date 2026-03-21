@@ -12,6 +12,8 @@
 namespace app\widget;
 use app\common\controller\Widget;
 use app\model\Feature;
+use app\model\Article as ArticleModel;
+use app\model\Question as QuestionModel;
 use app\model\PostRelation;
 use app\model\Category;
 
@@ -22,6 +24,95 @@ use app\model\Category;
  */
 class Common extends Widget
 {
+    protected function homePerPage(): int
+    {
+        $default = intval(get_setting('contents_per_page')) ?: 15;
+        return max(6, min($default, 8));
+    }
+
+    protected function normalizeFeedRow(array $row, string $itemType): array
+    {
+        $row['item_type'] = $itemType;
+        $row['create_time'] = intval($row['create_time'] ?? 0);
+        $row['update_time'] = intval($row['update_time'] ?? $row['create_time']);
+        $row['popular_value'] = floatval($row['popular_value'] ?? 0);
+        $row['is_recommend'] = intval($row['is_recommend'] ?? 0);
+        return $row;
+    }
+
+    protected function buildHomeMixedList(?string $sort, $topic_ids = null, $category_id = null): array
+    {
+        $page = $this->request->param('page', 1, 'intval');
+        $perPage = $this->homePerPage();
+        $querySort = $sort ?: 'new';
+        $feedSort = $querySort === 'unresponsive' ? 'new' : $querySort;
+        $questionLimit = $querySort === 'recommend' ? 4 : 5;
+        $articleLimit = $querySort === 'recommend' ? 4 : 5;
+
+        $questionData = QuestionModel::getQuestionList(
+            $this->user_id,
+            $feedSort,
+            $topic_ids,
+            $category_id,
+            1,
+            $questionLimit,
+            0,
+            'tabMain'
+        );
+        $articleData = ArticleModel::getArticleList(
+            $this->user_id,
+            $feedSort,
+            $topic_ids,
+            $category_id,
+            1,
+            $articleLimit,
+            0,
+            'tabMain',
+            'all'
+        );
+
+        $items = [];
+        foreach (($questionData['list'] ?? []) as $row) {
+            $items[] = $this->normalizeFeedRow($row, 'question');
+        }
+        foreach (($articleData['list'] ?? []) as $row) {
+            $items[] = $this->normalizeFeedRow($row, 'article');
+        }
+
+        usort($items, static function ($left, $right) use ($querySort) {
+            if ($querySort === 'recommend') {
+                $recommendCompare = ($right['is_recommend'] <=> $left['is_recommend']);
+                if ($recommendCompare !== 0) {
+                    return $recommendCompare;
+                }
+            }
+            if ($querySort === 'hot') {
+                $hotCompare = ($right['popular_value'] <=> $left['popular_value']);
+                if ($hotCompare !== 0) {
+                    return $hotCompare;
+                }
+            }
+            $topCompare = (intval($right['set_top_time'] ?? 0) <=> intval($left['set_top_time'] ?? 0));
+            if ($topCompare !== 0) {
+                return $topCompare;
+            }
+            $updateCompare = ($right['update_time'] <=> $left['update_time']);
+            if ($updateCompare !== 0) {
+                return $updateCompare;
+            }
+            return $right['create_time'] <=> $left['create_time'];
+        });
+
+        $offset = max(0, ($page - 1) * $perPage);
+        $items = array_slice($items, $offset, $perPage);
+
+        return [
+            'list' => $items,
+            'page' => '',
+            'total' => 1,
+        ];
+    }
+
     /**
      * 通用内容列表
      * @param null $item_type
@@ -30,7 +121,7 @@ class Common extends Widget
      * @param null $category_id
      * @return mixed
      */
-	public function lists($item_type=null, $sort = null, $topic_ids = null, $category_id = null)
+	public function lists($item_type=null, $sort = null, $topic_ids = null, $category_id = null, $article_type = null)
 	{
         if($html = hook('widget_common_list',$this->request->param()))
         {
@@ -44,6 +135,7 @@ class Common extends Widget
             'sort' => (string)$sort,
             'topic_ids' => is_array($topic_ids) ? implode(',', $topic_ids) : (string)$topic_ids,
             'category_id' => (string)$category_id,
+            'article_type' => (string)$article_type,
             'page' => (int)$page,
             'focus' => (int)($sort === 'focus'),
             'lang' => (string)$this->request->cookie('aws_lang', ''),
@@ -52,7 +144,54 @@ class Common extends Widget
             return $cachedHtml;
         }
 
-		$data = PostRelation::getPostRelationList($this->user_id,$item_type,$sort,$topic_ids,$category_id,$this->request->param('page',1));
+        $isHomeController = strtolower($this->request->controller()) === 'index';
+        $perPage = $isHomeController ? $this->homePerPage() : 0;
+
+        if ($item_type === 'article') {
+            $data = ArticleModel::getArticleList(
+                $this->user_id,
+                $sort,
+                $topic_ids,
+                $category_id,
+                $this->request->param('page',1),
+                $perPage,
+                0,
+                'tabMain',
+                $article_type ?: 'all'
+            );
+        } elseif ($item_type === 'question' || $sort === 'unresponsive') {
+            $data = QuestionModel::getQuestionList(
+                $this->user_id,
+                $sort,
+                $topic_ids,
+                $category_id,
+                $this->request->param('page',1),
+                $perPage,
+                0,
+                'tabMain'
+            );
+        } elseif ($isHomeController) {
+            $data = $this->buildHomeMixedList($sort, $topic_ids, $category_id);
+        } else {
+		    $data = PostRelation::getPostRelationList($this->user_id,$item_type,$sort,$topic_ids,$category_id,$this->request->param('page',1));
+        }
+
+        if (!empty($data['list']) && is_array($data['list'])) {
+            $normalizeType = null;
+            if ($item_type === 'article') {
+                $normalizeType = 'article';
+            } elseif ($item_type === 'question' || $sort === 'unresponsive') {
+                $normalizeType = 'question';
+            }
+
+            if ($normalizeType) {
+                foreach ($data['list'] as $idx => $row) {
+                    if (is_array($row) && empty($row['item_type'])) {
+                        $data['list'][$idx]['item_type'] = $normalizeType;
+                    }
+                }
+            }
+        }
 		$this->assign($data);
 		if($sort=='focus')
         {

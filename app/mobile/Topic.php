@@ -2,6 +2,7 @@
 namespace app\mobile;
 use app\common\controller\Frontend;
 use app\logic\common\FocusLogic;
+use app\model\Help as HelpModel;
 use app\model\Topic as TopicModel;
 use WordAnalysis\Analysis;
 
@@ -52,10 +53,13 @@ class Topic extends Frontend
         $focus_user = TopicModel::getTopicFocusUser($topic_id);
         $topic_info['description'] = $topic_info['description'] ? htmlspecialchars_decode($topic_info['description']) : '';
         $topic_info['has_focus'] = FocusLogic::checkUserIsFocus($this->user_id, 'topic', $topic_info['id']) ? 1 : 0;
+        $topic_info['relation_topics'] = TopicModel::getRelatedTopicBySourceId($topic_info['id']);
+        $archiveChapters = HelpModel::getTopicRelatedChapters($topic_info, 3);
         $this->assign('focus_user',$focus_user);
         $this->assign('type',$type);
         $this->assign('sort',$sort);
         $this->assign('topic_info', $topic_info);
+        $this->assign('archive_chapters', $archiveChapters);
 
         $default_topic_title = trim(strip_tags($topic_info['title'])) . '话题讨论、相关问题与文章聚合';
         $custom_seo_title = trim(strip_tags((string)$topic_info['seo_title']));

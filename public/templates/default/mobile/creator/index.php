@@ -79,19 +79,19 @@
         <div class="aui-grid aui-col-xs-3">
             <a href="{:url('manage/question')}" data-pjax="pageMain">
                 <div class="aui-grid-icon"><i class="iconfont icon-tubiaozhuanqu-09" style="color: #fe2f24;"></i></div>
-                <div class="aui-grid-text">{:L('我的提问')}</div>
+                <div class="aui-grid-text">{:L('我的 FAQ')}</div>
             </a>
         </div>
         <div class="aui-grid aui-col-xs-3">
             <a href="{:url('manage/article')}" data-pjax="pageMain">
                 <div class="aui-grid-icon"><i class="iconfont icon-24" style="color: #db639b;"></i></div>
-                <div class="aui-grid-text">{:L('我的文章')}</div>
+                <div class="aui-grid-text">{:L('我的内容')}</div>
             </a>
         </div>
         <div class="aui-grid aui-col-xs-3">
             <a href="{:url('manage/answer')}" data-pjax="pageMain">
                 <div class="aui-grid-icon"><i class="iconfont icon-huida" style="color: #fe6503;"></i></div>
-                <div class="aui-grid-text">{:L('我的回答')}</div>
+                <div class="aui-grid-text">{:L('我的补充')}</div>
             </a>
         </div>
         <div class="aui-grid aui-col-xs-3">

@@ -97,6 +97,71 @@
     .select2-dropdown{
         border: none !important;
     }
+    .aw-publish-insight .insight-chip {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #f4f7fb;
+        color: #355070;
+        margin: 0 8px 8px 0;
+        font-size: 12px;
+    }
+    .aw-publish-insight .insight-title-idea {
+        border-top: 1px solid #eef2f7;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+    .aw-publish-insight .insight-action {
+        cursor: pointer;
+    }
+    .aw-publish-insight .insight-action:hover {
+        color: #1d4ed8;
+    }
+    .aw-faq-guide {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+    .aw-faq-guide-item {
+        padding: 14px;
+        border: 1px solid #e6edf5;
+        border-radius: 14px;
+        background: #fbfdff;
+    }
+    .aw-faq-guide-item strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #0f172a;
+    }
+    .aw-faq-guide-item span {
+        display: block;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    .aw-archive-guide {
+        padding: 14px;
+        border: 1px solid #e6edf5;
+        border-radius: 14px;
+        background: #fbfdff;
+        margin-bottom: 18px;
+    }
+    .aw-archive-option {
+        display: inline-flex;
+        align-items: center;
+        margin: 0 10px 10px 0;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #f8fafc;
+        border: 1px solid #dbe7f3;
+        font-size: 13px;
+        color: #334155;
+        cursor: pointer;
+    }
+    .aw-archive-option input {
+        margin-right: 6px;
+    }
 </style>
 {/block}
 {block name="main"}
@@ -110,11 +175,29 @@
                         <input type="hidden" id="captcha">
                         <input type="hidden" name="access_key" value="{$access_key}">
                         <input type="hidden" name="id" value="{$question_info['id']|default=0}">
+                        <div class="mb-3">
+                            <h4 class="mb-2">{:L('新建 FAQ 条目')}</h4>
+                            <p class="text-muted mb-3">{:L('这里不再是“提一个问题”，而是明确补充一个可复用、可检索的答案入口。')}</p>
+                            <div class="aw-faq-guide">
+                                <div class="aw-faq-guide-item">
+                                    <strong>{:L('高频问题')}</strong>
+                                    <span>{:L('优先补充用户会反复搜索的问题，而不是偶发讨论。')}</span>
+                                </div>
+                                <div class="aw-faq-guide-item">
+                                    <strong>{:L('明确答案')}</strong>
+                                    <span>{:L('尽量给出可执行结论，而不是只有模糊观点。')}</span>
+                                </div>
+                                <div class="aw-faq-guide-item">
+                                    <strong>{:L('后续补充')}</strong>
+                                    <span>{:L('允许持续补充边界、例外情况和版本变化。')}</span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group d-flex mb-3">
                             <div class="flex-fill">
-                                <input id="title" name="title" value="{$question_info.title|default=''}" class="aw-form-control" type="text" placeholder="{:L('问题标题')}">
+                                <input id="title" name="title" value="{$question_info.title|default=''}" class="aw-form-control" type="text" placeholder="{:L('输入 FAQ 标题')}">
                                 <div class="aw-dropdown mt-2 border" style="display: none ;border-radius: 5px" >
-                                    <h6 class="px-3 pt-3 text-muted">{:L('您发表的问题可能已经有答案了')}</h6>
+                                    <h6 class="px-3 pt-3 text-muted">{:L('这个 FAQ 可能已经有相关答案了')}</h6>
                                     <div class="aw-dropdown-list aw-common-list aw-overflow-auto text-left px-3 pb-3"></div>
                                 </div>
                             </div>
@@ -138,12 +221,12 @@
                         </div>
 
                         <div class="form-group mb-3 aw-content">
-                            <label class="mb-3">{:L('问题详情')}</label>
+                            <label class="mb-3">{:L('FAQ 说明')}</label>
                             {:hook('editor',['name'=>'detail','cat'=>'question','value'=>isset($question_info['detail']) ? $question_info['detail'] : '','access_key'=>$access_key])}
                         </div>
 
                         <div class="form-group mb-3">
-                            <label class="mb-3">{:L('添加话题')}</label>
+                            <label class="mb-3">绑定主题</label>
                             <div class="topic">
                                 <div class="tip-list">
                                     <label for="topics" class="d-block w-100">
@@ -154,6 +237,36 @@
                                 </div>
                             </div>
                         </div>
+                        {if !empty($help_chapter_options)}
+                        <div class="form-group mb-3">
+                            <label class="mb-3">{:L('知识归档')}</label>
+                            <div class="aw-archive-guide">
+                                <div class="text-muted mb-2">{:L('把高频 FAQ 直接挂到知识章节，后续更容易做专题整理和帮助沉淀。')}</div>
+                                {if !empty($suggested_help_chapters)}
+                                <div class="font-weight-bold font-12 mb-2">{:L('建议归档章节')}</div>
+                                <div class="mb-2">
+                                    {volist name="suggested_help_chapters" id="v"}
+                                    <label class="aw-archive-option">
+                                        <input type="checkbox" name="help_chapter_ids[]" value="{$v.id}" {if !empty($v.selected)}checked{/if}>
+                                        <span>{$v.title}</span>
+                                    </label>
+                                    {/volist}
+                                </div>
+                                {/if}
+                                <div class="font-weight-bold font-12 mb-2">{:L('全部知识章节')}</div>
+                                <div>
+                                    {volist name="help_chapter_options" id="v"}
+                                    {if empty($v.suggested)}
+                                    <label class="aw-archive-option">
+                                        <input type="checkbox" name="help_chapter_ids[]" value="{$v.id}" {if !empty($v.selected)}checked{/if}>
+                                        <span>{$v.title}</span>
+                                    </label>
+                                    {/if}
+                                    {/volist}
+                                </div>
+                            </div>
+                        </div>
+                        {/if}
 
                         {if get_plugins_config('paid_attach','enable')=='Y'}
                         {:hook('attachPublish',['info'=>$question_info,'page'=>'question','attach_list'=>$attach_list??[],'access_key'=>$access_key])}
@@ -200,7 +313,7 @@
                             {if !isset($question_info['id']) && $setting.enable_anonymous=='Y'}
                             <label class="mb-0 text-muted mr-3">
                                 <input value="1" name="is_anonymous" type="checkbox"  {$question_info.is_anonymous ? 'checked' : ''}>
-                                {:L('匿名提问')}
+                                匿名发布
                             </label>
                             {/if}
                             <a href="{:url('page/score')}" target="_blank" ><i class="fa fa-database"></i> {:L(get_setting("score_unit"))}{:L('规则')}</a>
@@ -237,13 +350,51 @@
                             </script>
                             {/if}
                             <button type="button" class="btn btn-primary px-3 btn-sm aw-question-form mr-3 float-right">
-                                {:L('发表问题')}</button>
+                                {:L('发布 FAQ')}</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
         <div class="aw-right radius col-md-3 px-xs-0">
+            {if !empty($publish_insight)}
+            <div class="r-box mb-2 aw-publish-insight">
+                <div class="r-title">
+                    <h4>最近 {$publish_insight.window_days} 天可写方向</h4>
+                </div>
+                <div class="pb-2">
+                    {if !empty($publish_insight.top_keywords)}
+                    <div class="mb-3">
+                        <div class="font-weight-bold mb-2">最近有人在搜</div>
+                        <div>
+                            {volist name="publish_insight.top_keywords" id="v"}
+                            <span class="insight-chip insight-action js-fill-title" data-title="{$v.keyword|htmlspecialchars}">{$v.keyword} · {$v.search_count}</span>
+                            {/volist}
+                        </div>
+                    </div>
+                    {/if}
+                    {if !empty($publish_insight.title_ideas)}
+                    <div class="mb-3">
+                        <div class="font-weight-bold mb-2">建议问题标题</div>
+                        {volist name="publish_insight.title_ideas" id="v"}
+                        <div class="insight-title-idea insight-action js-fill-title" data-title="{$v.title|htmlspecialchars}">
+                            <div>{$v.title}</div>
+                            <div class="text-muted font-8 mt-1">{$v.reason}</div>
+                        </div>
+                        {/volist}
+                    </div>
+                    {/if}
+                    {if !empty($publish_insight.suggested_topics)}
+                    <div>
+                        <div class="font-weight-bold mb-2">建议优先挂载的话题</div>
+                        {volist name="publish_insight.suggested_topics" id="v"}
+                        <a class="d-block text-primary mb-2" href="{$v.url}" target="_blank">{$v.title}</a>
+                        {/volist}
+                    </div>
+                    {/if}
+                </div>
+            </div>
+            {/if}
             <div class="r-box mb-2">
                 <div class="r-title">
                     <h4>{:L('发布说明')}</h4>
@@ -267,6 +418,14 @@
                             {:L('每多一个回复你将获得')} {$integral_rule.QUESTION_ANSWER} {:L($setting.score_unit)}{:L('的奖励')} ,{:L('为了您的利益')},
                             {:L('在发起问题的时候希望能够更好的描述您的问题以及多使用站内搜索功能')}.</dd>
                     </dl>
+                    {if !empty($publish_insight.guidance)}
+                    <dl class="text-muted font-9">
+                        <dt>运营建议：</dt>
+                        {volist name="publish_insight.guidance" id="v"}
+                        <dd>{$v}</dd>
+                        {/volist}
+                    </dl>
+                    {/if}
                 </div>
             </div>
         </div>
@@ -286,6 +445,15 @@
     let createEnable = parseInt("{if $user_info['permission']['create_topic_enable']=='Y' || isNormalAdmin() || isSuperAdmin()}1{else/}0{/if}");
     let topicBox = $('#topics');
     $(function () {
+        $(document).on('click', '.js-fill-title', function () {
+            let title = $(this).data('title');
+            if (!title) {
+                return;
+            }
+            $('#title').val(title).trigger('input').trigger('focus');
+            $('html, body').animate({scrollTop: $('#title').offset().top - 120}, 150);
+        });
+
         // 启用ajax分页查询
         var  option = {
             placeholder: "为你的作品贴“关键词”标签，最多不超过{:get_setting('max_topic_select')}个，单个标签不超过6个字符（{$setting.topic_enable=='Y'?'必填':'选填'}）",

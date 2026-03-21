@@ -182,6 +182,175 @@ if (! function_exists('str_cut')) {
     }
 }
 
+if (! function_exists('frelink_article_type_options')) {
+    function frelink_article_type_options(bool $includeAll = false): array
+    {
+        $options = [
+            'research' => L('综述'),
+            'fragment' => L('观察'),
+            'tutorial' => L('方法'),
+            'faq' => L('帮助'),
+            'normal' => L('热点解释'),
+        ];
+
+        if ($includeAll) {
+            return ['all' => L('全部内容')] + $options;
+        }
+
+        return $options;
+    }
+}
+
+if (! function_exists('frelink_normalize_article_type')) {
+    function frelink_normalize_article_type($type, string $default = 'normal'): string
+    {
+        $type = trim((string)$type);
+        $options = frelink_article_type_options(true);
+        return isset($options[$type]) ? $type : $default;
+    }
+}
+
+if (! function_exists('frelink_article_type_label')) {
+    function frelink_article_type_label($type): string
+    {
+        $type = frelink_normalize_article_type($type);
+        $options = frelink_article_type_options();
+        return $options[$type] ?? $options['normal'];
+    }
+}
+
+if (! function_exists('frelink_nav_label')) {
+    function frelink_nav_label(string $label): string
+    {
+        $map = [
+            '首页' => L('首页'),
+            '主题' => L('主题'),
+            '问题' => L('FAQ'),
+            '文章' => L('综述'),
+            '专题' => L('观察'),
+            '帮助中心' => L('帮助'),
+            '帮助' => L('帮助'),
+            '专栏' => L('专栏'),
+            '创作者' => L('创作者'),
+        ];
+
+        return $map[$label] ?? $label;
+    }
+}
+
+if (! function_exists('frelink_extract_text_points')) {
+    function frelink_extract_text_points(string $html = '', int $limit = 3, int $maxLen = 60): array
+    {
+        $text = preg_replace('/\s+/u', ' ', trim(strip_tags(htmlspecialchars_decode($html))));
+        if (!$text) {
+            return [];
+        }
+
+        $segments = preg_split('/[。！？；\n\r]+|(?<=\p{Han})[,，]/u', $text) ?: [];
+        $points = [];
+
+        foreach ($segments as $segment) {
+            $segment = trim($segment);
+            if (!$segment || mb_strlen($segment) < 8) {
+                continue;
+            }
+
+            $normalized = mb_strtolower($segment, 'UTF-8');
+            if (isset($points[$normalized])) {
+                continue;
+            }
+
+            $points[$normalized] = str_cut($segment, 0, $maxLen, 'UTF-8', '...');
+            if (count($points) >= $limit) {
+                break;
+            }
+        }
+
+        if (!$points) {
+            return [str_cut($text, 0, $maxLen, 'UTF-8', '...')];
+        }
+
+        return array_values($points);
+    }
+}
+
+if (! function_exists('frelink_build_next_reads')) {
+    function frelink_build_next_reads(array $groups = [], int $limit = 4): array
+    {
+        $results = [];
+        $seen = [];
+
+        foreach ($groups as $group) {
+            $label = $group['label'] ?? '';
+            $items = $group['items'] ?? [];
+
+            foreach ($items as $item) {
+                $id = intval($item['id'] ?? 0);
+                if (!$id) {
+                    continue;
+                }
+
+                $itemType = $item['item_type'] ?? '';
+                if (!$itemType) {
+                    if (isset($item['answer_count'])) {
+                        $itemType = 'question';
+                    } elseif (isset($item['comment_count']) || isset($item['message'])) {
+                        $itemType = 'article';
+                    } elseif (isset($item['description'])) {
+                        $itemType = 'topic';
+                    }
+                }
+
+                if (!in_array($itemType, ['question', 'article', 'topic'], true)) {
+                    continue;
+                }
+
+                $uniqueKey = $itemType . ':' . $id;
+                if (isset($seen[$uniqueKey])) {
+                    continue;
+                }
+
+                $title = trim((string)($item['title'] ?? $item['name'] ?? ''));
+                if (!$title) {
+                    continue;
+                }
+
+                $descSource = $item['detail'] ?? $item['message'] ?? $item['description'] ?? '';
+                $desc = preg_replace('/\s+/u', ' ', trim(strip_tags(htmlspecialchars_decode((string)$descSource))));
+                $desc = $desc ? str_cut($desc, 0, 48, 'UTF-8', '...') : '';
+
+                switch ($itemType) {
+                    case 'question':
+                        $url = (string)url('question/detail', ['id' => $id]);
+                        break;
+                    case 'article':
+                        $url = (string)url('article/detail', ['id' => $id]);
+                        break;
+                    default:
+                        $url = (string)url('topic/detail', ['id' => $id]);
+                        break;
+                }
+
+                $results[] = [
+                    'id' => $id,
+                    'item_type' => $itemType,
+                    'label' => $label,
+                    'title' => $title,
+                    'url' => $url,
+                    'desc' => $desc,
+                ];
+                $seen[$uniqueKey] = true;
+
+                if (count($results) >= $limit) {
+                    return $results;
+                }
+            }
+        }
+
+        return $results;
+    }
+}
+
 /**
  * 获取系统配置
  * @param string $name

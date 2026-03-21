@@ -40,7 +40,28 @@ class Common extends Api
     public function config()
     {
         $config = ConfigModel::getConfigs();
-        $config['site_logo'] = replacePic($config['site_logo']);
+        $publicKeys = [
+            'site_name',
+            'site_logo',
+            'site_close',
+            'icp',
+            'seo_title',
+            'seo_keywords',
+            'seo_description',
+            'upload_file_size',
+            'upload_file_ext',
+            'upload_image_size',
+            'upload_image_ext',
+            'default_language',
+            'mobile_enable',
+            'wechat_enable',
+            'copyright_link',
+            'copyright_seo',
+            'home_theme',
+            'contents_per_page',
+        ];
+        $config = array_intersect_key($config, array_flip($publicKeys));
+        $config['site_logo'] = replacePic($config['site_logo'] ?? '');
 
         $announce_info =  db('announce')
             ->where(['status'=>1])
@@ -57,12 +78,12 @@ class Common extends Api
             'navList'=>[
                 [
                     'icon'=>'icon-databaseset-fill',
-                    'text'=> '资源',
+                    'text'=> '专题',
                     'iconSize'=> 60,
                 ],
                 [
                     'icon'=>'icon-connection',
-                    'text'=> '导航',
+                    'text'=> '主题',
                     'iconSize'=> 60,
                 ],
 
@@ -73,7 +94,7 @@ class Common extends Api
                 ],
                 [
                     'icon'=> 'icon-question-circle-fill',
-                    'text'=> '求助',
+                    'text'=> '问题',
                     'iconSize'=> 60
                 ],
                 [
@@ -83,7 +104,7 @@ class Common extends Api
                 ],
                 [
                     'icon'=> 'icon-user-circle',
-                    'text'=> '用户',
+                    'text'=> '创作者',
                     'iconSize'=> 60
                 ]
             ],

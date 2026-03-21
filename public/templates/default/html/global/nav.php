@@ -7,31 +7,31 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse newnavbar" id="navbarNavDropdown" style="justify-content: space-between">
-                <div class="nav-links-container position-relative" style="max-width: 370px;z-index: 1">
-                    <ul class="navbar-nav navbar-new-nav">
+                <div class="nav-links-container position-relative d-flex align-items-stretch flex-grow-1" style="max-width: none; min-width: 0; z-index: 1">
+                    <ul class="navbar-nav navbar-new-nav flex-row flex-nowrap align-items-stretch">
                         {foreach $navMenu as $k=>$v}
                         {if $k<5}
-                        <li class="nav-item {$v.active ? 'cur' : ''} clearfix" style="width: auto!important">
+                        <li class="nav-item {$v.active ? 'cur' : ''} clearfix" style="width: auto!important; flex: 0 0 auto;">
                             {if $v.child_list}
-                            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{$v.title}</a>
+                            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="white-space: nowrap;">{:frelink_nav_label($v.title)}</a>
                             <div class="dropdown-menu text-center" aria-labelledby="navbarDropdownMenuLink">
                                 {volist name="$v['child_list']" id="v1"}
                                 <a class="dropdown-item" href="{$v1.url}" data-pjax="pageMain" title="{$v1.title}">{$v1.title}</a>
                                 {/volist}
                             </div>
                             {else/}
-                            <a class="nav-link" href="{$v.url}" data-pjax="pageMain" title="{$v.title}">{$v.title}</a>
+                            <a class="nav-link" href="{$v.url}" data-pjax="pageMain" title="{$v.title}" style="white-space: nowrap;">{:frelink_nav_label($v.title)}</a>
                             {/if}
                         </li>
                         {/if}
                         {/foreach}
                         {if count($navMenu)>5}
-                        <li class="nav-item {$v.active ? 'cur' : ''} clearfix" style="width: auto!important">
-                            <a class="nav-link dropdown-toggle" href="#"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{:L('更多')}</a>
+                        <li class="nav-item {$v.active ? 'cur' : ''} clearfix" style="width: auto!important; flex: 0 0 auto;">
+                            <a class="nav-link dropdown-toggle" href="#"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="white-space: nowrap;">{:L('更多')}</a>
                             <div class="dropdown-menu text-center" aria-labelledby="navbarDropdownMenuLink">
                                 {foreach $navMenu as $k=>$v1}
                                 {if $k>=5}
-                                <a class="dropdown-item" href="{$v1.url}" data-pjax="pageMain" title="{:L($v1.title)}">{$v1.title}</a>
+                                <a class="dropdown-item" href="{$v1.url}" data-pjax="pageMain" title="{:L($v1.title)}">{:frelink_nav_label($v1.title)}</a>
                                 {/if}
                                 {/foreach}
                             </div>
@@ -54,7 +54,7 @@
                                         {:L('的搜索结果')}</p>
                                 </div>
                                 <div class="mod-footer px-2 py-1">
-                                    <a href="{:url('question/publish')}" data-pjax="pageMain" class="btn btn-primary btn-small float-right">{:L('发起问题')}</a>
+                                    <a href="{:url('question/publish')}" data-pjax="pageMain" class="btn btn-primary btn-small float-right">{:L('补充 FAQ')}</a>
                                 </div>
                             </div>
                         </div>
@@ -68,12 +68,12 @@
                     <div class="nav-user-actions d-flex align-items-center">
                     <div class="dropdown d-inline-block mr-4 position-relative">
                         <a href="javascript:;" class="btn btn-sm gradientBtn px-3 text-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {:L('发起')}
+                            {:L('新建')}
                         </a>
                         <div class="dropdown-menu p-0 dropdown-menu-right border-0 font-size-sm">
                             <div class="text-center d-block py-2 aw-nav aw-dropdown-nav text-center aw-answer-sort" style="min-width: 100px">
-                                <a href="{:url('question/publish')}" class="py-1 dropdown-item" target="_blank">{:L('问题')}</a>
-                                <a href="{:url('article/publish')}" class="py-1 dropdown-item" target="_blank">{:L('文章')} </a>
+                                <a href="{:url('question/publish')}" class="py-1 dropdown-item" target="_blank">{:L('FAQ 条目')}</a>
+                                <a href="{:url('article/publish')}" class="py-1 dropdown-item" target="_blank">{:L('综述 / 观察')}</a>
                                 {volist name=":config('aws.publish')" id="v"}
                                 <a href="{:url($v['url'])} " class="py-1 dropdown-item" target="_blank">{$v.title}</a>
                                 {/volist}

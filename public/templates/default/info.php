@@ -31,21 +31,21 @@ return [
                 'search_title_text' =>[
                     'title' => '搜索标题文字',
                     'type' => 'text',
-                    'value' => '',
+                    'value' => '公开、开放、可检索的知识站',
                     'options' =>[],
                     'tips' => '',
                 ],
                 'search_min_text' =>[
                     'title' => '搜索介绍文字',
                     'type' => 'textarea',
-                    'value' => '',
+                    'value' => '围绕问题、文章、主题与专题持续沉淀知识，不做诱导付费，不做碎片化阅读。',
                     'options' =>[],
                     'tips' => '',
                 ],
                 'sidebar_show_items' =>[
                     'title' => '侧边栏项目',
                     'type' => 'checkbox',
-                    'value' =>'write_nav,announce,focus_topic,column,hot_topic,hot_users',
+                    'value' =>'write_nav,announce,hot_topic,column,diy_content',
                     'options' =>[
                         'write_nav' => '快速发起',
                         'announce' => '网站公告',
@@ -60,7 +60,7 @@ return [
                 'sidebar_diy_content' =>[
                     'title' => '自定义内容',
                     'type' => 'editor',
-                    'value' => '&lt;p class=&quot;p-3 bg-info mt-2&quot;&gt;这是自定义内容&lt;/p&gt;',
+                    'value' => '&lt;div class=&quot;p-3 mt-2&quot; style=&quot;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;&quot;&gt;&lt;h5 style=&quot;margin-bottom:8px;&quot;&gt;内容策略建议&lt;/h5&gt;&lt;p style=&quot;margin-bottom:0;color:#4b5563;&quot;&gt;优先沉淀可检索的问题、教程、术语解释和专题合集，让每篇内容都能被搜索和复用。&lt;/p&gt;&lt;/div&gt;',
                     'options' =>
                         array (
                         ),
@@ -84,7 +84,7 @@ return [
                 'sidebar_show_items' =>[
                     'title' => '侧边栏项目',
                     'type' => 'checkbox',
-                    'value' =>'write_nav,announce,focus_topic,column,hot_topic,hot_users',
+                    'value' =>'write_nav,announce,hot_topic,column,diy_content',
                     'options' =>[
                         'write_nav' => '快速发起',
                         'announce' => '网站公告',
@@ -99,7 +99,7 @@ return [
                 'sidebar_diy_content' =>[
                     'title' => '自定义内容',
                     'type' => 'editor',
-                    'value' => '&lt;p class=&quot;p-3 bg-info mt-2&quot;&gt;这是自定义内容&lt;/p&gt;',
+                    'value' => '&lt;div class=&quot;p-3 mt-2&quot; style=&quot;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;&quot;&gt;优先回答有明确搜索意图的问题，并把高质量回答沉淀成文章或帮助文档。&lt;/div&gt;',
                     'options' =>[],
                     'tips' => '侧边栏自定义内容,支持富文本',
                 ],
@@ -111,7 +111,7 @@ return [
                 'sidebar_show_items' =>[
                     'title' => '侧边栏项目',
                     'type' => 'checkbox',
-                    'value' =>'write_nav,announce,focus_topic,column,hot_topic,hot_users',
+                    'value' =>'write_nav,announce,hot_topic,column,diy_content',
                     'options' =>[
                         'write_nav' => '快速发起',
                         'announce' => '网站公告',
@@ -126,7 +126,7 @@ return [
                 'sidebar_diy_content' =>[
                     'title' => '自定义内容',
                     'type' => 'editor',
-                    'value' => '&lt;p class=&quot;p-3 bg-info mt-2&quot;&gt;这是自定义内容&lt;/p&gt;',
+                    'value' => '&lt;div class=&quot;p-3 mt-2&quot; style=&quot;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;&quot;&gt;文章优先写成可复用的教程、案例、方案对比和实践总结，而不是纯时间流内容。&lt;/div&gt;',
                     'options' =>[],
                     'tips' => '侧边栏自定义内容,支持富文本',
                 ],

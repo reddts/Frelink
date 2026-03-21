@@ -55,13 +55,13 @@
                 <a class="nav-link {if $type=='dynamic'}active{/if}" data-pjax="pageMain" href="{:url('people/index',['name'=>$user['url_token'],'type'=>'dynamic'])}">{:L('动态')}</a>
             </li>
             <li class="nav-item swiper-slide {if $type=='question'}i-active{/if}">
-                <a class="nav-link {if $type=='question'}active{/if}" data-pjax="pageMain" href="{:url('people/index',['name'=>$user['url_token'],'type'=>'question'])}">{:L('提问')} {$question_count}</a>
+                <a class="nav-link {if $type=='question'}active{/if}" data-pjax="pageMain" href="{:url('people/index',['name'=>$user['url_token'],'type'=>'question'])}">{:L('FAQ')} {$question_count}</a>
             </li>
             <li class="nav-item swiper-slide {if $type=='answer'}i-active{/if}">
-                <a class="nav-link {if $type=='answer'}active{/if}" data-pjax="pageMain" href="{:url('people/index',['name'=>$user['url_token'],'type'=>'answer'])}">{:L('回答')} {$answer_count}</a>
+                <a class="nav-link {if $type=='answer'}active{/if}" data-pjax="pageMain" href="{:url('people/index',['name'=>$user['url_token'],'type'=>'answer'])}">{:L('补充')} {$answer_count}</a>
             </li>
             <li class="nav-item swiper-slide {if $type=='article'}i-active{/if}">
-                <a class="nav-link {if $type=='article'}active{/if}" data-pjax="pageMain" href="{:url('people/index',['name'=>$user['url_token'],'type'=>'article'])}">{:L('文章')} {$article_count}</a>
+                <a class="nav-link {if $type=='article'}active{/if}" data-pjax="pageMain" href="{:url('people/index',['name'=>$user['url_token'],'type'=>'article'])}">{:L('内容')} {$article_count}</a>
             </li>
             <li class="nav-item swiper-slide {if $type=='friend'}i-active{/if}">
                 <a class="nav-link {if $type=='friend'}active{/if}" href="{:url('people/index',['name'=>$user['url_token'],'type'=>'friend'])}" data-pjax="pageMain">{:L('关注的人')}</a>

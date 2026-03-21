@@ -154,15 +154,22 @@ class Question extends Api
             $this->apiError($e->getError());
         }
 
+        $topics = $postData['topics'] ?? [];
+        $topics = is_array($topics) ? $topics : explode(',', (string) $topics);
+        if (!empty($topics) && is_array(current($topics))) {
+            $topics = array_column($topics, 'id');
+        }
+        $topics = array_values(array_unique(array_filter(array_map('intval', $topics))));
+
         /*问题提交前钩子*/
         hook('question_publish_post_before', $postData);
         if (htmlspecialchars_decode($postData['title']) == '' || removeEmpty($postData['title']) == '') $this->apiError('请填写问题标题');
         if ($this->settings['enable_category'] && !intval($postData['category_id'])) $this->apiError('请选择问题分类');
 
-        if (get_setting('topic_enable') == 'Y' && (!isset($postData['topics'])) || empty($postData['topics'])) $this->apiError('请至少选择一个话题');
+        if (get_setting('topic_enable') == 'Y' && empty($topics)) $this->apiError('请至少选择一个话题');
 
 
-        if (get_setting('topic_enable') == 'Y' && get_setting('max_topic_select') < count($postData['topics'])) {
+        if (get_setting('topic_enable') == 'Y' && get_setting('max_topic_select') < count($topics)) {
             $this->apiError('您最多只可设置' . get_setting('max_topic_select') . '个话题');
         }
 
@@ -171,14 +178,14 @@ class Question extends Api
         // 微信小程序内容安全检测
         if (ENTRANCE == 'wechat') $this->wxminiCheckText([$postData['title'], $postData['detail']], '标题或内容不符合微信小程序安全检测');
 
+        $access_key = $postData['access_key'] ?? md5($this->user_id . time());
         unset($postData['__token__'], $postData['access_key']);
         $postData['form'] = 1;
         $postData['uid'] = $postData['uid'] ?? $this->user_id;
         $postData['is_anonymous'] = $postData['is_anonymous'] ?? 0;
         $postData['question_type'] = $postData['question_type'] ?? 'normal';
-        $access_key = $postData['access_key'] ?? md5($this->user_id . time());
         $postData['detail'] = htmlspecialchars_decode($postData['detail']);
-        $postData['topics'] = array_unique(array_column($postData['topics'], 'id'));
+        $postData['topics'] = $topics;
 
         // 发起需要审核
         if ($postData['question_type'] == 'normal' && !$postData['id'] && $this->publish_approval_valid($postData['detail'])) {

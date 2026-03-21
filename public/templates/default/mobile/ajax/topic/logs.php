@@ -10,7 +10,7 @@
         </dt>
         <dd class="mt-1">
             <div class="n-title">
-                <span class="tip-s1 badge badge-secondary">{:L('问答')}</span>
+                <span class="tip-s1 badge badge-secondary">{:L('FAQ')}</span>
                 <a href="{:url('question/detail',['id'=>$v['id']])}" target="_blank">{$v.title}</a>
             </div>
         </dd>
@@ -24,7 +24,7 @@
         </dt>
         <dd class="mt-1">
             <div class="n-title">
-                <span class="tip-s2 badge badge-secondary">{:L('文章')}</span>
+                <span class="tip-s2 badge badge-secondary">{:frelink_article_type_label($v['article_type'] ?? 'research')}</span>
                 {:hook('article_badge')}
                 <a href="{:url('article/detail',['id'=>$v['id']])}"  target="_blank">{$v['title']}</a>
             </div>

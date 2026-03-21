@@ -19,6 +19,8 @@ use app\common\library\helper\PopularHelper;
 use app\model\Approval;
 use app\model\Attach;
 use app\model\BrowseRecords;
+use app\model\Insight as InsightModel;
+use app\model\Help as HelpModel;
 use app\model\UsersFavorite;
 use app\model\PostRelation;
 use app\model\Users;
@@ -40,17 +42,20 @@ class Article extends Frontend
 	 * 文章列表
 	 * @return mixed
 	 */
-	public function index()
+    public function index()
     {
         $sort = $this->request->param('sort','new','sqlFilter');
         $category = $this->request->param('category_id',0,'intval');
+        $articleType = frelink_normalize_article_type($this->request->param('type', 'all', 'sqlFilter'), 'all');
         $this->assign(
             [
                 'sort'=> $sort,
                 'category'=>$category,
+                'article_type'=>$articleType,
+                'article_type_options'=>frelink_article_type_options(true),
             ]
         );
-        $this->TDK('文章列表');
+        $this->TDK(($articleType !== 'all' ? frelink_article_type_label($articleType) . ' - ' : '') . '知识内容库');
 		return $this->fetch();
 	}
 
@@ -61,6 +66,8 @@ class Article extends Frontend
     {
         if ($this->request->isPost()) {
             $postData = $this->request->post();
+            $helpChapterIds = array_values(array_unique(array_filter(array_map('intval', $postData['help_chapter_ids'] ?? []))));
+            unset($postData['help_chapter_ids']);
             /*文章提交前钩子*/
             hook('article_publish_post_top',$postData);
 
@@ -145,6 +152,7 @@ class Article extends Frontend
 
             if($id)
             {
+                HelpModel::syncItemArchiveChapters('article', $id, $helpChapterIds);
                 $this->success('提交成功',url('article/detail',['id'=>$id]));
             }
             $this->error('提交失败'.':'.ArticleModel::getError());
@@ -165,6 +173,7 @@ class Article extends Frontend
                 $this->error('文章不存在',url('index'));
             }
             $article_info['category_title'] = isset($article_info['category_id'])?db('category')->where(['id'=>$article_info['category_id'],'type'=>'article'])->value('title'):'';
+            $article_info['article_type'] = frelink_normalize_article_type($article_info['article_type'] ?? 'research', 'research');
 
             $article_info['message'] = htmlspecialchars($article_info['message']);
             if($this->user_id!=$article_info['uid'] && get_user_permission('modify_article')!='Y')
@@ -182,6 +191,7 @@ class Article extends Frontend
                 }
                 $article_info = $draft_info['data'];
                 $article_info['category_title'] = isset($draft_info['data']['category_id'])?db('category')->where(['id'=>$draft_info['data']['category_id'],'type'=>'article'])->value('title'):'';
+                $article_info['article_type'] = frelink_normalize_article_type($draft_info['data']['article_type'] ?? $article_info['article_type'], 'research');
 
                 if (isset($draft_info['data']['topics'])) {
                     $article_info['topics'] = is_array($draft_info['data']['topics'])?implode(',',$draft_info['data']['topics']):$draft_info['data']['topics'];
@@ -204,6 +214,7 @@ class Article extends Frontend
 
             $article_info = array();
             $article_info['topics'] = '';
+            $article_info['article_type'] = 'research';
             if($topic_id = $this->request->param('topic_id'))
             {
                 $article_info['topics'] = db('topic')->where('id', $topic_id)->value('id');
@@ -216,6 +227,7 @@ class Article extends Frontend
                 }
                 $article_info = $draft_info['data'];
                 $article_info['category_title'] = isset($draft_info['data']['category_id'])?db('category')->where(['id'=>$draft_info['data']['category_id'],'type'=>'article'])->value('title'):'';
+                $article_info['article_type'] = frelink_normalize_article_type($draft_info['data']['article_type'] ?? 'research', 'research');
                 if (isset($draft_info['data']['topics'])) {
                     $article_info['topics'] = is_array($draft_info['data']['topics'])?implode(',',$draft_info['data']['topics']):$draft_info['data']['topics'];
 
@@ -227,14 +239,27 @@ class Article extends Frontend
         //从专栏进入发起文章
         $column_id = $this->request->param('column_id', 0);
         $article_info['column_id'] = $column_id;
+        $selectedHelpChapterIds = !empty($article_info['id']) ? HelpModel::getItemArchiveChapterIds('article', intval($article_info['id'])) : [];
+        $helpChapterOptions = HelpModel::getActiveChapterList();
+        $suggestedHelpChapters = HelpModel::getSuggestedArchiveChapters('article', $article_info, 6);
+        $suggestedHelpChapterIds = array_column($suggestedHelpChapters, 'id');
+        foreach ($helpChapterOptions as $k => $chapter) {
+            $helpChapterOptions[$k]['selected'] = in_array($chapter['id'], $selectedHelpChapterIds);
+            $helpChapterOptions[$k]['suggested'] = in_array($chapter['id'], $suggestedHelpChapterIds);
+        }
         $this->assign(
             [
                 'captcha_enable'=>$captcha_enable,
                 'article_info'=>$article_info,
                 'column_list'=>\app\model\Column::getColumnByUid($this->user_id),
                 'article_category_list'=>\app\model\Category::getCategoryListByType('article'),
+                'article_type_options'=>frelink_article_type_options(),
+                'help_chapter_options'=>$helpChapterOptions,
+                'selected_help_chapter_ids'=>$selectedHelpChapterIds,
+                'suggested_help_chapters'=>$suggestedHelpChapters,
                 'access_key'=>md5($this->user_id.time()),
-                'attach_list'=>Attach::getAttach('article_attach',$article_id)
+                'attach_list'=>Attach::getAttach('article_attach',$article_id),
+                'publish_insight'=>checkTableExist('analytics_event') ? InsightModel::getPublishAssist('article', 7, 5) : []
             ]);
 
         /**
@@ -269,6 +294,8 @@ class Article extends Frontend
 
         $article_info['title'] = htmlspecialchars_decode($article_info['title']);
         $article_info['message'] = HtmlHelper::normalizeContentHtml($article_info['message']);
+        $article_info['article_type'] = frelink_normalize_article_type($article_info['article_type'] ?? 'normal');
+        $article_info['article_type_label'] = frelink_article_type_label($article_info['article_type']);
 
 		//举报状态
 		$article_info['is_report'] = Report::getReportInfo($article_info['id'], 'article', $this->user_id);
@@ -300,6 +327,13 @@ class Article extends Frontend
             $recommend_post = Topic::getRecommendPost($article_info['id'],'article',array_column($article_info['topics'], 'id'),$this->user_id);
         }
 
+        $summary_points = frelink_extract_text_points($article_info['message']);
+        $next_reads = frelink_build_next_reads([
+            ['label' => '相关文章', 'items' => $relation_article ?: []],
+            ['label' => '继续阅读', 'items' => $recommend_post ?: []],
+        ]);
+        $archiveChapters = HelpModel::getItemArchiveChapters('article', $article_info['id'], 6);
+
         $this->assign('recommend_post', $recommend_post?:[]);
 
         $page = $this->request->param('page', 1);
@@ -318,7 +352,10 @@ class Article extends Frontend
             'comment_list'=> Tree::toTree($comment_list['data']),
             'page_render'=> $comment_list['page_render'],
             'sort' =>$sort,
-            'attach_list'=>Attach::getAttach('article_attach',$article_info['id'])
+            'attach_list'=>Attach::getAttach('article_attach',$article_info['id']),
+            'summary_points' => $summary_points,
+            'next_reads' => $next_reads,
+            'archive_chapters' => $archiveChapters,
         ]);
         $seo_title = $article_info['seo_title'] ? : $article_info['title'];
         $seo_keywords = $article_info['seo_keywords'] ? : Analysis::getKeywords($article_info['title'], 4);

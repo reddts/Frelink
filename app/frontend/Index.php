@@ -11,20 +11,54 @@
 
 namespace app\frontend;
 use app\common\controller\Frontend;
+use app\model\Help as HelpModel;
 use think\response\Response;
 
 class Index extends Frontend
 {
+    protected function resolveSort(): string
+    {
+        $allowed = ['focus', 'recommend', 'new', 'hot', 'unresponsive'];
+        $sort = $this->request->param('sort', '', 'sqlFilter');
+        if ($sort && in_array($sort, $allowed, true)) {
+            return $sort;
+        }
+
+        $candidates = [
+            trim((string)$this->request->pathinfo(), '/'),
+            (string)$this->request->url(),
+            (string)$this->request->baseUrl(),
+            (string)$this->request->server('REQUEST_URI'),
+        ];
+
+        foreach ($candidates as $candidate) {
+            if ($candidate && preg_match('#/(?:m/)?explore/(focus|recommend|new|hot|unresponsive)\.html#i', '/' . ltrim($candidate, '/'), $matches)) {
+                return strtolower($matches[1]);
+            }
+        }
+
+        return 'new';
+    }
+
 	public function index()
     {
-        $sort = $this->request->param('sort','new');
+        $sort = $this->resolveSort();
         $type = $this->request->param('type');
+        $articleType = frelink_normalize_article_type($this->request->param('article_type', 'all', 'sqlFilter'), 'all');
         $page = $this->request->param('page', 1, 'intval');
         $isAjax = $this->request->isAjax() || $this->request->isPjax() || intval($this->request->param('_ajax', 0)) === 1 || intval($this->request->param('_ajax_open', 0)) === 1;
         $canPageCache = !$this->user_id && !$isAjax && $page === 1;
+        $feedQuery = [];
+        if ($type) {
+            $feedQuery['type'] = $type;
+            if ($type === 'article' && $articleType !== 'all') {
+                $feedQuery['article_type'] = $articleType;
+            }
+        }
         $cacheKey = 'page_cache:index:' . md5(json_encode([
             'sort' => (string)$sort,
             'type' => (string)$type,
+            'article_type' => (string)$articleType,
             'lang' => (string)$this->request->cookie('aws_lang', ''),
         ]));
 
@@ -34,7 +68,12 @@ class Index extends Frontend
 
         $this->assign([
             'sort'=> $sort,
-            'type'=>$type
+            'current_sort' => $sort,
+            'type'=>$type,
+            'article_type'=>$articleType,
+            'feed_query' => $feedQuery,
+            'article_type_options'=>frelink_article_type_options(true),
+            'archive_chapters'=>HelpModel::getFeaturedArchiveChapters(4, 3),
         ]);
         $this->TDK(get_setting('site_name'));
         $html = $this->fetch();

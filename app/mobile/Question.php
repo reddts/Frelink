@@ -15,6 +15,8 @@ use app\model\PostRelation;
 use app\model\Question as QuestionModel;
 use app\model\Report;
 use app\model\Topic;
+use app\model\Insight as InsightModel;
+use app\model\Help as HelpModel;
 use app\model\Users;
 use app\model\Vote;
 use think\exception\ValidateException;
@@ -34,7 +36,7 @@ class Question extends Frontend
             'sort'=> $sort,
             'category'=>$category,
         ]);
-        $this->TDK('问题列表');
+        $this->TDK('FAQ - 答案入口');
         return $this->fetch();
     }
 
@@ -64,6 +66,7 @@ class Question extends Frontend
         // 获取话题
         $question_info['topics'] = Topic::getTopicByItemType('question',$question_info['id']);
         $question_info['has_focus'] = FocusLogic::checkUserIsFocus($this->user_id, 'question', $question_info['id']) ? 1 : 0;
+        $relation_question = QuestionModel::getRelationQuestion($question_id);
 
         //是否举报
         $checkReport=Report::getReportInfo($question_id,'question',$this->user_id)?1:0;
@@ -81,12 +84,30 @@ class Question extends Frontend
             $recommend_post = Topic::getRecommendPost($question_info['id'],'question',array_column($question_info['topics'], 'id'),$this->user_id);
         }
 
+        $summary_source = $question_info['detail'];
+        if (!$summary_source) {
+            $summary_source = db('answer')
+                ->where('question_id', $question_id)
+                ->order(['is_best' => 'DESC', 'agree_count' => 'DESC', 'id' => 'DESC'])
+                ->value('content');
+        }
+        $summary_points = frelink_extract_text_points($summary_source);
+        $next_reads = frelink_build_next_reads([
+            ['label' => '相关问题', 'items' => $relation_question ?: []],
+            ['label' => '继续阅读', 'items' => $recommend_post ?: []],
+        ]);
+        $archiveChapters = HelpModel::getItemArchiveChapters('question', $question_info['id'], 6);
+
         $this->assign([
             'question_info' => $question_info,
             'answer_id' => $answer_id,
             'checkReport' => $checkReport,
             'checkFavorite' => $checkFavorite,
             'recommend_post'=>$recommend_post,
+            'relation_question' => $relation_question,
+            'summary_points' => $summary_points,
+            'next_reads' => $next_reads,
+            'archive_chapters' => $archiveChapters,
             'best_answer_count'=>db('answer')->where(['question_id'=>$question_id,'is_best'=>1])->count() ? 1 : 0,
             'attach_list'=>Attach::getAttach('question_attach',$question_info['id'])
         ]);
@@ -138,6 +159,8 @@ class Question extends Frontend
         if ($this->request->isPost())
         {
             $postData = $this->request->post();
+            $helpChapterIds = array_values(array_unique(array_filter(array_map('intval', $postData['help_chapter_ids'] ?? []))));
+            unset($postData['help_chapter_ids']);
             $access_key = $postData['access_key'];
             if(isset($postData['id']) && intval($postData['id']))
             {
@@ -223,6 +246,7 @@ class Question extends Frontend
 
             if ($id = QuestionModel::saveQuestion($postData['uid'], $postData,$access_key))
             {
+                HelpModel::syncItemArchiveChapters('question', $id, $helpChapterIds);
                 /*问题提交后钩子*/
                 hook('question_publish_post_after',$id);
                 $this->success('发表成功', (string)url('question/detail?id=' . $id));
@@ -289,12 +313,24 @@ class Question extends Frontend
             }
             unset($question_info['id']);
         }
+        $selectedHelpChapterIds = !empty($question_info['id']) ? HelpModel::getItemArchiveChapterIds('question', intval($question_info['id'])) : [];
+        $helpChapterOptions = HelpModel::getActiveChapterList();
+        $suggestedHelpChapters = HelpModel::getSuggestedArchiveChapters('question', $question_info, 6);
+        $suggestedHelpChapterIds = array_column($suggestedHelpChapters, 'id');
+        foreach ($helpChapterOptions as $k => $chapter) {
+            $helpChapterOptions[$k]['selected'] = in_array($chapter['id'], $selectedHelpChapterIds);
+            $helpChapterOptions[$k]['suggested'] = in_array($chapter['id'], $suggestedHelpChapterIds);
+        }
         $this->assign([
             'captcha_enable'=>$captcha_enable,
             'question_info'=>$question_info,
             'category_list'=>\app\model\Category::getCategoryListByType('question'),
+            'help_chapter_options'=>$helpChapterOptions,
+            'selected_help_chapter_ids'=>$selectedHelpChapterIds,
+            'suggested_help_chapters'=>$suggestedHelpChapters,
             'access_key'=>$access_key,
-            'attach_list'=>Attach::getAttach('question_attach',$question_id)
+            'attach_list'=>Attach::getAttach('question_attach',$question_id),
+            'publish_insight'=>checkTableExist('analytics_event') ? InsightModel::getPublishAssist('question', 7, 4) : []
         ]);
 
         /**

@@ -15,6 +15,16 @@ class AppInit
             if ($version === null || $version === '') {
                 $version = request()->header('version ');
             }
+            $forceMobile = intval($request->get('force_mobile', 0)) === 1;
+            $routePath = trim((string) $request->pathinfo(), '/');
+            $routeUrl = trim((string) $request->url(), '/');
+            $routeQuery = trim((string) $request->get('s', ''), '/');
+            $apiPathEnable = strpos($routePath, 'api/') === 0
+                || $routePath === 'api'
+                || strpos($routeUrl, 'api/') === 0
+                || $routeUrl === 'api'
+                || strpos($routeQuery, 'api/') === 0
+                || $routeQuery === 'api';
             $apiEnable = false;
             $client = authCode($AccessToken);
             $isClient = db('app_token')
@@ -26,14 +36,14 @@ class AppInit
                 $apiEnable = true;
             }
             //手机wap
-            if(\think\facade\Request::isMobile() && !$apiEnable && get_setting('mobile_enable')=='Y')
+            if($apiEnable || $apiPathEnable)
+            {
+                define('ENTRANCE','api');
+            }elseif(($forceMobile || \think\facade\Request::isMobile()) && get_setting('mobile_enable')=='Y')
             {
                 define('ENTRANCE','mobile');
             }elseif (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false && !$apiEnable && get_setting('wechat_enable')=='Y') {
                 define('ENTRANCE','wechat');
-            }elseif($apiEnable)
-            {
-                define('ENTRANCE','api');
             }elseif(strstr($request->url(),app()->config->get('app.admin'))!==false)
             {
                 define('ENTRANCE','backend');

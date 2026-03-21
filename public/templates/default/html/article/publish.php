@@ -97,6 +97,71 @@
     .select2-dropdown{
         border: none !important;
     }
+    .aw-publish-insight .insight-chip {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #f4f7fb;
+        color: #355070;
+        margin: 0 8px 8px 0;
+        font-size: 12px;
+    }
+    .aw-publish-insight .insight-title-idea {
+        border-top: 1px solid #eef2f7;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+    .aw-publish-insight .insight-action {
+        cursor: pointer;
+    }
+    .aw-publish-insight .insight-action:hover {
+        color: #1d4ed8;
+    }
+    .aw-type-guide {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+    .aw-type-guide-item {
+        padding: 14px;
+        border: 1px solid #e6edf5;
+        border-radius: 14px;
+        background: #fbfdff;
+    }
+    .aw-type-guide-item strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #0f172a;
+    }
+    .aw-type-guide-item span {
+        display: block;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    .aw-archive-guide {
+        padding: 14px;
+        border: 1px solid #e6edf5;
+        border-radius: 14px;
+        background: #fbfdff;
+        margin-bottom: 18px;
+    }
+    .aw-archive-option {
+        display: inline-flex;
+        align-items: center;
+        margin: 0 10px 10px 0;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #f8fafc;
+        border: 1px solid #dbe7f3;
+        font-size: 13px;
+        color: #334155;
+        cursor: pointer;
+    }
+    .aw-archive-option input {
+        margin-right: 6px;
+    }
 </style>
 {/block}
 {block name="main"}
@@ -111,9 +176,34 @@
                         <input type="hidden" name="access_key" value="{$access_key}">
                         <input type="hidden" id="captcha">
                         {:token_field()}
+                        <div class="mb-3">
+                            <h4 class="mb-2">{:L('新建知识内容')}</h4>
+                            <p class="text-muted mb-3">{:L('不再只是写“文章”，而是明确选择你要沉淀的知识形态。')}</p>
+                            <div class="aw-type-guide">
+                                <div class="aw-type-guide-item">
+                                    <strong>{:L('综述')}</strong>
+                                    <span>{:L('整理资料脉络、分歧和阶段性结论。')}</span>
+                                </div>
+                                <div class="aw-type-guide-item">
+                                    <strong>{:L('观察')}</strong>
+                                    <span>{:L('记录判断、线索和仍在变化中的问题。')}</span>
+                                </div>
+                                <div class="aw-type-guide-item">
+                                    <strong>{:L('帮助')}</strong>
+                                    <span>{:L('沉淀明确答案、术语解释和可复用方法。')}</span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group d-flex mb-3">
                             <div class="flex-fill">
-                                <input class="aw-form-control" type="text" name="title" value="{$article_info['title']|default=''}" placeholder="{:L('文章标题')}">
+                                <input class="aw-form-control" type="text" name="title" value="{$article_info['title']|default=''}" placeholder="{:L('输入内容标题')}">
+                            </div>
+                            <div class="flex-fill ml-2" style="max-width: 160px">
+                                <select class="aw-form-control" id="articleTypeSelect" name="article_type">
+                                    {foreach $article_type_options as $typeKey => $label}
+                                    <option value="{$typeKey}" {if isset($article_info['article_type']) && $article_info['article_type']==$typeKey}selected{/if}>{$label}</option>
+                                    {/foreach}
+                                </select>
                             </div>
                             {if($column_list)}
                             <div class="flex-fill ml-2">
@@ -156,7 +246,7 @@
                             </div>
                         </div>
                         <div class="form-group mb-3">
-                            <label class="mb-3">添加话题</label>
+                            <label class="mb-3">{:L('添加话题')}</label>
                             <div class="topic">
                                 <div class="tip-list">
                                     <label for="topics" class="d-block w-100">
@@ -167,8 +257,38 @@
                                 </div>
                             </div>
                         </div>
+                        {if !empty($help_chapter_options)}
+                        <div class="form-group mb-3">
+                            <label class="mb-3">{:L('知识归档')}</label>
+                            <div class="aw-archive-guide">
+                                <div class="text-muted mb-2">{:L('发布后可直接归档到知识章节，方便后续检索、聚合和长期维护。')}</div>
+                                {if !empty($suggested_help_chapters)}
+                                <div class="font-weight-bold font-12 mb-2">{:L('建议归档章节')}</div>
+                                <div class="mb-2">
+                                    {volist name="suggested_help_chapters" id="v"}
+                                    <label class="aw-archive-option">
+                                        <input type="checkbox" name="help_chapter_ids[]" value="{$v.id}" {if !empty($v.selected)}checked{/if}>
+                                        <span>{$v.title}</span>
+                                    </label>
+                                    {/volist}
+                                </div>
+                                {/if}
+                                <div class="font-weight-bold font-12 mb-2">{:L('全部知识章节')}</div>
+                                <div>
+                                    {volist name="help_chapter_options" id="v"}
+                                    {if empty($v.suggested)}
+                                    <label class="aw-archive-option">
+                                        <input type="checkbox" name="help_chapter_ids[]" value="{$v.id}" {if !empty($v.selected)}checked{/if}>
+                                        <span>{$v.title}</span>
+                                    </label>
+                                    {/if}
+                                    {/volist}
+                                </div>
+                            </div>
+                        </div>
+                        {/if}
                         <div class="form-group mb-3 aw-content">
-                            <label class="mb-3">{:L('文章详情')}</label>
+                            <label class="mb-3">{:L('内容正文')}</label>
                             {:hook('editor',['name'=>'message','cat'=>'article','value'=>isset($article_info['message']) ? $article_info['message']:'','access_key'=>$access_key])}
                         </div>
                         {if get_plugins_config('paid_attach','enable')=='Y'}
@@ -214,7 +334,7 @@
 
                         <div class="mt-4 clearfix">
                             <a href="{:url('page/score')}" target="_blank" ><i class="fa fa-database"></i> {:get_setting("score_unit")}{:L('规则')}</a>
-                            <button type="button" class="btn btn-primary btn-sm px-4 aw-article-publish ml-3 float-right">{:L('发表文章')}</button>
+                            <button type="button" class="btn btn-primary btn-sm px-4 aw-article-publish ml-3 float-right">{:L('发布内容')}</button>
                             {if get_setting('auto_save_draft')=='Y'}
                             <script>
                                 //自动保存时间间隔
@@ -265,6 +385,59 @@
         </div>
         <div class="aw-right radius col-md-3 px-xs-0">
             {:hook('content_ocr',['type'=>'article','element'=>''])}
+            {if !empty($publish_insight)}
+            <div class="r-box mb-2 aw-publish-insight">
+                <div class="r-title">
+                    <h4>{:L('最近 %s 天可写方向',$publish_insight.window_days)}</h4>
+                </div>
+                <div class="pb-2">
+                    {if !empty($publish_insight.top_keywords)}
+                    <div class="mb-3">
+                        <div class="font-weight-bold mb-2">{:L('最近有人在搜')}</div>
+                        <div>
+                            {volist name="publish_insight.top_keywords" id="v"}
+                            <span class="insight-chip insight-action js-fill-title" data-title="{$v.keyword|htmlspecialchars}">{$v.keyword} · {$v.search_count}</span>
+                            {/volist}
+                        </div>
+                    </div>
+                    {/if}
+                    {if !empty($publish_insight.title_ideas)}
+                    <div class="mb-3">
+                        <div class="font-weight-bold mb-2">{:L('建议文章标题')}</div>
+                        {volist name="publish_insight.title_ideas" id="v"}
+                        <div class="insight-title-idea insight-action js-apply-idea" data-title="{$v.title|htmlspecialchars}" data-type="{$v.recommended_type|default=''}">
+                            <div>{$v.title}</div>
+                            {if !empty($v.recommended_type_label)}
+                            <div class="text-primary font-8 mt-1">{:L('推荐形态')}：{$v.recommended_type_label}</div>
+                            {/if}
+                            <div class="text-muted font-8 mt-1">{$v.reason}</div>
+                        </div>
+                        {/volist}
+                    </div>
+                    {/if}
+                    {if !empty($publish_insight.type_ideas)}
+                    <div class="mb-3">
+                        <div class="font-weight-bold mb-2">{:L('建议内容形态')}</div>
+                        <div>
+                            {volist name="publish_insight.type_ideas" id="v"}
+                            <span class="insight-chip insight-action js-apply-type" data-type="{$v.type}" data-title="{$v.title|htmlspecialchars}">
+                                {$v.label} · {$v.keyword}
+                            </span>
+                            {/volist}
+                        </div>
+                    </div>
+                    {/if}
+                    {if !empty($publish_insight.suggested_topics)}
+                    <div>
+                        <div class="font-weight-bold mb-2">建议优先扩展的话题</div>
+                        {volist name="publish_insight.suggested_topics" id="v"}
+                        <a class="d-block text-primary mb-2" href="{$v.url}" target="_blank">{$v.title}</a>
+                        {/volist}
+                    </div>
+                    {/if}
+                </div>
+            </div>
+            {/if}
             <div class="r-box mb-2">
                 <div class="r-title">
                     <h4>{:L('发布说明')}</h4>
@@ -284,6 +457,14 @@
                         <dt>{:L('选择话题')}：</dt>
                         <dd>{:L('选择一个或者多个合适的话题,让您发布的文章得到更多有相同兴趣的人参与,所有人可以在您发布文章之后添加和编辑该文章所属的话题')}</dd>
                     </dl>
+                    {if !empty($publish_insight.guidance)}
+                    <dl class="text-muted font-9">
+                        <dt>运营建议：</dt>
+                        {volist name="publish_insight.guidance" id="v"}
+                        <dd>{$v}</dd>
+                        {/volist}
+                    </dl>
+                    {/if}
                 </div>
             </div>
         </div>
@@ -301,6 +482,33 @@
     let createEnable = parseInt("{if $user_info['permission']['create_topic_enable']=='Y' || isNormalAdmin() || isSuperAdmin()}1{else/}0{/if}");
     let topicBox = $('#topics');
     $(function () {
+        $(document).on('click', '.js-fill-title', function () {
+            let title = $(this).data('title');
+            if (!title) {
+                return;
+            }
+            $('input[name="title"]').val(title).trigger('input').trigger('focus');
+            $('html, body').animate({scrollTop: $('input[name="title"]').offset().top - 120}, 150);
+        });
+
+        $(document).on('click', '.js-apply-type', function () {
+            let type = $(this).data('type');
+            let title = $(this).data('title');
+            if (type) {
+                $('#articleTypeSelect').val(type).trigger('change');
+            }
+            if (title) {
+                $('input[name="title"]').val(title).trigger('input').trigger('focus');
+            }
+        });
+
+        $(document).on('click', '.js-apply-idea', function () {
+            let type = $(this).data('type');
+            if (type) {
+                $('#articleTypeSelect').val(type).trigger('change');
+            }
+        });
+
         // 启用ajax分页查询
         var  option = {
             placeholder: "为你的作品贴“关键词”标签，最多不超过{:get_setting('max_topic_select')}个，单个标签不超过6个字符（{$setting.topic_enable=='Y'?'必填':'选填'}）",

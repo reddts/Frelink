@@ -272,12 +272,9 @@ class Frontend extends Base
         session('return_url',base64_encode($return_url));
         $this->returnUrl = $return_url;
         $this->assign('return_url',$return_url);
-        if($this->isMobile)
-        {
-            //微信端jsapi分享
-            $this->assign([
-                'jsSdkConfig'=>WeChatHelper::instance()->getJsSdkConfig()
-            ]);
+        $this->assign('jsSdkConfig', null);
+        if ($this->isMobile || ENTRANCE == 'mobile') {
+            $this->assign('jsSdkConfig', WeChatHelper::instance()->getJsSdkConfig());
         }
     }
 

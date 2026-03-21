@@ -6,7 +6,7 @@
 
 {if($v['item_type']=="question")}
 
-<div class="aui-card" style="background: none">
+<div class="aui-card js-analytics-impression" style="background: none" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="mobile_feed" data-analytics-position="{$key + 1}" data-analytics-source="mobile_feed">
     <div class="aui-card-main pb-1 px-0 pt-0">
         <div class="aui-card aui-card-image">
             <div class="aui-card-main">
@@ -43,7 +43,7 @@
                             {$v['user_info']['name']}
                         </a>
                         {/if}
-                        <span class="d-block text-muted font-9">{:L('发起了提问')}</span>
+                        <span class="d-block text-muted font-9">{:L('补充了 FAQ')}</span>
                         <em class="time position-absolute" style="right: 0.5rem;top: 1rem;">{:date_friendly($v['update_time'])}</em>
                         {else/}
                         {if $v['answer_info']['is_anonymous']}
@@ -55,25 +55,26 @@
                             {$v['answer_info']['user_info']['name']}
                         </a>
                         {/if}
-                        <span class="d-block text-muted font-9">{:L('回复了问题')}</span>
+                        <span class="d-block text-muted font-9">{:L('更新了 FAQ 答案')}</span>
                         <em class="time position-absolute" style="right: 0.5rem;top: 1rem;">{:date_friendly($v['answer_info']['create_time'])}</em>
                         {/if}
                     </div>
                 </div>
                 <div class="img" style="min-height: 24px;height: auto">
                     <div class="img-mask font-weight-bold aw-one-line" style="background: none;height: auto;line-height: unset">
-                        <span class="tip-s1 badge badge-secondary">{:L('问')}</span>
+                        <span class="tip-s1 badge badge-secondary">{:L('FAQ')}</span>
                         {if $v.set_top}
                         <span class="tip-d badge badge-secondary">{:L('顶')}</span>
                         {/if}
                         {if (!$v['answer_info'])}
-                        <a href="{:url('question/detail',['id'=>$v['id']])}">{$v.title|raw}</a>
+                        <a href="{:url('question/detail',['id'=>$v['id']])}" class="js-analytics-click" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="mobile_feed" data-analytics-position="{$key + 1}" data-analytics-source="mobile_feed">{$v.title|raw}</a>
                         {else/}
-                        <a href="{:url('question/detail',['id'=>$v['id'],'answer'=>$v['answer_info']['id']])}">{$v.title|raw}</a>
+                        <a href="{:url('question/detail',['id'=>$v['id'],'answer'=>$v['answer_info']['id']])}" class="js-analytics-click" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="mobile_feed" data-analytics-position="{$key + 1}" data-analytics-source="mobile_feed">{$v.title|raw}</a>
                         {/if}
                     </div>
                 </div>
                 <div class="desc">
+                    <div class="text-muted font-9 mb-1">沉淀高频问题、明确答案和后续补充说明，作为知识系统的检索入口。</div>
                     {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}
                     {if count($v['img_list'])>1}
                     <div class="d-flex aw-list-img">
@@ -102,7 +103,7 @@
                     </a>
                 </div>
                 <div class="aui-btn"><i class="iconfont iconmessage"></i><span>{$v['answer_count']}</span></div>
-                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享问题')}</div>
+                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享 FAQ')}</div>
                 {else/}
                 <div class="aui-btn dz">
                     <a href="javascript:;" class="text-muted aw-ajax-agree {$v['answer_info']['vote_value']==1 ? 'active' : ''}" title="{:L('点赞回答')}" onclick="AWS_MOBILE.User.agree(this,'answer','{$v['answer_info']['id']}');">
@@ -110,7 +111,7 @@
                     </a>
                 </div>
                 <div class="aui-btn"><i class="iconfont iconmessage"></i><span>{$v['answer_info']['comment_count']}</span></div>
-                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享回答')}</div>
+                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享补充')}</div>
                 {/if}
             </div>
         </div>
@@ -118,7 +119,7 @@
 </div>
 
 {elseif($v['item_type']=="answer")}
-<div class="aui-card" style="background: none">
+<div class="aui-card js-analytics-impression" style="background: none" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="mobile_feed" data-analytics-position="{$key + 1}" data-analytics-source="mobile_answer_feed">
     <div class="aui-card-main pb-1 px-0 pt-0">
         <div class="aui-card aui-card-image">
             <div class="aui-card-main">
@@ -155,7 +156,7 @@
                             {$v['user_info']['name']}
                         </a>
                         {/if}
-                        <span class="d-block text-muted font-9">{:L('发起了提问')}</span>
+                        <span class="d-block text-muted font-9">{:L('补充了 FAQ')}</span>
                         <em class="time position-absolute" style="right: 0.5rem;top: 1rem;">{:date_friendly($v['update_time'])}</em>
                         {else/}
                         {if $v['answer_info']['is_anonymous']}
@@ -167,25 +168,26 @@
                             {$v['answer_info']['user_info']['name']}
                         </a>
                         {/if}
-                        <span class="d-block text-muted font-9">{:L('回复了问题')}</span>
+                        <span class="d-block text-muted font-9">{:L('更新了 FAQ 答案')}</span>
                         <em class="time position-absolute" style="right: 0.5rem;top: 1rem;">{:date_friendly($v['answer_info']['create_time'])}</em>
                         {/if}
                     </div>
                 </div>
                 <div class="img" style="min-height: 24px;height: auto">
                     <div class="img-mask font-weight-bold aw-one-line" style="background: none;height: auto;line-height: unset">
-                        <span class="tip-s1 badge badge-secondary">{:L('问')}</span>
+                        <span class="tip-s1 badge badge-secondary">{:L('FAQ')}</span>
                         {if $v.set_top}
                         <span class="tip-d badge badge-secondary">{:L('顶')}</span>
                         {/if}
                         {if (!$v['answer_info'])}
-                        <a href="{:url('question/detail',['id'=>$v['id']])}">{$v.title|raw}</a>
+                        <a href="{:url('question/detail',['id'=>$v['id']])}" class="js-analytics-click" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="mobile_feed" data-analytics-position="{$key + 1}" data-analytics-source="mobile_answer_feed">{$v.title|raw}</a>
                         {else/}
-                        <a href="{:url('question/detail',['id'=>$v['id'],'answer'=>$v['answer_info']['id']])}">{$v.title|raw}</a>
+                        <a href="{:url('question/detail',['id'=>$v['id'],'answer'=>$v['answer_info']['id']])}" class="js-analytics-click" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="mobile_feed" data-analytics-position="{$key + 1}" data-analytics-source="mobile_answer_feed">{$v.title|raw}</a>
                         {/if}
                     </div>
                 </div>
                 <div class="desc">
+                    <div class="text-muted font-9 mb-1">沉淀高频问题、明确答案和后续补充说明，作为知识系统的检索入口。</div>
                     {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}
                     {if count($v['img_list'])>1}
                     <div class="d-flex aw-list-img">
@@ -214,7 +216,7 @@
                     </a>
                 </div>
                 <div class="aui-btn"><i class="iconfont iconmessage"></i><span>{$v['answer_count']}</span></div>
-                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享问题')}</div>
+                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享 FAQ')}</div>
                 {else/}
                 <div class="aui-btn dz">
                     <a href="javascript:;" class="text-muted aw-ajax-agree {$v['answer_info']['vote_value']==1 ? 'active' : ''}" title="{:L('点赞回答')}" onclick="AWS_MOBILE.User.agree(this,'answer','{$v['answer_info']['id']}');">
@@ -222,7 +224,7 @@
                     </a>
                 </div>
                 <div class="aui-btn"><i class="iconfont iconmessage"></i><span>{$v['answer_info']['comment_count']}</span></div>
-                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享回答')}</div>
+                <div class="aui-btn" onclick="AWS_MOBILE.User.shareBox('{$v.title}','{:url('question/detail',['id'=>$v.id],true,true)}')"><i class="iconfont iconshare"></i>{:L('分享补充')}</div>
                 {/if}
             </div>
         </div>
@@ -230,7 +232,7 @@
 </div>
 
 {elseif($v['item_type']=="article")}
-<div class="aui-card" style="background: none">
+<div class="aui-card js-analytics-impression" style="background: none" data-analytics-type="article" data-analytics-id="{$v['id']}" data-analytics-list="mobile_feed" data-analytics-position="{$key + 1}" data-analytics-source="mobile_feed">
     <div class="aui-card-main pb-1 px-0 pt-0">
         <div class="aui-card aui-card-image">
             <div class="aui-card-main">
@@ -244,21 +246,32 @@
                         <a href="{$v['user_info']['url']}" class="aw-user-name" data-id="{$v['user_info']['uid']}" >
                             {$v['user_info']['name']}
                         </a>
-                        <span class="d-block text-muted font-9">{:L('发布了文章')}</span>
+                        <span class="d-block text-muted font-9">发布了{:frelink_article_type_label(isset($v['article_type']) ? $v['article_type'] : 'normal')}</span>
                         <em class="time position-absolute" style="right: 0.5rem;top: 1rem;">{:date_friendly($v['create_time'])}</em>
                     </div>
                 </div>
                 <div class="img" style="min-height: 24px;height: auto">
                     <div class="img-mask font-weight-bold aw-one-line" style="background: none;height: auto;line-height: unset">
-                        <span class="tip-s2 badge badge-secondary">{:L('文')}</span>
+                        <span class="tip-s2 badge badge-secondary">{:frelink_article_type_label(isset($v['article_type']) ? $v['article_type'] : 'normal')}</span>
                         {:hook('article_badge',$v)}
                         {if $v.set_top}
                         <span class="tip-d badge badge-secondary">{:L('顶')}</span>
                         {/if}
-                        <a href="{:url('article/detail',['id'=>$v['id']])}">{$v['title']|raw}</a>
+                        <a href="{:url('article/detail',['id'=>$v['id']])}" class="js-analytics-click" data-analytics-type="article" data-analytics-id="{$v['id']}" data-analytics-list="mobile_feed" data-analytics-position="{$key + 1}" data-analytics-source="mobile_feed">{$v['title']|raw}</a>
                     </div>
                 </div>
                 <div class="desc">
+                    <div class="text-muted font-9 mb-1">
+                        {if isset($v['article_type']) && $v['article_type']=='research'}
+                        系统整理资料脉络、核心分歧和阶段性结论。
+                        {elseif isset($v['article_type']) && $v['article_type']=='fragment'/}
+                        保留观察、判断和仍在形成中的思考线索。
+                        {elseif isset($v['article_type']) && $v['article_type']=='faq'/}
+                        适合快速检索和复用的高频问题答案。
+                        {else/}
+                        用完整展开的方式解释热点、案例和方法。
+                        {/if}
+                    </div>
                     {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}
                     <div class="aw-list-img mb-1" style="max-height: 180px;height: auto">
                         <img src="{$v.cover|default=$v['img_list'][0]}" class="rounded aw-cut-img" alt="{$v['title']}" width="100%">

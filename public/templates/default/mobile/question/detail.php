@@ -10,8 +10,8 @@
 {block name="header"}
 <header class="aui-header">
     <div class="aui-header-left"><a href="{$baseUrl}" class="text-muted" data-pjax="pageMain"><i class="fa fa-home font-11"></i></a></div>
-    <div class="aui-header-title">{:L('问题详情')}</div>
-    <div class="aui-header-right" onclick="AWS_MOBILE.api.dialog('{:L(\'问题操作\')}',$('.questionAction').html())">
+    <div class="aui-header-title">{:L('FAQ 详情')}</div>
+    <div class="aui-header-right" onclick="AWS_MOBILE.api.dialog('{:L(\'FAQ 操作\')}',$('.questionAction').html())">
         <i class="fa fa-ellipsis-v" style="font-size: 0.9rem;"></i>
     </div>
 </header>
@@ -37,7 +37,7 @@
         <div class="col-4 mb-4">
             <a href="{:url('question/publish?id='.$question_info['id'])}" class="text-muted">
                 <i class="fa fa-edit font-14"></i><br>
-                <span class="d-block font-9 mt-1">{:L('编辑问题')}</span>
+                <span class="d-block font-9 mt-1">{:L('编辑 FAQ')}</span>
             </a>
         </div>
         {/if}
@@ -45,7 +45,7 @@
         <div class="col-4 mb-4">
             <a href="javascript:;" class="aw-ajax-get text-muted" data-confirm="{:L('确定要删除吗')}？" data-url="{:url('ajax.Question/remove_question',['id'=>$question_info['id']])}">
                 <i class="fa fa-trash-alt font-14"></i><br>
-                <span class="d-block font-9 mt-1">{:L('删除问题')}</span>
+                <span class="d-block font-9 mt-1">{:L('删除 FAQ')}</span>
             </a>
         </div>
         {/if}
@@ -53,7 +53,7 @@
         <div class="col-4 mb-4">
             <a href="javascript:;" class="aw-ajax-get text-muted" data-url="{:url('ajax.Question/manager',['id'=>$question_info['id'],'type'=>$question_info['is_recommend'] ? 'un_recommend' : 'recommend'])}">
                 <i class="fa fa-chevron-circle-up  font-14"></i><br>
-                <span class="d-block font-9 mt-1">{$question_info['is_recommend'] ? L('取消推荐') : L('推荐问题')}</span>
+                <span class="d-block font-9 mt-1">{$question_info['is_recommend'] ? L('取消推荐') : L('推荐 FAQ')}</span>
             </a>
         </div>
         
@@ -62,7 +62,7 @@
         <div class="col-4 mb-4">
             <a href="javascript:;" class="aw-ajax-get text-muted" data-url="{:url('ajax.Question/manager',['id'=>$question_info['id'],'type'=> $question_info['set_top'] ? 'unset_top' : 'set_top'])}">
                 <i class="far fa-hand-point-up  font-14"></i><br>
-                <span class="d-block font-9 mt-1">{$question_info['set_top'] ? L('取消置顶') : L('置顶问题')}</span>
+                <span class="d-block font-9 mt-1">{$question_info['set_top'] ? L('取消置顶') : L('置顶 FAQ')}</span>
             </a>
         </div>
         {/if}
@@ -110,7 +110,7 @@
                         {:htmlspecialchars_decode($question_info.title)}
                     </h2>
                     <div class="text-muted font-8">
-                        <span class="mr-2">{:L('回答')} {$question_info.answer_count}</span>.
+                        <span class="mr-2">{:L('补充')} {$question_info.answer_count}</span>.
                         <span class="ml-2 mr-2">{:L('关注')} {$question_info.focus_count}</span>.
                         <span class="ml-2">{:L('更新')} {:date_friendly($question_info.update_time)}</span>
                     </div>
@@ -142,6 +142,16 @@
             {/if}
 
             {:hook('pageDetailTop',['info'=>$question_info])}
+            {if !empty($summary_points)}
+            <div class="bg-light border rounded p-3 mb-3">
+                <div class="font-weight-bold mb-2">30 秒看懂</div>
+                <ul class="mb-0 pl-3 text-muted">
+                    {volist name="summary_points" id="point"}
+                    <li class="mb-1">{$point}</li>
+                    {/volist}
+                </ul>
+            </div>
+            {/if}
 
             <div class="aw-content position-relative" id="question-content">
                 <div id="show-all" >{$question_info.detail|raw}</div>
@@ -156,18 +166,42 @@
             </div>
 
             {:hook('pageDetailBottom',['info'=>$question_info])}
+            {if !empty($next_reads)}
+            <div class="bg-light border rounded p-3 mt-3">
+                <div class="font-weight-bold mb-2">下一步阅读</div>
+                {volist name="next_reads" id="item"}
+                <a class="d-block py-2 border-bottom text-body" href="{$item.url}" data-pjax="pageMain">
+                    <div class="font-8 text-primary mb-1">{$item.label}</div>
+                    <div class="font-weight-bold mb-1">{$item.title}</div>
+                    {if $item.desc}<div class="text-muted font-8">{$item.desc}</div>{/if}
+                </a>
+                {/volist}
+            </div>
+            {/if}
+            {if !empty($archive_chapters)}
+            <div class="bg-light border rounded p-3 mt-3">
+                <div class="font-weight-bold mb-2">{:L('已归档到知识章节')}</div>
+                <div class="text-muted font-8 mb-2">{:L('这条 FAQ 已经进入知识归档，可从章节继续查找背景和相关内容。')}</div>
+                {volist name="archive_chapters" id="chapter"}
+                <a class="d-block py-2 border-bottom text-body" href="{:url('help/detail',['token'=>$chapter['url_token']])}" data-pjax="pageMain">
+                    <div class="font-weight-bold mb-1">{$chapter.title}</div>
+                    {if !empty($chapter.description)}<div class="text-muted font-8">{:str_cut(strip_tags((string)$chapter['description']),0,80)}</div>{/if}
+                </a>
+                {/volist}
+            </div>
+            {/if}
         </div>
         <div class="swiper-container bg-white">
             <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block px-2 bg-white swiper-wrapper" style="flex-wrap: nowrap;">
                 <li class="nav-item swiper-slide" data-type="answers">
-                    <a class="nav-link active" href="javascript:;">{:L('回答列表')}</a>
+                    <a class="nav-link active" href="javascript:;">{:L('补充列表')}</a>
                 </li>
                 <li class="nav-item swiper-slide" data-type="relation">
-                    <a class="nav-link" href="javascript:;">{:L('相关问题')}</a>
+                    <a class="nav-link" href="javascript:;">{:L('相关 FAQ')}</a>
                 </li>
                 {if $attach_list}
                 <li class="nav-item swiper-slide" data-type="attach" >
-                    <a class="nav-link" href="javascript:;">{:L('问题附件')}</a>
+                    <a class="nav-link" href="javascript:;">{:L('FAQ 附件')}</a>
                 </li>
                 {/if}
             </ul>
@@ -175,7 +209,7 @@
         <div class="answer-container">
             <div class="mb-0 border-bottom clearfix pb-3 position-relative answerSort p-3 bg-white">
                 <p class="float-left mr-5 font-weight-bold">
-                    <span class="aw-answer-count">{$question_info.answer_count}</span> {:L('回答')}
+                    <span class="aw-answer-count">{$question_info.answer_count}</span> {:L('补充')}
                 </p>
                 <div class="float-right">
                     <a href="javascript:;" class="order-item" onclick="changeOrder(this)">
@@ -374,6 +408,14 @@
             }
         }
     });
+    if (window.FrelinkAnalytics) {
+        window.FrelinkAnalytics.trackDetailView({
+            item_type: 'question',
+            item_id: {$question_info['id']},
+            list_key: 'detail',
+            source: 'mobile_question_detail'
+        });
+    }
 </script>
 {/block}
 

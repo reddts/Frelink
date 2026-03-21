@@ -1,16 +1,62 @@
 {extend name="$theme_block" /}
 {block name="main"}
 <div class="aui-content mescroll" id="ajaxPage">
+    <style>
+        .aw-mobile-lane-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .aw-mobile-lane-card {
+            display: block;
+            padding: 10px;
+            border-radius: 12px;
+            background: #f8fbff;
+            border: 1px solid #e5edf6;
+            color: #0f172a;
+        }
+        .aw-mobile-lane-card strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+        .aw-mobile-lane-card span {
+            display: block;
+            color: #64748b;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+    </style>
     <div class="bg-white">
         <div class="d-flex p-3 border-bottom">
             <div class="flex-fill text-right">
-                <a href="{:url('question/index')}" data-pjax="pageMain" class="font-weight-bold font-11 text-primary">{:L('问题')}</a>
+                <a href="{:url('question/index')}" data-pjax="pageMain" class="font-weight-bold font-11 text-primary">{:L('FAQ')}</a>
             </div>
             <div class="flex-fill text-center">
-                <a href="{:url('article/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:L('文章')}</a>
+                <a href="{:url('article/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:L('综述')}</a>
             </div>
             <div class="flex-fill text-left">
-                <a href="{:url('column/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:L('专栏')}</a>
+                <a href="{:url('topic/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:L('主题')}</a>
+            </div>
+        </div>
+        <div class="px-3 pb-3">
+            <div class="font-weight-bold font-12 mb-1">{:L('FAQ')}</div>
+            <div class="text-muted font-9">{:L('承接高频问题、明确答案和后续补充，不再沿社区问答模式组织内容。')}</div>
+        </div>
+        <div class="px-3 pb-3">
+            <div class="aw-mobile-lane-grid">
+                <a class="aw-mobile-lane-card" href="{:url('question/index',['sort'=>'new','category_id'=>$category])}" data-pjax="pageMain">
+                    <strong>{:L('最新补充')}</strong>
+                    <span>{:L('先看最近新增的 FAQ。')}</span>
+                </a>
+                <a class="aw-mobile-lane-card" href="{:url('question/index',['sort'=>'unresponsive','category_id'=>$category])}" data-pjax="pageMain">
+                    <strong>{:L('待补充')}</strong>
+                    <span>{:L('优先发现仍缺答案的条目。')}</span>
+                </a>
+                <a class="aw-mobile-lane-card" href="{:url('topic/index')}" data-pjax="pageMain">
+                    <strong>{:L('转到主题')}</strong>
+                    <span>{:L('沿主题继续追踪背景和资料。')}</span>
+                </a>
             </div>
         </div>
         <!--热门用户、话题-->
@@ -36,16 +82,16 @@
         <div class="swiper-container mt-1 bg-white">
             <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block px-2 bg-white swiper-wrapper" style="flex-wrap: nowrap;">
                 <li class="nav-item swiper-slide" data-type="new">
-                    <a class="nav-link {if $sort=='new'}active{/if}" data-pjax="pageMain" href="{:url('question/index',['sort'=>'new','category_id'=>$category])}">{:L('最新')}</a>
+                    <a class="nav-link {if $sort=='new'}active{/if}" data-pjax="pageMain" href="{:url('question/index',['sort'=>'new','category_id'=>$category])}">{:L('更新')}</a>
                 </li>
                 <li class="nav-item swiper-slide" data-type="recommend">
-                    <a class="nav-link  {if $sort=='recommend'}active{/if}" data-pjax="pageMain" href="{:url('question/index',['sort'=>'recommend','category_id'=>$category])}">{:L('推荐')}</a>
+                    <a class="nav-link  {if $sort=='recommend'}active{/if}" data-pjax="pageMain" href="{:url('question/index',['sort'=>'recommend','category_id'=>$category])}">{:L('精选')}</a>
                 </li>
                 <li class="nav-item swiper-slide" data-type="hot">
-                    <a class="nav-link {if $sort=='hot'}active{/if}" data-pjax="pageMain" href="{:url('question/index',['sort'=>'hot','category_id'=>$category])}">{:L('热门')}</a>
+                    <a class="nav-link {if $sort=='hot'}active{/if}" data-pjax="pageMain" href="{:url('question/index',['sort'=>'hot','category_id'=>$category])}">{:L('高关注')}</a>
                 </li>
                 <li class="nav-item swiper-slide" data-type="unresponsive">
-                    <a class="nav-link {if $sort=='unresponsive'}active{/if}" data-pjax="pageMain" href="{:url('question/index',['sort'=>'unresponsive','category_id'=>$category])}">{:L('待回答')}</a>
+                    <a class="nav-link {if $sort=='unresponsive'}active{/if}" data-pjax="pageMain" href="{:url('question/index',['sort'=>'unresponsive','category_id'=>$category])}">{:L('待补充 FAQ')}</a>
                 </li>
             </ul>
         </div>

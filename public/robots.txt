@@ -6,4 +6,4 @@ Disallow: /runtime/
 Disallow: /update/
 Disallow: /plugins/
 
-Sitemap: https://www.frelink.top/sitemap.xml
+Sitemap: /sitemap.xml

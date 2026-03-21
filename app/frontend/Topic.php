@@ -13,6 +13,7 @@ namespace app\frontend;
 use app\common\controller\Frontend;
 use app\logic\common\FocusLogic;
 use app\model\BrowseRecords;
+use app\model\Help as HelpModel;
 use app\model\Topic as TopicModel;
 use app\model\TopicMerge;
 use WordAnalysis\Analysis;
@@ -160,9 +161,10 @@ class Topic extends Frontend
         }
 
         $focus_user = TopicModel::getTopicFocusUser($topic_id);
-		$topic_info['description'] = $topic_info['description'] ? htmlspecialchars_decode($topic_info['description']) : '';
+        $topic_info['description'] = $topic_info['description'] ? htmlspecialchars_decode($topic_info['description']) : '';
 		$topic_info['has_focus'] = FocusLogic::checkUserIsFocus($this->user_id, 'topic', $topic_info['id']) ? 1 : 0;
         $topic_info['relation_topics'] = TopicModel::getRelatedTopicBySourceId($topic_info['id']);
+        $archiveChapters = HelpModel::getTopicRelatedChapters($topic_info, 4);
 
         $sort_texts = [
             'new'=>'最新排序',
@@ -177,6 +179,7 @@ class Topic extends Frontend
             'sort_texts'=>$sort_texts,
             'focus_user'=>$focus_user,
             'redirect_message'=>$redirect_message,
+            'archive_chapters' => $archiveChapters,
             'top_parent_topic'=>TopicModel::getParentTopic($topic_id),//根话题
             'parent_topic'=>$topic_info['pid'] ? db('topic')->where(['status'=>1,'id'=>$topic_info['pid']])->find() : [],//父话题
             'child_topics'=>TopicModel::getTopicByIds(TopicModel::getTopicWithChildIds($topic_info['id']))

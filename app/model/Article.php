@@ -111,6 +111,7 @@ class Article extends BaseModel
 			'title' => sqlFilter(strip_tags($postData['title'])),
 			'message' => HtmlHelper::fetchContentImagesToLocal($postData['message'],'article',$uid,true),
             'search_text'=>sqlFilter(strip_tags(htmlspecialchars_decode(str_replace("`", "",substr($postData['message'],0,65535))))),
+            'article_type' => frelink_normalize_article_type($postData['article_type'] ?? 'research', 'research'),
 			'category_id' => $postData['category_id'] ?? 0,
             'user_ip'=>IpHelper::getRealIp(),
 			'column_id' => (int)$column_id,
@@ -208,6 +209,7 @@ class Article extends BaseModel
 			'title' => strip_tags($postData['title']),
 			'message' => HtmlHelper::fetchContentImagesToLocal($postData['message'],'article',$uid,true),
             'search_text'=>strip_tags(htmlspecialchars_decode(str_replace("`", "",substr($postData['message'],0,65535)))),
+            'article_type' => frelink_normalize_article_type($postData['article_type'] ?? ($postData['old_article_type'] ?? 'research'), 'research'),
 			'category_id' => $postData['category_id'] ?? 0,
 			'column_id' => (int)$column_id,
 			'cover' => $postData['cover'],
@@ -674,10 +676,10 @@ class Article extends BaseModel
      * @param string $pjax
      * @return array
      */
-    public static function getArticleList($uid=null,$sort = null, $topic_ids = null, $category_id = null,int $page=1, int $per_page=0,int $relation_uid=0,string $pjax='tabMain'): array
+    public static function getArticleList($uid=null,$sort = null, $topic_ids = null, $category_id = null,int $page=1, int $per_page=0,int $relation_uid=0,string $pjax='tabMain', string $article_type='all'): array
     {
         $data_list = [];
-        $key = md5($sort.'-'.$category_id.'-'.($topic_ids && is_array($topic_ids) ? implode(',',$topic_ids) :$topic_ids).'-'.$page.'-'.$per_page.'-'.$relation_uid);
+        $key = md5($sort.'-'.$category_id.'-'.($topic_ids && is_array($topic_ids) ? implode(',',$topic_ids) :$topic_ids).'-'.$page.'-'.$per_page.'-'.$relation_uid.'-'.$article_type);
         $cache_key = 'cache_list_article_data_'.$key;
 
         if($cache_list_time = get_setting('cache_list_time'))
@@ -689,6 +691,10 @@ class Article extends BaseModel
         $order = $where = array();
         $order['set_top_time'] = 'DESC';
         $where[] = ['status','=',1];
+        if($article_type && $article_type !== 'all')
+        {
+            $where[] = ['article_type','=',frelink_normalize_article_type($article_type)];
+        }
         if($relation_uid)
         {
             $where[] = ['uid','=',$relation_uid];

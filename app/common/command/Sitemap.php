@@ -1,32 +1,39 @@
 <?php
+
 namespace app\common\command;
 
 use app\common\library\helper\SitemapHelper;
+use think\console\Command;
 use think\console\Input;
 use think\console\input\Option;
 use think\console\Output;
 
 class Sitemap extends Command
 {
-    public function configure()
+    protected function configure()
     {
-        $this->setName('sitemap:build');
-        $this->addOption('domain', null, Option::VALUE_OPTIONAL, 'Sitemap domain, e.g. https://example.com');
-        $this->addOption('limit', null, Option::VALUE_OPTIONAL, 'Max rows per content type', 500);
-        $this->setDescription('Build sitemap.xml for search engine indexing');
+        $this->setName('sitemap:build')
+            ->addOption('base-url', null, Option::VALUE_REQUIRED, 'The site base URL, e.g. https://www.frelink.top')
+            ->setDescription('Build sitemap.xml for the current Frelink instance');
     }
 
-    public function execute(Input $input, Output $output)
+    protected function execute(Input $input, Output $output)
     {
-        $domain = (string)$input->getOption('domain');
-        $limit = intval($input->getOption('limit'));
-        $result = SitemapHelper::generate($domain, $limit);
-        if (!empty($result['status'])) {
-            $output->writeln('Sitemap build success: ' . ($result['file'] ?? 'public/sitemap.xml') . ', total ' . intval($result['count']) . ' urls');
-            return 0;
+        $baseUrl = rtrim((string) $input->getOption('base-url'), '/');
+        if ($baseUrl === '') {
+            $output->error('Missing required option: --base-url=https://your-domain');
+            return 1;
         }
-        $output->error($result['message'] ?? 'Sitemap build failed');
-        return 1;
+
+        $result = SitemapHelper::generate($baseUrl, 5000);
+        if (empty($result['status'])) {
+            $output->error((string) ($result['message'] ?? 'Sitemap generation failed'));
+            return 1;
+        }
+
+        $output->info((string) ($result['message'] ?? 'Sitemap generated'));
+        $output->writeln('File: ' . (string) ($result['file'] ?? ''));
+        $output->writeln('URL count: ' . (int) ($result['count'] ?? 0));
+        return 0;
     }
 }
-

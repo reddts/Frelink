@@ -33,7 +33,9 @@ class TemplateTag
         $order = $where = array();
         $order['set_top_time'] = 'DESC';
         $where[] = ['status','=',1];
-        if($question_type) $where[] = ['question_type','=',$question_type];
+        if($question_type && $question_type !== 'all') {
+            $where[] = ['question_type','=',$question_type];
+        }
         if($sort=='unresponsive')
         {
             $where[] = ['answer_count','=',0];
@@ -224,7 +226,7 @@ class TemplateTag
     /**
      * 获取文章列表
      */
-    public static function getArticleList($uid=null,$sort = null, $topic_ids = null, $category_id = null, $limit=0, $per_page=0,$cache=0, $pjax='tabMain',$article_type='normal'): array
+    public static function getArticleList($uid=null,$sort = null, $topic_ids = null, $category_id = null, $limit=0, $per_page=0,$cache=0, $pjax='tabMain',$article_type='all'): array
     {
         $uid=$uid?:getLoginUid();
         $page = request()->param('page',1,'intval');
@@ -240,7 +242,7 @@ class TemplateTag
         $order = $where = array();
         //$order['set_top_time'] = 'DESC';
         $where[] = ['status','=',1];
-        if($article_type) $where[] = ['article_type','=',$article_type];
+        if($article_type && $article_type !== 'all') $where[] = ['article_type','=',frelink_normalize_article_type($article_type)];
         $orderRaw = '';
         if($sort=='hot')
         {
