@@ -37,3 +37,57 @@
 
 - 从这一版开始，Frelink 改为按里程碑提交中文 commit。
 - 每完成一个明确阶段，必须同步更新本日志和 [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)。
+
+## 2026-03-21
+
+### 里程碑：M4 内容冷启动执行闭环
+
+- 后台新增 `内容冷启动进度` 面板，可直接查看：
+  - `综述 / 观察 / FAQ / 帮助 / 知识章节` 的目标值、当前值与缺口
+  - 最近补齐的内容
+  - 当前冷启动整体完成度
+- 后台新增 `优先补齐建议`：
+  - 自动判断先补哪一类内容
+  - 直接提供 `立即处理 / 查看现有内容` 的动作入口
+- 后台新增 `本周执行清单`：
+  - 结合搜索缺口、内容形态建议与冷启动缺口
+  - 直接生成“本周该补哪三篇”的建议标题、关键词、原因与入口
+- 后台新增 `执行周报导出`：
+  - 支持导出 Markdown
+  - 支持导出 JSON
+  - 方便站长复盘，也方便 agent 接手执行
+- 主题页知识地图入口继续收口：
+  - 即使没有匹配到具体章节，也固定保留 `知识地图` 入口
+  - 避免因为数据不足导致入口时有时无
+- 章节页相关主题关系进一步收实：
+  - 优先采用归档内容的真实主题关系，而不是只靠文本猜测
+
+### 影响范围
+
+- 后台：
+  - [app/backend/Index.php](/mnt/f/workwww/knowlege-github/app/backend/Index.php)
+  - [app/backend/view/index/index.php](/mnt/f/workwww/knowlege-github/app/backend/view/index/index.php)
+- 前台：
+  - [public/templates/default/html/topic/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/topic/detail.php)
+  - [public/templates/default/mobile/topic/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/topic/detail.php)
+- 模型与语言：
+  - [app/model/Help.php](/mnt/f/workwww/knowlege-github/app/model/Help.php)
+  - [app/lang/en-us.php](/mnt/f/workwww/knowlege-github/app/lang/en-us.php)
+- 文档：
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+  - [docs/project-delivery-template.md](/mnt/f/workwww/knowlege-github/docs/project-delivery-template.md)
+
+### 验证
+
+- 远端 `php -l` 已通过：
+  - [app/backend/Index.php](/mnt/f/workwww/knowlege-github/app/backend/Index.php)
+  - [app/model/Help.php](/mnt/f/workwww/knowlege-github/app/model/Help.php)
+  - [app/mobile/Topic.php](/mnt/f/workwww/knowlege-github/app/mobile/Topic.php)
+- 服务器已多次执行 `sudo php think clear`
+- 公开页面验证已确认：
+  - `topic/115` 与 `m/topic/115` 均可稳定看到知识地图入口
+
+### 下一步
+
+- 开始准备 `M5 API / Agent 扩展`
+- 先补周报/API 输出规范，再补更正式的 agent 接入边界说明

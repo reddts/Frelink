@@ -217,6 +217,143 @@
                         </div>
 
                         <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">内容冷启动进度</h3>
+                                        <div class="card-tools">
+                                            <div class="btn-group btn-group-sm" role="group" aria-label="导出执行清单">
+                                                <a href="{:url('index/weeklyExecutionBrief',['days'=>$insight.window_days,'format'=>'markdown'])}" target="_blank" class="btn btn-outline-secondary">导出周报</a>
+                                                <a href="{:url('index/weeklyExecutionBrief',['days'=>$insight.window_days,'format'=>'json'])}" target="_blank" class="btn btn-outline-secondary">导出 JSON</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div class="text-muted">以首批 `综述 / 观察 / FAQ / 帮助 / 知识章节` 的试运行目标为基线。</div>
+                                            <div><strong>{$coldStart.overall_progress|default=0}%</strong>，已达标 {$coldStart.completed_targets|default=0}/{$coldStart.target_total|default=0}</div>
+                                        </div>
+                                        <div class="row">
+                                            {foreach $coldStart.items as $v}
+                                            <div class="col-md-4 col-lg-2 mb-3">
+                                                <div class="border rounded p-3 h-100">
+                                                    <div class="font-weight-bold">{$v.label}</div>
+                                                    <div class="text-muted mt-1">{$v.current} / {$v.target}</div>
+                                                    <div class="progress mt-2" style="height:8px;">
+                                                        <div class="progress-bar {$v.progress>=100 ? 'bg-success' : ($v.progress>=60 ? 'bg-info' : 'bg-warning')}" role="progressbar" style="width: {$v.progress}%"></div>
+                                                    </div>
+                                                    <div class="mt-2 font-12 text-muted">{$v.status}，还差 {$v.gap}</div>
+                                                </div>
+                                            </div>
+                                            {/foreach}
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-12 mb-3">
+                                                <div class="font-weight-bold mb-2">本周执行清单</div>
+                                                {if $weeklyExecution}
+                                                <div class="row">
+                                                    {volist name="weeklyExecution" id="v"}
+                                                    <div class="col-md-4 mb-2">
+                                                        <div class="border rounded p-3 h-100">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <strong>{$v.label}</strong>
+                                                                <span class="text-muted">{$v.keyword}</span>
+                                                            </div>
+                                                            <div class="mt-2 font-weight-bold">{$v.title}</div>
+                                                            <div class="text-muted mt-2">{$v.reason}</div>
+                                                            <div class="mt-3">
+                                                                <a href="{$v.primary_url}" target="_blank" class="btn btn-sm btn-primary mr-2">{$v.primary_label}</a>
+                                                                <a href="{$v.secondary_url}" target="_blank" class="btn btn-sm btn-outline-secondary">{$v.secondary_label}</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {/volist}
+                                                </div>
+                                                {else/}
+                                                <div class="text-muted">当前还没有形成明确的本周执行清单。</div>
+                                                {/if}
+                                            </div>
+                                            <div class="col-md-12 mb-3">
+                                                <div class="font-weight-bold mb-2">优先补齐建议</div>
+                                                {if $coldStart.recommendations}
+                                                <div class="row">
+                                                    {volist name="coldStart.recommendations" id="v"}
+                                                    <div class="col-md-4 mb-2">
+                                                        <div class="border rounded p-3 h-100">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <strong>{$v.label}</strong>
+                                                                <span class="text-muted">还差 {$v.gap}</span>
+                                                            </div>
+                                                            <div class="text-muted mt-2">{$v.status}，当前进度 {$v.progress}%</div>
+                                                            <div class="mt-2">{$v.action}</div>
+                                                            <div class="mt-3">
+                                                                {if $v.primary_url}
+                                                                <a href="{$v.primary_url}" target="_blank" class="btn btn-sm btn-primary mr-2">{$v.primary_label}</a>
+                                                                {/if}
+                                                                {if $v.secondary_url}
+                                                                <a href="{$v.secondary_url}" target="_blank" class="btn btn-sm btn-outline-secondary">{$v.secondary_label}</a>
+                                                                {/if}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {/volist}
+                                                </div>
+                                                {else/}
+                                                <div class="text-muted">当前冷启动目标已全部达标。</div>
+                                                {/if}
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="font-weight-bold mb-2">最新综述</div>
+                                                {if $coldStart.recent.research}
+                                                <ul class="mb-0 pl-3">
+                                                    {volist name="coldStart.recent.research" id="v"}
+                                                    <li><a href="{:get_url('article/detail',['id'=>$v['id']])}" target="_blank">{$v.title}</a></li>
+                                                    {/volist}
+                                                </ul>
+                                                {else/}
+                                                <div class="text-muted">暂无综述内容</div>
+                                                {/if}
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="font-weight-bold mb-2">最新观察</div>
+                                                {if $coldStart.recent.fragment}
+                                                <ul class="mb-0 pl-3">
+                                                    {volist name="coldStart.recent.fragment" id="v"}
+                                                    <li><a href="{:get_url('article/detail',['id'=>$v['id']])}" target="_blank">{$v.title}</a></li>
+                                                    {/volist}
+                                                </ul>
+                                                {else/}
+                                                <div class="text-muted">暂无观察内容</div>
+                                                {/if}
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="font-weight-bold mb-2">最新 FAQ</div>
+                                                {if $coldStart.recent.faq}
+                                                <ul class="mb-0 pl-3">
+                                                    {volist name="coldStart.recent.faq" id="v"}
+                                                    <li><a href="{:get_url('question/detail',['id'=>$v['id']])}" target="_blank">{$v.title}</a></li>
+                                                    {/volist}
+                                                </ul>
+                                                {else/}
+                                                <div class="text-muted">暂无 FAQ 内容</div>
+                                                {/if}
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="font-weight-bold mb-2">最新帮助</div>
+                                                {if $coldStart.recent.help}
+                                                <ul class="mb-0 pl-3">
+                                                    {volist name="coldStart.recent.help" id="v"}
+                                                    <li><a href="{:get_url('article/detail',['id'=>$v['id']])}" target="_blank">{$v.title}</a> <span class="text-muted">({$v.article_type_label})</span></li>
+                                                    {/volist}
+                                                </ul>
+                                                {else/}
+                                                <div class="text-muted">暂无帮助内容</div>
+                                                {/if}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-3 col-sm-6">
                                 <div class="small-box bg-secondary">
                                     <div class="inner">

@@ -173,13 +173,13 @@
             </div>
             {/if}
 
-            {if !empty($archive_chapters)}
             <div class="r-box mb-2">
                 <div class="r-title clearfix">
                     <h4 class="float-left">{:L('相关知识章节')}</h4>
                     <a href="{:url('help/index')}" class="text-primary font-9 float-right" target="_blank">{:L('查看知识地图')}</a>
                 </div>
                 <div class="pb-2">
+                    {if !empty($archive_chapters)}
                     {foreach $archive_chapters as $chapter}
                     <div class="border rounded px-3 py-2 mb-2">
                         <a href="{:url('help/detail',['token'=>$chapter['url_token']])}" class="d-block text-dark" target="_blank">
@@ -188,9 +188,14 @@
                         </a>
                     </div>
                     {/foreach}
+                    {else/}
+                    <div class="text-muted px-3 py-2">
+                        <div class="mb-2">{:L('当前话题还没有沉淀出明确的知识章节，可先从知识地图继续检索相关资料。')}</div>
+                        <a href="{:url('help/index')}" class="btn btn-sm btn-light" target="_blank">{:L('前往知识地图')}</a>
+                    </div>
+                    {/if}
                 </div>
             </div>
-            {/if}
 
             {if $top_parent_topic || $parent_topic || $child_topics}
             <div class="r-box mb-2 py-2">

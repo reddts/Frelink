@@ -77,12 +77,16 @@ class Index extends Backend
         $insight = $this->getInsightPayload($insightDays);
         $archive = HelpModel::getUnarchivedContentSummary(6);
         $archiveBacklog = HelpModel::getArchiveChapterBacklogSummary(8);
+        $coldStart = $this->getColdStartPayload();
+        $weeklyExecution = $this->buildWeeklyExecutionList($coldStart, $insight, $insightDays);
 
         $this->view->assign('sysInfo',$sys_info);
         $this->view->assign('usersInfo', $users_info);
         $this->view->assign('insight', $insight);
         $this->view->assign('archive', $archive);
         $this->view->assign('archiveBacklog', $archiveBacklog);
+        $this->view->assign('coldStart', $coldStart);
+        $this->view->assign('weeklyExecution', $weeklyExecution);
         return $this->view->fetch();
     }
 
@@ -115,6 +119,56 @@ class Index extends Backend
 
         return response(
             $insight['agent_brief'],
+            200,
+            ['Content-Type' => 'text/plain; charset=utf-8']
+        );
+    }
+
+    public function weeklyExecutionBrief()
+    {
+        $days = InsightModel::normalizeDays(intval($this->request->param('days', 7)));
+        $format = strtolower(trim((string)$this->request->param('format', 'markdown')));
+        $insight = $this->getInsightPayload($days, false);
+        $coldStart = $this->getColdStartPayload();
+        $weeklyExecution = $this->buildWeeklyExecutionList($coldStart, $insight, $days);
+
+        if ($format === 'json') {
+            return json([
+                'window_days' => $days,
+                'generated_at' => date('Y-m-d H:i:s'),
+                'cold_start' => [
+                    'overall_progress' => $coldStart['overall_progress'] ?? 0,
+                    'completed_targets' => $coldStart['completed_targets'] ?? 0,
+                    'target_total' => $coldStart['target_total'] ?? 0,
+                    'recommendations' => $coldStart['recommendations'] ?? [],
+                ],
+                'weekly_execution' => $weeklyExecution,
+            ]);
+        }
+
+        $lines = [];
+        $lines[] = 'Frelink 本周执行清单';
+        $lines[] = '统计窗口：最近 ' . $days . ' 天';
+        $lines[] = '冷启动进度：' . intval($coldStart['overall_progress'] ?? 0) . '%'
+            . '，已达标 ' . intval($coldStart['completed_targets'] ?? 0)
+            . '/' . intval($coldStart['target_total'] ?? 0);
+
+        if (!empty($weeklyExecution)) {
+            $lines[] = '';
+            $lines[] = '本周建议优先补这三项：';
+            foreach ($weeklyExecution as $index => $item) {
+                $lines[] = ($index + 1) . '. [' . $item['label'] . '] ' . $item['title'];
+                $lines[] = '   关键词：' . ($item['keyword'] ?: '-');
+                $lines[] = '   原因：' . ($item['reason'] ?: '-');
+                $lines[] = '   动作：' . $item['primary_label'] . ' / ' . $item['secondary_label'];
+            }
+        } else {
+            $lines[] = '';
+            $lines[] = '当前还没有形成明确的本周执行清单。';
+        }
+
+        return response(
+            implode(PHP_EOL, $lines),
             200,
             ['Content-Type' => 'text/plain; charset=utf-8']
         );
@@ -272,6 +326,243 @@ class Index extends Backend
         }
 
         return implode(PHP_EOL, $lines);
+    }
+
+    protected function getColdStartPayload(): array
+    {
+        $targets = [
+            'research' => ['label' => '综述', 'target' => 12],
+            'fragment' => ['label' => '观察', 'target' => 20],
+            'faq' => ['label' => 'FAQ', 'target' => 30],
+            'help' => ['label' => '帮助', 'target' => 12],
+            'chapter' => ['label' => '知识章节', 'target' => 8],
+        ];
+
+        $counts = [
+            'research' => db('article')->where(['status' => 1, 'article_type' => 'research'])->count(),
+            'fragment' => db('article')->where(['status' => 1, 'article_type' => 'fragment'])->count(),
+            'faq' => db('question')->where(['status' => 1])->count(),
+            'help' => db('article')->where(['status' => 1])->whereIn('article_type', ['tutorial', 'faq'])->count(),
+            'chapter' => db('help_chapter')->where(['status' => 1])->count(),
+        ];
+
+        $items = [];
+        $completedTargets = 0;
+        foreach ($targets as $key => $meta) {
+            $current = intval($counts[$key] ?? 0);
+            $target = intval($meta['target']);
+            $progress = $target > 0 ? min(100, round(($current / $target) * 100)) : 0;
+            $gap = max(0, $target - $current);
+            if ($current >= $target) {
+                $completedTargets++;
+            }
+            $items[$key] = [
+                'label' => $meta['label'],
+                'current' => $current,
+                'target' => $target,
+                'gap' => $gap,
+                'progress' => $progress,
+                'status' => $current >= $target ? '已达标' : ($progress >= 60 ? '接近达标' : '待补足'),
+            ];
+        }
+
+        $overallProgress = round(($completedTargets / count($targets)) * 100);
+
+        $recentResearch = db('article')
+            ->where(['status' => 1, 'article_type' => 'research'])
+            ->field('id,title,update_time')
+            ->order(['update_time' => 'DESC', 'id' => 'DESC'])
+            ->limit(3)
+            ->select()
+            ->toArray();
+        $recentFragment = db('article')
+            ->where(['status' => 1, 'article_type' => 'fragment'])
+            ->field('id,title,update_time')
+            ->order(['update_time' => 'DESC', 'id' => 'DESC'])
+            ->limit(3)
+            ->select()
+            ->toArray();
+        $recentFaq = db('question')
+            ->where(['status' => 1])
+            ->field('id,title,update_time')
+            ->order(['update_time' => 'DESC', 'id' => 'DESC'])
+            ->limit(3)
+            ->select()
+            ->toArray();
+        $recentHelp = db('article')
+            ->where(['status' => 1])
+            ->whereIn('article_type', ['tutorial', 'faq'])
+            ->field('id,title,update_time,article_type')
+            ->order(['update_time' => 'DESC', 'id' => 'DESC'])
+            ->limit(3)
+            ->select()
+            ->toArray();
+
+        foreach ($recentHelp as $k => $item) {
+            $recentHelp[$k]['article_type_label'] = frelink_article_type_label($item['article_type'] ?? 'faq');
+        }
+
+        $recommendations = [];
+        foreach ($items as $key => $item) {
+            if ($item['gap'] <= 0) {
+                continue;
+            }
+
+            $action = '';
+            $primaryLabel = '立即处理';
+            $primaryUrl = '';
+            $secondaryLabel = '查看现有内容';
+            $secondaryUrl = '';
+            switch ($key) {
+                case 'research':
+                    $action = '优先补 1-2 篇研究综述，建立可被搜索和引用的核心判断内容。';
+                    $primaryLabel = '去写综述';
+                    $primaryUrl = get_url('article/publish', ['article_type' => 'research']);
+                    $secondaryUrl = get_url('article/index', ['type' => 'research']);
+                    break;
+                case 'fragment':
+                    $action = '优先补一批观察记录，保证主题页和首页有持续更新的轻内容。';
+                    $primaryLabel = '去写观察';
+                    $primaryUrl = get_url('article/publish', ['article_type' => 'fragment']);
+                    $secondaryUrl = get_url('article/index', ['type' => 'fragment']);
+                    break;
+                case 'faq':
+                    $action = '优先从高频问题里补 FAQ，先覆盖检索入口，再慢慢升级为综述或帮助。';
+                    $primaryLabel = '去补 FAQ';
+                    $primaryUrl = get_url('question/publish');
+                    $secondaryUrl = get_url('question/index');
+                    break;
+                case 'help':
+                    $action = '优先补帮助型内容，把规则、术语和方法沉淀成稳定知识资产。';
+                    $primaryLabel = '去写帮助';
+                    $primaryUrl = get_url('article/publish', ['article_type' => 'faq']);
+                    $secondaryUrl = get_url('article/index', ['type' => 'faq']);
+                    break;
+                case 'chapter':
+                    $action = '优先补知识章节，把已有内容归档成可长期维护的知识地图结构。';
+                    $primaryLabel = '管理章节';
+                    $primaryUrl = (string)url('content.help/index');
+                    $secondaryLabel = '查看知识地图';
+                    $secondaryUrl = get_url('help/index');
+                    break;
+            }
+
+            $recommendations[] = [
+                'key' => $key,
+                'label' => $item['label'],
+                'gap' => $item['gap'],
+                'progress' => $item['progress'],
+                'status' => $item['status'],
+                'action' => $action,
+                'primary_label' => $primaryLabel,
+                'primary_url' => $primaryUrl,
+                'secondary_label' => $secondaryLabel,
+                'secondary_url' => $secondaryUrl,
+            ];
+        }
+
+        usort($recommendations, function ($a, $b) {
+            if (intval($a['gap']) === intval($b['gap'])) {
+                return intval($a['progress']) <=> intval($b['progress']);
+            }
+            return intval($b['gap']) <=> intval($a['gap']);
+        });
+
+        return [
+            'overall_progress' => $overallProgress,
+            'completed_targets' => $completedTargets,
+            'target_total' => count($targets),
+            'items' => $items,
+            'recommendations' => array_slice($recommendations, 0, 3),
+            'recent' => [
+                'research' => $recentResearch,
+                'fragment' => $recentFragment,
+                'faq' => $recentFaq,
+                'help' => $recentHelp,
+            ],
+        ];
+    }
+
+    protected function buildWeeklyExecutionList(array $coldStart, array $insight, int $days): array
+    {
+        $articleAssist = InsightModel::getPublishAssist('article', $days, 8);
+        $questionAssist = InsightModel::getPublishAssist('question', $days, 8);
+        $typeIdeas = [];
+        foreach (($articleAssist['type_ideas'] ?? []) as $item) {
+            $typeIdeas[$item['type']] = $item;
+        }
+        $questionIdeas = $questionAssist['title_ideas'] ?? [];
+
+        $tasks = [];
+        foreach (($coldStart['recommendations'] ?? []) as $recommendation) {
+            $key = $recommendation['key'] ?? '';
+            if ($key === 'chapter') {
+                continue;
+            }
+
+            if ($key === 'faq') {
+                $idea = $questionIdeas[0] ?? null;
+                if (!$idea) {
+                    continue;
+                }
+                $tasks[] = [
+                    'label' => 'FAQ',
+                    'title' => $idea['title'],
+                    'keyword' => $idea['keyword'] ?? '',
+                    'reason' => ($idea['reason'] ?? '') ?: ($recommendation['action'] ?? ''),
+                    'primary_label' => '去补 FAQ',
+                    'primary_url' => get_url('question/publish'),
+                    'secondary_label' => '查看 FAQ 列表',
+                    'secondary_url' => get_url('question/index'),
+                ];
+                continue;
+            }
+
+            $preferredTypes = match ($key) {
+                'research' => ['research', 'normal'],
+                'fragment' => ['fragment'],
+                'help' => ['faq', 'tutorial'],
+                default => [],
+            };
+
+            $idea = null;
+            foreach ($preferredTypes as $type) {
+                if (!empty($typeIdeas[$type])) {
+                    $idea = $typeIdeas[$type];
+                    break;
+                }
+            }
+            if (!$idea) {
+                continue;
+            }
+
+            $tasks[] = [
+                'label' => $idea['label'] ?? ($recommendation['label'] ?? ''),
+                'title' => $idea['title'] ?? '',
+                'keyword' => $idea['keyword'] ?? '',
+                'reason' => ($idea['reason'] ?? '') ?: ($recommendation['action'] ?? ''),
+                'primary_label' => '去写内容',
+                'primary_url' => get_url('article/publish', ['article_type' => $idea['type'] ?? 'research']),
+                'secondary_label' => '查看现有内容',
+                'secondary_url' => get_url('article/index', ['type' => $idea['type'] ?? 'research']),
+            ];
+        }
+
+        $unique = [];
+        $seenTitles = [];
+        foreach ($tasks as $task) {
+            $title = trim((string)($task['title'] ?? ''));
+            if ($title === '' || isset($seenTitles[$title])) {
+                continue;
+            }
+            $seenTitles[$title] = true;
+            $unique[] = $task;
+            if (count($unique) >= 3) {
+                break;
+            }
+        }
+
+        return $unique;
     }
 
     //后台统计

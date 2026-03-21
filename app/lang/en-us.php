@@ -2318,5 +2318,7 @@ return[
     '知识内容' => 'Knowledge content',
     '相关主题' => 'Related topics',
     '相关知识章节' => 'Related knowledge chapters',
-    '查看知识地图' => 'View knowledge map'
+    '查看知识地图' => 'View knowledge map',
+    '当前话题还没有沉淀出明确的知识章节，可先从知识地图继续检索相关资料。' => 'This topic has not yet formed a clear knowledge chapter. Continue exploring related materials from the knowledge map first.',
+    '前往知识地图' => 'Go to knowledge map'
 ];
