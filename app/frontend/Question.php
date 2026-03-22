@@ -162,7 +162,9 @@ class Question extends Frontend
 
             if ($id = QuestionModel::saveQuestion($postData['uid'], $postData,$access_key))
             {
-                HelpModel::syncItemArchiveChapters('question', $id, $helpChapterIds);
+                if (HelpModel::archiveFeatureAvailable()) {
+                    HelpModel::syncItemArchiveChapters('question', $id, $helpChapterIds);
+                }
                 /*问题提交后钩子*/
                 hook('question_publish_post_after',['id'=>$id,'postData'=>$postData]);
                 $this->success('发表成功', (string)url('question/detail?id=' . $id));
@@ -244,13 +246,18 @@ class Question extends Frontend
             unset($question_info['id']);
         }
 
-        $selectedHelpChapterIds = !empty($question_info['id']) ? HelpModel::getItemArchiveChapterIds('question', intval($question_info['id'])) : [];
-        $helpChapterOptions = HelpModel::getActiveChapterList();
-        $suggestedHelpChapters = HelpModel::getSuggestedArchiveChapters('question', $question_info, 6);
-        $suggestedHelpChapterIds = array_column($suggestedHelpChapters, 'id');
-        foreach ($helpChapterOptions as $k => $chapter) {
-            $helpChapterOptions[$k]['selected'] = in_array($chapter['id'], $selectedHelpChapterIds);
-            $helpChapterOptions[$k]['suggested'] = in_array($chapter['id'], $suggestedHelpChapterIds);
+        $selectedHelpChapterIds = [];
+        $helpChapterOptions = [];
+        $suggestedHelpChapters = [];
+        if (HelpModel::archiveFeatureAvailable()) {
+            $selectedHelpChapterIds = !empty($question_info['id']) ? HelpModel::getItemArchiveChapterIds('question', intval($question_info['id'])) : [];
+            $helpChapterOptions = HelpModel::getActiveChapterList();
+            $suggestedHelpChapters = HelpModel::getSuggestedArchiveChapters('question', $question_info, 6);
+            $suggestedHelpChapterIds = array_column($suggestedHelpChapters, 'id');
+            foreach ($helpChapterOptions as $k => $chapter) {
+                $helpChapterOptions[$k]['selected'] = in_array($chapter['id'], $selectedHelpChapterIds, true);
+                $helpChapterOptions[$k]['suggested'] = in_array($chapter['id'], $suggestedHelpChapterIds, true);
+            }
         }
         $this->assign([
             'captcha_enable'=>$captcha_enable,

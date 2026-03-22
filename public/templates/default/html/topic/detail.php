@@ -91,11 +91,11 @@
 
             <div class="r-box w-fun mb-2">
                 <div class="row">
-                    <a class="col-4" href="{:url('question/publish',['topic_id'=>$topic_info['id']])}" target="_blank">
+                    <a class="col-4" href="{:frelink_publish_url('question',['topic_id'=>$topic_info['id']])}" target="_blank" rel="noopener noreferrer">
                         <i class="fa icon-help-with-circle fa-2x d-inline-block" style="color:#ff9d08;background: #f7f9da;border-radius: 50px;height: 56px;line-height: 56px;margin-bottom: 10px;width: 56px"></i>
                         <h6>{:L('发讨论')}</h6>
                     </a>
-                    <a class="col-4 text-center" href="{:url('article/publish',['topic_id'=>$topic_info['id']])}" target="_blank">
+                    <a class="col-4 text-center" href="{:frelink_publish_url('article',['topic_id'=>$topic_info['id']])}" target="_blank" rel="noopener noreferrer">
                         <i class="far fa-file-alt fa-2x d-inline-block" style="color:#fd5e5e;background: #ffdfdf;border-radius: 50px;height: 56px;line-height: 56px;margin-bottom: 10px;width: 56px"></i>
                         <h6>{:L('写文章')}</h6>
                     </a>

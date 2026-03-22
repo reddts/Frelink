@@ -388,6 +388,303 @@ class Insight extends BaseModel
         ];
     }
 
+    public static function getColdStartSummary(): array
+    {
+        $targets = [
+            'research' => ['label' => '综述', 'target' => 12],
+            'fragment' => ['label' => '观察', 'target' => 20],
+            'faq' => ['label' => 'FAQ', 'target' => 30],
+            'help' => ['label' => '帮助', 'target' => 12],
+            'chapter' => ['label' => '知识章节', 'target' => 8],
+        ];
+
+        $counts = [
+            'research' => db('article')->where(['status' => 1, 'article_type' => 'research'])->count(),
+            'fragment' => db('article')->where(['status' => 1, 'article_type' => 'fragment'])->count(),
+            'faq' => db('question')->where(['status' => 1])->count(),
+            'help' => db('article')->where(['status' => 1])->whereIn('article_type', ['tutorial', 'faq'])->count(),
+            'chapter' => db('help_chapter')->where(['status' => 1])->count(),
+        ];
+
+        $items = [];
+        $completedTargets = 0;
+        foreach ($targets as $key => $meta) {
+            $current = intval($counts[$key] ?? 0);
+            $target = intval($meta['target']);
+            $progress = $target > 0 ? min(100, round(($current / $target) * 100)) : 0;
+            $gap = max(0, $target - $current);
+            if ($current >= $target) {
+                $completedTargets++;
+            }
+            $items[$key] = [
+                'key' => $key,
+                'label' => $meta['label'],
+                'current' => $current,
+                'target' => $target,
+                'gap' => $gap,
+                'progress' => $progress,
+                'status' => $current >= $target ? '已达标' : ($progress >= 60 ? '接近达标' : '待补足'),
+            ];
+        }
+
+        $recommendations = [];
+        foreach ($items as $key => $item) {
+            if ($item['gap'] <= 0) {
+                continue;
+            }
+            $action = '';
+            switch ($key) {
+                case 'research':
+                    $action = '优先补 1-2 篇研究综述，建立可被搜索和引用的核心判断内容。';
+                    break;
+                case 'fragment':
+                    $action = '优先补一批观察记录，保证主题页和首页有持续更新的轻内容。';
+                    break;
+                case 'faq':
+                    $action = '优先从高频问题里补 FAQ，先覆盖检索入口，再慢慢升级为综述或帮助。';
+                    break;
+                case 'help':
+                    $action = '优先补帮助型内容，把规则、术语和方法沉淀成稳定知识资产。';
+                    break;
+                case 'chapter':
+                    $action = '优先补知识章节，把已有内容归档成可长期维护的知识地图结构。';
+                    break;
+            }
+            $recommendations[] = [
+                'key' => $key,
+                'label' => $item['label'],
+                'gap' => $item['gap'],
+                'progress' => $item['progress'],
+                'status' => $item['status'],
+                'action' => $action,
+            ];
+        }
+
+        usort($recommendations, function ($a, $b) {
+            if (intval($a['gap']) === intval($b['gap'])) {
+                return intval($a['progress']) <=> intval($b['progress']);
+            }
+            return intval($b['gap']) <=> intval($a['gap']);
+        });
+
+        return [
+            'overall_progress' => round(($completedTargets / count($targets)) * 100),
+            'completed_targets' => $completedTargets,
+            'target_total' => count($targets),
+            'items' => $items,
+            'recommendations' => array_slice($recommendations, 0, 3),
+        ];
+    }
+
+    public static function getWeeklyExecutionPlan(int $days = 7, int $limit = 3): array
+    {
+        $days = self::normalizeDays($days);
+        $limit = max(1, min(10, $limit));
+        $windowEndTs = time();
+        $windowStartTs = strtotime('-' . max(0, $days - 1) . ' days 00:00:00');
+        $expiresAtTs = strtotime('+1 day 00:00:00');
+        $coldStart = self::getColdStartSummary();
+        $articleAssist = self::getPublishAssist('article', $days, 8);
+        $questionAssist = self::getPublishAssist('question', $days, 8);
+
+        $typeIdeas = [];
+        foreach (($articleAssist['type_ideas'] ?? []) as $item) {
+            $typeIdeas[$item['type']] = $item;
+        }
+        $questionIdeas = $questionAssist['title_ideas'] ?? [];
+
+        $tasks = [];
+        foreach (($coldStart['recommendations'] ?? []) as $recommendation) {
+            $key = $recommendation['key'] ?? '';
+            if ($key === 'chapter') {
+                continue;
+            }
+
+            if ($key === 'faq') {
+                $idea = $questionIdeas[0] ?? null;
+                if (!$idea) {
+                    continue;
+                }
+                $task = [
+                    'task_type' => 'fill_gap',
+                    'status' => 'pending',
+                    'suggested_owner' => self::resolveSuggestedOwner('faq', $key),
+                    'window_start' => date('Y-m-d H:i:s', $windowStartTs),
+                    'window_end' => date('Y-m-d H:i:s', $windowEndTs),
+                    'expires_at' => date('Y-m-d H:i:s', $expiresAtTs),
+                    'content_type' => 'faq',
+                    'source_key' => $key,
+                    'priority' => self::resolveExecutionPriority($recommendation),
+                    'label' => 'FAQ',
+                    'title' => $idea['title'],
+                    'keyword' => $idea['keyword'] ?? '',
+                    'reason' => ($idea['reason'] ?? '') ?: ($recommendation['action'] ?? ''),
+                    'primary_label' => '去补 FAQ',
+                    'primary_url' => get_url('question/publish'),
+                    'secondary_label' => '查看 FAQ 列表',
+                    'secondary_url' => get_url('question/index'),
+                ];
+                $task['dedupe_key'] = self::buildExecutionDedupeKey($task);
+                $task['task_id'] = self::buildExecutionTaskId($days, $task);
+                $tasks[] = $task;
+                continue;
+            }
+
+            $preferredTypes = match ($key) {
+                'research' => ['research', 'normal'],
+                'fragment' => ['fragment'],
+                'help' => ['faq', 'tutorial'],
+                default => [],
+            };
+
+            $idea = null;
+            foreach ($preferredTypes as $type) {
+                if (!empty($typeIdeas[$type])) {
+                    $idea = $typeIdeas[$type];
+                    break;
+                }
+            }
+            if (!$idea) {
+                continue;
+            }
+
+            $task = [
+                'task_type' => 'fill_gap',
+                'status' => 'pending',
+                'suggested_owner' => self::resolveSuggestedOwner($idea['type'] ?? 'research', $key),
+                'window_start' => date('Y-m-d H:i:s', $windowStartTs),
+                'window_end' => date('Y-m-d H:i:s', $windowEndTs),
+                'expires_at' => date('Y-m-d H:i:s', $expiresAtTs),
+                'content_type' => $idea['type'] ?? 'research',
+                'source_key' => $key,
+                'priority' => self::resolveExecutionPriority($recommendation),
+                'label' => $idea['label'] ?? ($recommendation['label'] ?? ''),
+                'title' => $idea['title'] ?? '',
+                'keyword' => $idea['keyword'] ?? '',
+                'reason' => ($idea['reason'] ?? '') ?: ($recommendation['action'] ?? ''),
+                'primary_label' => '去写内容',
+                'primary_url' => get_url('article/publish', ['article_type' => $idea['type'] ?? 'research']),
+                'secondary_label' => '查看现有内容',
+                'secondary_url' => get_url('article/index', ['type' => $idea['type'] ?? 'research']),
+            ];
+            $task['dedupe_key'] = self::buildExecutionDedupeKey($task);
+            $task['task_id'] = self::buildExecutionTaskId($days, $task);
+            $tasks[] = $task;
+        }
+
+        $unique = [];
+        $seenTitles = [];
+        foreach ($tasks as $task) {
+            $title = trim((string)($task['title'] ?? ''));
+            if ($title === '' || isset($seenTitles[$title])) {
+                continue;
+            }
+            $seenTitles[$title] = true;
+            $unique[] = $task;
+            if (count($unique) >= $limit) {
+                break;
+            }
+        }
+
+        return [
+            'window_days' => $days,
+            'generated_at' => date('Y-m-d H:i:s'),
+            'window_start' => date('Y-m-d H:i:s', $windowStartTs),
+            'window_end' => date('Y-m-d H:i:s', $windowEndTs),
+            'expires_at' => date('Y-m-d H:i:s', $expiresAtTs),
+            'schema_version' => '2026-03-21.3',
+            'cold_start' => $coldStart,
+            'tasks' => $unique,
+        ];
+    }
+
+    public static function renderWeeklyExecutionBrief(array $plan): string
+    {
+        $days = intval($plan['window_days'] ?? 7);
+        $coldStart = $plan['cold_start'] ?? [];
+        $tasks = $plan['tasks'] ?? [];
+
+        $lines = [];
+        $lines[] = 'Frelink 本周执行清单';
+        $lines[] = '统计窗口：最近 ' . $days . ' 天';
+        $lines[] = '生成时间：' . ($plan['generated_at'] ?? date('Y-m-d H:i:s'));
+        $lines[] = '窗口范围：' . (($plan['window_start'] ?? '-') . ' ~ ' . ($plan['window_end'] ?? '-'));
+        $lines[] = '失效时间：' . ($plan['expires_at'] ?? '-');
+        $lines[] = '冷启动进度：' . intval($coldStart['overall_progress'] ?? 0) . '%'
+            . '，已达标 ' . intval($coldStart['completed_targets'] ?? 0)
+            . '/' . intval($coldStart['target_total'] ?? 0);
+
+        if (!empty($tasks)) {
+            $lines[] = '';
+            $lines[] = '本周建议优先补这三项：';
+            foreach ($tasks as $index => $item) {
+                $lines[] = ($index + 1) . '. [' . ($item['label'] ?? '-') . '/' . strtoupper((string)($item['priority'] ?? 'normal')) . '] ' . ($item['title'] ?? '-');
+                $lines[] = '   关键词：' . (($item['keyword'] ?? '') ?: '-');
+                $lines[] = '   原因：' . (($item['reason'] ?? '') ?: '-');
+                $lines[] = '   类型：' . (($item['task_type'] ?? '-') . ' / ' . ($item['content_type'] ?? '-'));
+                $lines[] = '   协作：' . (($item['status'] ?? '-') . ' / ' . ($item['suggested_owner'] ?? '-'));
+                $lines[] = '   时间：' . (($item['window_start'] ?? '-') . ' ~ ' . ($item['window_end'] ?? '-') . ' / 失效 ' . (($item['expires_at'] ?? '-') ?: '-'));
+                $lines[] = '   标识：' . (($item['task_id'] ?? '-') . ' / ' . ($item['dedupe_key'] ?? '-'));
+                $lines[] = '   动作：' . (($item['primary_label'] ?? '-') . ' / ' . ($item['secondary_label'] ?? '-'));
+            }
+        } else {
+            $lines[] = '';
+            $lines[] = '当前还没有形成明确的本周执行清单。';
+        }
+
+        return implode(PHP_EOL, $lines);
+    }
+
+    protected static function resolveExecutionPriority(array $recommendation): string
+    {
+        $gap = intval($recommendation['gap'] ?? 0);
+        $progress = intval($recommendation['progress'] ?? 0);
+
+        if ($gap >= 10 || $progress < 40) {
+            return 'high';
+        }
+        if ($gap >= 4 || $progress < 70) {
+            return 'medium';
+        }
+        return 'low';
+    }
+
+    protected static function buildExecutionDedupeKey(array $task): string
+    {
+        $parts = [
+            trim((string)($task['task_type'] ?? '')),
+            trim((string)($task['content_type'] ?? '')),
+            trim((string)($task['source_key'] ?? '')),
+            trim((string)($task['keyword'] ?? '')),
+        ];
+
+        return strtolower(implode(':', array_map(function ($value) {
+            return str_replace([' ', "\t", "\r", "\n"], '', $value);
+        }, $parts)));
+    }
+
+    protected static function buildExecutionTaskId(int $days, array $task): string
+    {
+        return 'weekly-' . $days . '-' . substr(md5(($task['dedupe_key'] ?? '') . '|' . ($task['title'] ?? '')), 0, 12);
+    }
+
+    protected static function resolveSuggestedOwner(string $contentType, string $sourceKey): string
+    {
+        if ($sourceKey === 'faq' || $contentType === 'faq') {
+            return 'faq_editor';
+        }
+
+        if (in_array($contentType, ['tutorial', 'faq'], true) || $sourceKey === 'help') {
+            return 'knowledge_editor';
+        }
+
+        if ($contentType === 'fragment') {
+            return 'observer';
+        }
+
+        return 'research_editor';
+    }
+
     protected static function buildArticleTypeIdeas(array $opportunities, int $limit): array
     {
         $ideas = [];

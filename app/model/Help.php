@@ -3,8 +3,17 @@ namespace app\model;
 
 class Help extends BaseModel
 {
+    public static function archiveFeatureAvailable(): bool
+    {
+        return checkTableExist('help_chapter') && checkTableExist('help_chapter_relation');
+    }
+
     public static function getActiveChapterList($limit = 0): array
     {
+        if (!self::archiveFeatureAvailable()) {
+            return [];
+        }
+
         $query = db('help_chapter')
             ->where(['status' => 1])
             ->order(['sort' => 'ASC', 'id' => 'DESC']);
@@ -498,7 +507,7 @@ class Help extends BaseModel
 
     public static function getItemArchiveChapterIds($item_type, $item_id): array
     {
-        if (!$item_type || !$item_id) {
+        if (!self::archiveFeatureAvailable() || !$item_type || !$item_id) {
             return [];
         }
 
@@ -516,7 +525,7 @@ class Help extends BaseModel
         $item_type = trim((string)$item_type);
         $item_id = intval($item_id);
         $chapter_id = intval($chapter_id);
-        if (!$item_type || !$item_id || !$chapter_id) {
+        if (!self::archiveFeatureAvailable() || !$item_type || !$item_id || !$chapter_id) {
             return false;
         }
 
@@ -535,35 +544,38 @@ class Help extends BaseModel
 
     public static function syncItemArchiveChapters($item_type, $item_id, array $chapter_ids = []): bool
     {
-        if (!$item_type || !$item_id) {
+        if (!self::archiveFeatureAvailable() || !$item_type || !$item_id) {
             return false;
         }
 
         $chapter_ids = array_values(array_unique(array_filter(array_map('intval', $chapter_ids))));
+        try {
+            db('help_chapter_relation')
+                ->where([
+                    'item_type' => $item_type,
+                    'item_id' => $item_id
+                ])
+                ->delete();
 
-        db('help_chapter_relation')
-            ->where([
-                'item_type' => $item_type,
-                'item_id' => $item_id
-            ])
-            ->delete();
+            if (!$chapter_ids) {
+                return true;
+            }
 
-        if (!$chapter_ids) {
-            return true;
+            $rows = [];
+            foreach ($chapter_ids as $sort => $chapter_id) {
+                $rows[] = [
+                    'chapter_id' => $chapter_id,
+                    'item_id' => $item_id,
+                    'item_type' => $item_type,
+                    'sort' => $sort + 1,
+                    'status' => 1
+                ];
+            }
+
+            return (bool)db('help_chapter_relation')->insertAll($rows);
+        } catch (\Throwable $e) {
+            return false;
         }
-
-        $rows = [];
-        foreach ($chapter_ids as $sort => $chapter_id) {
-            $rows[] = [
-                'chapter_id' => $chapter_id,
-                'item_id' => $item_id,
-                'item_type' => $item_type,
-                'sort' => $sort + 1,
-                'status' => 1
-            ];
-        }
-
-        return (bool)db('help_chapter_relation')->insertAll($rows);
     }
 
     public static function getChapterCandidateContent($chapter_id, int $limitPerType = 6): array
@@ -655,6 +667,10 @@ class Help extends BaseModel
 
     public static function getSuggestedArchiveChapters($item_type, array $item_info = [], $limit = 6): array
     {
+        if (!self::archiveFeatureAvailable()) {
+            return [];
+        }
+
         $chapters = self::getActiveChapterList();
         if (!$chapters) {
             return [];

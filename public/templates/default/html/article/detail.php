@@ -88,7 +88,7 @@
                             {/if}
 
                             {if $user_id && (get_user_permission('modify_article')=='Y' || $user_info['uid']==$article_info['uid'])}
-                            <a href="{:url('article/publish',['id'=>$article_info['id']])}" class="py-1 text-muted dropdown-item" target="_blank">
+                            <a href="{:frelink_publish_url('article',['id'=>$article_info['id']])}" class="py-1 text-muted dropdown-item" target="_blank" rel="noopener noreferrer">
                                 <span>编辑内容</span>
                             </a>
                             {/if}
@@ -295,7 +295,7 @@
                                     {/if}
 
                                     {if $user_id && (get_user_permission('modify_article') || $user_info['uid']==$article_info['uid'])}
-                                    <a href="{:url('article/publish',['id'=>$article_info['id']])}" class=" py-1 text-muted dropdown-item" target="_blank">
+                                    <a href="{:frelink_publish_url('article',['id'=>$article_info['id']])}" class=" py-1 text-muted dropdown-item" target="_blank" rel="noopener noreferrer">
                                         <span>编辑内容</span>
                                     </a>
                                     {/if}

@@ -163,7 +163,7 @@
                                                 <span>{:L('修改记录')}</span>
                                             </a>
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('modify_question')=='Y'}
-                                            <a href="{:url('question/publish?id='.$question_info['id'])}" class="dropdown-item"><span>{:L('编辑 FAQ')}</span></a>
+                                            <a href="{:frelink_publish_url('question',['id'=>$question_info['id']])}" class="dropdown-item"><span>{:L('编辑 FAQ')}</span></a>
                                             {/if}
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('remove_question')=='Y'}
                                             <a class="aw-ajax-get dropdown-item"  href="javascript:;" data-confirm="{:L('是否删除该问题')}?" data-url="{:url('ajax.Question/remove_question',['id'=>$question_info['id']])}">
@@ -263,7 +263,7 @@
                                                 <span>{:L('修改记录')}</span>
                                             </a>
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('modify_question')=='Y'}
-                                            <a href="{:url('question/publish?id='.$question_info['id'])}" class="dropdown-item"><span>{:L('编辑 FAQ')}</span></a>
+                                            <a href="{:frelink_publish_url('question',['id'=>$question_info['id']])}" class="dropdown-item"><span>{:L('编辑 FAQ')}</span></a>
                                             {/if}
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('remove_question')=='Y'}
                                             <a class="aw-ajax-get dropdown-item"  href="javascript:;" data-confirm="{:L('是否删除该问题')}?" data-url="{:url('ajax.Question/remove_question',['id'=>$question_info['id']])}">

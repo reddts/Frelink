@@ -2,7 +2,7 @@
 {block name="header"}
 <header class="aui-header">
     <div class="aui-header-left"><a href="{$baseUrl}" class="text-muted" data-pjax="pageMain"><i class="fa fa-home font-11"></i></a></div>
-    <div class="aui-header-title font-10">{:L('新建 FAQ')}</div>
+    <div class="aui-header-title font-10">{:L('新建 FAQ 条目')}</div>
     <a class="aui-header-right font-10 saveQuestion">{:L('发布')}</a>
 </header>
 {/block}
@@ -13,9 +13,9 @@
         <div class="card-body p-2">
             {if !empty($publish_insight)}
             <div class="border rounded px-3 py-2 mb-3" style="background:#f8fbff;border-color:#e4eef8 !important;">
-                <div class="font-weight-bold mb-2">最近 {$publish_insight.window_days} 天可写方向</div>
+                <div class="font-weight-bold mb-2">{:L('最近 %s 天可写方向',$publish_insight.window_days)}</div>
                 {if !empty($publish_insight.top_keywords)}
-                <div class="text-muted font-9 mb-2">最近有人在搜：
+                <div class="text-muted font-9 mb-2">{:L('最近有人在搜')}：
                     {volist name="publish_insight.top_keywords" id="v"}
                     <span class="mr-2 text-primary js-fill-title" data-title="{$v.keyword|htmlspecialchars}">{$v.keyword}</span>
                     {/volist}
@@ -37,7 +37,7 @@
                 <input type="hidden" name="id" value="{$question_info['id']|default=0}">
                 <div class="border rounded px-3 py-2 mb-3" style="background:#fbfdff;border-color:#e6edf5 !important;">
                 <div class="font-weight-bold mb-2">{:L('FAQ 条目建议')}</div>
-                <div class="text-muted font-9">{:L('优先填写用户会反复搜索的问题，并尽量给出明确答案和补充说明。')}</div>
+                <div class="text-muted font-9">{:frelink_content_description('question')}</div>
                 </div>
                 <div class="form-group mb-3">
                     <input id="title" name="title" value="{$question_info.title|default=''}" class="aw-form-control" type="text" placeholder="{:L('输入 FAQ 标题')}">

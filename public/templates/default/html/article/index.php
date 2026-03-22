@@ -91,19 +91,7 @@
             <div class="aw-left radius col-md-9 bg-white mb-2">
                 <div class="aw-knowledge-hero">
                     <h1>{:frelink_article_type_label($article_type)}</h1>
-                    <p>
-                        {if $article_type=='research'}
-                        {:L('这里沉淀的是系统化综述，用来整理脉络、分歧和阶段性结论。')}
-                        {elseif $article_type=='fragment'/}
-                        {:L('这里沉淀的是观察记录，用来保留判断、线索和仍在形成中的洞见。')}
-                        {elseif $article_type=='faq'/}
-                        {:L('这里沉淀的是帮助内容，用来复用明确答案、规则和术语解释。')}
-                        {elseif $article_type=='tutorial'/}
-                        {:L('这里沉淀的是方法内容，用来输出步骤、实践和可执行方案。')}
-                        {else/}
-                        {:L('这里沉淀的是热点解释，用来回答“这件事为什么重要”。')}
-                        {/if}
-                    </p>
+                    <p>{:frelink_content_description($article_type)}</p>
                 </div>
                 <div class="aw-knowledge-lanes">
                     <a class="aw-knowledge-lane" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" data-pjax="wrapMain">
@@ -119,16 +107,16 @@
                         <span>{:L('如果你想看一组内容之间的关系和变化，继续沿主题入口展开。')}</span>
                     </a>
                 </div>
-                <div class="nav nav-tabs aw-pjax-a px-4" role="tablist">
-                    <a class="nav-item nav-link {if $sort=='recommend'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'recommend','category_id'=>$category,'type'=>$article_type])}">{:L('精选')}</a>
-                    <a class="nav-item nav-link {if $sort=='new'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}">{:L('更新')}</a>
-                    <a class="nav-item nav-link {if $sort=='hot'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'hot','category_id'=>$category,'type'=>$article_type])}">{:L('高关注')}</a>
-                </div>
-                <div class="aw-article-subnav aw-pjax-a">
+                <nav class="nav nav-tabs aw-pjax-a px-4" aria-label="{:L('知识内容排序')}">
+                    <a class="nav-item nav-link {if $sort=='recommend'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'recommend','category_id'=>$category,'type'=>$article_type])}" {if $sort=='recommend'}aria-current="page"{/if}>{:L('精选')}</a>
+                    <a class="nav-item nav-link {if $sort=='new'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" {if $sort=='new'}aria-current="page"{/if}>{:L('更新')}</a>
+                    <a class="nav-item nav-link {if $sort=='hot'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'hot','category_id'=>$category,'type'=>$article_type])}" {if $sort=='hot'}aria-current="page"{/if}>{:L('高关注')}</a>
+                </nav>
+                <nav class="aw-article-subnav aw-pjax-a" aria-label="{:L('知识内容形态')}">
                     {foreach $article_type_options as $typeKey => $label}
-                    <a class="nav-link {if $article_type==$typeKey}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>$sort,'category_id'=>$category,'type'=>$typeKey])}">{$label}</a>
+                    <a class="nav-link {if $article_type==$typeKey}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>$sort,'category_id'=>$category,'type'=>$typeKey])}" {if $article_type==$typeKey}aria-current="page"{/if}>{$label}</a>
                     {/foreach}
-                </div>
+                </nav>
 
                 <div id="tabMain" class="tab-content" >
                     <div class="tab-pane fade show active">

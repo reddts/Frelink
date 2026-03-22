@@ -82,12 +82,12 @@
                         <span>{:L('如果单条 FAQ 不够，就沿主题继续追踪背景、资料和后续变化。')}</span>
                     </a>
                 </div>
-                <div class="nav nav-tabs aw-pjax-a px-4" role="tablist">
-                    <a class="nav-item nav-link {if $sort=='recommend'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'recommend','category_id'=>$category])}">{:L('精选')}</a>
-                    <a class="nav-item nav-link {if $sort=='new'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'new','category_id'=>$category])}">{:L('更新')}</a>
-                    <a class="nav-item nav-link {if $sort=='hot'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'hot','category_id'=>$category])}">{:L('高关注')}</a>
-                    <a class="nav-item nav-link {if $sort=='unresponsive'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'unresponsive','category_id'=>$category])}" >{:L('待补充 FAQ')}</a>
-                </div>
+                <nav class="nav nav-tabs aw-pjax-a px-4" aria-label="{:L('FAQ 列表筛选')}">
+                    <a class="nav-item nav-link {if $sort=='recommend'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'recommend','category_id'=>$category])}" {if $sort=='recommend'}aria-current="page"{/if}>{:L('精选')}</a>
+                    <a class="nav-item nav-link {if $sort=='new'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'new','category_id'=>$category])}" {if $sort=='new'}aria-current="page"{/if}>{:L('更新')}</a>
+                    <a class="nav-item nav-link {if $sort=='hot'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'hot','category_id'=>$category])}" {if $sort=='hot'}aria-current="page"{/if}>{:L('高关注')}</a>
+                    <a class="nav-item nav-link {if $sort=='unresponsive'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'unresponsive','category_id'=>$category])}" {if $sort=='unresponsive'}aria-current="page"{/if}>{:L('待补充 FAQ')}</a>
+                </nav>
 
                 <div id="tabMain" class="tab-content" >
                     <div class="tab-pane fade show active">

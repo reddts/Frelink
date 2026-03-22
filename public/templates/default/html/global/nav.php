@@ -54,7 +54,7 @@
                                         {:L('的搜索结果')}</p>
                                 </div>
                                 <div class="mod-footer px-2 py-1">
-                                    <a href="{:url('question/publish')}" data-pjax="pageMain" class="btn btn-primary btn-small float-right">{:L('补充 FAQ')}</a>
+                                    <a href="{:frelink_publish_url('question')}" class="btn btn-primary btn-small float-right">{:L('补充 FAQ')}</a>
                                 </div>
                             </div>
                         </div>
@@ -70,10 +70,10 @@
                         <a href="javascript:;" class="btn btn-sm gradientBtn px-3 text-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             {:L('新建')}
                         </a>
-                        <div class="dropdown-menu p-0 dropdown-menu-right border-0 font-size-sm">
+                        <div class="dropdown-menu p-0 dropdown-menu-right border-0 font-size-sm" style="z-index: 1065;">
                             <div class="text-center d-block py-2 aw-nav aw-dropdown-nav text-center aw-answer-sort" style="min-width: 100px">
-                                <a href="{:url('question/publish')}" class="py-1 dropdown-item" target="_blank">{:L('FAQ 条目')}</a>
-                                <a href="{:url('article/publish')}" class="py-1 dropdown-item" target="_blank">{:L('综述 / 观察')}</a>
+                                <a href="{:frelink_publish_url('question')}" class="py-1 dropdown-item" target="_blank" rel="noopener noreferrer">{:L('FAQ 条目')}</a>
+                                <a href="{:frelink_publish_url('article')}" class="py-1 dropdown-item" target="_blank" rel="noopener noreferrer">{:L('综述 / 观察')}</a>
                                 {volist name=":config('aws.publish')" id="v"}
                                 <a href="{:url($v['url'])} " class="py-1 dropdown-item" target="_blank">{$v.title}</a>
                                 {/volist}

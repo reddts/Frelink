@@ -1,5 +1,51 @@
 # Frelink 项目更新日志
 
+## 2026-03-22
+
+### 里程碑：M1 公开导航与移动端入口继续收口
+
+- 桌面端公开一级导航继续统一为内容消费路径：
+  - `首页 / 主题 / FAQ / 综述 / 观察 / 帮助`
+  - 隐藏 `专栏 / 创作者` 的公开一级入口
+- 发布入口链路继续做兼容修复：
+  - 前台主要发布链接改为统一走 `frelink_publish_url()`
+  - 问题与文章发布页在知识归档表不存在时可自动降级，不再阻塞正常发布
+- 问题页、文章页与移动端公共壳继续收口语义：
+  - 子栏目筛选由伪 `tablist` 收回为真实导航
+  - 移动端底部栏改为纯内容消费路径，不再把 `发布` 作为全局主导航项
+  - 移动端底部与弹层发布入口改为复用统一 helper 输出，减少 `问题 / 文章 / FAQ / 综述` 混用
+  - 桌面端与移动端发布页进一步改成“知识形态优先”，弱化 `文章 / 提问` 的旧表达
+- 多语言 helper 第一批落地：
+  - 新增并接入 `frelink_content_label()` / `frelink_content_description()` / `frelink_nav_label()`
+  - 首页、文章页、导航、移动端底部栏开始复用统一命名
+  - 发布页、详情提示和列表摘要中的新增文案继续回收到语言包，英文站点不再直接漏出这一批中文提示
+  - 英文语言包继续补齐 `FAQ / Knowledge Content / Research / Help` 这一组公开语义，公开入口不再优先落回旧 `Question / Article` 表达
+
+### 影响范围
+
+- 公共函数：
+  - [app/function.inc.php](/mnt/f/workwww/knowlege-github/app/function.inc.php)
+- 导航与控制器：
+  - [app/common/library/helper/UserAuthHelper.php](/mnt/f/workwww/knowlege-github/app/common/library/helper/UserAuthHelper.php)
+  - [app/frontend/Question.php](/mnt/f/workwww/knowlege-github/app/frontend/Question.php)
+  - [app/frontend/Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php)
+  - [app/model/Help.php](/mnt/f/workwww/knowlege-github/app/model/Help.php)
+- 桌面模板：
+  - [public/templates/default/html/global/nav.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/global/nav.php)
+  - [public/templates/default/html/block.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/block.php)
+  - [public/templates/default/html/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/index.php)
+  - [public/templates/default/html/question/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/index.php)
+  - [public/templates/default/html/article/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/index.php)
+  - [public/templates/default/html/question/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/publish.php)
+  - [public/templates/default/html/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/publish.php)
+- 移动模板：
+  - [public/templates/default/mobile/block.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/block.php)
+
+### 验证
+
+- `git diff --check` 已通过
+- 当前环境没有 `php` 可执行文件，未能执行本地 `php -l`
+
 ## 2026-03-21
 
 ### 里程碑：M1-M3 第一阶段收口

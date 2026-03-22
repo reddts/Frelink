@@ -74,7 +74,7 @@
                     </div>
                 </div>
                 <div class="desc">
-                    <div class="text-muted font-9 mb-1">沉淀高频问题、明确答案和后续补充说明，作为知识系统的检索入口。</div>
+                    <div class="text-muted font-9 mb-1">{:L('沉淀高频问题、明确答案和后续补充说明，作为知识系统的检索入口。')}</div>
                     {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}
                     {if count($v['img_list'])>1}
                     <div class="d-flex aw-list-img">
@@ -187,7 +187,7 @@
                     </div>
                 </div>
                 <div class="desc">
-                    <div class="text-muted font-9 mb-1">沉淀高频问题、明确答案和后续补充说明，作为知识系统的检索入口。</div>
+                    <div class="text-muted font-9 mb-1">{:L('沉淀高频问题、明确答案和后续补充说明，作为知识系统的检索入口。')}</div>
                     {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}
                     {if count($v['img_list'])>1}
                     <div class="d-flex aw-list-img">
@@ -263,13 +263,13 @@
                 <div class="desc">
                     <div class="text-muted font-9 mb-1">
                         {if isset($v['article_type']) && $v['article_type']=='research'}
-                        系统整理资料脉络、核心分歧和阶段性结论。
+                        {:L('系统整理资料脉络、核心分歧和阶段性结论。')}
                         {elseif isset($v['article_type']) && $v['article_type']=='fragment'/}
-                        保留观察、判断和仍在形成中的思考线索。
+                        {:L('保留观察、判断和仍在形成中的思考线索。')}
                         {elseif isset($v['article_type']) && $v['article_type']=='faq'/}
-                        适合快速检索和复用的高频问题答案。
+                        {:L('适合快速检索和复用的高频问题答案。')}
                         {else/}
-                        用完整展开的方式解释热点、案例和方法。
+                        {:L('用完整展开的方式解释热点、案例和方法。')}
                         {/if}
                     </div>
                     {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}

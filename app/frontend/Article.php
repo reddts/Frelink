@@ -152,7 +152,9 @@ class Article extends Frontend
 
             if($id)
             {
-                HelpModel::syncItemArchiveChapters('article', $id, $helpChapterIds);
+                if (HelpModel::archiveFeatureAvailable()) {
+                    HelpModel::syncItemArchiveChapters('article', $id, $helpChapterIds);
+                }
                 $this->success('提交成功',url('article/detail',['id'=>$id]));
             }
             $this->error('提交失败'.':'.ArticleModel::getError());
@@ -239,13 +241,18 @@ class Article extends Frontend
         //从专栏进入发起文章
         $column_id = $this->request->param('column_id', 0);
         $article_info['column_id'] = $column_id;
-        $selectedHelpChapterIds = !empty($article_info['id']) ? HelpModel::getItemArchiveChapterIds('article', intval($article_info['id'])) : [];
-        $helpChapterOptions = HelpModel::getActiveChapterList();
-        $suggestedHelpChapters = HelpModel::getSuggestedArchiveChapters('article', $article_info, 6);
-        $suggestedHelpChapterIds = array_column($suggestedHelpChapters, 'id');
-        foreach ($helpChapterOptions as $k => $chapter) {
-            $helpChapterOptions[$k]['selected'] = in_array($chapter['id'], $selectedHelpChapterIds);
-            $helpChapterOptions[$k]['suggested'] = in_array($chapter['id'], $suggestedHelpChapterIds);
+        $selectedHelpChapterIds = [];
+        $helpChapterOptions = [];
+        $suggestedHelpChapters = [];
+        if (HelpModel::archiveFeatureAvailable()) {
+            $selectedHelpChapterIds = !empty($article_info['id']) ? HelpModel::getItemArchiveChapterIds('article', intval($article_info['id'])) : [];
+            $helpChapterOptions = HelpModel::getActiveChapterList();
+            $suggestedHelpChapters = HelpModel::getSuggestedArchiveChapters('article', $article_info, 6);
+            $suggestedHelpChapterIds = array_column($suggestedHelpChapters, 'id');
+            foreach ($helpChapterOptions as $k => $chapter) {
+                $helpChapterOptions[$k]['selected'] = in_array($chapter['id'], $selectedHelpChapterIds, true);
+                $helpChapterOptions[$k]['suggested'] = in_array($chapter['id'], $suggestedHelpChapterIds, true);
+            }
         }
         $this->assign(
             [

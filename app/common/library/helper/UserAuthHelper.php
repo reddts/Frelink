@@ -64,7 +64,7 @@ class UserAuthHelper {
         return in_array(strtolower(request()->action()), $authArr) || in_array('*', $arr);
     }
 
-    public function getNav($checkPath='',$menu_type='nav')
+	public function getNav($checkPath='',$menu_type='nav')
     {
         if(!$checkPath)
         {
@@ -130,8 +130,64 @@ class UserAuthHelper {
             $menu[$key]['url'] = htmlspecialchars_decode($menu[$key]['url']);
         }
         $result = TreeHelper::instance()->init($menu)->getTreeArray(0);
+        if ($menu_type === 'nav') {
+            $result = $this->normalizePublicNav($result);
+        }
         cache($cacheKey, $result, 300);
         return $result;
+    }
+
+    protected function normalizePublicNav(array $items): array
+    {
+        if (!$items) {
+            return [];
+        }
+
+        $hiddenTitles = ['专栏', '创作者'];
+        $priorityMap = [
+            '首页' => 10,
+            '主题' => 20,
+            '问题' => 30,
+            '文章' => 40,
+            '专题' => 50,
+            '帮助中心' => 60,
+            '帮助' => 60,
+        ];
+
+        $normalized = [];
+        foreach ($items as $item) {
+            $title = trim((string)($item['title'] ?? ''));
+            if (in_array($title, $hiddenTitles, true)) {
+                continue;
+            }
+
+            if (!empty($item['child_list']) && is_array($item['child_list'])) {
+                $item['child_list'] = $this->normalizePublicNav($item['child_list']);
+            }
+
+            $item['_frelink_priority'] = $priorityMap[$title] ?? (1000 + intval($item['sort'] ?? 0));
+            $normalized[] = $item;
+        }
+
+        usort($normalized, function ($a, $b) {
+            $priorityCompare = intval($a['_frelink_priority'] ?? 9999) <=> intval($b['_frelink_priority'] ?? 9999);
+            if ($priorityCompare !== 0) {
+                return $priorityCompare;
+            }
+
+            $sortCompare = intval($a['sort'] ?? 0) <=> intval($b['sort'] ?? 0);
+            if ($sortCompare !== 0) {
+                return $sortCompare;
+            }
+
+            return intval($a['id'] ?? 0) <=> intval($b['id'] ?? 0);
+        });
+
+        foreach ($normalized as $key => $item) {
+            unset($normalized[$key]['_frelink_priority']);
+        }
+
+        return array_values($normalized);
     }
 
     public function getUserId()

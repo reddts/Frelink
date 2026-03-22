@@ -4,11 +4,11 @@
             <i class="fa fa-edit fa-2x d-inline-block" style="color:#ff9d08;background: #f7f9da;border-radius: 50px;height: 56px;line-height: 56px;margin-bottom: 10px;width: 56px"></i>
             <h6>{:L('补 FAQ')}</h6>
         </a>
-        <a class="col-4 text-center" href="{:url('question/publish')}">
+        <a class="col-4 text-center" href="{:frelink_publish_url('question')}">
             <i class="icon-help-with-circle fa-2x d-inline-block" style="color:#fd5e5e;background: #ffdfdf;border-radius: 50px;height: 56px;line-height: 56px;margin-bottom: 10px;width: 56px"></i>
             <h6>{:L('新建 FAQ')}</h6>
         </a>
-        <a class="col-4" href="{:url('article/publish')}">
+        <a class="col-4" href="{:frelink_publish_url('article')}">
             <i class="far fa-file-alt circle fa-2x d-inline-block" style="color:#6f5a90;background: #ece7f3;border-radius: 50px;height: 56px;line-height: 56px;margin-bottom: 10px;width: 56px"></i>
             <h6>{:L('写综述')}</h6>
         </a>

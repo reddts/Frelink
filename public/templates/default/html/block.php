@@ -129,14 +129,14 @@
                             {if $k<5}
                             <li class="nav-item {$v.active ? 'cur' : ''} clearfix" style="width: auto!important; flex: 0 0 auto;">
                                 {if $v.child_list}
-                                <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="white-space: nowrap;">{$v.title}</a>
+                                <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="white-space: nowrap;">{:frelink_nav_label($v.title)}</a>
                                 <div class="dropdown-menu text-center" aria-labelledby="navbarDropdownMenuLink">
                                     {volist name="$v['child_list']" id="v1"}
-                                    <a class="dropdown-item" href="{$v1.url}" data-pjax="pageMain" title="{$v1.title}">{$v1.title}</a>
+                                    <a class="dropdown-item" href="{$v1.url}" data-pjax="pageMain" title="{$v1.title}">{:frelink_nav_label($v1.title)}</a>
                                     {/volist}
                                 </div>
                                 {else/}
-                                <a class="nav-link" href="{$v.url}" data-pjax="pageMain" title="{$v.title}" style="white-space: nowrap;">{$v.title}</a>
+                                <a class="nav-link" href="{$v.url}" data-pjax="pageMain" title="{$v.title}" style="white-space: nowrap;">{:frelink_nav_label($v.title)}</a>
                                 {/if}
                             </li>
                             {/if}
@@ -147,7 +147,7 @@
                                 <div class="dropdown-menu text-center" aria-labelledby="navbarDropdownMenuLink">
                                     {foreach $navMenu as $k=>$v1}
                                     {if $k>=5}
-                                    <a class="dropdown-item" href="{$v1.url}" data-pjax="pageMain" title="{:L($v1.title)}">{$v1.title}</a>
+                                    <a class="dropdown-item" href="{$v1.url}" data-pjax="pageMain" title="{:L($v1.title)}">{:frelink_nav_label($v1.title)}</a>
                                     {/if}
                                     {/foreach}
                                 </div>
@@ -168,26 +168,45 @@
                                         <p class="search p-3 text-left"><span>{:L('查看更多')} "</span><a href="javascript:;" onclick="$('#awGlobalSearch').submit();" class="text-danger font-weight-bold"></a>" {:L('的搜索结果')}</p>
                                     </div>
                                     <div class="mod-footer px-2 py-1">
-                                        <a href="{:url('question/publish')}" data-pjax="pageMain" class="btn btn-primary btn-small float-right">{:L('发起问题')}</a>
+                                        <a href="{:frelink_publish_url('question')}" class="btn btn-primary btn-small float-right">{:L('发起问题')}</a>
                                     </div>
                                 </div>
                             </div>
                         </form>
                         {if !$user_id}
-                        <a {if $theme_config['common']['login_type']=='dialog'}href="javascript:;" onclick="AWS.User.login()" {else/}href="{:url('account/login')}"{/if} class="btn btn-sm gradientBtn px-3 logon-but d-inline-flex align-items-center justify-content-center">{:L('登录')}</a>
+                        <div class="nav-auth-actions d-flex align-items-center justify-content-end">
+                            <a {if $theme_config['common']['login_type']=='dialog'}href="javascript:;" onclick="AWS.User.login()" {else/}href="{:url('account/login')}"{/if} class="btn btn-sm gradientBtn px-3 logon-but d-inline-flex align-items-center justify-content-center">{:L('登录')}</a>
+                            {if get_setting('enable_multilingual','N')=='Y'}
+                            <div class="dropdown d-inline-block position-relative nav-lang-switch">
+                                <a href="javascript:;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="d-none d-sm-inline-block ml-1"><i class="fa fa-language font-12"></i></span>
+                                </a>
+                                <div class="dropdown-menu p-0 border-0 font-size-sm" aria-labelledby="page-header-user-dropdown">
+                                    <div class="p-2 text-center">
+                                        <a class="dropdown-item align-items-center aw-ajax-get" data-url="{:url('ajax/change_lang',['lang'=>'zh-cn'])}" href="JavaScript:;">
+                                            <span>{:L('中文')}</span>
+                                        </a>
+                                        <a class="dropdown-item align-items-center aw-ajax-get" data-url="{:url('ajax/change_lang',['lang'=>'en-us'])}" href="JavaScript:;">
+                                            <span>{:L('英文')}</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {/if}
+                        </div>
                         {/if}
                         </div>
                         {if $user_id}
                         <div class="nav-user-actions d-flex align-items-center">
                         <div class="dropdown d-inline-block mr-4 position-relative">
                             <a href="javascript:;" class="btn btn-sm gradientBtn px-3 text-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{:L('发起')}</a>
-                            <div class="dropdown-menu p-0 dropdown-menu-right border-0 font-size-sm">
+                            <div class="dropdown-menu p-0 dropdown-menu-right border-0 font-size-sm" style="z-index: 1065;">
                                 <div class="text-center d-block py-2 aw-nav aw-dropdown-nav text-center aw-answer-sort" style="min-width: 100px">
                                     {if($user_info['permission']['publish_question_enable']=='Y')}
-                                    <a href="{:url('question/publish')}" class="py-1 dropdown-item" target="_blank">{:L('问题')}</a>
+                                    <a href="{:frelink_publish_url('question')}" class="py-1 dropdown-item" target="_blank" rel="noopener noreferrer">{:L('问题')}</a>
                                     {/if}
                                     {if($user_info['permission']['publish_article_enable']=='Y')}
-                                    <a href="{:url('article/publish')}" class="py-1 dropdown-item" target="_blank">{:L('文章')} </a>
+                                    <a href="{:frelink_publish_url('article')}" class="py-1 dropdown-item" target="_blank" rel="noopener noreferrer">{:L('文章')} </a>
                                     {/if}
                                     {volist name=":config('aws.publish')" id="v"}
                                     <a href="{:url($v['url'])} " class="py-1 dropdown-item" target="_blank">{$v.title}</a>
@@ -287,24 +306,6 @@
                             </div>
                         </div>
                         {/if}
-                        </div>
-                        {/if}
-
-                        {if !$user_id && get_setting('enable_multilingual','N')=='Y'}
-                        <div class="dropdown d-inline-block position-relative nav-lang-switch">
-                            <a href="javascript:;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="d-none d-sm-inline-block ml-1"><i class="fa fa-language font-12"></i></span>
-                            </a>
-                            <div class="dropdown-menu p-0 border-0 font-size-sm" aria-labelledby="page-header-user-dropdown">
-                                <div class="p-2 text-center">
-                                    <a class="dropdown-item align-items-center aw-ajax-get" data-url="{:url('ajax/change_lang',['lang'=>'zh-cn'])}" href="JavaScript:;">
-                                        <span>{:L('中文')}</span>
-                                    </a>
-                                    <a class="dropdown-item align-items-center aw-ajax-get" data-url="{:url('ajax/change_lang',['lang'=>'en-us'])}" href="JavaScript:;">
-                                        <span>{:L('英文')}</span>
-                                    </a>
-                                </div>
-                            </div>
                         </div>
                         {/if}
                     </div>

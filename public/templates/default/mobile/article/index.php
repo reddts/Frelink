@@ -58,30 +58,18 @@
     <div class="bg-white">
         <div class="d-flex p-3 border-bottom aw-mobile-cross-nav">
             <div class="flex-fill text-right">
-                <a href="{:url('question/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:L('FAQ')}</a>
+                <a href="{:url('question/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:frelink_nav_label('问题')}</a>
             </div>
             <div class="flex-fill text-center">
-                <a href="{:url('article/index')}" data-pjax="pageMain" class="font-weight-bold font-11 text-primary">{:L('综述')}</a>
+                <a href="{:url('article/index')}" data-pjax="pageMain" class="font-weight-bold font-11 text-primary">{:frelink_nav_label('文章')}</a>
             </div>
             <div class="flex-fill text-left">
-                <a href="{:url('topic/index')}" data-pjax="pageMain" class="font-weight-bold font-11">主题</a>
+                <a href="{:url('topic/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:frelink_nav_label('主题')}</a>
             </div>
         </div>
         <div class="px-3 pb-3">
             <div class="font-weight-bold font-12 mb-1">{:frelink_article_type_label($article_type)}</div>
-            <div class="text-muted font-9">
-                {if $article_type=='research'}
-                {:L('用来整理脉络、分歧和阶段结论。')}
-                {elseif $article_type=='fragment'/}
-                {:L('用来保留判断、线索和观察现场。')}
-                {elseif $article_type=='faq'/}
-                {:L('用来沉淀可复用的帮助内容和明确答案。')}
-                {elseif $article_type=='tutorial'/}
-                {:L('用来输出步骤、方法和实践方案。')}
-                {else/}
-                {:L('用来解释热点、案例和重要变化。')}
-                {/if}
-            </div>
+            <div class="text-muted font-9">{:frelink_content_description($article_type)}</div>
         </div>
         <div class="px-3 pb-3">
             <div class="aw-mobile-lane-grid">

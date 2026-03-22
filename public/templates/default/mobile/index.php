@@ -4,48 +4,62 @@
     <style>
         .aw-mobile-hero {
             margin: 12px;
-            padding: 18px 16px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #f5f8ff 0%, #eef7f3 100%);
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            padding: 18px 16px 44px;
+            border-radius: 22px;
+            background:
+                radial-gradient(circle at 16% 18%, rgba(96, 165, 250, 0.3), transparent 28%),
+                radial-gradient(circle at 82% 20%, rgba(52, 211, 153, 0.2), transparent 24%),
+                linear-gradient(135deg, #08152b 0%, #0b3158 44%, #0d6a64 100%);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+            overflow: hidden;
         }
         .aw-mobile-hero-title {
-            margin-bottom: 8px;
-            color: #0f172a;
-            font-size: 22px;
+            margin-bottom: 10px;
+            color: #fff;
+            font-size: 26px;
             font-weight: 700;
-            line-height: 1.3;
+            line-height: 1.25;
         }
         .aw-mobile-hero-desc {
-            margin-bottom: 14px;
-            color: #475569;
+            margin-bottom: 16px;
+            color: rgba(226, 232, 240, 0.9);
             font-size: 13px;
-            line-height: 1.6;
+            line-height: 1.75;
         }
         .aw-mobile-search-form {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 14px;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding: 10px;
+            border-radius: 18px;
+            background: rgba(7, 16, 31, 0.28);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(8px);
         }
         .aw-mobile-search-input {
             flex: 1;
-            height: 42px;
-            padding: 0 14px;
-            border: 1px solid #dbe4ee;
-            border-radius: 12px;
-            background: #fff;
+            height: 50px;
+            padding: 0 16px;
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.08);
             font-size: 14px;
+            color: #fff;
+        }
+        .aw-mobile-search-input::placeholder {
+            color: rgba(255,255,255,.72);
         }
         .aw-mobile-search-btn {
-            height: 42px;
-            padding: 0 16px;
+            height: 50px;
+            padding: 0 18px;
             border: 0;
-            border-radius: 12px;
-            background: #2563eb;
+            border-radius: 14px;
+            background: linear-gradient(90deg, #0e81e9 0%, #33a756 100%);
             color: #fff;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
+            white-space: nowrap;
         }
         .aw-mobile-quick-grid {
             display: grid;
@@ -56,8 +70,10 @@
             display: block;
             padding: 12px;
             border-radius: 14px;
-            background: rgba(255, 255, 255, 0.92);
-            color: #0f172a;
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(8px);
         }
         .aw-mobile-quick-card strong {
             display: block;
@@ -66,9 +82,45 @@
         }
         .aw-mobile-quick-card span {
             display: block;
-            color: #64748b;
+            color: rgba(226, 232, 240, 0.82);
             font-size: 12px;
             line-height: 1.5;
+        }
+        .aw-mobile-hero-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .aw-mobile-hero-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .aw-mobile-hero-panel {
+            margin-top: 14px;
+            padding: 14px;
+            border-radius: 18px;
+            background: rgba(7, 16, 31, 0.56);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .aw-mobile-hero-panel strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 16px;
+        }
+        .aw-mobile-hero-panel p {
+            margin: 0;
+            color: rgba(226, 232, 240, 0.84);
+            font-size: 12px;
+            line-height: 1.7;
         }
         .aw-mobile-section {
             margin: 12px;
@@ -199,7 +251,7 @@
         <div class="aw-mobile-hero-title">{:L('公开、开放、可检索的知识系统')}</div>
         <div class="aw-mobile-hero-desc">{:L('用综述沉淀脉络，用主题追踪变化，用观察保留判断，用 FAQ 承接检索，不再依赖问答社区逻辑。')}</div>
         <form class="aw-mobile-search-form" action="{:url('search/index')}" method="get">
-            <input class="aw-mobile-search-input" type="search" name="q" placeholder="{:L('搜索问题、文章、主题或帮助文档')}">
+            <input class="aw-mobile-search-input" type="search" name="q" placeholder="{:L('搜索综述、观察、FAQ、主题或帮助')}">
             <button class="aw-mobile-search-btn" type="submit">{:L('搜索')}</button>
         </form>
         <div class="aw-mobile-quick-grid">
@@ -211,9 +263,9 @@
                 <strong>{:L('主题')}</strong>
                 <span>{:L('按主题聚合变化、资料和后续追踪点')}</span>
             </a>
-            <a class="aw-mobile-quick-card" href="{:url('article/index',['type'=>'fragment'])}">
+            <a class="aw-mobile-quick-card" href="{:url('feature/index')}" data-pjax="pageMain">
                 <strong>{:L('观察')}</strong>
-                <span>{:L('记录判断、灵感和未完全展开但值得保留的线索')}</span>
+                <span>{:L('进入长期观察专题，持续查看同一主题下的动态、判断和沉淀')}</span>
             </a>
             <a class="aw-mobile-quick-card" href="{:url('question/index')}">
                 <strong>{:L('FAQ')}</strong>
@@ -223,6 +275,15 @@
                 <strong>{:L('帮助')}</strong>
                 <span>{:L('适合查看术语、规则和入门说明')}</span>
             </a>
+        </div>
+        <div class="aw-mobile-hero-badges">
+            <span class="aw-mobile-hero-badge">{:L('开放检索')}</span>
+            <span class="aw-mobile-hero-badge">{:L('长期归档')}</span>
+            <span class="aw-mobile-hero-badge">{:L('保留判断')}</span>
+        </div>
+        <div class="aw-mobile-hero-panel">
+            <strong>{:L('让真正有价值的思想被看见')}</strong>
+            <p>{:L('不做博眼球的碎片流，把问题、观察、综述和知识章节组织成可以持续追踪的公开知识系统。')}</p>
         </div>
     </section>
     {if !empty($search_keywords)}
@@ -269,10 +330,10 @@
                 <strong>{:L('先看脉络、分歧和阶段结论')}</strong>
                 <p>{:L('适合做长期沉淀和系统理解。')}</p>
             </a>
-            <a href="{:url('article/index',['type'=>'fragment'])}" data-pjax="pageMain">
+            <a href="{:url('feature/index')}" data-pjax="pageMain">
                 <small>{:L('观察')}</small>
-                <strong>{:L('先看快速判断和当下观察')}</strong>
-                <p>{:L('适合保留思考现场和形成连续输出。')}</p>
+                <strong>{:L('先看长期观察专题和阶段判断')}</strong>
+                <p>{:L('适合围绕同一主题持续追踪变化、判断和后续沉淀。')}</p>
             </a>
             <a href="{:url('question/index')}" data-pjax="pageMain">
                 <small>{:L('FAQ')}</small>

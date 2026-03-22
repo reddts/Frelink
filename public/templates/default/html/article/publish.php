@@ -1,8 +1,8 @@
 {extend name="$theme_block" /}
 {block name="style"}
 <link rel="stylesheet" href="{$cdnUrl}/static/libs/select2/css/select2.css?v={$version|default='1.0.0'}">
-<script src="{$cdnUrl}/static/libs/select2/js/select2.full.js?v={$version|default='1.0.0'}""></script>
-<script src="{$cdnUrl}/static/libs/select2/js/i18n/zh-CN.js?v={$version|default='1.0.0'}""></script>
+<script src="{$cdnUrl}/static/libs/select2/js/select2.full.js?v={$version|default='1.0.0'}"></script>
+<script src="{$cdnUrl}/static/libs/select2/js/i18n/zh-CN.js?v={$version|default='1.0.0'}"></script>
 <style>
     .select2-container--default .select2-selection--multiple .select2-selection__clear{margin: 0 !important;}
     .select2-container--default .select2-selection--multiple {
@@ -178,19 +178,19 @@
                         {:token_field()}
                         <div class="mb-3">
                             <h4 class="mb-2">{:L('新建知识内容')}</h4>
-                            <p class="text-muted mb-3">{:L('不再只是写“文章”，而是明确选择你要沉淀的知识形态。')}</p>
+                            <p class="text-muted mb-3">{:L('先确定这条内容更像综述、观察、帮助还是热点解释，再决定怎么写。')}</p>
                             <div class="aw-type-guide">
                                 <div class="aw-type-guide-item">
-                                    <strong>{:L('综述')}</strong>
-                                    <span>{:L('整理资料脉络、分歧和阶段性结论。')}</span>
+                                    <strong>{:frelink_content_label('research')}</strong>
+                                    <span>{:frelink_content_description('research')}</span>
                                 </div>
                                 <div class="aw-type-guide-item">
-                                    <strong>{:L('观察')}</strong>
-                                    <span>{:L('记录判断、线索和仍在变化中的问题。')}</span>
+                                    <strong>{:frelink_content_label('fragment')}</strong>
+                                    <span>{:frelink_content_description('fragment')}</span>
                                 </div>
                                 <div class="aw-type-guide-item">
-                                    <strong>{:L('帮助')}</strong>
-                                    <span>{:L('沉淀明确答案、术语解释和可复用方法。')}</span>
+                                    <strong>{:frelink_content_label('faq')}</strong>
+                                    <span>{:frelink_content_description('faq')}</span>
                                 </div>
                             </div>
                         </div>
@@ -208,7 +208,7 @@
                             {if($column_list)}
                             <div class="flex-fill ml-2">
                                 <select class="aw-form-control" name="column_id">
-                                    <option value="0">{:L('选择专栏')}</option>
+                                    <option value="0">{:L('选择内容合集')}</option>
                                     {volist name="column_list" id="v"}
                                     <option value="{$v.id}" {if isset($article_info['column_id']) && $v['id']==$article_info['column_id']}selected{/if}>{$v.name}</option>
                                     {/volist}
@@ -234,7 +234,7 @@
                             {/if}
                         </div>
                         <div class="form-group mb-3">
-                            <label>{:L('文章封面')}:<span class="font-8 text-danger">（* {:L('建议图片尺寸')}178*100{:L('的倍数')}）</span></label>
+                            <label>{:L('内容封面')}:<span class="font-8 text-danger">（* {:L('建议图片尺寸')}178*100{:L('的倍数')}）</span></label>
                             <div class="article-cover-box">
                                 <div id="fileList_cover" class="uploader-list"></div>
                                 <div id="filePicker_cover" style="margin: 0 auto">
@@ -246,7 +246,7 @@
                             </div>
                         </div>
                         <div class="form-group mb-3">
-                            <label class="mb-3">{:L('添加话题')}</label>
+                            <label class="mb-3">{:L('绑定主题')}</label>
                             <div class="topic">
                                 <div class="tip-list">
                                     <label for="topics" class="d-block w-100">

@@ -30,7 +30,7 @@
                 {/if}
                 {if $user_id && $user_id==$column_info.uid}
                 <label>
-                    <a href="{:url('article/publish',['column_id'=>$column_info.id])}" target="_blank" class="px-4 btn btn-success btn-sm" >{:L('发布文章')}</a>
+                    <a href="{:frelink_publish_url('article',['column_id'=>$column_info.id])}" target="_blank" rel="noopener noreferrer" class="px-4 btn btn-success btn-sm" >{:L('发布文章')}</a>
                 </label>
                 {/if}
                 {if $user_id && $user_id!=$column_info.uid}

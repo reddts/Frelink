@@ -186,18 +186,55 @@ if (! function_exists('frelink_article_type_options')) {
     function frelink_article_type_options(bool $includeAll = false): array
     {
         $options = [
+            'research' => frelink_content_label('research'),
+            'fragment' => frelink_content_label('fragment'),
+            'tutorial' => frelink_content_label('tutorial'),
+            'faq' => frelink_content_label('faq'),
+            'normal' => frelink_content_label('normal'),
+        ];
+
+        if ($includeAll) {
+            return ['all' => frelink_content_label('all')] + $options;
+        }
+
+        return $options;
+    }
+}
+
+if (! function_exists('frelink_content_label')) {
+    function frelink_content_label(string $type): string
+    {
+        $map = [
+            'question' => L('FAQ'),
+            'faq_entry' => L('FAQ 条目'),
             'research' => L('综述'),
             'fragment' => L('观察'),
             'tutorial' => L('方法'),
             'faq' => L('帮助'),
             'normal' => L('热点解释'),
+            'all' => L('全部内容'),
+            'topic' => L('主题'),
+            'knowledge_map' => L('知识地图'),
         ];
 
-        if ($includeAll) {
-            return ['all' => L('全部内容')] + $options;
-        }
+        return $map[$type] ?? $type;
+    }
+}
 
-        return $options;
+if (! function_exists('frelink_content_description')) {
+    function frelink_content_description(string $type): string
+    {
+        $map = [
+            'question' => L('这里承接高频问题、明确答案和可复用解释。它不再是社区问答流，而是公开知识系统里的答案入口。'),
+            'research' => L('这里沉淀的是系统化综述，用来整理脉络、分歧和阶段性结论。'),
+            'fragment' => L('这里沉淀的是观察记录，用来保留判断、线索和仍在形成中的洞见。'),
+            'faq' => L('这里沉淀的是帮助内容，用来复用明确答案、规则和术语解释。'),
+            'tutorial' => L('这里沉淀的是方法内容，用来输出步骤、实践和可执行方案。'),
+            'normal' => L('这里沉淀的是热点解释，用来回答“这件事为什么重要”。'),
+            'all' => L('首页会混排综述、观察、FAQ 和帮助条目，帮助用户先找到合适的知识形态。'),
+        ];
+
+        return $map[$type] ?? ($map['normal'] ?? '');
     }
 }
 
@@ -224,17 +261,25 @@ if (! function_exists('frelink_nav_label')) {
     {
         $map = [
             '首页' => L('首页'),
-            '主题' => L('主题'),
-            '问题' => L('FAQ'),
-            '文章' => L('综述'),
-            '专题' => L('观察'),
-            '帮助中心' => L('帮助'),
-            '帮助' => L('帮助'),
+            '主题' => frelink_content_label('topic'),
+            '问题' => frelink_content_label('question'),
+            '文章' => frelink_content_label('research'),
+            '专题' => frelink_content_label('fragment'),
+            '帮助中心' => frelink_content_label('faq'),
+            '帮助' => frelink_content_label('faq'),
             '专栏' => L('专栏'),
             '创作者' => L('创作者'),
         ];
 
         return $map[$label] ?? $label;
+    }
+}
+
+if (! function_exists('frelink_publish_url')) {
+    function frelink_publish_url(string $itemType = 'question', array $vars = []): string
+    {
+        $itemType = $itemType === 'article' ? 'article' : 'question';
+        return (string) get_url($itemType . '/publish', $vars, '', false);
     }
 }
 

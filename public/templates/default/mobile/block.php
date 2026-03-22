@@ -77,7 +77,7 @@
                         </a>
                     </div>
                 </div>
-                <a class="aui-header-right" href="{:url('creator/index')}" data-pjax="pageMain"><i class="iconfont icon-yonghu font-15"></i></a>
+                <a class="aui-header-right" href="{:url('creator/index')}" data-pjax="pageMain" aria-label="{:L('个人中心')}"><i class="iconfont icon-yonghu font-15"></i></a>
             </header>
             {/block}
 
@@ -91,15 +91,15 @@
         {if $user_id}
         <script type="text/html" class="publishBtnBox">
             <div class="row text-center mt-3">
-                <div class="col-3 mb-4">
-                    <a href="{:url('question/publish')}" class="text-muted">
+                <div class="col-6 mb-4">
+                    <a href="{:frelink_publish_url('question')}" class="text-muted">
                         <i class="icon-help-with-circle font-14"></i>
-                        <span class="d-block font-9 mt-1">{:L('FAQ')}</span>
+                        <span class="d-block font-9 mt-1">{:frelink_content_label('faq_entry')}</span>
                     </a>
                 </div>
 
-                <div class="col-3 mb-4">
-                    <a href="{:url('article/publish')}" class="text-muted">
+                <div class="col-6 mb-4">
+                    <a href="{:frelink_publish_url('article')}" class="text-muted">
                         <i class="far fa-file-alt font-14"></i>
                         <span class="d-block font-9 mt-1">{:L('综述 / 观察')}</span>
                     </a>
@@ -115,21 +115,21 @@
             </div>
         </script>
         {/if}
-        <footer class="aui-footer row-before">
-            <div class="aui-footer-list {if $thisController=='index' && $thisAction=='index'}active{/if}">
-                <a href="{$baseUrl}"><i class="iconfont icon-faxian"></i><p class="mt-1">{:L('首页')}</p></a>
+        <footer class="aui-footer row-before" aria-label="{:L('主导航')}">
+            <div class="aui-footer-list {if $thisController=='index'}active{/if}">
+                <a href="{$baseUrl}"><i class="iconfont icon-faxian"></i><p class="mt-1">{:frelink_nav_label('首页')}</p></a>
             </div>
-            <div class="aui-footer-list {if $thisController=='topic' && $thisAction=='index'}active{/if}">
-                <a href="{:url('topic/index')}" data-pjax="pageMain"><i class="iconfont icon-huati1"></i><p class="mt-1">主题</p></a>
+            <div class="aui-footer-list {if $thisController=='topic'}active{/if}">
+                <a href="{:url('topic/index')}" data-pjax="pageMain"><i class="iconfont icon-huati1"></i><p class="mt-1">{:frelink_nav_label('主题')}</p></a>
             </div>
-            <div class="aui-footer-list position-relative publishAction justify-content-center">
-                <div class="publishBtn" onclick="{if $user_id}AWS_MOBILE.api.dialog('{:L(\'发布\')}',$('.publishBtnBox').html()){else/}AWS_MOBILE.User.login(){/if}"><i class="fa fa-plus "></i></div>
+            <div class="aui-footer-list {if $thisController=='question'}active{/if}">
+                <a href="{:url('question/index')}" data-pjax="pageMain"><i class="iconfont icon-help-with-circle"></i><p class="mt-1">{:frelink_nav_label('问题')}</p></a>
             </div>
-            <div class="aui-footer-list {if $thisController=='question' && $thisAction=='index'}active{/if}">
-                <a href="{:url('question/index')}" data-pjax="pageMain"><i class="iconfont icon-help-with-circle"></i><p class="mt-1">{:L('FAQ')}</p></a>
+            <div class="aui-footer-list {if $thisController=='article'}active{/if}">
+                <a href="{:url('article/index')}" data-pjax="pageMain"><i class="far fa-file-alt"></i><p class="mt-1">{:frelink_nav_label('文章')}</p></a>
             </div>
-            <div class="aui-footer-list {if $thisController=='article' && $thisAction=='index'}active{/if}">
-                <a href="{:url('article/index')}" data-pjax="pageMain"><i class="far fa-file-alt"></i><p class="mt-1">{:L('综述')}</p></a>
+            <div class="aui-footer-list {if $thisController=='help'}active{/if}">
+                <a href="{:url('help/index')}" data-pjax="pageMain"><i class="fa fa-book"></i><p class="mt-1">{:frelink_nav_label('帮助中心')}</p></a>
             </div>
         </footer>
         {/block}

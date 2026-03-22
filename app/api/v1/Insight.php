@@ -7,9 +7,9 @@ use app\model\Insight as InsightModel;
 
 class Insight extends Api
 {
-    protected $needLogin = ['summary', 'keywords', 'content_trends', 'topic_trends', 'opportunities', 'recommendations', 'publish_assist'];
+    protected $needLogin = ['summary', 'keywords', 'content_trends', 'topic_trends', 'opportunities', 'recommendations', 'publish_assist', 'weekly_execution'];
     protected $beforeActionList = [
-        'authorizeInsightAccess' => ['only' => 'summary,keywords,content_trends,topic_trends,opportunities,recommendations,publish_assist'],
+        'authorizeInsightAccess' => ['only' => 'summary,keywords,content_trends,topic_trends,opportunities,recommendations,publish_assist,weekly_execution'],
     ];
 
     public function track()
@@ -73,6 +73,24 @@ class Insight extends Api
         $limit = intval($this->request->param('limit', 6));
         $itemType = $this->request->param('item_type', 'question', 'trim');
         $this->apiResult(InsightModel::getPublishAssist($itemType, $days, $limit));
+    }
+
+    public function weekly_execution()
+    {
+        $days = intval($this->request->param('days', 7));
+        $limit = intval($this->request->param('limit', 3));
+        $format = strtolower(trim((string)$this->request->param('format', 'json')));
+        $plan = InsightModel::getWeeklyExecutionPlan($days, $limit);
+
+        if ($format === 'markdown') {
+            return response(
+                InsightModel::renderWeeklyExecutionBrief($plan),
+                200,
+                ['Content-Type' => 'text/plain; charset=utf-8']
+            );
+        }
+
+        $this->apiResult($plan);
     }
 
     protected function authorizeInsightAccess(): void

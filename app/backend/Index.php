@@ -78,7 +78,11 @@ class Index extends Backend
         $archive = HelpModel::getUnarchivedContentSummary(6);
         $archiveBacklog = HelpModel::getArchiveChapterBacklogSummary(8);
         $coldStart = $this->getColdStartPayload();
-        $weeklyExecution = $this->buildWeeklyExecutionList($coldStart, $insight, $insightDays);
+        $weeklyPlan = InsightModel::getWeeklyExecutionPlan($insightDays, 3);
+        if (!empty($weeklyPlan['cold_start']) && is_array($weeklyPlan['cold_start'])) {
+            $coldStart = array_merge($coldStart, $weeklyPlan['cold_start']);
+        }
+        $weeklyExecution = $weeklyPlan['tasks'] ?? [];
 
         $this->view->assign('sysInfo',$sys_info);
         $this->view->assign('usersInfo', $users_info);
@@ -128,47 +132,14 @@ class Index extends Backend
     {
         $days = InsightModel::normalizeDays(intval($this->request->param('days', 7)));
         $format = strtolower(trim((string)$this->request->param('format', 'markdown')));
-        $insight = $this->getInsightPayload($days, false);
-        $coldStart = $this->getColdStartPayload();
-        $weeklyExecution = $this->buildWeeklyExecutionList($coldStart, $insight, $days);
+        $plan = InsightModel::getWeeklyExecutionPlan($days, 3);
 
         if ($format === 'json') {
-            return json([
-                'window_days' => $days,
-                'generated_at' => date('Y-m-d H:i:s'),
-                'cold_start' => [
-                    'overall_progress' => $coldStart['overall_progress'] ?? 0,
-                    'completed_targets' => $coldStart['completed_targets'] ?? 0,
-                    'target_total' => $coldStart['target_total'] ?? 0,
-                    'recommendations' => $coldStart['recommendations'] ?? [],
-                ],
-                'weekly_execution' => $weeklyExecution,
-            ]);
-        }
-
-        $lines = [];
-        $lines[] = 'Frelink 本周执行清单';
-        $lines[] = '统计窗口：最近 ' . $days . ' 天';
-        $lines[] = '冷启动进度：' . intval($coldStart['overall_progress'] ?? 0) . '%'
-            . '，已达标 ' . intval($coldStart['completed_targets'] ?? 0)
-            . '/' . intval($coldStart['target_total'] ?? 0);
-
-        if (!empty($weeklyExecution)) {
-            $lines[] = '';
-            $lines[] = '本周建议优先补这三项：';
-            foreach ($weeklyExecution as $index => $item) {
-                $lines[] = ($index + 1) . '. [' . $item['label'] . '] ' . $item['title'];
-                $lines[] = '   关键词：' . ($item['keyword'] ?: '-');
-                $lines[] = '   原因：' . ($item['reason'] ?: '-');
-                $lines[] = '   动作：' . $item['primary_label'] . ' / ' . $item['secondary_label'];
-            }
-        } else {
-            $lines[] = '';
-            $lines[] = '当前还没有形成明确的本周执行清单。';
+            return json($plan);
         }
 
         return response(
-            implode(PHP_EOL, $lines),
+            InsightModel::renderWeeklyExecutionBrief($plan),
             200,
             ['Content-Type' => 'text/plain; charset=utf-8']
         );
@@ -481,88 +452,6 @@ class Index extends Backend
                 'help' => $recentHelp,
             ],
         ];
-    }
-
-    protected function buildWeeklyExecutionList(array $coldStart, array $insight, int $days): array
-    {
-        $articleAssist = InsightModel::getPublishAssist('article', $days, 8);
-        $questionAssist = InsightModel::getPublishAssist('question', $days, 8);
-        $typeIdeas = [];
-        foreach (($articleAssist['type_ideas'] ?? []) as $item) {
-            $typeIdeas[$item['type']] = $item;
-        }
-        $questionIdeas = $questionAssist['title_ideas'] ?? [];
-
-        $tasks = [];
-        foreach (($coldStart['recommendations'] ?? []) as $recommendation) {
-            $key = $recommendation['key'] ?? '';
-            if ($key === 'chapter') {
-                continue;
-            }
-
-            if ($key === 'faq') {
-                $idea = $questionIdeas[0] ?? null;
-                if (!$idea) {
-                    continue;
-                }
-                $tasks[] = [
-                    'label' => 'FAQ',
-                    'title' => $idea['title'],
-                    'keyword' => $idea['keyword'] ?? '',
-                    'reason' => ($idea['reason'] ?? '') ?: ($recommendation['action'] ?? ''),
-                    'primary_label' => '去补 FAQ',
-                    'primary_url' => get_url('question/publish'),
-                    'secondary_label' => '查看 FAQ 列表',
-                    'secondary_url' => get_url('question/index'),
-                ];
-                continue;
-            }
-
-            $preferredTypes = match ($key) {
-                'research' => ['research', 'normal'],
-                'fragment' => ['fragment'],
-                'help' => ['faq', 'tutorial'],
-                default => [],
-            };
-
-            $idea = null;
-            foreach ($preferredTypes as $type) {
-                if (!empty($typeIdeas[$type])) {
-                    $idea = $typeIdeas[$type];
-                    break;
-                }
-            }
-            if (!$idea) {
-                continue;
-            }
-
-            $tasks[] = [
-                'label' => $idea['label'] ?? ($recommendation['label'] ?? ''),
-                'title' => $idea['title'] ?? '',
-                'keyword' => $idea['keyword'] ?? '',
-                'reason' => ($idea['reason'] ?? '') ?: ($recommendation['action'] ?? ''),
-                'primary_label' => '去写内容',
-                'primary_url' => get_url('article/publish', ['article_type' => $idea['type'] ?? 'research']),
-                'secondary_label' => '查看现有内容',
-                'secondary_url' => get_url('article/index', ['type' => $idea['type'] ?? 'research']),
-            ];
-        }
-
-        $unique = [];
-        $seenTitles = [];
-        foreach ($tasks as $task) {
-            $title = trim((string)($task['title'] ?? ''));
-            if ($title === '' || isset($seenTitles[$title])) {
-                continue;
-            }
-            $seenTitles[$title] = true;
-            $unique[] = $task;
-            if (count($unique) >= 3) {
-                break;
-            }
-        }
-
-        return $unique;
     }
 
     //后台统计

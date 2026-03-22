@@ -1,6 +1,7 @@
 /.idea
 /.vscode
 *.log
+*.tar.gz
 .env
 /runtime
 /config/app.php

@@ -39,7 +39,7 @@
                                                 <div class="dropdown-menu detail-more-dropdown text-center">
                                                     <span class="arrow"></span>
                                                     {if $verify==1}
-                                                    <a href="{:url('article/publish',['column_id'=>$v.id])}" target="_blank" class="dropdown-item">{:L('发文')}</a>
+                                                    <a href="{:frelink_publish_url('article',['column_id'=>$v.id])}" target="_blank" rel="noopener noreferrer" class="dropdown-item">{:L('发文')}</a>
                                                     {/if}
                                                     <a href="{:url('column/apply',['id'=>$v.id])}" class="dropdown-item">{:L('编辑')}</a>
                                                     <a href="{:url('column/manager',['column_id'=>$v.id])}" class="dropdown-item">{:L('管理')}</a>

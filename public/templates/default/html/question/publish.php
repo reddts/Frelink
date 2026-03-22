@@ -1,8 +1,8 @@
 {extend name="$theme_block" /}
 {block name="style"}
 <link rel="stylesheet" href="{$cdnUrl}/static/libs/select2/css/select2.css?v={$version|default='1.0.0'}">
-<script src="{$cdnUrl}/static/libs/select2/js/select2.full.js?v={$version|default='1.0.0'}""></script>
-<script src="{$cdnUrl}/static/libs/select2/js/i18n/zh-CN.js?v={$version|default='1.0.0'}""></script>
+<script src="{$cdnUrl}/static/libs/select2/js/select2.full.js?v={$version|default='1.0.0'}"></script>
+<script src="{$cdnUrl}/static/libs/select2/js/i18n/zh-CN.js?v={$version|default='1.0.0'}"></script>
 <style>
     .select2-container--default .select2-selection--multiple .select2-selection__clear{margin: 0 !important;}
     .select2-container--default .select2-selection--multiple {
@@ -177,10 +177,10 @@
                         <input type="hidden" name="id" value="{$question_info['id']|default=0}">
                         <div class="mb-3">
                             <h4 class="mb-2">{:L('新建 FAQ 条目')}</h4>
-                            <p class="text-muted mb-3">{:L('这里不再是“提一个问题”，而是明确补充一个可复用、可检索的答案入口。')}</p>
+                            <p class="text-muted mb-3">{:frelink_content_description('question')}</p>
                             <div class="aw-faq-guide">
                                 <div class="aw-faq-guide-item">
-                                    <strong>{:L('高频问题')}</strong>
+                                    <strong>{:L('检索入口')}</strong>
                                     <span>{:L('优先补充用户会反复搜索的问题，而不是偶发讨论。')}</span>
                                 </div>
                                 <div class="aw-faq-guide-item">
@@ -188,7 +188,7 @@
                                     <span>{:L('尽量给出可执行结论，而不是只有模糊观点。')}</span>
                                 </div>
                                 <div class="aw-faq-guide-item">
-                                    <strong>{:L('后续补充')}</strong>
+                                    <strong>{:L('持续补齐')}</strong>
                                     <span>{:L('允许持续补充边界、例外情况和版本变化。')}</span>
                                 </div>
                             </div>
@@ -226,7 +226,7 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label class="mb-3">绑定主题</label>
+                            <label class="mb-3">{:L('绑定主题')}</label>
                             <div class="topic">
                                 <div class="tip-list">
                                     <label for="topics" class="d-block w-100">
@@ -241,7 +241,7 @@
                         <div class="form-group mb-3">
                             <label class="mb-3">{:L('知识归档')}</label>
                             <div class="aw-archive-guide">
-                                <div class="text-muted mb-2">{:L('把高频 FAQ 直接挂到知识章节，后续更容易做专题整理和帮助沉淀。')}</div>
+                                <div class="text-muted mb-2">{:L('把这条 FAQ 直接归到知识章节，后续更容易和综述、观察、帮助内容一起整理。')}</div>
                                 {if !empty($suggested_help_chapters)}
                                 <div class="font-weight-bold font-12 mb-2">{:L('建议归档章节')}</div>
                                 <div class="mb-2">
@@ -313,7 +313,7 @@
                             {if !isset($question_info['id']) && $setting.enable_anonymous=='Y'}
                             <label class="mb-0 text-muted mr-3">
                                 <input value="1" name="is_anonymous" type="checkbox"  {$question_info.is_anonymous ? 'checked' : ''}>
-                                匿名发布
+                                {:L('匿名发布')}
                             </label>
                             {/if}
                             <a href="{:url('page/score')}" target="_blank" ><i class="fa fa-database"></i> {:L(get_setting("score_unit"))}{:L('规则')}</a>
@@ -360,12 +360,12 @@
             {if !empty($publish_insight)}
             <div class="r-box mb-2 aw-publish-insight">
                 <div class="r-title">
-                    <h4>最近 {$publish_insight.window_days} 天可写方向</h4>
+                    <h4>{:L('最近 %s 天可写方向',$publish_insight.window_days)}</h4>
                 </div>
                 <div class="pb-2">
                     {if !empty($publish_insight.top_keywords)}
                     <div class="mb-3">
-                        <div class="font-weight-bold mb-2">最近有人在搜</div>
+                        <div class="font-weight-bold mb-2">{:L('最近有人在搜')}</div>
                         <div>
                             {volist name="publish_insight.top_keywords" id="v"}
                             <span class="insight-chip insight-action js-fill-title" data-title="{$v.keyword|htmlspecialchars}">{$v.keyword} · {$v.search_count}</span>
@@ -375,7 +375,7 @@
                     {/if}
                     {if !empty($publish_insight.title_ideas)}
                     <div class="mb-3">
-                        <div class="font-weight-bold mb-2">建议问题标题</div>
+                        <div class="font-weight-bold mb-2">{:L('建议问题标题')}</div>
                         {volist name="publish_insight.title_ideas" id="v"}
                         <div class="insight-title-idea insight-action js-fill-title" data-title="{$v.title|htmlspecialchars}">
                             <div>{$v.title}</div>
@@ -386,7 +386,7 @@
                     {/if}
                     {if !empty($publish_insight.suggested_topics)}
                     <div>
-                        <div class="font-weight-bold mb-2">建议优先挂载的话题</div>
+                        <div class="font-weight-bold mb-2">{:L('建议优先挂载的话题')}</div>
                         {volist name="publish_insight.suggested_topics" id="v"}
                         <a class="d-block text-primary mb-2" href="{$v.url}" target="_blank">{$v.title}</a>
                         {/volist}
@@ -420,7 +420,7 @@
                     </dl>
                     {if !empty($publish_insight.guidance)}
                     <dl class="text-muted font-9">
-                        <dt>运营建议：</dt>
+                        <dt>{:L('运营建议')}：</dt>
                         {volist name="publish_insight.guidance" id="v"}
                         <dd>{$v}</dd>
                         {/volist}

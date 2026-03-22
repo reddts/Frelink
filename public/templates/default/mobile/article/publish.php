@@ -2,7 +2,7 @@
 {block name="header"}
 <header class="aui-header">
     <div class="aui-header-left"><a href="{$baseUrl}" class="text-muted" data-pjax="pageMain"><i class="fa fa-home font-11"></i></a></div>
-    <div class="aui-header-title font-10">{:L('新建内容')}</div>
+    <div class="aui-header-title font-10">{:L('新建知识内容')}</div>
     <a class="aui-header-right font-10 saveArticle">{:L('发布')}</a>
 </header>
 {/block}
@@ -50,7 +50,7 @@
                 <input type="hidden" name="access_key" value="{$access_key}">
                 <div class="border rounded px-3 py-2 mb-3" style="background:#fbfdff;border-color:#e6edf5 !important;">
                     <div class="font-weight-bold mb-2">{:L('内容类型建议')}</div>
-                    <div class="text-muted font-9">{:L('综述用来整理脉络，观察用来保留判断，帮助用来沉淀可复用答案。')}</div>
+                    <div class="text-muted font-9">{:L('先判断这条内容更像综述、观察、帮助还是热点解释，再决定标题和结构。')}</div>
                 </div>
                 <div class="form-group mb-3">
                     <input id="title" name="title" value="{$article_info.title|default=''}" class="aw-form-control" type="text" placeholder="{:L('输入内容标题')}">
@@ -82,9 +82,9 @@
 
                 {if($column_list)}
                 <div class="form-group">
-                    <label class="mb-3">{:L('文章专栏')}</label>
+                    <label class="mb-3">{:L('内容合集')}</label>
                     <select class="aw-form-control" name="column_id">
-                        <option value="0">{:L('选择专栏')}</option>
+                        <option value="0">{:L('选择内容合集')}</option>
                         {volist name="column_list" id="v"}
                         <option value="{$v.id}" {if isset($article_info['column_id']) && $v['id']==$article_info['column_id']}selected{/if}>{$v.name}</option>
                         {/volist}
@@ -92,7 +92,7 @@
                 </div>
                 {/if}
                 <div class="form-group mb-3">
-                    <label>{:L('文章封面')}:<span class="font-8 text-danger">（* {:L('建议图片尺寸')}178*100{:L('的倍数')}）</span></label>
+                    <label>{:L('内容封面')}:<span class="font-8 text-danger">（* {:L('建议图片尺寸')}178*100{:L('的倍数')}）</span></label>
                     <div class="article-cover-box">
                         <div id="fileList_cover" class="uploader-list"></div>
                         <div id="filePicker_cover" style="margin: 0 auto">
@@ -105,7 +105,7 @@
                 </div>
                 <div class="form-group mb-3">
                     <label class="mb-3 w-100">
-                        {:L('文章话题')}
+                        {:L('绑定主题')}
                         <a href="javascript:;" class="text-primary font-weight-bold aw-ajax-open float-right" data-url="{:url('topic/select',['item_type'=>'article','item_id'=>isset($article_info['id']) ? $article_info['id'] : 0])}">
                             <i class="icon-add"></i>{:L('添加话题')}
                         </a>
@@ -190,7 +190,7 @@
                 <div class="mt-4 clearfix">
                     {if !isset($article_info['id']) && $setting.enable_anonymous=='Y'}
                     <label class="mb-0 text-muted mr-3">
-                        <input value="1" name="is_anonymous" type="checkbox"  {$article_info.is_anonymous ? 'checked' : ''}> {:L('提交')}匿名提问
+                        <input value="1" name="is_anonymous" type="checkbox"  {$article_info.is_anonymous ? 'checked' : ''}> {:L('匿名发布')}
                     </label>
                     {/if}
                 </div>

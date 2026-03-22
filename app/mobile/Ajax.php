@@ -18,6 +18,7 @@ use app\model\Answer;
 use app\model\Article as ArticleModel;
 use app\model\Column as ColumnModel;
 use app\model\Draft;
+use app\model\Feature as FeatureModel;
 use app\model\PostRelation;
 use app\model\Question as QuestionModel;
 use app\model\QuestionInvite;
@@ -39,8 +40,11 @@ class Ajax extends Frontend
         $sort = $this->request->post('sort','new');
         $category_id = $this->request->post('category_id',0,'intval');
         $topic_ids = $this->request->post('topic_ids',0);
+        $featureId = $this->request->post('feature_id', 0, 'intval');
         $articleType = frelink_normalize_article_type($this->request->post('article_type', 'all', 'sqlFilter'), 'all');
-        if ($item_type === 'article') {
+        if ($featureId > 0) {
+            $data = FeatureModel::getRelationFeatureList($this->user_id, $featureId, $sort, $this->request->param('page',1), 0, 'pageMain');
+        } elseif ($item_type === 'article') {
             $data = ArticleModel::getArticleList($this->user_id, $sort, $topic_ids, $category_id, $this->request->param('page',1), 0, 0, 'pageMain', $articleType);
         } else {
             $data = PostRelation::getPostRelationList($this->user_id,$item_type,$sort,$topic_ids,$category_id,$this->request->param('page',1));

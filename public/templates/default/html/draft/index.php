@@ -48,7 +48,7 @@
 
                             <div class="aw-draft-action font-9 text-muted position-absolute" style="bottom: 1rem;right: 0">
                                 <a href="javascript:;" class="text-color-info mr-2 aw-ajax-get" data-url="{:url('draft/delete',['type'=>'question','item_id'=>$v['item_id']])}" data-confirm="{:L('是否确认删除草稿')}?">{:L('删除草稿')}</a>
-                                <a href="{:url('question/publish',['id'=>$v['item_id']])}" class="text-color-info">{:L('编辑')}</a>
+                                <a href="{:frelink_publish_url('question',['id'=>$v['item_id']])}" class="text-color-info">{:L('编辑')}</a>
                             </div>
                         </dl>
                         {/case}
@@ -81,7 +81,7 @@
                                 <span style="font-size:12px;"> | {:date_friendly($v['create_time'])}</span>
                                 <div class="aw-draft-action d-inline-block ml-3">
                                     <a style="font-size:12px;" href="javascript:;" class="text-color-info mr-2 aw-ajax-get" data-url="{:url('draft/delete',['type'=>'article','item_id'=>$v['item_id']])}" data-confirm="{:L('是否确认删除草稿')"><i class="icon-delete"></i>{:L('删除草稿')}</a>
-                                    <a style="font-size:12px;" href="{:url('article/publish',['id'=>$v['item_id']])}" class="text-color-info"><i class="icon-edit"></i>{:L('编辑')}</a>
+                                    <a style="font-size:12px;" href="{:frelink_publish_url('article',['id'=>$v['item_id']])}" class="text-color-info"><i class="icon-edit"></i>{:L('编辑')}</a>
                                 </div>
                             </div>
                             </dd>
