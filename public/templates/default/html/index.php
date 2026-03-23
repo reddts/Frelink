@@ -439,6 +439,10 @@
         z-index: 3;
         margin-top: 0;
     }
+    .aw-home-main-shell .aw-left {
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
     .aw-home-primary-column {
         padding-top: 10px;
         border-radius: 24px;

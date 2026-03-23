@@ -2,6 +2,36 @@
 
 ## 2026-03-23
 
+### 里程碑：M1 修正首页主内容区宽度未拉满
+
+- 已确认首页宽度问题的根因不在栅格类，而在全局样式对 `.aw-left` 的固定限制：
+  - `max-width: 73.6%`
+  - `flex: 0 0 73.6%`
+- 首页模板现已增加更强的页面级覆盖规则：
+  - `.aw-home-main-shell .aw-left { max-width: 100% !important; flex: 0 0 100% !important; }`
+- 这样首页在移除右侧整列后，主内容区会真正吃满整行，不再留下旧侧栏宽度的空白
+
+### 影响范围
+
+- 首页模板：
+  - [public/templates/default/html/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/index.php)
+- 文档：
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 远程已定向同步：
+  - `public/templates/default/html/index.php`
+- 远程已执行：
+  - `sudo php think clear`
+  - `php -l public/templates/default/html/index.php`
+- 线上首页 HTML 已确认输出：
+  - `.aw-home-main-shell .aw-left`
+  - `max-width: 100% !important`
+  - `flex: 0 0 100% !important`
+  - `col-md-12 bg-white mb-2 aw-home-primary-column`
+
 ### 里程碑：M1 首页右侧整列下线
 
 - 首页右侧整列已整体移除，主内容列改为满宽布局
