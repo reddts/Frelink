@@ -128,8 +128,8 @@
             <div class="aui-footer-list {if $thisController=='article'}active{/if}">
                 <a href="{:url('article/index')}" data-pjax="pageMain"><i class="far fa-file-alt"></i><p class="mt-1">{:frelink_nav_label('文章')}</p></a>
             </div>
-            <div class="aui-footer-list {if $thisController=='help'}active{/if}">
-                <a href="{:url('help/index')}" data-pjax="pageMain"><i class="fa fa-book"></i><p class="mt-1">{:frelink_nav_label('帮助中心')}</p></a>
+            <div class="aui-footer-list {if $thisController=='feature'}active{/if}">
+                <a href="{:url('feature/index')}" data-pjax="pageMain"><i class="fa fa-bookmark-o"></i><p class="mt-1">{:frelink_nav_label('专题')}</p></a>
             </div>
         </footer>
         {/block}

@@ -2,6 +2,36 @@
 
 ## 2026-03-23
 
+### 里程碑：M1 移动端底部导航收敛到知识消费主路径
+
+- 移动端底部导航已进一步收敛为公开知识消费路径：
+  - `首页 / 主题 / FAQ / 综述 / 观察`
+- 底部最后一项不再继续占用 `帮助` 入口，改为直达 `观察专题`
+- 移动端主导航现在和首页四个主入口的内容结构更一致，优先承接 `FAQ / 综述 / 观察 / 主题`
+- `优化计划.md` 已同步勾选：
+  - `移动端底部导航收敛为内容消费路径，不保留与知识消费弱相关入口`
+
+### 影响范围
+
+- 移动端公共模板：
+  - [public/templates/default/mobile/block.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/block.php)
+- 文档：
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地部署配置检查已通过：
+  - `bash scripts/deploy.sh show-config`
+- 当前环境无本地 `php` 可执行文件，未能执行本地 `php -l`
+- 远程已定向同步：
+  - `public/templates/default/mobile/block.php`
+- 远程已执行：
+  - `sudo php think clear`
+  - `php -l public/templates/default/mobile/block.php`
+- 线上移动 UA 页面验证已通过：
+  - `https://www.frelink.top/` 返回 `HTTP 200`
+  - 首页移动端 HTML 已确认底部导航输出 `FAQ / 综述 / 观察`
+
 ### 里程碑：M1 默认导航收敛到知识消费主路径
 
 - 桌面端默认一级导航已按知识消费路径重排为：
