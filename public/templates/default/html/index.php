@@ -477,6 +477,64 @@
         color: #64748b !important;
         line-height: 1.8;
     }
+    .aw-home-slow-updates {
+        margin-top: 14px;
+        padding: 18px 24px 8px;
+        border: 1px solid #e7eef7;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
+    }
+    .aw-home-slow-updates-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 12px;
+    }
+    .aw-home-slow-updates-head h4 {
+        margin: 0 0 4px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .aw-home-slow-updates-head p {
+        margin: 0;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+    .aw-home-slow-updates .r-box {
+        margin-bottom: 0 !important;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+    .aw-home-slow-updates .r-title {
+        display: none;
+    }
+    .aw-home-slow-updates .hot-list {
+        padding: 0;
+    }
+    .aw-home-slow-updates .hot-list dl {
+        margin-bottom: 0;
+        padding: 14px 0;
+        border-color: #eef2f7 !important;
+    }
+    .aw-home-slow-updates .hot-list dl:last-child {
+        border-bottom: 0 !important;
+        padding-bottom: 4px;
+    }
+    .aw-home-slow-updates .hot-list dt a {
+        color: #ef4444 !important;
+        font-weight: 700;
+        line-height: 1.6;
+    }
+    .aw-home-slow-updates .hot-list dd {
+        color: #64748b !important;
+        line-height: 1.8;
+    }
     @media (max-width: 991.98px) {
         .aw-home-hero {
             grid-template-columns: 1fr;
@@ -770,16 +828,8 @@
             {:widget('sidebar/writeNav')}
             {/if}
 
-            {if get_theme_setting('home.sidebar_show_items') && in_array('announce',get_theme_setting('home.sidebar_show_items'))}
-            {:widget('sidebar/announce')}
-            {/if}
-
             {if get_theme_setting('home.sidebar_show_items') && in_array('focus_topic',get_theme_setting('home.sidebar_show_items'))}
             {:widget('sidebar/focusTopic',['uid'=>$user_id])}
-            {/if}
-
-            {if get_theme_setting('home.sidebar_show_items') && in_array('hot_topic',get_theme_setting('home.sidebar_show_items'))}
-            {:widget('sidebar/hotTopic',['uid'=>$user_id])}
             {/if}
 
             {if get_theme_setting('home.sidebar_show_items') && in_array('column',get_theme_setting('home.sidebar_show_items'))}
@@ -799,6 +849,19 @@
         </div>
     </div>
 </div>
+{if get_theme_setting('home.sidebar_show_items') && in_array('announce',get_theme_setting('home.sidebar_show_items'))}
+<div class="container">
+    <div class="aw-home-slow-updates">
+        <div class="aw-home-slow-updates-head">
+            <div>
+                <h4>{:L('公告与更新')}</h4>
+                <p>{:L('这部分属于低频信息，放在首页底部，方便集中查看站点公告、规则调整和阶段更新。')}</p>
+            </div>
+        </div>
+        {:widget('sidebar/announce')}
+    </div>
+</div>
+{/if}
 
 <!--友情链接小部件-->
 {:widget('common/links')}

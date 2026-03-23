@@ -2382,7 +2382,8 @@ return[
     '已发布 %s 篇' => '%s published',
     '最近一篇：%s' => 'Latest: %s',
     '去看综述' => 'Open research',
-    '去看观察' => 'Open insights'
+    '去看观察' => 'Open insights',
+    '这部分属于低频信息，放在首页底部，方便集中查看站点公告、规则调整和阶段更新。' => 'This section is for low-frequency information and stays at the bottom of the homepage for site notices, rule changes, and milestone updates.'
     ,'公开知识系统' => 'Open knowledge system'
     ,'内容不是越多越好' => 'More content is not always better'
 ];

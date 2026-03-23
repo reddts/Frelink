@@ -2,6 +2,34 @@
 
 ## 2026-03-23
 
+### 里程碑：M1 首页信息层级收口
+
+- 首页主列已经保留唯一一组 `核心主题` 卡片，不再与右侧侧栏重复展示同一组主题
+- `公告与更新` 已从首页右侧高频区域下沉到页面底部，转为低频信息区
+- 首页右侧侧栏现在优先保留高频浏览与分流能力，慢更新内容不再抢占主阅读注意力
+
+### 影响范围
+
+- 首页模板：
+  - [public/templates/default/html/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/index.php)
+- 语言：
+  - [app/lang/en-us.php](/mnt/f/workwww/knowlege-github/app/lang/en-us.php)
+- 文档：
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 远程已定向同步：
+  - `public/templates/default/html/index.php`
+  - `app/lang/en-us.php`
+- 远程已执行：
+  - `sudo php think clear`
+  - `php -l public/templates/default/html/index.php`
+- 线上首页 HTML 已确认：
+  - `核心主题` 仅保留主列一处
+  - `公告与更新` 已出现在首页底部低频区
+
 ### 里程碑：M1 综述与观察聚合入口前置
 
 - 文章总入口已新增 `综述 / 观察` 双入口聚合卡，前置站点的两条主内容生产线
