@@ -10,7 +10,7 @@ class Feature extends Frontend
     {
         $data = FeatureModel::getFeatureList();
         $this->assign($data);
-        $this->TDK('观察专题 - 长期主题观察');
+        $this->TDK(L('观察专题') . ' - ' . L('长期主题观察'));
         return $this->fetch();
     }
 
@@ -35,7 +35,7 @@ class Feature extends Frontend
             'topics'=>$topics,
             'content_type'=>$contentType
         ]);
-        $this->TDK(($info['title'] ?? '观察专题') . ' - 观察专题');
+        $this->TDK(($info['title'] ?? L('观察专题')) . ' - ' . L('观察专题'));
         return $this->fetch();
     }
 }

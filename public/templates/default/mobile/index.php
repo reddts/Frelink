@@ -288,7 +288,7 @@
     </section>
     {if !empty($search_keywords)}
     <section class="aw-mobile-section">
-        <div class="aw-mobile-section-title">最近有人在搜</div>
+        <div class="aw-mobile-section-title">{:L('最近有人在搜')}</div>
         <div class="aw-mobile-chip-list">
             {volist name="search_keywords" id="item"}
             <a class="aw-mobile-chip" href="{:url('search/index',['q'=>$item['keyword']])}">{$item.keyword}</a>

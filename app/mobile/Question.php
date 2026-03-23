@@ -36,7 +36,7 @@ class Question extends Frontend
             'sort'=> $sort,
             'category'=>$category,
         ]);
-        $this->TDK('FAQ - 答案入口');
+        $this->TDK(L('FAQ') . ' - ' . L('答案入口'));
         return $this->fetch();
     }
 

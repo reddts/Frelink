@@ -2,6 +2,63 @@
 
 ## 2026-03-23
 
+### 里程碑：M1 中英文公开语义回归检查与漏翻修复
+
+- 已完成首页、FAQ、文章、观察、帮助、主题页的中英文抽样回归
+- 修复了一批代码层遗留的公开中文标题与文案：
+  - FAQ 列表标题统一改为 `FAQ - Answer entry`
+  - 文章列表标题统一改为 `Knowledge library`
+  - 观察专题标题统一改为 `Observation track - Long-term topic observation`
+  - 移动端首页 `最近有人在搜` 改为走语言包输出
+- 英文语言包已补齐这一轮回归发现的缺口：
+  - `观察专题`
+  - `长期更新`
+  - `保留判断`
+  - `答案入口`
+  - `知识内容库`
+  - `公开、开放、可检索的知识系统`
+  - `让真正有价值的思想被看见`
+- `优化计划.md` 已同步勾选：
+  - `改造完成后，补一次中文/英文双语回归检查`
+- 本轮回归也确认：英文页剩余中文主要来自站点 SEO 配置、分类名称和内容数据，不属于模板漏翻
+
+### 影响范围
+
+- 前台控制器：
+  - [app/frontend/Feature.php](/mnt/f/workwww/knowlege-github/app/frontend/Feature.php)
+  - [app/frontend/Question.php](/mnt/f/workwww/knowlege-github/app/frontend/Question.php)
+  - [app/frontend/Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php)
+  - [app/mobile/Question.php](/mnt/f/workwww/knowlege-github/app/mobile/Question.php)
+  - [app/mobile/Article.php](/mnt/f/workwww/knowlege-github/app/mobile/Article.php)
+- 模板与语言：
+  - [public/templates/default/mobile/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/index.php)
+  - [app/lang/en-us.php](/mnt/f/workwww/knowlege-github/app/lang/en-us.php)
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 远程已定向同步：
+  - `app/frontend/Feature.php`
+  - `app/frontend/Question.php`
+  - `app/frontend/Article.php`
+  - `app/mobile/Question.php`
+  - `app/mobile/Article.php`
+  - `app/lang/en-us.php`
+  - `public/templates/default/mobile/index.php`
+- 远程已执行：
+  - `sudo php think clear`
+  - `php -l app/frontend/Feature.php`
+  - `php -l app/frontend/Question.php`
+  - `php -l app/frontend/Article.php`
+  - `php -l app/mobile/Question.php`
+  - `php -l app/mobile/Article.php`
+- 线上英文页抽样验证已通过：
+  - `https://www.frelink.top/questions/?lang=en-us` 标题已输出 `FAQ - Answer entry`
+  - `https://www.frelink.top/articles/?lang=en-us` 标题已输出 `Knowledge library`
+  - `https://www.frelink.top/feature/index.html?lang=en-us` 标题已输出 `Observation track - Long-term topic observation`
+  - 移动 UA `https://www.frelink.top/?lang=en-us` 已确认输出 `An open, searchable public knowledge system`、`People recently searched`
+
 ### 里程碑：M1 移动端底部导航收敛到知识消费主路径
 
 - 移动端底部导航已进一步收敛为公开知识消费路径：

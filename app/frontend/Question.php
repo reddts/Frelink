@@ -57,9 +57,9 @@ class Question extends Frontend
             'sort'=> $sort,
             'category'=>$category,
         ]);
-        $this->TDK('FAQ - 答案入口');
-		return $this->fetch();
-	}
+        $this->TDK(L('FAQ') . ' - ' . L('答案入口'));
+        return $this->fetch();
+    }
 
 	/**
 	 * 发起问题/编辑问题

@@ -44,7 +44,7 @@ class Article extends Frontend
                 'article_type_options'=>frelink_article_type_options(true),
             ]
         );
-        $this->TDK(($articleType !== 'all' ? frelink_article_type_label($articleType) . ' - ' : '') . '知识内容库');
+        $this->TDK(($articleType !== 'all' ? frelink_article_type_label($articleType) . ' - ' : '') . L('知识内容库'));
         return $this->fetch();
     }
 

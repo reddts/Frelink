@@ -2352,17 +2352,21 @@ return[
     '已归档内容' => 'Archived content',
     'FAQ 条目' => 'FAQ entries',
     '知识内容' => 'Knowledge content',
+    '知识内容库' => 'Knowledge library',
     '相关主题' => 'Related topics',
     '相关知识章节' => 'Related knowledge chapters',
     '查看知识地图' => 'View knowledge map',
     '当前话题还没有沉淀出明确的知识章节，可先从知识地图继续检索相关资料。' => 'This topic has not yet formed a clear knowledge chapter. Continue exploring related materials from the knowledge map first.',
     '前往知识地图' => 'Go to knowledge map',
+    '观察专题' => 'Observation track',
     '长期主题观察' => 'Long-term topic observation',
     '全部观察专题' => 'All observation tracks',
     '把同一主题下的持续观察、阶段判断和重要资料收成长期更新的观察容器。' => 'Collect ongoing observations, stage judgments, and important materials under the same topic into a long-term observation container.',
     '进入观察专题' => 'Open observation track',
     '继续查看主题、动态与归档内容' => 'Continue with related topics, updates, and archived knowledge',
+    '长期更新' => 'Long-term updates',
     '围绕主题' => 'Topic-centered',
+    '保留判断' => 'Preserve judgment',
     '这个观察专题会持续收录同一主题下的重要动态、代表内容和阶段判断。优先把高价值观察沉淀到这里，再逐步升级成综述或知识章节。' => 'This observation track continuously collects important updates, representative content, and stage judgments under the same topic. Preserve high-value observations here first, then gradually upgrade them into research or knowledge chapters.',
     '按时间查看这个观察专题里的持续更新和新近判断。' => 'Browse ongoing updates and recent judgments in this observation track in chronological order.',
     '优先查看在这个观察专题里更受关注、更容易引发后续讨论的内容。' => 'Prioritize the content in this observation track that receives more attention and is more likely to trigger follow-up discussion.',
@@ -2370,7 +2374,10 @@ return[
     '最佳回复当前只适用于 FAQ 条目，切回 FAQ 或全部内容可查看代表性回答。' => 'Best answers currently apply only to FAQ entries. Switch back to FAQ or All Content to view representative answers.',
     '进入长期观察专题，持续查看同一主题下的动态、判断和沉淀' => 'Open long-term observation tracks to follow updates, judgments, and accumulated materials under the same topic.',
     '先看长期观察专题和阶段判断' => 'Start with long-term observation tracks and stage judgments',
-    '适合围绕同一主题持续追踪变化、判断和后续沉淀。' => 'Best for continuously tracking changes, judgments, and later accumulation around the same topic.'
+    '适合围绕同一主题持续追踪变化、判断和后续沉淀。' => 'Best for continuously tracking changes, judgments, and later accumulation around the same topic.',
+    '答案入口' => 'Answer entry',
+    '公开、开放、可检索的知识系统' => 'An open, searchable public knowledge system',
+    '让真正有价值的思想被看见' => 'Let ideas with real value be seen'
     ,'公开知识系统' => 'Open knowledge system'
     ,'内容不是越多越好' => 'More content is not always better'
 ];
