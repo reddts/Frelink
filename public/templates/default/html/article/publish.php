@@ -119,7 +119,7 @@
     }
     .aw-type-guide {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 12px;
         margin-bottom: 18px;
     }
@@ -139,6 +139,38 @@
         color: #64748b;
         font-size: 13px;
         line-height: 1.6;
+    }
+    .aw-type-hint {
+        margin-top: 10px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    .aw-template-guide {
+        margin-bottom: 18px;
+        padding: 14px;
+        border: 1px solid #e6edf5;
+        border-radius: 14px;
+        background: #fbfdff;
+    }
+    .aw-template-guide-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    .aw-template-guide-head strong {
+        color: #0f172a;
+    }
+    .aw-template-guide-head span {
+        color: #64748b;
+        font-size: 13px;
+    }
+    .aw-template-guide-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
     }
     .aw-archive-guide {
         padding: 14px;
@@ -192,6 +224,22 @@
                                     <strong>{:frelink_content_label('faq')}</strong>
                                     <span>{:frelink_content_description('faq')}</span>
                                 </div>
+                                <div class="aw-type-guide-item">
+                                    <strong>{:frelink_content_label('normal')}</strong>
+                                    <span>{:frelink_content_description('normal')}</span>
+                                </div>
+                            </div>
+                            <div class="aw-template-guide">
+                                <div class="aw-template-guide-head">
+                                    <div>
+                                        <strong>{:L('写作模板')}</strong>
+                                        <span>{:L('先插入结构，再按你的判断补资料、分歧和结论。')}</span>
+                                    </div>
+                                </div>
+                                <div class="aw-template-guide-actions">
+                                    <button type="button" class="btn btn-outline-primary btn-sm js-apply-template" data-type="research">{:L('插入研究综述模板')}</button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm js-apply-template" data-type="fragment">{:L('插入观察记录模板')}</button>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group d-flex mb-3">
@@ -201,9 +249,13 @@
                             <div class="flex-fill ml-2" style="max-width: 160px">
                                 <select class="aw-form-control" id="articleTypeSelect" name="article_type">
                                     {foreach $article_type_options as $typeKey => $label}
-                                    <option value="{$typeKey}" {if isset($article_info['article_type']) && $article_info['article_type']==$typeKey}selected{/if}>{$label}</option>
+                                    <option value="{$typeKey}" data-hint="{:frelink_publish_type_scene($typeKey)}" {if isset($article_info['article_type']) && $article_info['article_type']==$typeKey}selected{/if}>{$label}</option>
                                     {/foreach}
                                 </select>
+                                <div class="aw-type-hint" id="articleTypeHint">
+                                    {:L('你现在选择的是')}<strong class="text-dark ml-1">{:frelink_article_type_label($article_info['article_type'] ?? 'research')}</strong>，
+                                    <span id="articleTypeHintText">{:frelink_publish_type_scene($article_info['article_type'] ?? 'research')}</span>
+                                </div>
                             </div>
                             {if($column_list)}
                             <div class="flex-fill ml-2">
@@ -508,6 +560,57 @@
                 $('#articleTypeSelect').val(type).trigger('change');
             }
         });
+
+        function buildEditorTemplate(type) {
+            if (type === 'fragment') {
+                return [
+                    '<h3>观察</h3><p>这次我重点看到的变化、现象或信号是什么？</p>',
+                    '<h3>触发原因</h3><p>是什么事件、资料或体验触发了这条记录？</p>',
+                    '<h3>暂时判断</h3><p>我当前的判断是什么？它成立的边界在哪里？</p>',
+                    '<h3>后续待补资料</h3><p>下一步还需要补哪些数据、案例或对照材料？</p>'
+                ].join('');
+            }
+
+            return [
+                '<h3>背景</h3><p>这个主题为什么值得现在重新看一遍？它处在什么上下文里？</p>',
+                '<h3>核心问题</h3><p>这篇综述真正要回答的 2-3 个关键问题是什么？</p>',
+                '<h3>资料来源</h3><p>我主要参考了哪些资料？哪些是一手资料，哪些是二手整理？</p>',
+                '<h3>分歧点</h3><p>当前最重要的分歧在哪里？不同观点分别基于什么前提？</p>',
+                '<h3>当前判断</h3><p>基于现有资料，我当前更倾向什么判断？为什么？</p>',
+                '<h3>待验证</h3><p>还有哪些关键问题没有证据，后续要继续跟踪？</p>'
+            ].join('');
+        }
+
+        function setEditorHtml(html) {
+            if (typeof editor !== 'undefined' && editor.txt) {
+                editor.txt.html(html);
+            }
+            $('textarea[name="message"]').val(html);
+        }
+
+        $(document).on('click', '.js-apply-template', function () {
+            let type = $(this).data('type') || 'research';
+            let templateHtml = buildEditorTemplate(type);
+            let currentHtml = '';
+            if (typeof editor !== 'undefined' && editor.txt) {
+                currentHtml = $.trim(editor.txt.html());
+            } else {
+                currentHtml = $.trim($('textarea[name="message"]').val());
+            }
+            let nextHtml = currentHtml ? currentHtml + '<hr>' + templateHtml : templateHtml;
+            $('#articleTypeSelect').val(type === 'fragment' ? 'fragment' : 'research').trigger('change');
+            setEditorHtml(nextHtml);
+            $('html, body').animate({scrollTop: $('.aw-content').offset().top - 120}, 150);
+        });
+
+        function updateArticleTypeHint() {
+            let option = $('#articleTypeSelect option:selected');
+            $('#articleTypeHint strong').text(option.text() || '');
+            $('#articleTypeHintText').text(option.data('hint') || '');
+        }
+
+        $('#articleTypeSelect').on('change', updateArticleTypeHint);
+        updateArticleTypeHint();
 
         // 启用ajax分页查询
         var  option = {

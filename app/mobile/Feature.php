@@ -21,6 +21,8 @@ class Feature extends Frontend
     {
         $token = $this->request->param('token', '', 'trim');
         $sort = $this->request->param('sort', 'new', 'trim');
+        $contentType = $this->request->param('content_type', 'all', 'trim');
+        $contentType = in_array($contentType, ['all', 'question', 'research', 'fragment', 'faq'], true) ? $contentType : 'all';
 
         $info = db('feature')->where(['url_token' => $token])->find();
         if (!$info) {
@@ -32,11 +34,12 @@ class Feature extends Frontend
             ->column('topic_id');
 
         $topics = TopicModel::getTopicByIds($topicIds);
-        $data = FeatureModel::getRelationFeatureList($this->user_id, $info['id'], $sort, 1, 10, 'pageMain');
+        $data = FeatureModel::getRelationFeatureList($this->user_id, $info['id'], $sort, 1, 10, 'pageMain', $contentType);
 
         $this->assign([
             'info' => $info,
             'sort' => $sort,
+            'content_type' => $contentType,
             'topics' => $topics,
             'list' => $data['list'] ?? [],
             'page' => $data['page'] ?? '',

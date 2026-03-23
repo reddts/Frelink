@@ -18,6 +18,8 @@ class Feature extends Frontend
     {
         $token = $this->request->param('token','','trim');
         $sort = $this->request->param('sort','new','trim');
+        $contentType = $this->request->param('content_type', 'all', 'trim');
+        $contentType = in_array($contentType, ['all', 'question', 'research', 'fragment', 'faq'], true) ? $contentType : 'all';
 
         $info = db('feature')->where(['url_token'=>$token])->find();
 
@@ -30,7 +32,8 @@ class Feature extends Frontend
         $this->assign([
             'info'=>$info,
             'sort'=>$sort,
-            'topics'=>$topics
+            'topics'=>$topics,
+            'content_type'=>$contentType
         ]);
         $this->TDK(($info['title'] ?? '观察专题') . ' - 观察专题');
         return $this->fetch();

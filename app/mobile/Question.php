@@ -83,6 +83,7 @@ class Question extends Frontend
         {
             $recommend_post = Topic::getRecommendPost($question_info['id'],'question',array_column($question_info['topics'], 'id'),$this->user_id);
         }
+        $recommend_post = frelink_sort_recommend_posts($recommend_post ?: []);
 
         $summary_source = $question_info['detail'];
         if (!$summary_source) {
@@ -92,10 +93,11 @@ class Question extends Frontend
                 ->value('content');
         }
         $summary_points = frelink_extract_text_points($summary_source);
-        $next_reads = frelink_build_next_reads([
-            ['label' => '相关问题', 'items' => $relation_question ?: []],
-            ['label' => '继续阅读', 'items' => $recommend_post ?: []],
-        ]);
+        $nextReadGroups = array_merge(
+            frelink_recommend_groups($recommend_post),
+            [['label' => '相关问题', 'items' => $relation_question ?: []]]
+        );
+        $next_reads = frelink_build_next_reads($nextReadGroups);
         $archiveChapters = HelpModel::getItemArchiveChapters('question', $question_info['id'], 6);
 
         $this->assign([

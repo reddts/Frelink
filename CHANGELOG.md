@@ -1,5 +1,274 @@
 # Frelink 项目更新日志
 
+## 2026-03-23
+
+### 里程碑：M1 默认导航收敛到知识消费主路径
+
+- 桌面端默认一级导航已按知识消费路径重排为：
+  - `首页 / 主题 / FAQ / 综述 / 观察 / 帮助`
+- `专栏 / 创作者` 不再占用默认一级导航位置，保留为非默认入口
+- 公共 helper 新增统一导航排序逻辑，避免不同导航模板继续各自维护顺序
+- `优化计划.md` 已同步回填：
+  - `默认导航顺序调整为 首页 / 主题 / 问题 / 文章 / 专题 / 帮助中心`
+  - `将 专栏 / 创作者 从默认一级导航中隐藏`
+
+### 影响范围
+
+- 公共函数：
+  - [app/function.inc.php](/mnt/f/workwww/knowlege-github/app/function.inc.php)
+- 桌面导航模板：
+  - [public/templates/default/html/block.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/block.php)
+  - [public/templates/default/html/global/nav.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/global/nav.php)
+- 文档：
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 远程已定向同步：
+  - `app/function.inc.php`
+  - `public/templates/default/html/block.php`
+  - `public/templates/default/html/global/nav.php`
+  - `优化计划.md`
+- 远程已执行：
+  - `sudo php think clear`
+  - `php -l app/function.inc.php`
+- 线上页面验证已通过：
+  - `https://www.frelink.top/` 返回 `HTTP 200`
+  - `https://www.frelink.top/topic/index.html` 返回 `HTTP 200`
+  - `https://www.frelink.top/help/index.html` 返回 `HTTP 200`
+- 线上首页 HTML 已确认默认一级导航输出为 `主题 / FAQ / 综述 / 观察 / 帮助`，未再出现 `专栏 / 创作者`
+
+### 里程碑：M1 专题页按内容类型聚合
+
+- 观察专题页不再只按 `观察动态 / 热门内容 / 最佳回复` 这类来源或热度维度浏览
+- 桌面端与移动端都新增了内容形态筛选：
+  - `全部内容 / FAQ / 综述 / 观察 / 帮助`
+- 数据层已改为按真实内容类型筛选专题下的聚合结果：
+  - `question`
+  - `article_type=research`
+  - `article_type=fragment`
+  - `article_type in (faq, tutorial)`
+- `优化计划.md` 已同步回填 `后续专题页按内容类型做聚合，而不是只按来源聚合`
+
+### 影响范围
+
+- 模型与控制器：
+  - [app/model/Feature.php](/mnt/f/workwww/knowlege-github/app/model/Feature.php)
+  - [app/frontend/Feature.php](/mnt/f/workwww/knowlege-github/app/frontend/Feature.php)
+  - [app/mobile/Feature.php](/mnt/f/workwww/knowlege-github/app/mobile/Feature.php)
+  - [app/mobile/Ajax.php](/mnt/f/workwww/knowlege-github/app/mobile/Ajax.php)
+  - [app/widget/Common.php](/mnt/f/workwww/knowlege-github/app/widget/Common.php)
+- 模板与语言：
+  - [public/templates/default/html/feature/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/feature/detail.php)
+  - [public/templates/default/mobile/feature/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/feature/detail.php)
+  - [app/lang/en-us.php](/mnt/f/workwww/knowlege-github/app/lang/en-us.php)
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 远程已补齐同步：
+  - `app/model/Feature.php`
+  - `app/frontend/Feature.php`
+  - `app/mobile/Feature.php`
+  - `app/mobile/Ajax.php`
+  - `app/widget/Common.php`
+  - `public/templates/default/html/feature/detail.php`
+  - `public/templates/default/mobile/feature/detail.php`
+  - `app/lang/en-us.php`
+- 远程已执行：
+  - `sudo php think clear`
+  - `php -l app/model/Feature.php`
+  - `php -l app/frontend/Feature.php`
+  - `php -l app/mobile/Feature.php`
+  - `php -l app/mobile/Ajax.php`
+  - `php -l app/widget/Common.php`
+- 线上页面验证：
+  - 桌面 UA `https://www.frelink.top/feature/index.html` 返回 `HTTP 200`
+  - 移动 UA `https://www.frelink.top/feature/index.html` 返回 `HTTP 200`
+- 当前线上 `kn_feature` 表记录数为 `0`，没有可公开访问的专题详情 token，因此详情页 smoke test 暂无法执行
+
+### 里程碑：M1 移动端推荐链路与内容类型状态回填
+
+- 移动端文章详情页与 FAQ 详情页的 `下一步阅读` 已同步采用内容形态优先排序，和桌面端保持一致
+- `优化计划.md` 已按现有代码事实回填两项状态：
+  - `给文章增加内容类型字段或至少增加统一标签`
+  - `后续为文章增加内容类型标识：研究综述 / 思想碎片 / 教程 / FAQ`
+
+### 影响范围
+
+- 移动控制器：
+  - [app/mobile/Article.php](/mnt/f/workwww/knowlege-github/app/mobile/Article.php)
+  - [app/mobile/Question.php](/mnt/f/workwww/knowlege-github/app/mobile/Question.php)
+- 文档：
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 远程已定向同步：
+  - `app/mobile/Article.php`
+  - `app/mobile/Question.php`
+- 远程已执行：
+  - `sudo php think clear`
+  - `php -l app/mobile/Article.php`
+  - `php -l app/mobile/Question.php`
+- 移动 UA 线上页面验证已通过：
+  - `https://www.frelink.top/questions/new-0.html`
+  - `https://www.frelink.top/articles/new-0.html?type=all`
+
+### 里程碑：M1 推荐链路按内容形态收口
+
+- 文章详情页与 FAQ 详情页的 `下一步阅读` 已改为优先按内容形态串联：
+  - `热点解释 -> 研究综述 -> FAQ/帮助 -> FAQ -> 观察`
+- 侧栏 `推荐内容` 中的文章项不再只显示泛化的 `文`，而是直接显示真实内容类型标签
+- 公共 helper 新增推荐排序与分组逻辑，统一处理推荐内容的优先级与标签
+- `优化计划.md` 已同步回填 `站内推荐优先串联：热点解释 -> 研究综述 -> FAQ/帮助`
+
+### 影响范围
+
+- 公共函数：
+  - [app/function.inc.php](/mnt/f/workwww/knowlege-github/app/function.inc.php)
+- 控制器：
+  - [app/frontend/Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php)
+  - [app/frontend/Question.php](/mnt/f/workwww/knowlege-github/app/frontend/Question.php)
+- 详情页模板：
+  - [public/templates/default/html/article/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/detail.php)
+  - [public/templates/default/html/question/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/detail.php)
+- 文档：
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 远程已定向同步以下文件到 `/www/wwwroot/knoledge`：
+  - `app/function.inc.php`
+  - `app/frontend/Article.php`
+  - `app/frontend/Question.php`
+  - `public/templates/default/html/article/detail.php`
+  - `public/templates/default/html/question/detail.php`
+- 远程已执行：
+  - `sudo php think clear`
+  - `php -l app/function.inc.php`
+  - `php -l app/frontend/Article.php`
+  - `php -l app/frontend/Question.php`
+- 线上页面验证已通过：
+  - `https://www.frelink.top/questions/new-0.html`
+  - `https://www.frelink.top/articles/new-0.html?type=all`
+
+### 里程碑：M0 本地标准部署环境建立
+
+- 已建立项目级本地部署环境：
+  - 新增标准脚本 `bash scripts/deploy.sh [show-config|sync|verify|deploy|shell]`
+  - 新增本地私有配置 `deploy.local.json`，并加入 `.gitignore`
+  - 新增 `deploy.local.json.example`、`.deployignore`、`docs/deploy.local.example.md`
+- 已接入当前服务器信息：
+  - SSH 用户：`azureuser`
+  - 主机：`20.191.157.253`
+  - 项目路径：`/www/wwwroot/knoledge`
+- 已完成一次真实远程环境验证：
+  - SSH 可连接，项目目录存在
+  - 远程 `php -l` 已通过：
+    - `app/function.inc.php`
+    - `app/frontend/Article.php`
+  - 远程缓存清理已通过：
+    - `sudo php think clear`
+  - smoke test 已通过：
+    - `/`
+    - `/questions/`
+    - `/articles/`
+
+### 影响范围
+
+- 部署脚本与配置模板：
+  - [scripts/deploy.sh](/mnt/f/workwww/knowlege-github/scripts/deploy.sh)
+  - [deploy.local.json.example](/mnt/f/workwww/knowlege-github/deploy.local.json.example)
+  - [.deployignore](/mnt/f/workwww/knowlege-github/.deployignore)
+- 文档与规则：
+  - [README.md](/mnt/f/workwww/knowlege-github/README.md)
+  - [docs/deploy.local.example.md](/mnt/f/workwww/knowlege-github/docs/deploy.local.example.md)
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+  - [.gitignore](/mnt/f/workwww/knowlege-github/.gitignore)
+
+### 验证
+
+- `bash scripts/deploy.sh show-config` 已通过
+- `bash scripts/deploy.sh verify` 已通过
+- `git diff --check` 已通过
+
+### 里程碑：M1 研究综述模板落地
+
+- 文章发布页新增 `写作模板` 区块，可一键插入：
+  - `研究综述模板`
+  - `观察记录模板`
+- `研究综述模板` 已按计划中的固定结构落地为可直接写作的编辑器骨架：
+  - `背景 / 核心问题 / 资料来源 / 分歧点 / 当前判断 / 待验证`
+- 插入模板时会同步切换对应内容类型，并把编辑器焦点引到正文区域，减少从空白页起手的成本
+- `优化计划.md` 已同步回填 `新增 研究综述 文章模板`
+
+### 影响范围
+
+- 发布页模板：
+  - [public/templates/default/html/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/publish.php)
+- 语言与文档：
+  - [app/lang/en-us.php](/mnt/f/workwww/knowlege-github/app/lang/en-us.php)
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- `git diff --check` 已通过
+- 当前环境无 `php` 可执行文件，未能执行本地 `php -l`
+- 当前仓库未发现可直接使用的服务器连接信息或部署脚本，本轮未完成远程服务器同步与验证
+
+### 里程碑：M1 发布入口类型提示继续收口
+
+- 发布入口新增统一内容形态提示：
+  - 公共 helper 新增 `frelink_publish_type_scene()`，统一输出 FAQ / 综述 / 观察 / 帮助 / 热点解释 / 方法 的使用场景
+  - 文章发布页的类型说明从静态三卡片扩展为更完整的形态提示，并跟随当前选择的内容类型实时更新
+  - FAQ 发布页新增“如果这条内容更像综述 / 观察，就改走知识内容发布”的分流入口，减少入口选错
+- 文章发布页现在支持通过查询参数预选 `article_type`，方便从 FAQ 发布页直接切换到 `综述` 或 `观察`
+- `优化计划.md` 同步回填“发布页建议中补更适合写成哪一类内容的提示”相关待办
+
+### 影响范围
+
+- 公共函数：
+  - [app/function.inc.php](/mnt/f/workwww/knowlege-github/app/function.inc.php)
+- 控制器：
+  - [app/frontend/Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php)
+- 发布页模板：
+  - [public/templates/default/html/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/publish.php)
+  - [public/templates/default/html/question/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/publish.php)
+- 语言与文档：
+  - [app/lang/en-us.php](/mnt/f/workwww/knowlege-github/app/lang/en-us.php)
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- `git diff --check` 已通过
+- 当前环境无 `php` 可执行文件，未能执行本地 `php -l`
+- 当前仓库未发现可直接使用的服务器连接信息或部署脚本，本轮未完成远程服务器同步与验证
+
+### 里程碑：M1 首页主入口继续收口
+
+- 首页主入口卡片从 `综述 / 主题 / 观察` 补全为 `综述 / 主题 / 观察 / FAQ`
+- FAQ 入口明确回到首页第一层结构，不再只作为次级列表或旧问答语义残留
+- `优化计划.md` 同步回填：
+  - `首页主结构改成 综述 / 主题 / 观察 / FAQ`
+  - `FAQ 用于承接检索和高频问题，不再继续强化社区问答氛围`
+
+### 影响范围
+
+- 首页模板：
+  - [public/templates/default/html/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/index.php)
+- 文档：
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- `git diff --check` 已通过
+- 当前仓库未发现可直接使用的服务器连接信息或部署脚本，本轮未完成远程服务器同步与验证
+
 ## 2026-03-22
 
 ### 里程碑：M1 公开导航与移动端入口继续收口

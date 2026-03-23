@@ -122,11 +122,12 @@
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                {php}$primaryNavMenu = frelink_curated_nav_menu($navMenu); $primaryNavLimit = 6;{/php}
                 <div class="collapse navbar-collapse newnavbar" id="navbarNavDropdown" style="justify-content: space-between">
                     <div class="nav-links-container position-relative d-flex align-items-stretch flex-grow-1" style="max-width: none; min-width: 0; z-index: 1">
                         <ul class="navbar-nav navbar-new-nav flex-row flex-nowrap align-items-stretch">
-                            {foreach $navMenu as $k=>$v}
-                            {if $k<5}
+                            {foreach $primaryNavMenu as $k=>$v}
+                            {if $k<$primaryNavLimit}
                             <li class="nav-item {$v.active ? 'cur' : ''} clearfix" style="width: auto!important; flex: 0 0 auto;">
                                 {if $v.child_list}
                                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="white-space: nowrap;">{:frelink_nav_label($v.title)}</a>
@@ -141,12 +142,12 @@
                             </li>
                             {/if}
                             {/foreach}
-                            {if count($navMenu)>5}
+                            {if count($primaryNavMenu)>$primaryNavLimit}
                             <li class="nav-item {$v.active ? 'cur' : ''} clearfix" style="width: auto!important; flex: 0 0 auto;">
                                 <a class="nav-link dropdown-toggle" href="#"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="white-space: nowrap;">{:L('更多')}</a>
                                 <div class="dropdown-menu text-center" aria-labelledby="navbarDropdownMenuLink">
-                                    {foreach $navMenu as $k=>$v1}
-                                    {if $k>=5}
+                                    {foreach $primaryNavMenu as $k=>$v1}
+                                    {if $k>=$primaryNavLimit}
                                     <a class="dropdown-item" href="{$v1.url}" data-pjax="pageMain" title="{:L($v1.title)}">{:frelink_nav_label($v1.title)}</a>
                                     {/if}
                                     {/foreach}

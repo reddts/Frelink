@@ -717,7 +717,7 @@
                         {if $v['item_type']=='article'}
                         <dl class="mb-0 py-2 border-bottom">
                             <dt class="d-block aw-one-line font-weight-normal font-9">
-                                <span class="bg-primary text-white font-8 d-inline-block text-center rounded" style="width: 18px;height: 18px">文</span> <a href="{:url('article/detail',['id'=>$v['id']])}">{$v.title}</a>
+                                <span class="bg-primary text-white font-8 d-inline-block text-center rounded px-1" style="min-width: 18px;height: 18px;line-height: 18px">{$v['article_type_label']|default=L('文')}</span> <a href="{:url('article/detail',['id'=>$v['id']])}">{$v.title}</a>
                             </dt>
                             <dd class="mt-2 font-9 text-color-info mb-0">
                                 <label class="mr-2 mb-0">{$v.view_count} {:L('浏览')}</label>

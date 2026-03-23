@@ -216,7 +216,7 @@ class Article extends Frontend
 
             $article_info = array();
             $article_info['topics'] = '';
-            $article_info['article_type'] = 'research';
+            $article_info['article_type'] = frelink_normalize_article_type($this->request->param('article_type', 'research', 'sqlFilter'), 'research');
             if($topic_id = $this->request->param('topic_id'))
             {
                 $article_info['topics'] = db('topic')->where('id', $topic_id)->value('id');
@@ -333,12 +333,14 @@ class Article extends Frontend
         {
             $recommend_post = Topic::getRecommendPost($article_info['id'],'article',array_column($article_info['topics'], 'id'),$this->user_id);
         }
+        $recommend_post = frelink_sort_recommend_posts($recommend_post ?: []);
 
         $summary_points = frelink_extract_text_points($article_info['message']);
-        $next_reads = frelink_build_next_reads([
-            ['label' => '相关文章', 'items' => $relation_article ?: []],
-            ['label' => '继续阅读', 'items' => $recommend_post ?: []],
-        ]);
+        $nextReadGroups = array_merge(
+            frelink_recommend_groups($recommend_post),
+            [['label' => '相关文章', 'items' => $relation_article ?: []]]
+        );
+        $next_reads = frelink_build_next_reads($nextReadGroups);
         $archiveChapters = HelpModel::getItemArchiveChapters('article', $article_info['id'], 6);
 
         $this->assign('recommend_post', $recommend_post?:[]);

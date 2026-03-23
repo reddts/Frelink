@@ -244,13 +244,13 @@ class Common extends Widget
     }
 
     //专题关联内容
-    public function feature_content($feature_id = 0,$sort='hot',$theme='lists')
+    public function feature_content($feature_id = 0,$sort='hot',$theme='lists', $content_type='all')
     {
         if($html = hook('widget_common_features',$this->request->param()))
         {
             return $this->view->display($html);
         }
-        $data = Feature::getRelationFeatureList($this->user_id,$feature_id,$sort,$this->request->param('page',1));
+        $data = Feature::getRelationFeatureList($this->user_id,$feature_id,$sort,$this->request->param('page',1),10,'tabMain',$content_type);
         $this->assign($data);
         return $this->fetch('common/'.$theme);
     }

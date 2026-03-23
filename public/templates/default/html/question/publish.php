@@ -140,6 +140,33 @@
         font-size: 13px;
         line-height: 1.6;
     }
+    .aw-faq-routing {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+    .aw-faq-routing-item {
+        padding: 14px;
+        border: 1px solid #e6edf5;
+        border-radius: 14px;
+        background: #fbfdff;
+    }
+    .aw-faq-routing-item strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #0f172a;
+    }
+    .aw-faq-routing-item span {
+        display: block;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+        margin-bottom: 10px;
+    }
+    .aw-faq-routing-item .btn {
+        min-width: 112px;
+    }
     .aw-archive-guide {
         padding: 14px;
         border: 1px solid #e6edf5;
@@ -190,6 +217,23 @@
                                 <div class="aw-faq-guide-item">
                                     <strong>{:L('持续补齐')}</strong>
                                     <span>{:L('允许持续补充边界、例外情况和版本变化。')}</span>
+                                </div>
+                            </div>
+                            <div class="aw-faq-routing">
+                                <div class="aw-faq-routing-item">
+                                    <strong>{:frelink_content_label('question')}</strong>
+                                    <span>{:frelink_publish_type_scene('question')}</span>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" disabled>{:L('继续写 FAQ')}</button>
+                                </div>
+                                <div class="aw-faq-routing-item">
+                                    <strong>{:frelink_content_label('research')}</strong>
+                                    <span>{:frelink_publish_type_scene('research')}</span>
+                                    <a class="btn btn-outline-primary btn-sm" href="{:frelink_publish_url('article',['article_type'=>'research'])}">{:L('改为写综述')}</a>
+                                </div>
+                                <div class="aw-faq-routing-item">
+                                    <strong>{:frelink_content_label('fragment')}</strong>
+                                    <span>{:frelink_publish_type_scene('fragment')}</span>
+                                    <a class="btn btn-outline-primary btn-sm" href="{:frelink_publish_url('article',['article_type'=>'fragment'])}">{:L('改为写观察')}</a>
                                 </div>
                             </div>
                         </div>

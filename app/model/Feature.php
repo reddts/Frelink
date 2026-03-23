@@ -57,15 +57,21 @@ class Feature extends BaseModel
      * @param $pjax
      * @return array|false|mixed|object|null
      */
-    public static function getRelationFeatureList($uid,$feature_id,$sort='hot',$page=1,$per_page=10,$pjax='tabMain')
+    public static function getRelationFeatureList($uid,$feature_id,$sort='hot',$page=1,$per_page=10,$pjax='tabMain', string $content_type='all')
     {
         $topic_ids = db('feature_topic')
             ->where(['feature_id'=>$feature_id])
             ->column('topic_id');
         if(!$topic_ids) return [];
 
+        $content_type = trim($content_type);
+        $content_type = in_array($content_type, ['all', 'question', 'research', 'fragment', 'faq'], true) ? $content_type : 'all';
+
         if($sort=='best')
         {
+            if (!in_array($content_type, ['all', 'question'], true)) {
+                return ['list' => [], 'page' => '', 'total' => 0];
+            }
             $topic_ids = is_array($topic_ids) ? $topic_ids : explode(',',$topic_ids);
             $topic_where ='item_type="question" AND status=1';
             $topicIdsWhere = ' AND topic_id IN('.implode(',',array_unique($topic_ids)).')';
@@ -142,7 +148,80 @@ class Feature extends BaseModel
             return ['list'=>$result_list,'page'=>$pageVar,'total'=>$allList['last_page']];
         }
 
-        return PostRelation::getPostRelationList($uid,null,$sort,$topic_ids,null,$page,$per_page,0,$pjax);
+        if ($content_type === 'all') {
+            return PostRelation::getPostRelationList($uid, null, $sort, $topic_ids, null, $page, $per_page, 0, $pjax);
+        }
+
+        if ($content_type === 'question') {
+            return PostRelation::getPostRelationList($uid, 'question', $sort, $topic_ids, null, $page, $per_page, 0, $pjax);
+        }
+
+        $topic_ids = is_array($topic_ids) ? $topic_ids : explode(',', $topic_ids);
+        $topic_ids = array_values(array_unique(array_filter(array_map('intval', $topic_ids))));
+        if (!$topic_ids) {
+            return ['list' => [], 'page' => '', 'total' => 0];
+        }
+
+        $articleIds = db('topic_relation')
+            ->where(['item_type' => 'article', 'status' => 1])
+            ->whereIn('topic_id', $topic_ids)
+            ->column('item_id');
+
+        $articleIds = array_values(array_unique(array_filter(array_map('intval', $articleIds))));
+        if (!$articleIds) {
+            return ['list' => [], 'page' => '', 'total' => 0];
+        }
+
+        $articleQuery = db('article')
+            ->where(['status' => 1])
+            ->whereIn('id', $articleIds);
+
+        if ($content_type === 'faq') {
+            $articleQuery->whereIn('article_type', ['faq', 'tutorial']);
+        } else {
+            $articleQuery->where('article_type', '=', $content_type);
+        }
+
+        $filteredArticleIds = $articleQuery->column('id');
+        $filteredArticleIds = array_values(array_unique(array_filter(array_map('intval', $filteredArticleIds))));
+        if (!$filteredArticleIds) {
+            return ['list' => [], 'page' => '', 'total' => 0];
+        }
+
+        $order = ['set_top_time' => 'DESC'];
+        $where = [
+            ['status', '=', 1],
+            ['item_type', '=', 'article'],
+            ['item_id', 'in', implode(',', $filteredArticleIds)],
+        ];
+
+        if ($sort == 'hot') {
+            $order['popular_value'] = 'desc';
+            $where[] = ['popular_value', '>', get_setting('content_popular_value_show', 0)];
+        }
+
+        if ($sort == 'new') {
+            $order['set_top_time'] = 'DESC';
+            $order['update_time'] = 'DESC';
+        }
+
+        $order['create_time'] = 'DESC';
+
+        $list = db('post_relation')
+            ->where($where)
+            ->order($order)
+            ->field('id,item_id,item_type,uid')
+            ->paginate([
+                'list_rows' => $per_page,
+                'page' => $page,
+                'query' => request()->param(),
+                'pjax' => $pjax
+            ]);
+
+        $pageVar = $list->render();
+        $allList = $list->toArray();
+        $resultList = PostRelation::processPostList($allList['data'], $uid, $sort);
+        return ['list' => $resultList, 'page' => $pageVar, 'total' => $allList['last_page']];
     }
 
 }

@@ -238,6 +238,22 @@ if (! function_exists('frelink_content_description')) {
     }
 }
 
+if (! function_exists('frelink_publish_type_scene')) {
+    function frelink_publish_type_scene(string $type): string
+    {
+        $map = [
+            'question' => L('更适合承接高频搜索、明确答案和可持续补充的问题。'),
+            'research' => L('更适合整理背景、资料脉络、主要分歧和当前判断。'),
+            'fragment' => L('更适合记录短判断、现场观察和仍在形成中的线索。'),
+            'faq' => L('更适合沉淀术语、规则、方法和稳定可复用答案。'),
+            'tutorial' => L('更适合输出步骤、方法、工具链和实操方案。'),
+            'normal' => L('更适合解释热点事件、案例变化和为什么值得关注。'),
+        ];
+
+        return $map[$type] ?? ($map['normal'] ?? '');
+    }
+}
+
 if (! function_exists('frelink_normalize_article_type')) {
     function frelink_normalize_article_type($type, string $default = 'normal'): string
     {
@@ -272,6 +288,78 @@ if (! function_exists('frelink_nav_label')) {
         ];
 
         return $map[$label] ?? $label;
+    }
+}
+
+if (! function_exists('frelink_nav_key')) {
+    function frelink_nav_key(string $label): string
+    {
+        $label = trim($label);
+        $map = [
+            '首页' => 'home',
+            '主题' => 'topic',
+            '问题' => 'question',
+            'FAQ' => 'question',
+            '文章' => 'article',
+            '内容' => 'article',
+            '专题' => 'feature',
+            '观察' => 'feature',
+            '帮助中心' => 'help',
+            '帮助' => 'help',
+            '专栏' => 'column',
+            '创作者' => 'creator',
+        ];
+
+        return $map[$label] ?? $label;
+    }
+}
+
+if (! function_exists('frelink_curated_nav_menu')) {
+    function frelink_curated_nav_menu(array $navMenu): array
+    {
+        $primaryOrder = [
+            'home' => 0,
+            'topic' => 1,
+            'question' => 2,
+            'article' => 3,
+            'feature' => 4,
+            'help' => 5,
+        ];
+        $deferredOrder = [
+            'column' => 200,
+            'creator' => 201,
+        ];
+        $items = [];
+
+        foreach ($navMenu as $index => $item) {
+            $key = frelink_nav_key((string) ($item['title'] ?? ''));
+            if (isset($primaryOrder[$key])) {
+                $weight = $primaryOrder[$key];
+            } elseif (isset($deferredOrder[$key])) {
+                $weight = $deferredOrder[$key];
+            } else {
+                $weight = 100 + $index;
+            }
+
+            $item['_frelink_nav_weight'] = $weight;
+            $item['_frelink_nav_index'] = $index;
+            $items[] = $item;
+        }
+
+        usort($items, static function ($left, $right) {
+            if ($left['_frelink_nav_weight'] === $right['_frelink_nav_weight']) {
+                return $left['_frelink_nav_index'] <=> $right['_frelink_nav_index'];
+            }
+
+            return $left['_frelink_nav_weight'] <=> $right['_frelink_nav_weight'];
+        });
+
+        foreach ($items as &$item) {
+            unset($item['_frelink_nav_weight'], $item['_frelink_nav_index']);
+        }
+        unset($item);
+
+        return $items;
     }
 }
 
@@ -393,6 +481,93 @@ if (! function_exists('frelink_build_next_reads')) {
         }
 
         return $results;
+    }
+}
+
+if (! function_exists('frelink_sort_recommend_posts')) {
+    function frelink_sort_recommend_posts(array $items = []): array
+    {
+        $priorityMap = [
+            'normal' => 10,
+            'research' => 20,
+            'faq' => 30,
+            'tutorial' => 30,
+            'question' => 40,
+            'fragment' => 50,
+            'topic' => 60,
+            'article' => 70,
+            'other' => 80,
+        ];
+
+        foreach ($items as $index => $item) {
+            $itemType = (string)($item['item_type'] ?? '');
+            $articleType = $itemType === 'article'
+                ? frelink_normalize_article_type($item['article_type'] ?? 'normal')
+                : '';
+
+            if ($itemType === 'article') {
+                $groupKey = in_array($articleType, ['faq', 'tutorial'], true) ? 'faq' : $articleType;
+                $items[$index]['article_type'] = $articleType;
+                $items[$index]['article_type_label'] = frelink_article_type_label($articleType);
+            } elseif ($itemType === 'question') {
+                $groupKey = 'question';
+            } elseif ($itemType === 'topic') {
+                $groupKey = 'topic';
+            } else {
+                $groupKey = 'other';
+            }
+
+            $items[$index]['recommend_group'] = $groupKey;
+            $items[$index]['recommend_priority'] = $priorityMap[$groupKey] ?? $priorityMap['other'];
+            $items[$index]['_recommend_index'] = $index;
+        }
+
+        usort($items, static function ($a, $b) {
+            $priorityCompare = intval($a['recommend_priority'] ?? 999) <=> intval($b['recommend_priority'] ?? 999);
+            if ($priorityCompare !== 0) {
+                return $priorityCompare;
+            }
+
+            return intval($a['_recommend_index'] ?? 0) <=> intval($b['_recommend_index'] ?? 0);
+        });
+
+        foreach ($items as $index => $item) {
+            unset($items[$index]['_recommend_index']);
+        }
+
+        return $items;
+    }
+}
+
+if (! function_exists('frelink_recommend_groups')) {
+    function frelink_recommend_groups(array $items = []): array
+    {
+        $grouped = [];
+        $sortedItems = frelink_sort_recommend_posts($items);
+        $labels = [
+            'normal' => frelink_content_label('normal'),
+            'research' => frelink_content_label('research'),
+            'faq' => frelink_content_label('faq'),
+            'question' => frelink_content_label('question'),
+            'fragment' => frelink_content_label('fragment'),
+            'topic' => frelink_content_label('topic'),
+            'article' => L('继续阅读'),
+            'other' => L('继续阅读'),
+        ];
+
+        foreach ($sortedItems as $item) {
+            $groupKey = (string)($item['recommend_group'] ?? 'other');
+            if (!isset($grouped[$groupKey])) {
+                $grouped[$groupKey] = [
+                    'label' => $labels[$groupKey] ?? L('继续阅读'),
+                    'items' => [],
+                ];
+            }
+
+            $grouped[$groupKey]['items'][] = $item;
+        }
+
+        return array_values($grouped);
     }
 }
 

@@ -42,8 +42,10 @@ class Ajax extends Frontend
         $topic_ids = $this->request->post('topic_ids',0);
         $featureId = $this->request->post('feature_id', 0, 'intval');
         $articleType = frelink_normalize_article_type($this->request->post('article_type', 'all', 'sqlFilter'), 'all');
+        $contentType = $this->request->post('content_type', 'all', 'trim');
+        $contentType = in_array($contentType, ['all', 'question', 'research', 'fragment', 'faq'], true) ? $contentType : 'all';
         if ($featureId > 0) {
-            $data = FeatureModel::getRelationFeatureList($this->user_id, $featureId, $sort, $this->request->param('page',1), 0, 'pageMain');
+            $data = FeatureModel::getRelationFeatureList($this->user_id, $featureId, $sort, $this->request->param('page',1), 0, 'pageMain', $contentType);
         } elseif ($item_type === 'article') {
             $data = ArticleModel::getArticleList($this->user_id, $sort, $topic_ids, $category_id, $this->request->param('page',1), 0, 0, 'pageMain', $articleType);
         } else {

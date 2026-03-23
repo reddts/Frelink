@@ -16,3 +16,5 @@ view/.hbuilderx/*
 view/.idea/*
 /update/*
 vendor/*
+deploy.local.json
+docs/deploy.local.md

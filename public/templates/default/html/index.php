@@ -273,7 +273,7 @@
     }
     .aw-home-content-map {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 16px;
         margin: 18px 0 22px;
     }
@@ -622,6 +622,10 @@
                     <a class="aw-home-map-card" href="{:url('article/index',['type'=>'fragment'])}">
                         <strong>{:frelink_content_label('fragment')}</strong>
                         <span>{:L('保留思考现场、快速判断和尚未定稿但值得记录的洞见。')}</span>
+                    </a>
+                    <a class="aw-home-map-card" href="{:url('question/index')}">
+                        <strong>{:frelink_content_label('question')}</strong>
+                        <span>{:L('承接高频搜索、明确答案和持续补充说明，作为知识系统的检索入口。')}</span>
                     </a>
                 </div>
                 <div class="aw-home-curated">

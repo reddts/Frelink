@@ -1,0 +1,15 @@
+.git/
+.gitignore
+.idea/
+.vscode/
+runtime/
+vendor/
+node_modules/
+*.log
+*.tar.gz
+deploy.local.json
+docs/deploy.local.md
+backup/
+public/storage/
+public/backup/
+install/lock/

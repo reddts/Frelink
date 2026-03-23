@@ -101,11 +101,13 @@ class Article extends Frontend
         {
             $recommend_post = Topic::getRecommendPost($article_info['id'],'article',array_column($article_info['topics'], 'id'),$this->user_id);
         }
+        $recommend_post = frelink_sort_recommend_posts($recommend_post ?: []);
 
-        $next_reads = frelink_build_next_reads([
-            ['label' => '相关文章', 'items' => $relation_article ?: []],
-            ['label' => '继续阅读', 'items' => $recommend_post ?: []],
-        ]);
+        $nextReadGroups = array_merge(
+            frelink_recommend_groups($recommend_post),
+            [['label' => '相关文章', 'items' => $relation_article ?: []]]
+        );
+        $next_reads = frelink_build_next_reads($nextReadGroups);
         $archiveChapters = HelpModel::getItemArchiveChapters('article', $article_info['id'], 6);
 
         $this->assign([

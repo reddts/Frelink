@@ -1,0 +1,33 @@
+{
+  "default_target": "prod",
+  "targets": {
+    "prod": {
+      "name": "production",
+      "host": "20.191.157.253",
+      "port": 22,
+      "user": "azureuser",
+      "identity_file": "/home/redt/.sshbot/azcomm.pem",
+      "project_path": "/www/wwwroot/knoledge",
+      "url": "https://www.frelink.top"
+    }
+  },
+  "sync": {
+    "mode": "rsync",
+    "delete": false,
+    "exclude_file": ".deployignore"
+  },
+  "verify": {
+    "php_lint_files": [
+      "app/function.inc.php",
+      "app/frontend/Article.php"
+    ],
+    "clear_commands": [
+      "sudo php think clear"
+    ],
+    "smoke_urls": [
+      "/",
+      "/questions/",
+      "/articles/"
+    ]
+  }
+}

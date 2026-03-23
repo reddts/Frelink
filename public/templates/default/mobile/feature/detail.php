@@ -93,6 +93,28 @@
             font-size: 12px;
             line-height: 1.7;
         }
+        .aw-mobile-feature-type-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 10px 12px 0;
+            white-space: nowrap;
+        }
+        .aw-mobile-feature-type-tabs a {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid #dbe7f3;
+            background: #fff;
+            color: #60758b;
+            font-size: 12px;
+        }
+        .aw-mobile-feature-type-tabs a.active {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            color: #fff;
+        }
     </style>
 
     <section class="aw-mobile-feature-detail-hero">
@@ -135,7 +157,24 @@
     </div>
 
     <div class="aw-mobile-feature-feed-note">
-        {if $sort=='new'}
+        <div class="aw-mobile-feature-type-tabs">
+            <a class="{if $content_type=='all'}active{/if}" data-pjax="pageMain" href="{:url('feature/detail',['token'=>$info['url_token'],'sort'=>$sort,'content_type'=>'all'])}">{:frelink_content_label('all')}</a>
+            <a class="{if $content_type=='question'}active{/if}" data-pjax="pageMain" href="{:url('feature/detail',['token'=>$info['url_token'],'sort'=>$sort,'content_type'=>'question'])}">{:frelink_content_label('question')}</a>
+            <a class="{if $content_type=='research'}active{/if}" data-pjax="pageMain" href="{:url('feature/detail',['token'=>$info['url_token'],'sort'=>$sort,'content_type'=>'research'])}">{:frelink_content_label('research')}</a>
+            <a class="{if $content_type=='fragment'}active{/if}" data-pjax="pageMain" href="{:url('feature/detail',['token'=>$info['url_token'],'sort'=>$sort,'content_type'=>'fragment'])}">{:frelink_content_label('fragment')}</a>
+            <a class="{if $content_type=='faq'}active{/if}" data-pjax="pageMain" href="{:url('feature/detail',['token'=>$info['url_token'],'sort'=>$sort,'content_type'=>'faq'])}">{:frelink_content_label('faq')}</a>
+        </div>
+        {if $sort=='best' && !in_array($content_type,['all','question'])}
+        {:L('最佳回复当前只适用于 FAQ 条目，切回 FAQ 或全部内容可查看代表性回答。')}
+        {elseif $content_type=='question'}
+        {:frelink_content_description('question')}
+        {elseif $content_type=='research' /}
+        {:frelink_content_description('research')}
+        {elseif $content_type=='fragment' /}
+        {:frelink_content_description('fragment')}
+        {elseif $content_type=='faq' /}
+        {:frelink_content_description('faq')}
+        {elseif $sort=='new'}
         {:L('按时间查看这个观察专题里的持续更新和新近判断。')}
         {elseif $sort=='hot' /}
         {:L('优先查看在这个观察专题里更受关注、更容易引发后续讨论的内容。')}
@@ -188,7 +227,8 @@
             type: "POST",
             data: {
                 sort: '{$sort}',
-                feature_id: '{$info.id}'
+                feature_id: '{$info.id}',
+                content_type: '{$content_type}'
             },
             success: function (result) {
                 var curPageData = result.data.list || [];
