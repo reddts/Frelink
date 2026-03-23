@@ -2,6 +2,45 @@
 
 ## 2026-03-23
 
+### 里程碑：M1 首页右侧整列下线
+
+- 首页右侧整列已整体移除，主内容列改为满宽布局
+- 首页不再渲染右侧的：
+  - 快速发起
+  - 关注话题
+  - 热门专栏
+  - 热门用户
+  - 自定义内容
+- 首页主题配置默认值已同步收口：
+  - `sidebar_show_items` 默认只保留 `announce`
+  - `sidebar_diy_content` 默认内容已清空
+- 页面中原先可能出现的 `这是自定义内容` 占位内容已从首页默认配置中移除
+
+### 影响范围
+
+- 首页模板：
+  - [public/templates/default/html/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/index.php)
+- 主题配置：
+  - [public/templates/default/config.php](/mnt/f/workwww/knowlege-github/public/templates/default/config.php)
+  - [public/templates/default/info.php](/mnt/f/workwww/knowlege-github/public/templates/default/info.php)
+- 文档：
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 远程已定向同步：
+  - `public/templates/default/html/index.php`
+  - `public/templates/default/config.php`
+  - `public/templates/default/info.php`
+- 远程已执行：
+  - `sudo php think clear`
+  - `php -l public/templates/default/html/index.php`
+- 线上首页 HTML 已确认：
+  - 主列类名已变为 `col-md-12`
+  - 页面中不再出现 `aw-home-sidebar`
+  - 页面中不再出现 `这是自定义内容`
+
 ### 里程碑：M1 首页信息层级收口
 
 - 首页主列已经保留唯一一组 `核心主题` 卡片，不再与右侧侧栏重复展示同一组主题

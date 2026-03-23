@@ -45,7 +45,7 @@ return [
                 'sidebar_show_items' =>[
                     'title' => '侧边栏项目',
                     'type' => 'checkbox',
-                    'value' =>'write_nav,announce,hot_topic,column,diy_content',
+                    'value' =>'announce',
                     'options' =>[
                         'write_nav' => '快速发起',
                         'announce' => '网站公告',
@@ -60,7 +60,7 @@ return [
                 'sidebar_diy_content' =>[
                     'title' => '自定义内容',
                     'type' => 'editor',
-                    'value' => '&lt;div class=&quot;p-3 mt-2&quot; style=&quot;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;&quot;&gt;&lt;h5 style=&quot;margin-bottom:8px;&quot;&gt;内容策略建议&lt;/h5&gt;&lt;p style=&quot;margin-bottom:0;color:#4b5563;&quot;&gt;优先沉淀可检索的问题、教程、术语解释和专题合集，让每篇内容都能被搜索和复用。&lt;/p&gt;&lt;/div&gt;',
+                    'value' => '',
                     'options' =>
                         array (
                         ),

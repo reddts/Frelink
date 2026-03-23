@@ -446,37 +446,6 @@
         background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
         box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
     }
-    .aw-home-sidebar .r-box {
-        overflow: hidden;
-        border: 1px solid #e7eef7;
-        border-radius: 20px;
-        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-        box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
-    }
-    .aw-home-sidebar .r-title {
-        padding: 18px 20px 0;
-    }
-    .aw-home-sidebar .hot-list {
-        padding: 0 20px 14px;
-    }
-    .aw-home-sidebar .hot-list dl {
-        margin-bottom: 0;
-        padding: 14px 0;
-        border-color: #eef2f7 !important;
-    }
-    .aw-home-sidebar .hot-list dl:last-child {
-        border-bottom: 0 !important;
-        padding-bottom: 6px;
-    }
-    .aw-home-sidebar .hot-list dt a {
-        color: #ef4444 !important;
-        font-weight: 700;
-        line-height: 1.6;
-    }
-    .aw-home-sidebar .hot-list dd {
-        color: #64748b !important;
-        line-height: 1.8;
-    }
     .aw-home-slow-updates {
         margin-top: 14px;
         padding: 18px 24px 8px;
@@ -665,7 +634,7 @@
 {block name="main"}
 <div class="container mt-2 aw-home-main-shell">
     <div class="row justify-content-between">
-        <div class="aw-left radius col-md-9 bg-white mb-2 aw-home-primary-column">
+        <div class="aw-left radius col-md-12 bg-white mb-2 aw-home-primary-column">
             {if !$type && in_array($sort,['new','recommend','hot'])}
             <div class="px-4 pt-4">
                 <div class="aw-home-content-map">
@@ -819,33 +788,6 @@
                 </div>
             </div>
             </div>
-        </div>
-        <div class="aw-right radius col-md-3 px-xs-0 aw-home-sidebar">
-            <!--侧边栏顶部钩子-->
-            {:hook('sidebarTop')}
-
-            {if get_theme_setting('home.sidebar_show_items') && in_array('write_nav',get_theme_setting('home.sidebar_show_items'))}
-            {:widget('sidebar/writeNav')}
-            {/if}
-
-            {if get_theme_setting('home.sidebar_show_items') && in_array('focus_topic',get_theme_setting('home.sidebar_show_items'))}
-            {:widget('sidebar/focusTopic',['uid'=>$user_id])}
-            {/if}
-
-            {if get_theme_setting('home.sidebar_show_items') && in_array('column',get_theme_setting('home.sidebar_show_items'))}
-            {:widget('sidebar/hotColumn',['uid'=>$user_id,'sort'=>'hot'])}
-            {/if}
-
-            {if get_theme_setting('home.sidebar_show_items') && in_array('hot_users',get_theme_setting('home.sidebar_show_items'))}
-            {:widget('sidebar/hotUsers',['uid'=>$user_id])}
-            {/if}
-
-            {if get_theme_setting('home.sidebar_show_items') && in_array('diy_content',get_theme_setting('home.sidebar_show_items'))}
-            {$theme_config['home']['sidebar_diy_content']|raw|htmlspecialchars_decode}
-            {/if}
-
-            <!--侧边栏底部钩子-->
-            {:hook('sidebarBottom')}
         </div>
     </div>
 </div>
