@@ -50,6 +50,69 @@
         border-bottom: 1px solid #eef2f7;
         background: #fff;
     }
+    .aw-knowledge-spotlights {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        padding: 0 24px 18px;
+        border-bottom: 1px solid #eef2f7;
+        background: #fff;
+    }
+    .aw-knowledge-spotlight {
+        display: block;
+        padding: 16px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
+        border: 1px solid #dbe7f3;
+        color: #0f172a;
+    }
+    .aw-knowledge-spotlight:hover {
+        text-decoration: none;
+        transform: translateY(-1px);
+        transition: all .2s ease;
+    }
+    .aw-knowledge-spotlight em {
+        display: inline-flex;
+        margin-bottom: 10px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: rgba(29, 78, 216, 0.08);
+        color: #1d4ed8;
+        font-style: normal;
+        font-size: 12px;
+        font-weight: 700;
+    }
+    .aw-knowledge-spotlight strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 18px;
+    }
+    .aw-knowledge-spotlight p {
+        margin: 0 0 10px;
+        color: #60758b;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+    .aw-knowledge-spotlight-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 10px;
+        color: #1e3a5f;
+        font-size: 12px;
+    }
+    .aw-knowledge-spotlight-latest {
+        color: #334155;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    .aw-knowledge-spotlight-action {
+        display: inline-flex;
+        margin-top: 12px;
+        color: #1d4ed8;
+        font-size: 13px;
+        font-weight: 700;
+    }
     .aw-knowledge-lane {
         display: block;
         padding: 14px;
@@ -75,6 +138,7 @@
         line-height: 1.6;
     }
     @media (max-width: 991.98px) {
+        .aw-knowledge-spotlights,
         .aw-knowledge-lanes {
             grid-template-columns: 1fr;
         }
@@ -93,6 +157,27 @@
                     <h1>{:frelink_article_type_label($article_type)}</h1>
                     <p>{:frelink_content_description($article_type)}</p>
                 </div>
+                {if $article_type=='all' && !empty($article_type_spotlights)}
+                <div class="aw-knowledge-spotlights">
+                    {foreach $article_type_spotlights as $spotlight}
+                    <a class="aw-knowledge-spotlight" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$spotlight['type']])}" data-pjax="wrapMain">
+                        <em>{:L('主内容入口')}</em>
+                        <strong>{$spotlight.label}</strong>
+                        <p>{$spotlight.description}</p>
+                        <div class="aw-knowledge-spotlight-meta">
+                            <span>{:L('已发布 %s 篇',$spotlight['count'])}</span>
+                            {if !empty($spotlight['latest'])}
+                            <span>{:L('最近更新')} {:date_friendly($spotlight['latest']['update_time'])}</span>
+                            {/if}
+                        </div>
+                        {if !empty($spotlight['latest'])}
+                        <div class="aw-knowledge-spotlight-latest">{:L('最近一篇：%s',$spotlight['latest']['title'])}</div>
+                        {/if}
+                        <span class="aw-knowledge-spotlight-action">{if $spotlight['type']=='research'}{:L('去看综述')}{else/}{:L('去看观察')}{/if}</span>
+                    </a>
+                    {/foreach}
+                </div>
+                {/if}
                 <div class="aw-knowledge-lanes">
                     <a class="aw-knowledge-lane" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" data-pjax="wrapMain">
                         <strong>{:L('最新更新')}</strong>

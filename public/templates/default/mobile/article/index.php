@@ -35,6 +35,53 @@
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 8px;
         }
+        .aw-mobile-spotlight-grid {
+            display: grid;
+            gap: 10px;
+            margin: 0 12px 12px;
+        }
+        .aw-mobile-spotlight-card {
+            display: block;
+            padding: 12px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
+            border: 1px solid #dbe7f3;
+            color: #0f172a;
+        }
+        .aw-mobile-spotlight-card em {
+            display: inline-flex;
+            margin-bottom: 8px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(29, 78, 216, 0.08);
+            color: #1d4ed8;
+            font-style: normal;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .aw-mobile-spotlight-card strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .aw-mobile-spotlight-card p {
+            margin: 0 0 8px;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .aw-mobile-spotlight-meta {
+            color: #334155;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+        .aw-mobile-spotlight-action {
+            display: inline-block;
+            margin-top: 8px;
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 700;
+        }
         .aw-mobile-lane-card {
             display: block;
             padding: 10px;
@@ -71,6 +118,24 @@
             <div class="font-weight-bold font-12 mb-1">{:frelink_article_type_label($article_type)}</div>
             <div class="text-muted font-9">{:frelink_content_description($article_type)}</div>
         </div>
+        {if $article_type=='all' && !empty($article_type_spotlights)}
+        <div class="aw-mobile-spotlight-grid">
+            {foreach $article_type_spotlights as $spotlight}
+            <a class="aw-mobile-spotlight-card" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$spotlight['type']])}" data-pjax="pageMain">
+                <em>{:L('主内容入口')}</em>
+                <strong>{$spotlight.label}</strong>
+                <p>{$spotlight.description}</p>
+                <div class="aw-mobile-spotlight-meta">
+                    <div>{:L('已发布 %s 篇',$spotlight['count'])}</div>
+                    {if !empty($spotlight['latest'])}
+                    <div>{:L('最近一篇：%s',$spotlight['latest']['title'])}</div>
+                    {/if}
+                </div>
+                <span class="aw-mobile-spotlight-action">{if $spotlight['type']=='research'}{:L('去看综述')}{else/}{:L('去看观察')}{/if}</span>
+            </a>
+            {/foreach}
+        </div>
+        {/if}
         <div class="px-3 pb-3">
             <div class="aw-mobile-lane-grid">
                 <a class="aw-mobile-lane-card" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">

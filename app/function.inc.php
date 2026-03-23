@@ -272,6 +272,37 @@ if (! function_exists('frelink_article_type_label')) {
     }
 }
 
+if (! function_exists('frelink_article_type_spotlights')) {
+    function frelink_article_type_spotlights(int $categoryId = 0): array
+    {
+        $types = ['research', 'fragment'];
+        $spotlights = [];
+
+        foreach ($types as $type) {
+            $baseQuery = db('article')->where(['status' => 1, 'article_type' => $type]);
+            if ($categoryId > 0) {
+                $baseQuery->where('category_id', '=', $categoryId);
+            }
+
+            $count = (clone $baseQuery)->count();
+            $latest = (clone $baseQuery)
+                ->field('id,title,update_time,view_count,article_type')
+                ->order('update_time', 'desc')
+                ->find();
+
+            $spotlights[$type] = [
+                'type' => $type,
+                'label' => frelink_article_type_label($type),
+                'description' => frelink_content_description($type),
+                'count' => (int) $count,
+                'latest' => $latest ? $latest->toArray() : null,
+            ];
+        }
+
+        return $spotlights;
+    }
+}
+
 if (! function_exists('frelink_nav_label')) {
     function frelink_nav_label(string $label): string
     {

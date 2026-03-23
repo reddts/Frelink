@@ -2377,7 +2377,12 @@ return[
     '适合围绕同一主题持续追踪变化、判断和后续沉淀。' => 'Best for continuously tracking changes, judgments, and later accumulation around the same topic.',
     '答案入口' => 'Answer entry',
     '公开、开放、可检索的知识系统' => 'An open, searchable public knowledge system',
-    '让真正有价值的思想被看见' => 'Let ideas with real value be seen'
+    '让真正有价值的思想被看见' => 'Let ideas with real value be seen',
+    '主内容入口' => 'Primary content lane',
+    '已发布 %s 篇' => '%s published',
+    '最近一篇：%s' => 'Latest: %s',
+    '去看综述' => 'Open research',
+    '去看观察' => 'Open insights'
     ,'公开知识系统' => 'Open knowledge system'
     ,'内容不是越多越好' => 'More content is not always better'
 ];

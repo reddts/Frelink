@@ -2,6 +2,51 @@
 
 ## 2026-03-23
 
+### 里程碑：M1 综述与观察聚合入口前置
+
+- 文章总入口已新增 `综述 / 观察` 双入口聚合卡，前置站点的两条主内容生产线
+- 这组入口同时覆盖桌面端与移动端，不新增一级主导航，但把 `观察` 稳定提升为公开可见的聚合入口
+- 聚合卡会直接展示每种内容形态的：
+  - 当前累计篇数
+  - 最近更新内容
+  - 进入对应聚合页的快捷动作
+- `优化计划.md` 已同步勾选：
+  - `综述与观察承接主要内容生产，成为站点核心资产`
+  - `新增 思想碎片 标签体系或专题聚合入口，不新增一级主导航`
+
+### 影响范围
+
+- 公共函数：
+  - [app/function.inc.php](/mnt/f/workwww/knowlege-github/app/function.inc.php)
+- 控制器：
+  - [app/frontend/Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php)
+  - [app/mobile/Article.php](/mnt/f/workwww/knowlege-github/app/mobile/Article.php)
+- 模板与语言：
+  - [public/templates/default/html/article/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/index.php)
+  - [public/templates/default/mobile/article/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/article/index.php)
+  - [app/lang/en-us.php](/mnt/f/workwww/knowlege-github/app/lang/en-us.php)
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 远程已定向同步：
+  - `app/function.inc.php`
+  - `app/frontend/Article.php`
+  - `app/mobile/Article.php`
+  - `app/lang/en-us.php`
+  - `public/templates/default/html/article/index.php`
+  - `public/templates/default/mobile/article/index.php`
+- 远程已执行：
+  - `sudo php think clear`
+  - `php -l app/function.inc.php`
+  - `php -l app/frontend/Article.php`
+  - `php -l app/mobile/Article.php`
+- 线上页面验证已通过：
+  - 桌面端 `https://www.frelink.top/articles/` 已输出 `综述 / 观察` 主内容入口卡
+  - 移动端 `https://www.frelink.top/articles/` 已输出 `综述 / 观察` 主内容入口卡
+  - 当前线上 `research / fragment` 统计均为 `0`，说明入口已上线，但仍需要后续内容冷启动补量
+
 ### 里程碑：M1 中英文公开语义回归检查与漏翻修复
 
 - 已完成首页、FAQ、文章、观察、帮助、主题页的中英文抽样回归
