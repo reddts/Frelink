@@ -14,7 +14,7 @@
             </div>
             <div class="pcon {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}row{/if}">
                 {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}
-                <div class="col-md-3 aw-list-img"><img src="{$v.cover|default=$v['img_list'][0]}" class="rounded aw-cut-img" alt="{$v['title']}" width="100%"></div>
+                <div class="col-md-3 aw-list-img"><img src="{$v.cover|default=$v['img_list'][0]}" class="rounded aw-cut-img" alt="{$v['title']}" width="100%" loading="lazy" decoding="async"></div>
                 <div class="ov-3 col-md-9">
                     <div class="aw-three-line">
                         {$v.message|raw}
@@ -56,7 +56,7 @@
 {$page|raw}
 {else/}
 <p class="text-center py-3 text-muted">
-    <img src="{$cdnUrl}/static/common/image/empty.svg">
+    <img src="{$cdnUrl}/static/common/image/empty.svg" loading="lazy" decoding="async">
     <span class="d-block">{:L('暂无内容')}</span>
 </p>
 {/if}

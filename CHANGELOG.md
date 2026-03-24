@@ -2,6 +2,42 @@
 
 ## 2026-03-24
 
+### 里程碑：高频列表组件补齐图片懒加载
+
+- 桌面端高频列表组件已补齐图片懒加载和异步解码：
+  - `widget/render/articles`
+  - `widget/render/questions`
+  - `widget/member/posts`
+- 移动端高频 Ajax 列表已同步补齐：
+  - `mobile/ajax/lists`
+  - `mobile/search/ajax_search`
+- 这轮优化主要覆盖：
+  - 头像图片
+  - 列表封面图
+  - 空态图
+  - 主题图
+- 目标是继续减少首轮并发请求，降低列表页和搜索页的图片阻塞
+
+### 影响范围
+
+- 桌面端：
+  - [public/templates/default/html/widget/render/articles.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/widget/render/articles.php)
+  - [public/templates/default/html/widget/render/questions.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/widget/render/questions.php)
+  - [public/templates/default/html/widget/member/posts.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/widget/member/posts.php)
+- 移动端：
+  - [public/templates/default/mobile/ajax/lists.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/ajax/lists.php)
+  - [public/templates/default/mobile/search/ajax_search.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/search/ajax_search.php)
+
+### 验证
+
+- 本地 `git diff --check` 待复核
+- 本地当前环境无 `php`，无法执行本地语法检查
+- 远程同步后将执行：
+  - `php -l` 相关模板 / 逻辑文件
+  - `sudo php think clear`
+
+## 2026-03-24
+
 ### 里程碑：发布页增加内容质量检查卡片
 
 - 发布页新增 `发布前检查` 卡片，将内容策略里的 4 条筛选标准前置到作者写作现场：

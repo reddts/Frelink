@@ -7,11 +7,11 @@
             {if (!$v['answer_info'])}
             {if $v.is_anonymous}
             <a href="javascript:;" class="aw-username">
-                <img src="/static/common/image/default-avatar.svg" class="aw-user-img circle" alt="{:L('匿名用户')}">{:L('匿名用户')}
+                <img src="/static/common/image/default-avatar.svg" class="aw-user-img circle" alt="{:L('匿名用户')}" loading="lazy" decoding="async">{:L('匿名用户')}
             </a>
             {else/}
             <a href="{$v['user_info']['url']}" data-pjax="WrapBody" class="aw-user-name" data-id="{$v['user_info']['uid']}" target="_blank">
-                <img src="{$v['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['user_info']['name']}">{$v['user_info']['name']}
+                <img src="{$v['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['user_info']['name']}" loading="lazy" decoding="async">{$v['user_info']['name']}
             </a>
             {/if}
             <i>{:L('发起了提问')}</i>
@@ -19,11 +19,11 @@
             {else/}
             {if $v['answer_info']['is_anonymous']}
             <a href="javascript:;" class="aw-username" >
-                <img src="/static/common/image/default-avatar.svg" class="aw-user-img circle" alt="{:L('匿名用户')}">{:L('匿名用户')}
+                <img src="/static/common/image/default-avatar.svg" class="aw-user-img circle" alt="{:L('匿名用户')}" loading="lazy" decoding="async">{:L('匿名用户')}
             </a>
             {else/}
             <a href="{$v['answer_info']['user_info']['url']}" data-id="{$v['answer_info']['uid']}" class="aw-user-name" target="_blank">
-                <img src="{$v['answer_info']['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['answer_info']['user_info']['name']}">{$v['answer_info']['user_info']['name']}
+                <img src="{$v['answer_info']['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['answer_info']['user_info']['name']}" loading="lazy" decoding="async">{$v['answer_info']['user_info']['name']}
             </a>
             {/if}
             <i>{:L('回复了问题')}</i>
@@ -55,7 +55,7 @@
                     {volist name="$v['img_list']" id="img" key="k"}
                     {if($k<4)}
                     <div class="col-md-4 aw-list-img">
-                        <img src="{$img|default='/static/common/image/default-cover.svg'}?w=100&h=100" class="rounded w-100 aw-cut-img" style="margin-bottom: 5px;" >
+                        <img src="{$img|default='/static/common/image/default-cover.svg'}?w=100&h=100" class="rounded w-100 aw-cut-img" style="margin-bottom: 5px;" loading="lazy" decoding="async">
                     </div>
                     {/if}
                     {/volist}
@@ -91,7 +91,7 @@
 {$page|raw}
 {else/}
 <p class="text-center py-3 text-muted">
-    <img src="{$cdnUrl}/static/common/image/empty.svg">
+    <img src="{$cdnUrl}/static/common/image/empty.svg" loading="lazy" decoding="async">
     <span class="d-block">{:L('暂无内容')}</span>
 </p>
 {/if}

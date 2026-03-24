@@ -112,7 +112,7 @@
     <div class="overflow-hidden position-relative">
         <div class="float-left">
             <a href="{$v.user_info.url}" class="aw-username rounded d-block">
-                <img src="{$v.user_info.avatar}" alt="{$v.user_info.name}" width="80" height="80">
+                <img src="{$v.user_info.avatar}" alt="{$v.user_info.name}" width="80" height="80" loading="lazy" decoding="async">
             </a>
             {if $v['user_info']['is_online']}
             <span class="online-dot"></span>
@@ -146,7 +146,7 @@
     <div class="overflow-hidden position-relative">
         <div class="float-left">
             <a href="{$v.user_info.url}" class="aw-username rounded d-block">
-                <img src="{$v.user_info.avatar}" alt="{$v.user_info.name}" width="80" height="80">
+                <img src="{$v.user_info.avatar}" alt="{$v.user_info.name}" width="80" height="80" loading="lazy" decoding="async">
             </a>
             {if $v['user_info']['is_online']}
             <span class="online-dot"></span>
@@ -192,7 +192,7 @@
     <dl class="position-relative">
         <dt>
             <a href="{:url('topic/detail',['id'=>$v['id']])}">
-                <img src="{$v['pic']|default='/static/common/image/topic.svg'}" class="rounded">
+                <img src="{$v['pic']|default='/static/common/image/topic.svg'}" class="rounded" loading="lazy" decoding="async">
             </a>
         </dt>
         <dd class="info position-relative">
@@ -211,7 +211,7 @@
 {$page|raw}
 {else/}
 <p class="text-center py-3 text-muted">
-    <img src="{$cdnUrl}/static/common/image/empty.svg">
+    <img src="{$cdnUrl}/static/common/image/empty.svg" loading="lazy" decoding="async">
     <span class="d-block">{:L('暂无内容')}</span>
 </p>
 {/if}

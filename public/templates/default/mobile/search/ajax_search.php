@@ -10,11 +10,11 @@
                         <div class="float-left">
                             {if $v.is_anonymous}
                             <a href="javascript:;" class="aw-username">
-                                <img src="static/common/image/default-avatar.svg" width="40" height="40" class="aw-user-img circle" alt="{:L('匿名用户')}">{:L('匿名用户')}
+                                <img src="static/common/image/default-avatar.svg" width="40" height="40" class="aw-user-img circle" alt="{:L('匿名用户')}" loading="lazy" decoding="async">{:L('匿名用户')}
                             </a>
                             {else/}
                             <a href="{$v['user_info']['url']}" class="aw-user-name" data-id="{$v['user_info']['uid']}">
-                                <img src="{$v['user_info']['avatar']}" width="40" height="40" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['user_info']['name']}">
+                                <img src="{$v['user_info']['avatar']}" width="40" height="40" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['user_info']['name']}" loading="lazy" decoding="async">
                             </a>
                             {/if}
                         </div>
@@ -45,12 +45,12 @@
                         <div class="d-flex aw-list-img">
                             {volist name="$v['img_list']" id="img" key="k"}
                             {if($k<4)}
-                            <img src="{$img|default='/static/common/image/default-cover.svg'}" class="flex-fill mx-1 rounded aw-cut-img" style="margin-bottom: 5px;max-width: 33.3%;border-radius: 5px" >
+                            <img src="{$img|default='/static/common/image/default-cover.svg'}" class="flex-fill mx-1 rounded aw-cut-img" style="margin-bottom: 5px;max-width: 33.3%;border-radius: 5px" loading="lazy" decoding="async">
                             {/if}
                             {/volist}
                         </div>
                         {else/}
-                        <img src="{$v['img_list'][0]|default='/static/common/image/default-cover.svg'}" class="rounded aw-cut-img w-100" style="margin-bottom: 5px;max-height: 200px;" >
+                        <img src="{$v['img_list'][0]|default='/static/common/image/default-cover.svg'}" class="rounded aw-cut-img w-100" style="margin-bottom: 5px;max-height: 200px;" loading="lazy" decoding="async">
                         {/if}
                         {/if}
                         <div class="aw-content aw-two-line text-muted font-9">
@@ -80,7 +80,7 @@
                     <div class="aui-card-title pt-3 bg-white px-2 clearfix position-relative pb-2">
                         <div class="float-left">
                             <a href="{$v['user_info']['url']}"  class="aw-user-name" data-id="{$v['user_info']['uid']}" >
-                                <img src="{$v['user_info']['avatar']}" width="40" height="40" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['user_info']['name']}">
+                                <img src="{$v['user_info']['avatar']}" width="40" height="40" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['user_info']['name']}" loading="lazy" decoding="async">
                             </a>
                         </div>
                         <div class="float-left ml-2">
@@ -104,7 +104,7 @@
                     <div class="desc">
                         {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}
                         <div class="aw-list-img">
-                            <img src="{$v.cover|default=$v['img_list'][0]}" class="rounded aw-cut-img" alt="{$v['title']}" width="100%">
+                            <img src="{$v.cover|default=$v['img_list'][0]}" class="rounded aw-cut-img" alt="{$v['title']}" width="100%" loading="lazy" decoding="async">
                         </div>
                         {/if}
                         <div class="aw-content aw-two-line text-muted font-9">
@@ -132,7 +132,7 @@
         <div class="aui-card-main">
             <div class="text-center p-3">
                 <a href="{$v.url}" class="aw-username font-12 d-block" data-id="{$v.uid}">
-                    <img src="{$v.avatar}" onerror="this.src='/static/common/image/default-avatar.svg'" alt="{$v.name}" width="100" height="100" style="border-radius: 50%">
+                    <img src="{$v.avatar}" onerror="this.src='/static/common/image/default-avatar.svg'" alt="{$v.name}" width="100" height="100" style="border-radius: 50%" loading="lazy" decoding="async">
                     <p class="d-block position-relative">
                         <span>{$v.name|raw}</span>
                         {if $v.verified}
@@ -162,7 +162,7 @@
         <dl class="position-relative">
             <dt class="mb-0">
                 <a href="{:url('topic/detail',['id'=>$v['id']])}">
-                    <img src="{$v['pic']|default='/static/common/image/topic.svg'}" onerror="this.src='/static/common/image/topic.svg'"  class="rounded">
+                    <img src="{$v['pic']|default='/static/common/image/topic.svg'}" onerror="this.src='/static/common/image/topic.svg'"  class="rounded" loading="lazy" decoding="async">
                 </a>
             </dt>
             <dd class="info position-relative">
@@ -186,11 +186,11 @@
             {if (!$v['answer_info'])}
             {if $v.is_anonymous}
             <a href="javascript:;" class="aw-username">
-                <img src="/static/common/image/default-avatar.svg" onerror="this.src='/static/common/image/default-avatar.svg'" class="aw-user-img circle" alt="{:L('匿名用户')}">{:L('匿名用户')}
+                <img src="/static/common/image/default-avatar.svg" onerror="this.src='/static/common/image/default-avatar.svg'" class="aw-user-img circle" alt="{:L('匿名用户')}" loading="lazy" decoding="async">{:L('匿名用户')}
             </a>
             {else/}
             <a href="{$v['user_info']['url']}" class="aw-user-name" data-id="{$v['user_info']['uid']}">
-                <img src="{$v['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['user_info']['name']}">{$v['user_info']['name']}
+                <img src="{$v['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['user_info']['name']}" loading="lazy" decoding="async">{$v['user_info']['name']}
             </a>
             {/if}
             <i>{:L('发起了提问')}</i>
@@ -198,11 +198,11 @@
             {else/}
             {if $v['answer_info']['is_anonymous']}
             <a href="javascript:;" class="aw-username" >
-                <img src="/static/common/image/default-avatar.svg" onerror="this.src='/static/common/image/default-avatar.svg'" class="aw-user-img circle" alt="{:L('匿名用户')}">{:L('匿名用户')}
+                <img src="/static/common/image/default-avatar.svg" onerror="this.src='/static/common/image/default-avatar.svg'" class="aw-user-img circle" alt="{:L('匿名用户')}" loading="lazy" decoding="async">{:L('匿名用户')}
             </a>
             {else/}
             <a href="{$v['answer_info']['user_info']['url']}" data-id="{$v['answer_info']['uid']}" class="aw-user-name" data-pjax="WrapBody">
-                <img src="{$v['answer_info']['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['answer_info']['user_info']['name']}">{$v['answer_info']['user_info']['name']}
+                <img src="{$v['answer_info']['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['answer_info']['user_info']['name']}" loading="lazy" decoding="async">{$v['answer_info']['user_info']['name']}
             </a>
             {/if}
             <i>{:L('回复了问题')}（{$v['answer_count']}{:L('回复')}）</i>
@@ -234,7 +234,7 @@
                     {volist name="$v['img_list']" id="img" key="k"}
                     {if($k<4)}
                     <div class="col-md-4 aw-list-img">
-                        <img src="{$img|default='/static/common/image/default-cover.svg'}" class="rounded w-100 aw-cut-img" style="margin-bottom: 5px;" >
+                        <img src="{$img|default='/static/common/image/default-cover.svg'}" class="rounded w-100 aw-cut-img" style="margin-bottom: 5px;" loading="lazy" decoding="async">
                     </div>
                     {/if}
                     {/volist}
