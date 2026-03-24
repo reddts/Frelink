@@ -11,6 +11,7 @@ class Help extends Frontend
         $page = $this->request->param('page',1,'intval');
         $data = HelpModel::getHelpChapterList($page);
         $this->assign('map_summary', HelpModel::getKnowledgeMapSummary());
+        $this->assign('topic_connections', HelpModel::getKnowledgeMapTopicConnections(8, 2));
         $this->assign($data);
         $this->TDK('知识地图 - ' . get_setting('site_name'));
         return $this->fetch();

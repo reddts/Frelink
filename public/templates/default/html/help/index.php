@@ -39,6 +39,30 @@
                 </div>
             </div>
         </div>
+        <div class="row pb-3">
+            <div class="col-md-8 mb-2">
+                <div class="border rounded h-100 p-3" style="background:linear-gradient(180deg,#f7fbff 0%,#f3f8fc 100%);border-color:#e4edf4 !important;">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap">
+                        <div class="mb-2 mr-3">
+                            <div class="font-weight-bold text-dark mb-2">{:L('这张知识地图怎么用')}</div>
+                            <div class="text-muted font-12 mb-2">{:L('先从章节进入，再沿着相关主题和归档内容继续追踪，这里承接的是长期可维护的知识结构，而不是一次性信息流。')}</div>
+                        </div>
+                        <div class="text-muted font-12 mb-2">{:L('已连接主题')} {$map_summary.topic_count|default=0}</div>
+                    </div>
+                    <div class="d-flex flex-wrap">
+                        <span class="badge badge-light border mr-2 mb-2 px-3 py-2">{:L('先看章节结构')}</span>
+                        <span class="badge badge-light border mr-2 mb-2 px-3 py-2">{:L('再找相关主题')}</span>
+                        <span class="badge badge-light border mr-2 mb-2 px-3 py-2">{:L('继续顺着 FAQ 和知识内容往下读')}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-2">
+                <div class="border rounded h-100 p-3">
+                    <div class="font-weight-bold text-dark mb-2">{:L('长期主题连接')}</div>
+                    <div class="text-muted font-12">{:L('这些主题已经和知识章节建立了真实连接，可直接作为长期追踪入口。')}</div>
+                </div>
+            </div>
+        </div>
         <div class="col-12 pb-3">
             <form action="{:url('search/index')}" method="get" id="homeSearch">
                 <div class="w-100 px-3 py-1" style="background: #eee;border-radius: 50px">
@@ -50,6 +74,34 @@
     </div>
 </div>
 <div class="container mt-2 aw-wrap" id="tabMain">
+    {if !empty($topic_connections)}
+    <div class="bg-white p-3 aw-content-shell help-list-shell mb-2" style="border-radius: 10px">
+        <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+            <div>
+                <h4 class="mb-1 font-weight-bold">{:L('长期主题连接')}</h4>
+                <p class="text-muted font-12 mb-0">{:L('优先展示已经和知识地图形成真实关系的主题，方便从主题进入章节，再继续找到归档内容。')}</p>
+            </div>
+            <a href="{:url('topic/index')}" class="text-primary">{:L('查看全部')}</a>
+        </div>
+        <div class="row">
+            {foreach $topic_connections as $topic}
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="border rounded h-100 p-3">
+                    <a href="{:url('topic/detail',['id'=>$topic['id']])}" target="_blank" class="text-dark font-weight-bold d-block mb-2">{$topic.title}</a>
+                    <div class="text-muted font-12 mb-2">{:L('已连接章节')} {$topic.chapter_count|default=0} · {:L('已归档内容')} {$topic.matched_count|default=0}</div>
+                    {if !empty($topic['chapters'])}
+                    <div class="d-flex flex-wrap">
+                        {foreach $topic['chapters'] as $chapter}
+                        <a href="{:url('help/detail',['token'=>$chapter['url_token']])}" class="badge badge-light border mr-2 mb-2 px-2 py-2 text-dark">{$chapter.title}</a>
+                        {/foreach}
+                    </div>
+                    {/if}
+                </div>
+            </div>
+            {/foreach}
+        </div>
+    </div>
+    {/if}
     {if $list}
     <div class="row">
         {foreach $list as $k=>$v}
@@ -64,6 +116,18 @@
                 {if !empty($v.description)}
                 <p class="text-muted font-12 mb-2">{:str_cut(strip_tags((string)$v['description']),0,52)}</p>
                 {/if}
+                <div class="d-flex flex-wrap mb-2">
+                    <span class="badge badge-light border mr-2 mb-2 px-2 py-2">{:L('FAQ 条目')} {$v.question_count|default=0}</span>
+                    <span class="badge badge-light border mr-2 mb-2 px-2 py-2">{:L('知识内容')} {$v.article_count|default=0}</span>
+                    <span class="badge badge-light border mr-2 mb-2 px-2 py-2">{:L('相关主题')} {$v.topic_count|default=0}</span>
+                </div>
+                {if !empty($v.related_topics)}
+                <div class="mb-2">
+                    {foreach $v.related_topics as $topic}
+                    <a href="{:url('topic/detail',['id'=>$topic['id']])}" target="_blank" class="badge badge-light border mr-2 mb-2 px-2 py-2 text-dark">{$topic.title}</a>
+                    {/foreach}
+                </div>
+                {/if}
                 {if isset($v.chapters) && $v.chapters}
                 <ul class="pb-2">
                     {foreach $v['chapters'] as $k1=>$v1}
@@ -71,6 +135,17 @@
                     {/foreach}
                 </ul>
                 {/if}
+                <div class="text-muted font-12 mb-2">
+                    {if $v.question_count>0 && $v.article_count>0}
+                    {:L('这个章节同时覆盖 FAQ 和知识内容，更适合做长期主题容器。')}
+                    {elseif $v.question_count>0/}
+                    {:L('这个章节当前以 FAQ 为主，适合作为答案入口继续沉淀。')}
+                    {elseif $v.article_count>0/}
+                    {:L('这个章节当前以知识内容为主，适合作为综述和观察的长期归档位。')}
+                    {else/}
+                    {:L('这个章节还在起步阶段，后续可以继续补 FAQ、综述或观察内容。')}
+                    {/if}
+                </div>
                 <div class="text-center border-top pt-3">
                     <a href="{:url('help/detail',['token'=>$v.url_token])}" data-pjax="wrapMain" class="text-primary">{:L('查看全部')}</a>
                 </div>

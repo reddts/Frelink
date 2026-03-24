@@ -26,10 +26,32 @@
         </div>
 
         <div class="mb-3 w-100 text-muted mt-3 aw-content-meta help-summary">{$info.description|raw}</div>
-        <div class="d-flex flex-wrap text-muted font-12">
-            <span class="mr-3">{:L('已归档内容')} {$chapter_stats.total_count|default=0}</span>
-            <span class="mr-3">{:L('FAQ 条目')} {$chapter_stats.question_count|default=0}</span>
-            <span>{:L('知识内容')} {$chapter_stats.article_count|default=0}</span>
+        <div class="row">
+            <div class="col-md-8 mb-2">
+                <div class="d-flex flex-wrap">
+                    <span class="badge badge-light border mr-2 mb-2 px-3 py-2">{:L('已归档内容')} {$chapter_stats.total_count|default=0}</span>
+                    <span class="badge badge-light border mr-2 mb-2 px-3 py-2">{:L('FAQ 条目')} {$chapter_stats.question_count|default=0}</span>
+                    <span class="badge badge-light border mr-2 mb-2 px-3 py-2">{:L('知识内容')} {$chapter_stats.article_count|default=0}</span>
+                    <span class="badge badge-light border mr-2 mb-2 px-3 py-2">{:L('相关主题')} {:count($related_topics)}</span>
+                </div>
+                <div class="text-muted font-12 mt-1">
+                    {if $chapter_stats.question_count>0 && $chapter_stats.article_count>0}
+                    {:L('这个章节同时覆盖 FAQ 和知识内容，更适合做长期主题容器。')}
+                    {elseif $chapter_stats.question_count>0/}
+                    {:L('这个章节当前以 FAQ 为主，适合作为答案入口继续沉淀。')}
+                    {elseif $chapter_stats.article_count>0/}
+                    {:L('这个章节当前以知识内容为主，适合作为综述和观察的长期归档位。')}
+                    {else/}
+                    {:L('这个章节还在起步阶段，后续可以继续补 FAQ、综述或观察内容。')}
+                    {/if}
+                </div>
+            </div>
+            <div class="col-md-4 mb-2">
+                <div class="border rounded p-3 h-100" style="background:linear-gradient(180deg,#f7fbff 0%,#f3f8fc 100%);border-color:#e4edf4 !important;">
+                    <div class="font-weight-bold text-dark mb-2">{:L('章节定位')}</div>
+                    <div class="text-muted font-12">{:L('把这个章节看作一个长期主题容器：先看已归档内容，再顺着相关主题继续扩展。')}</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -56,6 +78,15 @@
             <a href="{:url('help/detail',['token'=>$info['url_token'],'content_type'=>'all'])}" class="btn btn-sm mr-2 mb-2 {if $current_content_type=='all'}btn-primary{else/}btn-light{/if}">{:L('全部内容')}</a>
             <a href="{:url('help/detail',['token'=>$info['url_token'],'content_type'=>'question'])}" class="btn btn-sm mr-2 mb-2 {if $current_content_type=='question'}btn-primary{else/}btn-light{/if}">{:L('FAQ 条目')}</a>
             <a href="{:url('help/detail',['token'=>$info['url_token'],'content_type'=>'article'])}" class="btn btn-sm mb-2 {if $current_content_type=='article'}btn-primary{else/}btn-light{/if}">{:L('知识内容')}</a>
+        </div>
+        <div class="text-muted font-12 mb-3">
+            {if $current_content_type=='question'}
+            {:L('当前只看这个章节里的 FAQ 条目，适合先确认高频问题和明确答案。')}
+            {elseif $current_content_type=='article'/}
+            {:L('当前只看这个章节里的知识内容，适合继续阅读综述、观察和帮助资料。')}
+            {else/}
+            {:L('当前展示这个章节里的全部归档内容，可从 FAQ 进入，也可继续顺着知识内容深入。')}
+            {/if}
         </div>
         {if !empty($list)}
         {if $current_content_type == 'all' || $current_content_type == 'question'}

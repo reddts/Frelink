@@ -1,5 +1,56 @@
 # Frelink 项目更新日志
 
+## 2026-03-24
+
+### 里程碑：M3 知识地图升级为长期主题容器
+
+- 知识地图首页不再只是帮助章节列表，已新增 `长期主题连接` 聚合区：
+  - 展示已经和知识章节建立真实归档关系的主题
+  - 每个主题可直接看到已连接章节数、已归档内容数和代表章节入口
+- 知识章节卡片已补充真实覆盖结构：
+  - `FAQ 条目`
+  - `知识内容`
+  - `相关主题`
+  - 同时增加章节角色说明，明确当前更像答案入口、知识归档位还是双向容器
+- 章节详情页已补充：
+  - 顶部章节定位说明
+  - `FAQ / 知识内容 / 全部内容` 三种浏览提示
+  - 让用户更容易理解这个章节该怎么继续往下读
+- `优化计划.md` 已同步回填：
+  - `将知识章节从帮助展示页升级为知识地图与长期主题容器`
+
+### 影响范围
+
+- 前台控制器：
+  - [app/frontend/Help.php](/mnt/f/workwww/knowlege-github/app/frontend/Help.php)
+- 模型与语言：
+  - [app/model/Help.php](/mnt/f/workwww/knowlege-github/app/model/Help.php)
+  - [app/lang/en-us.php](/mnt/f/workwww/knowlege-github/app/lang/en-us.php)
+- 模板与文档：
+  - [public/templates/default/html/help/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/help/index.php)
+  - [public/templates/default/html/help/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/help/detail.php)
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 当前环境无本地 `php` 可执行文件，未能执行本地 `php -l`
+- 远程标准部署脚本全量 `rsync` 时命中历史只读文件权限限制，未采用全量同步结束本轮
+- 远程已定向同步本轮改动文件：
+  - `app/frontend/Help.php`
+  - `app/lang/en-us.php`
+  - `app/model/Help.php`
+  - `public/templates/default/html/help/index.php`
+  - `public/templates/default/html/help/detail.php`
+- 远程已执行：
+  - `php -l app/frontend/Help.php`
+  - `php -l app/model/Help.php`
+  - `sudo php think clear`
+- 线上页面验证已通过：
+  - `https://www.frelink.top/help/index.html` 已输出 `已连接主题`
+  - `https://www.frelink.top/help/index.html` 已输出 `长期主题连接`
+- 当前线上知识地图首页暂无公开章节数据，因此未能继续抽样章节详情页做 smoke test；页面当前仍返回空态 `暂无内容`
+
 ## 2026-03-23
 
 ### 里程碑：M1 修正首页主内容区宽度未拉满

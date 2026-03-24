@@ -48,13 +48,55 @@ class Help extends BaseModel
         $relationCount = db('help_chapter_relation')->where(['status' => 1])->count();
         $questionCount = db('help_chapter_relation')->where(['status' => 1, 'item_type' => 'question'])->count();
         $articleCount = db('help_chapter_relation')->where(['status' => 1, 'item_type' => 'article'])->count();
+        $topicCount = db('help_chapter_relation')
+            ->alias('hcr')
+            ->join('topic_relation tr', 'tr.item_id = hcr.item_id AND tr.item_type = hcr.item_type AND tr.status = 1')
+            ->where(['hcr.status' => 1])
+            ->distinct(true)
+            ->count('tr.topic_id');
 
         return [
             'chapter_count' => $chapterCount,
             'relation_count' => $relationCount,
             'question_count' => $questionCount,
             'article_count' => $articleCount,
+            'topic_count' => $topicCount,
         ];
+    }
+
+    public static function getKnowledgeMapTopicConnections(int $limit = 8, int $chapterLimit = 2): array
+    {
+        $rows = db('help_chapter_relation')
+            ->alias('hcr')
+            ->join('topic_relation tr', 'tr.item_id = hcr.item_id AND tr.item_type = hcr.item_type AND tr.status = 1')
+            ->join('topic t', 't.id = tr.topic_id AND t.status = 1')
+            ->where(['hcr.status' => 1])
+            ->field('t.id,t.title,t.url_token,t.focus,t.discuss,count(DISTINCT hcr.chapter_id) as chapter_count,count(DISTINCT concat(hcr.item_type,":",hcr.item_id)) as matched_count')
+            ->group('t.id,t.title,t.url_token,t.focus,t.discuss')
+            ->order(['chapter_count' => 'DESC', 'matched_count' => 'DESC', 't.discuss' => 'DESC', 't.focus' => 'DESC', 't.id' => 'DESC'])
+            ->limit($limit)
+            ->select()
+            ->toArray();
+
+        if (!$rows) {
+            return [];
+        }
+
+        foreach ($rows as $k => $topic) {
+            $rows[$k]['chapters'] = db('help_chapter_relation')
+                ->alias('hcr')
+                ->join('topic_relation tr', 'tr.item_id = hcr.item_id AND tr.item_type = hcr.item_type AND tr.status = 1')
+                ->join('help_chapter c', 'c.id = hcr.chapter_id AND c.status = 1')
+                ->where(['hcr.status' => 1, 'tr.topic_id' => intval($topic['id'])])
+                ->field('c.id,c.title,c.url_token,count(DISTINCT concat(hcr.item_type,":",hcr.item_id)) as matched_count')
+                ->group('c.id,c.title,c.url_token')
+                ->order(['matched_count' => 'DESC', 'c.sort' => 'ASC', 'c.id' => 'DESC'])
+                ->limit($chapterLimit)
+                ->select()
+                ->toArray();
+        }
+
+        return $rows;
     }
 
     public static function getUnarchivedContentSummary(int $limit = 6): array
@@ -175,6 +217,7 @@ class Help extends BaseModel
                 $data['data'][$k]['chapters'] = self::getRelationHelpChapterListByChapterId($v['id'],3,);
             }
         }
+        $data['data'] = self::enrichChapterCollection($data['data']);
         return ['list' => $data['data'], 'page' => $pageVar, 'total' => $data['last_page']];
     }
 
@@ -832,5 +875,79 @@ class Help extends BaseModel
         });
 
         return array_slice($items, 0, $limit);
+    }
+
+    private static function enrichChapterCollection(array $chapters, int $topicLimit = 3): array
+    {
+        if (!$chapters) {
+            return [];
+        }
+
+        $chapterIds = array_values(array_unique(array_filter(array_map(function ($chapter) {
+            return intval($chapter['id'] ?? 0);
+        }, $chapters))));
+
+        if (!$chapterIds) {
+            return $chapters;
+        }
+
+        $relationRows = db('help_chapter_relation')
+            ->where(['status' => 1])
+            ->whereIn('chapter_id', $chapterIds)
+            ->field('chapter_id,item_type,count(*) as total')
+            ->group('chapter_id,item_type')
+            ->select()
+            ->toArray();
+
+        $topicRows = db('help_chapter_relation')
+            ->alias('hcr')
+            ->join('topic_relation tr', 'tr.item_id = hcr.item_id AND tr.item_type = hcr.item_type AND tr.status = 1')
+            ->where(['hcr.status' => 1])
+            ->whereIn('hcr.chapter_id', $chapterIds)
+            ->field('hcr.chapter_id,count(DISTINCT tr.topic_id) as topic_count')
+            ->group('hcr.chapter_id')
+            ->select()
+            ->toArray();
+
+        $statsMap = [];
+        foreach ($relationRows as $row) {
+            $chapterId = intval($row['chapter_id'] ?? 0);
+            if (!$chapterId) {
+                continue;
+            }
+            if (!isset($statsMap[$chapterId])) {
+                $statsMap[$chapterId] = [
+                    'relation_count' => 0,
+                    'question_count' => 0,
+                    'article_count' => 0,
+                ];
+            }
+            $count = intval($row['total'] ?? 0);
+            $statsMap[$chapterId]['relation_count'] += $count;
+            if (($row['item_type'] ?? '') === 'question') {
+                $statsMap[$chapterId]['question_count'] = $count;
+            }
+            if (($row['item_type'] ?? '') === 'article') {
+                $statsMap[$chapterId]['article_count'] = $count;
+            }
+        }
+
+        $topicCountMap = $topicRows ? array_column($topicRows, 'topic_count', 'chapter_id') : [];
+
+        foreach ($chapters as $k => $chapter) {
+            $chapterId = intval($chapter['id'] ?? 0);
+            $stats = $statsMap[$chapterId] ?? [
+                'relation_count' => 0,
+                'question_count' => 0,
+                'article_count' => 0,
+            ];
+            $chapters[$k]['relation_count'] = intval($stats['relation_count'] ?? 0);
+            $chapters[$k]['question_count'] = intval($stats['question_count'] ?? 0);
+            $chapters[$k]['article_count'] = intval($stats['article_count'] ?? 0);
+            $chapters[$k]['topic_count'] = intval($topicCountMap[$chapterId] ?? 0);
+            $chapters[$k]['related_topics'] = self::getChapterTopicHints($chapterId, $topicLimit);
+        }
+
+        return $chapters;
     }
 }
