@@ -448,7 +448,16 @@ class PluginsHelper
 
             if(isset($setting['publish']) && !empty($setting['publish']))
             {
-                $settings['publish']=array_merge($settings['publish'],$setting['publish']);
+                foreach ($setting['publish'] as $publishItem) {
+                    if (!is_array($publishItem)) {
+                        continue;
+                    }
+                    $publishItem['url'] = trim((string)($publishItem['url'] ?? ''));
+                    if ($publishItem['url'] === '') {
+                        continue;
+                    }
+                    $settings['publish'][] = $publishItem;
+                }
             }
 
             if(isset($setting['category']) && !empty($setting['category']))

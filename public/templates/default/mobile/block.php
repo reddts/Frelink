@@ -105,12 +105,14 @@
                     </a>
                 </div>
                 {volist name=":config('aws.publish')" id="v"}
+                {if isset($v['url']) && $v['url']}
                 <!--<div class="col-3 mb-4">
                     <a href="{:url($v['url'])}" class="text-muted">
                         <i class="{$v.icon|default='far fa-file-alt'} font-14"></i>
                         <span class="d-block font-9 mt-1">{$v.title}</span>
                     </a>
                 </div>-->
+                {/if}
                 {/volist}
             </div>
         </script>

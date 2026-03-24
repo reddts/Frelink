@@ -432,10 +432,25 @@
                     <div>
                         <div class="font-weight-bold mb-2">{:L('建议优先挂载的话题')}</div>
                         {volist name="publish_insight.suggested_topics" id="v"}
+                        {if isset($v.url) && $v.url}
                         <a class="d-block text-primary mb-2" href="{$v.url}" target="_blank">{$v.title}</a>
+                        {/if}
                         {/volist}
                     </div>
                     {/if}
+                    <div class="r-box mb-2">
+                        <div class="r-title">
+                            <h4>{:L('发布前检查')}</h4>
+                        </div>
+                        <div class="pb-2">
+                            <ul class="text-muted font-9 pl-3 mb-0">
+                                <li class="mb-2">{:L('用户能否在 3 秒内知道这篇和自己有关')}</li>
+                                <li class="mb-2">{:L('用户能否在 30 秒内获得一个新判断')}</li>
+                                <li class="mb-2">{:L('用户看完后是否愿意继续点下一篇')}</li>
+                                <li>{:L('标题是否真实反映正文，不靠夸张承诺骗点击')}</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
             {/if}

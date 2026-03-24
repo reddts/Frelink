@@ -43,6 +43,15 @@
                 {/if}
             </div>
             {/if}
+            <div class="border rounded px-3 py-2 mb-3" style="background:#fbfdff;border-color:#e6edf5 !important;">
+                <div class="font-weight-bold mb-2">{:L('发布前检查')}</div>
+                <ul class="text-muted font-9 pl-3 mb-0">
+                    <li class="mb-2">{:L('用户能否在 3 秒内知道这篇和自己有关')}</li>
+                    <li class="mb-2">{:L('用户能否在 30 秒内获得一个新判断')}</li>
+                    <li class="mb-2">{:L('用户看完后是否愿意继续点下一篇')}</li>
+                    <li>{:L('标题是否真实反映正文，不靠夸张承诺骗点击')}</li>
+                </ul>
+            </div>
             <form id="question_form"  method="post" action="{:url('article/publish')}" onsubmit="return false">
                 {:token_field()}
                 <input type="hidden" name="id" value="{$article_info.id|default=0}">

@@ -2,6 +2,42 @@
 
 ## 2026-03-24
 
+### 里程碑：发布页增加内容质量检查卡片
+
+- 发布页新增 `发布前检查` 卡片，将内容策略里的 4 条筛选标准前置到作者写作现场：
+  - 3 秒内能否看出与自己有关
+  - 30 秒内能否获得一个新判断
+  - 看完后是否愿意继续点下一篇
+  - 标题是否真实反映正文
+- 桌面端与移动端的 `FAQ 条目`、`综述 / 观察` 发布页均已同步接入
+- 同时保留了此前的发布推荐修复：
+  - `suggested_topics` 里缺少 `url` 时不再报错
+  - 友情链接与插件发布配置增加了 `url` 兜底
+
+### 影响范围
+
+- 发布页模板：
+  - [public/templates/default/html/question/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/publish.php)
+  - [public/templates/default/html/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/publish.php)
+  - [public/templates/default/mobile/question/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/question/publish.php)
+  - [public/templates/default/mobile/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/article/publish.php)
+- 兜底与校验：
+  - [app/common/library/helper/PluginsHelper.php](/mnt/f/workwww/knowlege-github/app/common/library/helper/PluginsHelper.php)
+  - [app/widget/Common.php](/mnt/f/workwww/knowlege-github/app/widget/Common.php)
+  - [public/templates/default/html/widget/common/links.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/widget/common/links.php)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 本地当前环境无 `php`，无法执行本地语法检查
+- 远程已定向同步本轮改动文件，随后执行了：
+  - `php -l app/common/library/helper/PluginsHelper.php`
+  - `php -l app/widget/Common.php`
+  - `php -l config/version.php`
+  - `sudo php think clear`
+
+## 2026-03-24
+
 ### 里程碑：M3 知识地图升级为长期主题容器
 
 - 知识地图首页不再只是帮助章节列表，已新增 `长期主题连接` 聚合区：

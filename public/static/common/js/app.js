@@ -2,13 +2,11 @@
 if($.support.pjax && pjaxEnable==1)
 {
     $.pjax.defaults.timeout = 1200;
-    $(document).on('click', 'a[data-pjax],a[target!=_blank]', function(event) {
-       // var index = layer.load();
+    $(document).on('click', 'a[data-pjax]', function(event) {
         let container = $(this).attr('data-pjax')
         let containerSelector = '#' + container;
         $.pjax.defaults.fragment = containerSelector;
         $.pjax.click(event, {container: containerSelector,scrollTo:container});
-        //layer.close(index);
     })
     $(document).on('pjax:timeout', function(event) {
         event.preventDefault();

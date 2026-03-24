@@ -204,13 +204,15 @@
                             <div class="dropdown-menu p-0 dropdown-menu-right border-0 font-size-sm" style="z-index: 1065;">
                                 <div class="text-center d-block py-2 aw-nav aw-dropdown-nav text-center aw-answer-sort" style="min-width: 100px">
                                     {if($user_info['permission']['publish_question_enable']=='Y')}
-                                    <a href="{:frelink_publish_url('question')}" class="py-1 dropdown-item" target="_blank" rel="noopener noreferrer">{:L('问题')}</a>
+                                    <a href="{:frelink_publish_url('question')}" class="py-1 dropdown-item">{:L('问题')}</a>
                                     {/if}
                                     {if($user_info['permission']['publish_article_enable']=='Y')}
-                                    <a href="{:frelink_publish_url('article')}" class="py-1 dropdown-item" target="_blank" rel="noopener noreferrer">{:L('文章')} </a>
+                                    <a href="{:frelink_publish_url('article')}" class="py-1 dropdown-item">{:L('文章')} </a>
                                     {/if}
                                     {volist name=":config('aws.publish')" id="v"}
-                                    <a href="{:url($v['url'])} " class="py-1 dropdown-item" target="_blank">{$v.title}</a>
+                                    {if isset($v['url']) && $v['url']}
+                                    <a href="{:url($v['url'])}" class="py-1 dropdown-item">{$v.title}</a>
+                                    {/if}
                                     {/volist}
 
                                     {:hook('publishButtons')}

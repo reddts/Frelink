@@ -6,7 +6,7 @@
         <h6 class="mb-3">{:L('友情链接')}：</h6>
         <ul class="row">
             {volist name="links" id="v"}
-            {if $v.logo}
+            {if $v.logo && isset($v.url) && $v.url}
             <li class="col-md-2">
                 <a href="{$v.url}" target="_blank"><img src="{$v.logo}" class="rounded w-100" style="max-height: 40px"></a>
             </li>
@@ -22,7 +22,9 @@
             <dt class="d-block mb-2">{:L('友情链接')}：</dt>
             {volist name="links" id="v"}
             <dd class="d-inline-block mr-3 mb-0">
+                {if isset($v.url) && $v.url}
                 <a href="{$v.url}" target="_blank">{$v.name}</a>
+                {/if}
             </dd>
             {/volist}
         </dl>

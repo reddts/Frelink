@@ -237,7 +237,7 @@ class Common extends Widget
         }
         foreach ($links as $k=>$v)
         {
-            $links[$k]['url'] = htmlspecialchars_decode($v['url']);
+            $links[$k]['url'] = htmlspecialchars_decode($v['url'] ?? '');
         }
         $this->assign('links',$links);
         return $this->fetch('common/links');

@@ -73,10 +73,12 @@
                         </a>
                         <div class="dropdown-menu p-0 dropdown-menu-right border-0 font-size-sm" style="z-index: 1065;">
                             <div class="text-center d-block py-2 aw-nav aw-dropdown-nav text-center aw-answer-sort" style="min-width: 100px">
-                                <a href="{:frelink_publish_url('question')}" class="py-1 dropdown-item" target="_blank" rel="noopener noreferrer">{:L('FAQ 条目')}</a>
-                                <a href="{:frelink_publish_url('article')}" class="py-1 dropdown-item" target="_blank" rel="noopener noreferrer">{:L('综述 / 观察')}</a>
+                                <a href="{:frelink_publish_url('question')}" class="py-1 dropdown-item">{:L('FAQ 条目')}</a>
+                                <a href="{:frelink_publish_url('article')}" class="py-1 dropdown-item">{:L('综述 / 观察')}</a>
                                 {volist name=":config('aws.publish')" id="v"}
-                                <a href="{:url($v['url'])} " class="py-1 dropdown-item" target="_blank">{$v.title}</a>
+                                {if isset($v['url']) && $v['url']}
+                                <a href="{:url($v['url'])}" class="py-1 dropdown-item">{$v.title}</a>
+                                {/if}
                                 {/volist}
                                 {:hook('publishButtons')}
                             </div>
