@@ -63,12 +63,12 @@
         <!--<div class="hotUserTopic d-flex p-2">
             <div class="flex-fill mr-1">
                 <a href="{:url('people/lists')}">
-                    <img src="{$static_url}mobile/img/hot-user.png" style="width: 100%;display: inline-block">
+                    <img src="{$static_url}mobile/img/hot-user.png" style="width: 100%;display: inline-block" loading="lazy" decoding="async">
                 </a>
             </div>
             <div class="flex-fill ml-1">
                 <a href="{:url('topic/index')}">
-                    <img src="{$static_url}mobile/img/hot-topic.png" style="width: 100%;display: inline-block">
+                    <img src="{$static_url}mobile/img/hot-topic.png" style="width: 100%;display: inline-block" loading="lazy" decoding="async">
                 </a>
             </div>
         </div>-->

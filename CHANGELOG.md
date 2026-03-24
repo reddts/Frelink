@@ -2,6 +2,27 @@
 
 ## 2026-03-24
 
+### 里程碑：移动端次级大图延迟加载
+
+- 移动端首页与两个分类页的“热门用户 / 热门话题”大图已补齐 `loading="lazy"` 和 `decoding="async"`
+- 这类图片通常处于首屏下方或折叠区，延迟加载后可以减少首轮并发请求
+- 目标是继续压缩移动端首页、文章页、问题页的图片竞争
+
+### 影响范围
+
+- [public/templates/default/mobile/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/index.php)
+- [public/templates/default/mobile/article/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/article/index.php)
+- [public/templates/default/mobile/question/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/question/index.php)
+
+### 验证
+
+- 本地 `git diff --check` 待复核
+- 远程同步后将执行：
+  - `sudo php think clear`
+  - 模板内容抽查
+
+## 2026-03-24
+
 ### 里程碑：高频列表组件补齐图片懒加载
 
 - 桌面端高频列表组件已补齐图片懒加载和异步解码：

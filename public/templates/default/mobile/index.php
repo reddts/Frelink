@@ -350,12 +350,12 @@
     <div class="hotUserTopic d-flex p-2">
         <div class="flex-fill mr-1">
             <a href="{:get_theme_setting('mobile.index_hot_user_url',(string)url('people/lists'))}">
-                <img src="{:get_theme_setting('mobile.index_hot_user_image',$static_url.'mobile/img/hot-user.png')}" style="width: 100%;display: inline-block">
+                <img src="{:get_theme_setting('mobile.index_hot_user_image',$static_url.'mobile/img/hot-user.png')}" style="width: 100%;display: inline-block" loading="lazy" decoding="async">
             </a>
         </div>
         <div class="flex-fill ml-1">
             <a href="{:get_theme_setting('mobile.index_hot_topic_url',(string)url('topic/index'))}">
-                <img src="{:get_theme_setting('mobile.index_hot_topic_image',$static_url.'mobile/img/hot-topic.png')}" style="width: 100%;display: inline-block">
+                <img src="{:get_theme_setting('mobile.index_hot_topic_image',$static_url.'mobile/img/hot-topic.png')}" style="width: 100%;display: inline-block" loading="lazy" decoding="async">
             </a>
         </div>
     </div>
