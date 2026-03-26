@@ -165,12 +165,27 @@ class ApiDoc extends Command
         $lines[] = '- `version: v1`';
         $lines[] = '- `UserToken: <token>`';
         $lines[] = '';
-        $lines[] = '## 通用返回结构';
+        $lines[] = '## 统一返回与错误码约定';
+        $lines[] = '';
+        $lines[] = '- 成功时通常返回 `code=0`';
+        $lines[] = '- 失败时通常返回非 0 的 `code`，并在 `msg` 中给出说明';
+        $lines[] = '- `time` 表示服务端返回时刻的 Unix 时间戳';
+        $lines[] = '- `data` 承载接口实际数据';
+        $lines[] = '- 不同接口可能会在 `data` 中承载不同结构，调用前以具体接口为准';
         $lines[] = '';
         $lines[] = '```json';
         $lines[] = '{';
         $lines[] = '  "code": 0,';
         $lines[] = '  "msg": "",';
+        $lines[] = '  "time": 1710000000,';
+        $lines[] = '  "data": {}';
+        $lines[] = '}';
+        $lines[] = '```';
+        $lines[] = '';
+        $lines[] = '```json';
+        $lines[] = '{';
+        $lines[] = '  "code": 1,';
+        $lines[] = '  "msg": "参数错误",';
         $lines[] = '  "time": 1710000000,';
         $lines[] = '  "data": {}';
         $lines[] = '}';
@@ -273,6 +288,17 @@ class ApiDoc extends Command
                                     'schema' => [
                                         '$ref' => '#/components/schemas/ApiResponse',
                                     ],
+                                    'examples' => [
+                                        'success' => [
+                                            'summary' => 'Successful response',
+                                            'value' => [
+                                                'code' => 0,
+                                                'msg' => 'success',
+                                                'time' => time(),
+                                                'data' => new \stdClass(),
+                                            ],
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],
@@ -282,6 +308,17 @@ class ApiDoc extends Command
                                 'application/json' => [
                                     'schema' => [
                                         '$ref' => '#/components/schemas/ApiResponse',
+                                    ],
+                                    'examples' => [
+                                        'error' => [
+                                            'summary' => 'Generic failure response',
+                                            'value' => [
+                                                'code' => 1,
+                                                'msg' => '参数错误',
+                                                'time' => time(),
+                                                'data' => new \stdClass(),
+                                            ],
+                                        ],
                                     ],
                                 ],
                             ],
@@ -371,17 +408,25 @@ class ApiDoc extends Command
                 'schemas' => [
                     'ApiResponse' => [
                         'type' => 'object',
+                        'description' => 'Frelink API standard envelope',
                         'properties' => [
                             'code' => [
                                 'type' => 'integer',
+                                'description' => '0 means success, non-zero means failure',
+                                'example' => 0,
                             ],
                             'msg' => [
                                 'type' => 'string',
+                                'description' => 'Human-readable message',
+                                'example' => 'success',
                             ],
                             'time' => [
                                 'type' => 'integer',
+                                'description' => 'Server timestamp',
+                                'example' => time(),
                             ],
                             'data' => [
+                                'type' => 'object',
                                 'description' => 'Endpoint-specific payload',
                             ],
                         ],
