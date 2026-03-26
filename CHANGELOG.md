@@ -2,6 +2,30 @@
 
 ## 2026-03-26（续）
 
+### 里程碑：API 接口说明改为自动生成
+
+- 新增 `api:doc` 控制台命令，支持从 `app/api/v1` 控制器源码自动扫描并生成接口说明文档
+- 生成产物为 [docs/api-v1.md](/mnt/f/workwww/knowlege-github/docs/api-v1.md)，内容覆盖路由、HTTP 方法、登录要求、参数与简要说明
+- 这次把接口说明从手工维护改为按代码生成，后续只要接口实现变更，就可以重新执行命令同步更新文档
+- `优化计划.md` 的 `M5 API / Agent 扩展` 已补充“自动生成 API 接口说明文档”的推进项，作为后续 agent 接入前置规范
+
+### 影响范围
+
+- [app/common/command/ApiDoc.php](/mnt/f/workwww/knowlege-github/app/common/command/ApiDoc.php)
+- [config/console.php](/mnt/f/workwww/knowlege-github/config/console.php)
+- [docs/api-v1.md](/mnt/f/workwww/knowlege-github/docs/api-v1.md)
+- [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 远程已同步本轮变更文件
+- 远程已执行：
+  - `php -l app/common/command/ApiDoc.php`
+  - `php -l config/console.php`
+  - `sudo php think clear`
+  - `sudo php think api:doc --output docs/api-v1.md`
+
 ### 里程碑：周执行清单增加观察整理任务
 
 - 周执行清单现在会额外从近期表现较好的 `观察 / 碎片` 内容中挑出可升级条目
