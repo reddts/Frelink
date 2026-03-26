@@ -64,7 +64,10 @@
                 <div class="border rounded h-100 p-3 mt-2">
                     <div class="font-weight-bold text-dark mb-2">{:L('API 接口文档')}</div>
                     <div class="text-muted font-12 mb-3">{:L('接口说明由代码自动生成，适合给 agent、前端调用和运维排查直接查看。')}</div>
-                    <a href="{:url('help/api')}" class="btn btn-sm btn-primary" target="_blank">{:L('查看 API 文档')}</a>
+                    <div class="d-flex flex-wrap">
+                        <a href="{:url('help/api')}" class="btn btn-sm btn-primary mr-2 mb-2" target="_blank">{:L('查看 API 文档')}</a>
+                        <a href="{$baseUrl}/docs/api-v1.openapi.json" class="btn btn-sm btn-outline-primary mb-2" target="_blank" download>{:L('下载 OpenAPI')}</a>
+                    </div>
                 </div>
             </div>
         </div>

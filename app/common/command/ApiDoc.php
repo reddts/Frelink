@@ -14,15 +14,29 @@ class ApiDoc extends Command
     {
         $this->setName('api:doc')
             ->addOption('source', null, Option::VALUE_REQUIRED, 'API source directory', 'app/api/v1')
-            ->addOption('output', null, Option::VALUE_REQUIRED, 'Markdown output file', 'docs/api-v1.md')
-            ->setDescription('Generate Frelink API v1 markdown docs from controller source');
+            ->addOption('output', null, Option::VALUE_REQUIRED, 'Output file', 'docs/api-v1.md')
+            ->addOption('format', null, Option::VALUE_REQUIRED, 'Output format: markdown or openapi', 'markdown')
+            ->setDescription('Generate Frelink API v1 docs from controller source');
     }
 
     protected function execute(Input $input, Output $output)
     {
         $rootPath = rtrim((string) $this->app->getRootPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $format = strtolower(trim((string) $input->getOption('format')));
+        if (!in_array($format, ['markdown', 'openapi'], true)) {
+            $output->error('Invalid format. Use --format=markdown or --format=openapi');
+            return 1;
+        }
+
         $sourceDir = $this->resolvePath($rootPath, (string) $input->getOption('source'));
-        $outputFile = $this->resolvePath($rootPath, (string) $input->getOption('output'));
+        $outputOption = trim((string) $input->getOption('output'));
+        $defaultOutput = $format === 'openapi'
+            ? 'public/docs/api-v1.openapi.json'
+            : 'docs/api-v1.md';
+        $outputFile = $this->resolvePath($rootPath, $outputOption !== '' ? $outputOption : $defaultOutput);
+        if ($format === 'openapi' && $outputOption === 'docs/api-v1.md') {
+            $outputFile = $this->resolvePath($rootPath, $defaultOutput);
+        }
 
         if (!is_dir($sourceDir)) {
             $output->error('Source directory not found: ' . $sourceDir);
@@ -35,15 +49,23 @@ class ApiDoc extends Command
             return 1;
         }
 
-        $markdown = $this->buildMarkdown($controllers);
+        $content = $format === 'openapi'
+            ? json_encode($this->buildOpenApi($controllers), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+            : $this->buildMarkdown($controllers);
+        if ($content === false) {
+            $output->error('Failed to encode OpenAPI JSON');
+            return 1;
+        }
+
         $dir = dirname($outputFile);
         if (!is_dir($dir) && !mkdir($dir, 0777, true) && !is_dir($dir)) {
             $output->error('Failed to create output directory: ' . $dir);
             return 1;
         }
 
-        file_put_contents($outputFile, $markdown);
+        file_put_contents($outputFile, $content);
         $output->info('API docs generated successfully');
+        $output->writeln('Format: ' . $format);
         $output->writeln('File: ' . $outputFile);
         $output->writeln('Controllers: ' . count($controllers));
         $output->writeln('Endpoints: ' . array_sum(array_map(function ($item) {
@@ -101,6 +123,7 @@ class ApiDoc extends Command
                 'route' => '/api/' . $refClass->getShortName() . '/' . $method->getName(),
                 'http' => $this->guessHttpMethod($method->getName(), $source),
                 'login' => in_array('*', $needLogin, true) || in_array($method->getName(), $needLogin, true) ? '需要登录' : '公开',
+                'login_required' => in_array('*', $needLogin, true) || in_array($method->getName(), $needLogin, true),
                 'params' => $this->extractParams($source),
                 'summary' => $this->buildSummary($method->getName(), $source),
             ];
@@ -164,6 +187,13 @@ class ApiDoc extends Command
             $lines[] = '';
         }
 
+        $lines[] = '## OpenAPI 导出';
+        $lines[] = '';
+        $lines[] = '- 机器可读规范默认输出到 `public/docs/api-v1.openapi.json`';
+        $lines[] = '- 浏览器可直接访问 `https://your-domain/docs/api-v1.openapi.json`';
+        $lines[] = '- 生成命令：`php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`';
+        $lines[] = '';
+
         $lines[] = '## 推荐的 agent 使用边界';
         $lines[] = '';
         $lines[] = '- 允许：';
@@ -208,6 +238,105 @@ class ApiDoc extends Command
         $lines[] = '- 为 Insight 增加后台面板与定时报表';
 
         return implode(PHP_EOL, $lines) . PHP_EOL;
+    }
+
+    protected function buildOpenApi(array $controllers): array
+    {
+        $paths = [];
+        foreach ($controllers as $controller) {
+            $controllerName = (string) ($controller['name'] ?? '');
+            foreach (($controller['methods'] ?? []) as $method) {
+                $path = '/' . $controllerName . '/' . $method['name'];
+                $operation = [
+                    'tags' => [$controllerName],
+                    'summary' => (string) ($method['summary'] ?? ''),
+                    'operationId' => $controllerName . '_' . $method['name'],
+                    'parameters' => [],
+                    'responses' => [
+                        '200' => [
+                            'description' => 'Success',
+                        ],
+                        '400' => [
+                            'description' => 'Bad Request',
+                        ],
+                    ],
+                ];
+
+                foreach (($method['params'] ?? []) as $param) {
+                    $parameter = [
+                        'name' => $param,
+                        'in' => 'query',
+                        'required' => false,
+                        'schema' => [
+                            'type' => 'string',
+                        ],
+                    ];
+                    if (strtoupper((string) ($method['http'] ?? 'GET')) !== 'GET') {
+                        $parameter['in'] = 'query';
+                    }
+                    $operation['parameters'][] = $parameter;
+                }
+
+                if (!empty($method['login_required'])) {
+                    $operation['security'] = [
+                        ['UserTokenAuth' => []],
+                    ];
+                }
+
+                if (strtoupper((string) ($method['http'] ?? 'GET')) === 'POST') {
+                    $properties = [];
+                    foreach (($method['params'] ?? []) as $param) {
+                        $properties[$param] = [
+                            'type' => 'string',
+                        ];
+                    }
+
+                    $operation['requestBody'] = [
+                        'required' => false,
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => $properties,
+                                    'additionalProperties' => true,
+                                ],
+                            ],
+                        ],
+                    ];
+                }
+
+                $paths[$path][strtoupper((string) ($method['http'] ?? 'GET')) === 'POST' ? 'post' : 'get'] = $operation;
+            }
+        }
+
+        return [
+            'openapi' => '3.0.3',
+            'info' => [
+                'title' => 'Frelink API v1',
+                'version' => 'v1',
+                'description' => 'Auto-generated OpenAPI spec from app/api/v1 controllers.',
+            ],
+            'servers' => [
+                [
+                    'url' => '/api',
+                ],
+            ],
+            'tags' => array_values(array_map(function ($controller) {
+                return [
+                    'name' => (string) ($controller['name'] ?? ''),
+                ];
+            }, $controllers)),
+            'paths' => $paths,
+            'components' => [
+                'securitySchemes' => [
+                    'UserTokenAuth' => [
+                        'type' => 'apiKey',
+                        'in' => 'header',
+                        'name' => 'UserToken',
+                    ],
+                ],
+            ],
+        ];
     }
 
     protected function getMethodSource(ReflectionMethod $method): string

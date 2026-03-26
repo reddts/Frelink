@@ -2,6 +2,29 @@
 
 ## 2026-03-26（续）
 
+### 里程碑：API 文档补充 OpenAPI 导出
+
+- `api:doc` 现已支持 `--format=openapi`，可以从 `app/api/v1` 控制器源码自动生成机器可读的 OpenAPI JSON
+- 默认输出路径为 [public/docs/api-v1.openapi.json](/mnt/f/workwww/knowlege-github/public/docs/api-v1.openapi.json)，浏览器和 agent 都可以直接下载
+- 帮助页的 API 文档卡片新增了 OpenAPI 下载入口，方便前端、脚本和外部工具直接消费同一份规范
+- `docs/api-v1.md` 也补充了 OpenAPI 导出说明，避免人读文档和机器规范脱节
+
+### 影响范围
+
+- [app/common/command/ApiDoc.php](/mnt/f/workwww/knowlege-github/app/common/command/ApiDoc.php)
+- [docs/api-v1.md](/mnt/f/workwww/knowlege-github/docs/api-v1.md)
+- [public/templates/default/html/help/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/help/index.php)
+- [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 远程已同步本轮变更文件
+- 远程已执行：
+  - `php -l app/common/command/ApiDoc.php`
+  - `sudo php think clear`
+  - `php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+
 ### 里程碑：API 接口说明改为自动生成
 
 - 新增 `api:doc` 控制台命令，支持从 `app/api/v1` 控制器源码自动扫描并生成接口说明文档
