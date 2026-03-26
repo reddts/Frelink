@@ -498,6 +498,7 @@ class Insight extends BaseModel
         }
         $questionIdeas = $questionAssist['title_ideas'] ?? [];
         $searchIdeas = array_slice($articleAssist['title_ideas'] ?? [], 0, min(2, $limit));
+        $fragmentIdeas = self::getFragmentPromotionIdeas($days, $limit);
 
         $tasksByKeyword = [];
         foreach ($searchIdeas as $idea) {
@@ -526,6 +527,36 @@ class Insight extends BaseModel
                 'primary_url' => get_url('article/publish', ['article_type' => $contentType]),
                 'secondary_label' => '查看现有内容',
                 'secondary_url' => get_url('article/index', ['type' => $contentType]),
+            ];
+            self::mergeWeeklyTask($tasksByKeyword, $task, $days);
+        }
+
+        foreach ($fragmentIdeas as $idea) {
+            $keyword = trim((string) ($idea['keyword'] ?? ''));
+            $title = trim((string) ($idea['title'] ?? ''));
+            if ($keyword === '' || $title === '') {
+                continue;
+            }
+
+            $contentType = trim((string) ($idea['recommended_type'] ?? '')) ?: 'research';
+            $task = [
+                'task_type' => 'promote_fragment',
+                'status' => 'pending',
+                'suggested_owner' => self::resolveSuggestedOwner($contentType, 'fragment'),
+                'window_start' => date('Y-m-d H:i:s', $windowStartTs),
+                'window_end' => date('Y-m-d H:i:s', $windowEndTs),
+                'expires_at' => date('Y-m-d H:i:s', $expiresAtTs),
+                'content_type' => $contentType,
+                'source_key' => 'fragment',
+                'priority' => self::resolveFragmentExecutionPriority($idea),
+                'label' => '整理沉淀',
+                'title' => $title,
+                'keyword' => $keyword,
+                'reason' => (string) ($idea['reason'] ?? '这条观察已有持续阅读，适合整理为更稳定的知识内容。'),
+                'primary_label' => '去写内容',
+                'primary_url' => get_url('article/publish', ['article_type' => $contentType]),
+                'secondary_label' => '查看原观察',
+                'secondary_url' => (string) ($idea['url'] ?? get_url('article/detail', ['id' => intval($idea['article_id'] ?? 0)])),
             ];
             self::mergeWeeklyTask($tasksByKeyword, $task, $days);
         }
@@ -753,6 +784,102 @@ class Insight extends BaseModel
         return is_string($keyword) ? $keyword : '';
     }
 
+    protected static function getFragmentPromotionIdeas(int $days, int $limit = 3): array
+    {
+        $days = self::normalizeDays($days);
+        $limit = max(1, min(10, $limit));
+        $contentRows = self::getContentTrends($days, 30, 'article');
+        if (!$contentRows) {
+            return [];
+        }
+
+        $ideas = [];
+        foreach ($contentRows as $row) {
+            $articleId = intval($row['item_id'] ?? 0);
+            if ($articleId <= 0) {
+                continue;
+            }
+
+            $info = db('article')
+                ->where(['id' => $articleId, 'status' => 1])
+                ->field('id,title,message,article_type')
+                ->find();
+            if (!$info || ($info['article_type'] ?? '') !== 'fragment') {
+                continue;
+            }
+
+            $detailViews = intval($row['detail_views'] ?? 0);
+            $trendRatio = floatval($row['trend_ratio'] ?? 0);
+            if ($detailViews < 2 && $trendRatio < 1.1) {
+                continue;
+            }
+
+            $title = trim((string) ($info['title'] ?? ''));
+            if ($title === '') {
+                continue;
+            }
+
+            $recommended = self::recommendArticleType($title, ['suggestion' => '从观察整理为更稳定的知识内容']);
+            $targetType = trim((string) ($recommended['type'] ?? '')) ?: 'research';
+            if (in_array($targetType, ['fragment', 'normal'], true)) {
+                $targetType = 'research';
+            }
+
+            $ideas[] = [
+                'article_id' => $articleId,
+                'keyword' => $title,
+                'title' => '整理观察：' . $title,
+                'recommended_type' => $targetType,
+                'recommended_type_label' => frelink_article_type_label($targetType),
+                'reason' => '这条观察最近已有阅读和关注，适合整理成更稳定的知识内容。',
+                'search_count' => $detailViews,
+                'detail_views' => $detailViews,
+                'trend_ratio' => $trendRatio,
+                'url' => (string) get_url('article/detail', ['id' => $articleId]),
+            ];
+        }
+
+        if (!$ideas) {
+            $latestFragment = db('article')
+                ->where(['status' => 1, 'article_type' => 'fragment'])
+                ->field('id,title,message,article_type')
+                ->order('id', 'desc')
+                ->find();
+
+            if ($latestFragment) {
+                $title = trim((string) ($latestFragment['title'] ?? ''));
+                if ($title !== '') {
+                    $recommended = self::recommendArticleType($title, ['suggestion' => '从观察整理为更稳定的知识内容']);
+                    $targetType = trim((string) ($recommended['type'] ?? '')) ?: 'research';
+                    if (in_array($targetType, ['fragment', 'normal'], true)) {
+                        $targetType = 'research';
+                    }
+
+                    $ideas[] = [
+                        'article_id' => intval($latestFragment['id'] ?? 0),
+                        'keyword' => $title,
+                        'title' => '整理观察：' . $title,
+                        'recommended_type' => $targetType,
+                        'recommended_type_label' => frelink_article_type_label($targetType),
+                        'reason' => '这是一条近期最新的观察内容，适合尽早整理成更稳定的知识内容。',
+                        'search_count' => 0,
+                        'detail_views' => 0,
+                        'trend_ratio' => 0,
+                        'url' => (string) get_url('article/detail', ['id' => intval($latestFragment['id'] ?? 0)]),
+                    ];
+                }
+            }
+        }
+
+        usort($ideas, function ($a, $b) {
+            $aScore = intval($a['detail_views'] ?? 0) * max(1, intval(($a['trend_ratio'] ?? 0) * 100));
+            $bScore = intval($b['detail_views'] ?? 0) * max(1, intval(($b['trend_ratio'] ?? 0) * 100));
+            return $bScore <=> $aScore;
+        });
+
+        return array_slice($ideas, 0, $limit);
+    }
+
     protected static function isMeaningfulSearchKeyword(string $keyword): bool
     {
         $keyword = trim($keyword);
@@ -789,6 +916,20 @@ class Insight extends BaseModel
             return 'high';
         }
         if ($searchCount >= 4 && $matchedContentCount <= 2) {
+            return 'medium';
+        }
+        return 'low';
+    }
+
+    protected static function resolveFragmentExecutionPriority(array $idea): string
+    {
+        $detailViews = intval($idea['detail_views'] ?? 0);
+        $trendRatio = floatval($idea['trend_ratio'] ?? 0);
+
+        if ($detailViews >= 8 || $trendRatio >= 1.5) {
+            return 'high';
+        }
+        if ($detailViews >= 5 || $trendRatio >= 1.25) {
             return 'medium';
         }
         return 'low';
@@ -932,6 +1073,12 @@ class Insight extends BaseModel
             $row['title'] = $info['title'];
             $row['summary'] = $info['summary'];
             $row['url'] = $info['url'];
+            if (isset($info['article_type'])) {
+                $row['article_type'] = $info['article_type'];
+            }
+            if (isset($info['article_type_label'])) {
+                $row['article_type_label'] = $info['article_type_label'];
+            }
         }
 
         return array_values(array_filter($rows, function ($row) {
@@ -953,7 +1100,7 @@ class Insight extends BaseModel
                     'url' => (string) url('question/detail', ['id' => $itemId]),
                 ];
             case 'article':
-                $info = db('article')->where(['id' => $itemId, 'status' => 1])->field('title,message')->find();
+                $info = db('article')->where(['id' => $itemId, 'status' => 1])->field('title,message,article_type')->find();
                 if (!$info) {
                     return [];
                 }
@@ -961,6 +1108,8 @@ class Insight extends BaseModel
                     'title' => $info['title'],
                     'summary' => str_cut(strip_tags(htmlspecialchars_decode((string) $info['message'])), 0, 120),
                     'url' => (string) url('article/detail', ['id' => $itemId]),
+                    'article_type' => $info['article_type'] ?? '',
+                    'article_type_label' => frelink_article_type_label($info['article_type'] ?? 'normal'),
                 ];
             case 'topic':
                 $info = db('topic')->where(['id' => $itemId, 'status' => 1])->field('title,description')->find();
