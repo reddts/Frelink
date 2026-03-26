@@ -65,6 +65,8 @@ if(get_setting('url_rewrite_enable')=='Y' && ENTRANCE!='api')
 
 //第三方登录插件重写地址
 Route::rule('third/callback/[:platform]-[:token]', 'ThirdAuth/callback');
+Route::rule('api-docs', 'page/api');
+Route::rule('help/api', 'page/api');
 
 //接口处理
 if(ENTRANCE=='api')

@@ -54,6 +54,214 @@ class HtmlHelper
         return $content ?: '';
     }
 
+    /**
+     * 将 Markdown 渲染为适合前台展示的 HTML
+     * 仅支持当前项目文档页所需的常用语法，避免额外引入依赖
+     */
+    public static function markdownToHtml(string $markdown): string
+    {
+        $markdown = str_replace(["\r\n", "\r"], "\n", trim($markdown));
+        if ($markdown === '') {
+            return '';
+        }
+
+        $lines = explode("\n", $markdown);
+        $html = [];
+        $paragraph = [];
+        $orderedList = [];
+        $unorderedList = [];
+        $tableRows = [];
+        $inCode = false;
+        $codeLang = '';
+        $codeLines = [];
+
+        $flushParagraph = function () use (&$paragraph, &$html): void {
+            if (!$paragraph) {
+                return;
+            }
+            $text = trim(implode(' ', $paragraph));
+            if ($text !== '') {
+                $html[] = '<p>' . self::renderMarkdownInline($text) . '</p>';
+            }
+            $paragraph = [];
+        };
+
+        $flushOrderedList = function () use (&$orderedList, &$html): void {
+            if (!$orderedList) {
+                return;
+            }
+            $html[] = '<ol>';
+            foreach ($orderedList as $item) {
+                $html[] = '<li>' . self::renderMarkdownInline($item) . '</li>';
+            }
+            $html[] = '</ol>';
+            $orderedList = [];
+        };
+
+        $flushUnorderedList = function () use (&$unorderedList, &$html): void {
+            if (!$unorderedList) {
+                return;
+            }
+            $html[] = '<ul>';
+            foreach ($unorderedList as $item) {
+                $html[] = '<li>' . self::renderMarkdownInline($item) . '</li>';
+            }
+            $html[] = '</ul>';
+            $unorderedList = [];
+        };
+
+        $flushTable = function () use (&$tableRows, &$html): void {
+            if (!$tableRows) {
+                return;
+            }
+            $rows = array_values(array_filter($tableRows, function ($row) {
+                $trimmed = trim($row);
+                return $trimmed !== '' && !preg_match('/^\|[\s:\-|]+\|$/', $trimmed);
+            }));
+            if (!$rows) {
+                $tableRows = [];
+                return;
+            }
+            $parsed = array_map(function ($row) {
+                $row = trim($row);
+                $row = trim($row, '|');
+                return array_map('trim', explode('|', $row));
+            }, $rows);
+            $header = array_shift($parsed);
+            $html[] = '<div class="table-responsive"><table class="table table-bordered table-sm markdown-table">';
+            if ($header) {
+                $html[] = '<thead><tr>';
+                foreach ($header as $cell) {
+                    $html[] = '<th>' . self::renderMarkdownInline($cell) . '</th>';
+                }
+                $html[] = '</tr></thead>';
+            }
+            if ($parsed) {
+                $html[] = '<tbody>';
+                foreach ($parsed as $row) {
+                    $html[] = '<tr>';
+                    foreach ($row as $cell) {
+                        $html[] = '<td>' . self::renderMarkdownInline($cell) . '</td>';
+                    }
+                    $html[] = '</tr>';
+                }
+                $html[] = '</tbody>';
+            }
+            $html[] = '</table></div>';
+            $tableRows = [];
+        };
+
+        foreach ($lines as $line) {
+            $trimmed = rtrim($line);
+
+            if (preg_match('/^```(\w+)?\s*$/', $trimmed, $matches)) {
+                $flushParagraph();
+                $flushOrderedList();
+                $flushUnorderedList();
+                if ($inCode) {
+                    $code = htmlspecialchars(implode("\n", $codeLines), ENT_QUOTES, 'UTF-8');
+                    $class = $codeLang !== '' ? ' class="language-' . htmlspecialchars($codeLang, ENT_QUOTES, 'UTF-8') . '"' : '';
+                    $html[] = '<pre><code' . $class . '>' . $code . '</code></pre>';
+                    $inCode = false;
+                    $codeLang = '';
+                    $codeLines = [];
+                } else {
+                    $flushTable();
+                    $inCode = true;
+                    $codeLang = $matches[1] ?? '';
+                }
+                continue;
+            }
+
+            if ($inCode) {
+                $codeLines[] = $line;
+                continue;
+            }
+
+            if ($trimmed === '') {
+                $flushParagraph();
+                $flushOrderedList();
+                $flushUnorderedList();
+                $flushTable();
+                continue;
+            }
+
+            if (preg_match('/^\|.*\|$/', $trimmed)) {
+                $flushParagraph();
+                $flushOrderedList();
+                $flushUnorderedList();
+                $tableRows[] = $trimmed;
+                continue;
+            }
+
+            if (preg_match('/^#{1,6}\s+(.+)$/', $trimmed, $matches)) {
+                $flushParagraph();
+                $flushOrderedList();
+                $flushUnorderedList();
+                $flushTable();
+                $level = min(6, max(1, substr_count($trimmed, '#', 0, strspn($trimmed, '#'))));
+                $text = trim($matches[1]);
+                $html[] = '<h' . $level . '>' . self::renderMarkdownInline($text) . '</h' . $level . '>';
+                continue;
+            }
+
+            if (preg_match('/^\d+\.\s+(.+)$/', $trimmed, $matches)) {
+                $flushParagraph();
+                $flushUnorderedList();
+                $flushTable();
+                $orderedList[] = trim($matches[1]);
+                continue;
+            }
+
+            if (preg_match('/^[-*]\s+(.+)$/', $trimmed, $matches)) {
+                $flushParagraph();
+                $flushOrderedList();
+                $flushTable();
+                $unorderedList[] = trim($matches[1]);
+                continue;
+            }
+
+            if (preg_match('/^>\s?(.*)$/', $trimmed, $matches)) {
+                $flushParagraph();
+                $flushOrderedList();
+                $flushUnorderedList();
+                $flushTable();
+                $html[] = '<blockquote>' . self::renderMarkdownInline(trim($matches[1])) . '</blockquote>';
+                continue;
+            }
+
+            $flushTable();
+            if ($orderedList || $unorderedList) {
+                $flushOrderedList();
+                $flushUnorderedList();
+            }
+            $paragraph[] = $trimmed;
+        }
+
+        if ($inCode) {
+            $code = htmlspecialchars(implode("\n", $codeLines), ENT_QUOTES, 'UTF-8');
+            $class = $codeLang !== '' ? ' class="language-' . htmlspecialchars($codeLang, ENT_QUOTES, 'UTF-8') . '"' : '';
+            $html[] = '<pre><code' . $class . '>' . $code . '</code></pre>';
+        }
+
+        $flushParagraph();
+        $flushOrderedList();
+        $flushUnorderedList();
+        $flushTable();
+
+        return implode("\n", $html);
+    }
+
+    protected static function renderMarkdownInline(string $text): string
+    {
+        $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+        $text = preg_replace('/`([^`]+)`/', '<code>$1</code>', $text);
+        $text = preg_replace('/\*\*([^*]+)\*\*/', '<strong>$1</strong>', $text);
+        $text = preg_replace('/\*(?!\s)([^*]+)\*/', '<em>$1</em>', $text);
+        $text = preg_replace('/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/', '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>', $text);
+        return $text;
+    }
+
 	/**
 	 * 替换内容中的图片地址
 	 * @param string $content 内容原始html

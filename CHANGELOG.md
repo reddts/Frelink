@@ -6,15 +6,20 @@
 
 - 新增 `api:doc` 控制台命令，支持从 `app/api/v1` 控制器源码自动扫描并生成接口说明文档
 - 生成产物为 [docs/api-v1.md](/mnt/f/workwww/knowlege-github/docs/api-v1.md)，内容覆盖路由、HTTP 方法、登录要求、参数与简要说明
+- 站内新增 `api-docs` 入口，可直接在帮助页打开自动生成的 API 文档
 - 这次把接口说明从手工维护改为按代码生成，后续只要接口实现变更，就可以重新执行命令同步更新文档
 - `优化计划.md` 的 `M5 API / Agent 扩展` 已补充“自动生成 API 接口说明文档”的推进项，作为后续 agent 接入前置规范
 
 ### 影响范围
 
 - [app/common/command/ApiDoc.php](/mnt/f/workwww/knowlege-github/app/common/command/ApiDoc.php)
+- [app/common/library/helper/HtmlHelper.php](/mnt/f/workwww/knowlege-github/app/common/library/helper/HtmlHelper.php)
+- [app/frontend/Page.php](/mnt/f/workwww/knowlege-github/app/frontend/Page.php)
 - [config/console.php](/mnt/f/workwww/knowlege-github/config/console.php)
 - [docs/api-v1.md](/mnt/f/workwww/knowlege-github/docs/api-v1.md)
+- [public/templates/default/html/help/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/help/index.php)
 - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+- [route/app.php](/mnt/f/workwww/knowlege-github/route/app.php)
 
 ### 验证
 
@@ -22,7 +27,10 @@
 - 远程已同步本轮变更文件
 - 远程已执行：
   - `php -l app/common/command/ApiDoc.php`
+  - `php -l app/common/library/helper/HtmlHelper.php`
+  - `php -l app/frontend/Page.php`
   - `php -l config/console.php`
+  - `php -l route/app.php`
   - `sudo php think clear`
   - `sudo php think api:doc --output docs/api-v1.md`
 

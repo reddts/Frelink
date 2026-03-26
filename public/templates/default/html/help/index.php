@@ -61,6 +61,11 @@
                     <div class="font-weight-bold text-dark mb-2">{:L('长期主题连接')}</div>
                     <div class="text-muted font-12">{:L('这些主题已经和知识章节建立了真实连接，可直接作为长期追踪入口。')}</div>
                 </div>
+                <div class="border rounded h-100 p-3 mt-2">
+                    <div class="font-weight-bold text-dark mb-2">{:L('API 接口文档')}</div>
+                    <div class="text-muted font-12 mb-3">{:L('接口说明由代码自动生成，适合给 agent、前端调用和运维排查直接查看。')}</div>
+                    <a href="{:url('help/api')}" class="btn btn-sm btn-primary" target="_blank">{:L('查看 API 文档')}</a>
+                </div>
             </div>
         </div>
         <div class="col-12 pb-3">

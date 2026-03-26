@@ -52,4 +52,27 @@ class Page extends Frontend
         ]);
         return $this->fetch();
     }
+
+    public function api()
+    {
+        $docPath = rtrim(app()->getRootPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'api-v1.md';
+        if (!is_file($docPath)) {
+            $this->error('API 文档尚未生成，请先执行 api:doc');
+        }
+
+        $markdown = file_get_contents($docPath);
+        if ($markdown === false) {
+            $this->error('API 文档读取失败');
+        }
+
+        $this->assign([
+            'info' => [
+                'title' => 'API 接口文档',
+                'description' => '由 `api:doc` 命令自动生成的 Frelink API v1 接口说明。',
+                'contents' => HtmlHelper::markdownToHtml($markdown),
+            ],
+        ]);
+        $this->TDK('API 接口文档 - ' . get_setting('site_name'), '', 'Frelink API v1 自动生成接口说明文档');
+        return $this->fetch('index');
+    }
 }
