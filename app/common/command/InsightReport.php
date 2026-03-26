@@ -41,6 +41,7 @@ class InsightReport extends Command
             'content' => Insight::getContentTrends($days, $limit),
             'topics' => Insight::getTopicTrends($days, $limit),
             'recommendations' => Insight::getRecommendations($days, $limit),
+            'weekly_execution' => Insight::getWeeklyExecutionPlan($days, $limit),
         ];
 
         if ($format === 'json') {
@@ -74,6 +75,22 @@ class InsightReport extends Command
         $this->renderTableSection($output, 'Agent 建议', $report['recommendations'], function ($row) {
             return '- [' . $row['priority'] . '] ' . $row['title'] . '：' . $row['suggestion'];
         });
+
+        $weeklyExecution = $report['weekly_execution']['tasks'] ?? [];
+        $output->writeln('## 本周执行清单');
+        if (!$weeklyExecution) {
+            $output->writeln('- 暂无数据');
+            $output->writeln('');
+        } else {
+            foreach ($weeklyExecution as $row) {
+                $output->writeln('- [' . ($row['task_type'] ?? '-') . '/' . ($row['content_type'] ?? '-') . '] ' . ($row['title'] ?? '-'));
+                $output->writeln('  - 关键词：' . (($row['keyword'] ?? '') ?: '-'));
+                $output->writeln('  - 来源：' . (($row['source_key'] ?? '') ?: '-'));
+                $output->writeln('  - 优先级：' . (($row['priority'] ?? '') ?: '-'));
+                $output->writeln('  - 动作：' . (($row['primary_label'] ?? '-') . ' / ' . ($row['secondary_label'] ?? '-')));
+            }
+            $output->writeln('');
+        }
 
         return 0;
     }

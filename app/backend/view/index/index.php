@@ -259,6 +259,7 @@
                                                                 <strong>{$v.label}</strong>
                                                                 <span class="text-muted">{$v.keyword}</span>
                                                             </div>
+                                                            <div class="text-muted mt-1 font-12">{$v.task_type} / {$v.content_type}{if !empty($v.source_key)} · {$v.source_key}{/if}</div>
                                                             <div class="mt-2 font-weight-bold">{$v.title}</div>
                                                             <div class="text-muted mt-2">{$v.reason}</div>
                                                             <div class="mt-3">

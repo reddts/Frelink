@@ -1,5 +1,37 @@
 # Frelink 项目更新日志
 
+## 2026-03-26
+
+### 里程碑：本周执行清单接入搜索驱动选题
+
+- `Insight::getWeeklyExecutionPlan()` 现在会优先从站内高频搜索词生成 1-2 个本周选题，补足冷启动目标之外的持续内容生产入口
+- 已过滤纯数字、年份和明显噪音搜索词，避免扫描流量污染周选题
+- 周执行任务键已做更严格的关键词归一化，避免同词重复生成两条任务
+- 后台运营面板的本周执行卡片补充展示：
+  - `task_type`
+  - `content_type`
+  - `source_key`
+- `insight:report` 现已同步输出周执行清单，方便直接复制给 agent 或人工周会使用
+- 目标是让“搜索词 -> 选题 -> 发布动作”的链路在后台和命令行里都能直接看到，不再只停留在数据统计层
+
+### 影响范围
+
+- [app/model/Insight.php](/mnt/f/workwww/knowlege-github/app/model/Insight.php)
+- [app/backend/view/index/index.php](/mnt/f/workwww/knowlege-github/app/backend/view/index/index.php)
+- [app/common/command/InsightReport.php](/mnt/f/workwww/knowlege-github/app/common/command/InsightReport.php)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 本地环境无 `php` 可执行文件
+- 远程已同步本轮变更文件
+- 远程已执行：
+  - `php -l app/model/Insight.php`
+  - `php -l app/backend/view/index/index.php`
+  - `php -l app/common/command/InsightReport.php`
+  - `sudo php think clear`
+- 远程已执行 `php think insight:report --days=7 --limit=3 --format=markdown` 作为输出回归检查
+
 ## 2026-03-24
 
 ### 里程碑：移动端次级大图延迟加载

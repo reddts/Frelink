@@ -121,7 +121,12 @@ class Insight extends BaseModel
         }
 
         return array_values(array_filter($rows, function ($row) {
-            return mb_strlen((string) $row['keyword'], 'UTF-8') >= 2;
+            $keyword = trim((string) ($row['keyword'] ?? ''));
+            if (mb_strlen($keyword, 'UTF-8') < 2) {
+                return false;
+            }
+
+            return self::isMeaningfulSearchKeyword($keyword);
         }));
     }
 
@@ -492,8 +497,39 @@ class Insight extends BaseModel
             $typeIdeas[$item['type']] = $item;
         }
         $questionIdeas = $questionAssist['title_ideas'] ?? [];
+        $searchIdeas = array_slice($articleAssist['title_ideas'] ?? [], 0, min(2, $limit));
 
-        $tasks = [];
+        $tasksByKeyword = [];
+        foreach ($searchIdeas as $idea) {
+            $keyword = trim((string) ($idea['keyword'] ?? ''));
+            $title = trim((string) ($idea['title'] ?? ''));
+            if ($keyword === '' || $title === '') {
+                continue;
+            }
+
+            $contentType = trim((string) ($idea['recommended_type'] ?? '')) ?: 'research';
+            $task = [
+                'task_type' => 'search_topic',
+                'status' => 'pending',
+                'suggested_owner' => self::resolveSuggestedOwner($contentType, 'search'),
+                'window_start' => date('Y-m-d H:i:s', $windowStartTs),
+                'window_end' => date('Y-m-d H:i:s', $windowEndTs),
+                'expires_at' => date('Y-m-d H:i:s', $expiresAtTs),
+                'content_type' => $contentType,
+                'source_key' => 'search',
+                'priority' => self::resolveSearchExecutionPriority($idea),
+                'label' => '搜索选题',
+                'title' => $title,
+                'keyword' => $keyword,
+                'reason' => (string) ($idea['reason'] ?? '围绕高频搜索词补充系统性内容'),
+                'primary_label' => '去写内容',
+                'primary_url' => get_url('article/publish', ['article_type' => $contentType]),
+                'secondary_label' => '查看现有内容',
+                'secondary_url' => get_url('article/index', ['type' => $contentType]),
+            ];
+            self::mergeWeeklyTask($tasksByKeyword, $task, $days);
+        }
+
         foreach (($coldStart['recommendations'] ?? []) as $recommendation) {
             $key = $recommendation['key'] ?? '';
             if ($key === 'chapter') {
@@ -567,24 +603,28 @@ class Insight extends BaseModel
                 'secondary_label' => '查看现有内容',
                 'secondary_url' => get_url('article/index', ['type' => $idea['type'] ?? 'research']),
             ];
-            $task['dedupe_key'] = self::buildExecutionDedupeKey($task);
-            $task['task_id'] = self::buildExecutionTaskId($days, $task);
-            $tasks[] = $task;
+            self::mergeWeeklyTask($tasksByKeyword, $task, $days);
         }
 
-        $unique = [];
-        $seenTitles = [];
-        foreach ($tasks as $task) {
-            $title = trim((string)($task['title'] ?? ''));
-            if ($title === '' || isset($seenTitles[$title])) {
-                continue;
+        $unique = array_values($tasksByKeyword);
+        usort($unique, function ($a, $b) {
+            $priorityOrder = ['high' => 3, 'medium' => 2, 'low' => 1];
+            $aPriority = $priorityOrder[strtolower((string)($a['priority'] ?? 'low'))] ?? 1;
+            $bPriority = $priorityOrder[strtolower((string)($b['priority'] ?? 'low'))] ?? 1;
+            if ($aPriority !== $bPriority) {
+                return $bPriority <=> $aPriority;
             }
-            $seenTitles[$title] = true;
-            $unique[] = $task;
-            if (count($unique) >= $limit) {
-                break;
+
+            $aSearchFirst = ($a['task_type'] ?? '') === 'search_topic' ? 1 : 0;
+            $bSearchFirst = ($b['task_type'] ?? '') === 'search_topic' ? 1 : 0;
+            if ($aSearchFirst !== $bSearchFirst) {
+                return $bSearchFirst <=> $aSearchFirst;
             }
-        }
+
+            return strcmp((string)($a['title'] ?? ''), (string)($b['title'] ?? ''));
+        });
+
+        $unique = array_slice($unique, 0, $limit);
 
         return [
             'window_days' => $days,
@@ -644,6 +684,111 @@ class Insight extends BaseModel
             return 'high';
         }
         if ($gap >= 4 || $progress < 70) {
+            return 'medium';
+        }
+        return 'low';
+    }
+
+    protected static function mergeWeeklyTask(array &$tasksByKeyword, array $task, int $days): void
+    {
+        $keyword = self::normalizeWeeklyTaskKeyword((string)($task['keyword'] ?? ''));
+        if ($keyword === '') {
+            return;
+        }
+
+        $task['dedupe_key'] = self::buildExecutionDedupeKey($task);
+        $task['task_id'] = self::buildExecutionTaskId($days, $task);
+
+        if (!isset($tasksByKeyword[$keyword])) {
+            $tasksByKeyword[$keyword] = $task;
+            return;
+        }
+
+        $existing = $tasksByKeyword[$keyword];
+        $existing['priority'] = self::mergeExecutionPriority((string)($existing['priority'] ?? 'low'), (string)($task['priority'] ?? 'low'));
+
+        $sourceKeys = array_filter(array_unique(array_filter([
+            trim((string)($existing['source_key'] ?? '')),
+            trim((string)($task['source_key'] ?? '')),
+        ])));
+        if ($sourceKeys) {
+            $existing['source_key'] = implode('+', $sourceKeys);
+        }
+
+        $reasonParts = array_filter(array_unique(array_filter([
+            trim((string)($existing['reason'] ?? '')),
+            trim((string)($task['reason'] ?? '')),
+        ])));
+        if ($reasonParts) {
+            $existing['reason'] = implode('；', $reasonParts);
+        }
+
+        if (empty($existing['task_type']) || (($existing['task_type'] ?? '') === 'fill_gap' && ($task['task_type'] ?? '') === 'search_topic')) {
+            $existing['task_type'] = $task['task_type'];
+            $existing['label'] = $task['label'] ?? ($existing['label'] ?? '');
+            $existing['primary_label'] = $task['primary_label'] ?? ($existing['primary_label'] ?? '');
+            $existing['primary_url'] = $task['primary_url'] ?? ($existing['primary_url'] ?? '');
+            $existing['secondary_label'] = $task['secondary_label'] ?? ($existing['secondary_label'] ?? '');
+            $existing['secondary_url'] = $task['secondary_url'] ?? ($existing['secondary_url'] ?? '');
+        }
+
+        $existing['dedupe_key'] = self::buildExecutionDedupeKey($existing);
+        $existing['task_id'] = self::buildExecutionTaskId($days, $existing);
+        $tasksByKeyword[$keyword] = $existing;
+    }
+
+    protected static function mergeExecutionPriority(string $left, string $right): string
+    {
+        $priorityOrder = ['high' => 3, 'medium' => 2, 'low' => 1];
+        $leftValue = $priorityOrder[strtolower($left)] ?? 1;
+        $rightValue = $priorityOrder[strtolower($right)] ?? 1;
+
+        return $leftValue >= $rightValue ? strtolower($left) : strtolower($right);
+    }
+
+    protected static function normalizeWeeklyTaskKeyword(string $keyword): string
+    {
+        $keyword = mb_strtolower(trim($keyword), 'UTF-8');
+        $keyword = preg_replace('/[\s\p{P}\p{S}]+/u', '', $keyword);
+        return is_string($keyword) ? $keyword : '';
+    }
+
+    protected static function isMeaningfulSearchKeyword(string $keyword): bool
+    {
+        $keyword = trim($keyword);
+        if ($keyword === '') {
+            return false;
+        }
+
+        if (preg_match('/^\d+$/', $keyword)) {
+            return false;
+        }
+
+        if (preg_match('/^(19|20)\d{2}$/', $keyword)) {
+            return false;
+        }
+
+        if (preg_match('/^[\W_]+$/u', $keyword)) {
+            return false;
+        }
+
+        $noiseWords = ['env', 'wp', 'cgi-bin', 'phpmyadmin', 'login', 'admin', 'robots', 'sitemap', 'favicon'];
+        if (in_array(mb_strtolower($keyword, 'UTF-8'), $noiseWords, true)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected static function resolveSearchExecutionPriority(array $idea): string
+    {
+        $searchCount = intval($idea['search_count'] ?? 0);
+        $matchedContentCount = intval($idea['matched_content_count'] ?? 0);
+
+        if ($searchCount >= 8 && $matchedContentCount <= 1) {
+            return 'high';
+        }
+        if ($searchCount >= 4 && $matchedContentCount <= 2) {
             return 'medium';
         }
         return 'low';
