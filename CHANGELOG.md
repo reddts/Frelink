@@ -8,6 +8,8 @@
 - 默认输出路径为 [public/docs/api-v1.openapi.json](/mnt/f/workwww/knowlege-github/public/docs/api-v1.openapi.json)，浏览器和 agent 都可以直接下载
 - 帮助页的 API 文档卡片新增了 OpenAPI 下载入口，方便前端、脚本和外部工具直接消费同一份规范
 - `docs/api-v1.md` 也补充了 OpenAPI 导出说明，避免人读文档和机器规范脱节
+- OpenAPI 导出现在还补了统一返回结构和基础参数类型推断，减少 agent 接入时的歧义
+- OpenAPI 路径已按服务器前缀改为相对路径，避免生成出重复的 `/api/api/...` 地址
 
 ### 影响范围
 

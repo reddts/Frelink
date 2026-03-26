@@ -125,6 +125,7 @@ class ApiDoc extends Command
                 'login' => in_array('*', $needLogin, true) || in_array($method->getName(), $needLogin, true) ? '需要登录' : '公开',
                 'login_required' => in_array('*', $needLogin, true) || in_array($method->getName(), $needLogin, true),
                 'params' => $this->extractParams($source),
+                'param_meta' => $this->extractParamMeta($source),
                 'summary' => $this->buildSummary($method->getName(), $source),
             ];
         }
@@ -163,6 +164,17 @@ class ApiDoc extends Command
         $lines[] = '- `Content-Type: application/json`';
         $lines[] = '- `version: v1`';
         $lines[] = '- `UserToken: <token>`';
+        $lines[] = '';
+        $lines[] = '## 通用返回结构';
+        $lines[] = '';
+        $lines[] = '```json';
+        $lines[] = '{';
+        $lines[] = '  "code": 0,';
+        $lines[] = '  "msg": "",';
+        $lines[] = '  "time": 1710000000,';
+        $lines[] = '  "data": {}';
+        $lines[] = '}';
+        $lines[] = '```';
         $lines[] = '';
         $lines[] = '## 接口清单';
         $lines[] = '';
@@ -247,6 +259,7 @@ class ApiDoc extends Command
             $controllerName = (string) ($controller['name'] ?? '');
             foreach (($controller['methods'] ?? []) as $method) {
                 $path = '/' . $controllerName . '/' . $method['name'];
+                $httpMethod = strtolower((string) ($method['http'] ?? 'get'));
                 $operation = [
                     'tags' => [$controllerName],
                     'summary' => (string) ($method['summary'] ?? ''),
@@ -255,25 +268,36 @@ class ApiDoc extends Command
                     'responses' => [
                         '200' => [
                             'description' => 'Success',
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/ApiResponse',
+                                    ],
+                                ],
+                            ],
                         ],
                         '400' => [
                             'description' => 'Bad Request',
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        '$ref' => '#/components/schemas/ApiResponse',
+                                    ],
+                                ],
+                            ],
                         ],
                     ],
                 ];
 
-                foreach (($method['params'] ?? []) as $param) {
+                foreach (($method['param_meta'] ?? []) as $paramMeta) {
                     $parameter = [
-                        'name' => $param,
-                        'in' => 'query',
-                        'required' => false,
+                        'name' => (string) ($paramMeta['name'] ?? ''),
+                        'in' => $httpMethod === 'get' ? 'query' : 'query',
+                        'required' => (bool) ($paramMeta['required'] ?? false),
                         'schema' => [
-                            'type' => 'string',
+                            'type' => (string) ($paramMeta['type'] ?? 'string'),
                         ],
                     ];
-                    if (strtoupper((string) ($method['http'] ?? 'GET')) !== 'GET') {
-                        $parameter['in'] = 'query';
-                    }
                     $operation['parameters'][] = $parameter;
                 }
 
@@ -283,21 +307,30 @@ class ApiDoc extends Command
                     ];
                 }
 
-                if (strtoupper((string) ($method['http'] ?? 'GET')) === 'POST') {
+                if ($httpMethod === 'post') {
                     $properties = [];
-                    foreach (($method['params'] ?? []) as $param) {
-                        $properties[$param] = [
-                            'type' => 'string',
+                    $required = [];
+                    foreach (($method['param_meta'] ?? []) as $paramMeta) {
+                        $name = (string) ($paramMeta['name'] ?? '');
+                        if ($name === '') {
+                            continue;
+                        }
+                        $properties[$name] = [
+                            'type' => (string) ($paramMeta['type'] ?? 'string'),
                         ];
+                        if (!empty($paramMeta['required'])) {
+                            $required[] = $name;
+                        }
                     }
 
                     $operation['requestBody'] = [
-                        'required' => false,
+                        'required' => !empty($required),
                         'content' => [
                             'application/json' => [
                                 'schema' => [
                                     'type' => 'object',
                                     'properties' => $properties,
+                                    'required' => $required,
                                     'additionalProperties' => true,
                                 ],
                             ],
@@ -305,7 +338,7 @@ class ApiDoc extends Command
                     ];
                 }
 
-                $paths[$path][strtoupper((string) ($method['http'] ?? 'GET')) === 'POST' ? 'post' : 'get'] = $operation;
+                $paths[$path][$httpMethod] = $operation;
             }
         }
 
@@ -335,6 +368,26 @@ class ApiDoc extends Command
                         'name' => 'UserToken',
                     ],
                 ],
+                'schemas' => [
+                    'ApiResponse' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'code' => [
+                                'type' => 'integer',
+                            ],
+                            'msg' => [
+                                'type' => 'string',
+                            ],
+                            'time' => [
+                                'type' => 'integer',
+                            ],
+                            'data' => [
+                                'description' => 'Endpoint-specific payload',
+                            ],
+                        ],
+                        'required' => ['code', 'msg', 'time', 'data'],
+                    ],
+                ],
             ],
         ];
     }
@@ -359,15 +412,72 @@ class ApiDoc extends Command
 
     protected function extractParams(string $source): array
     {
+        $meta = $this->extractParamMeta($source);
+        $params = array_map(function ($item) {
+            return (string) ($item['name'] ?? '');
+        }, $meta);
+        $params = array_values(array_unique(array_filter(array_map('trim', $params))));
+        sort($params);
+        return $params;
+    }
+
+    protected function extractParamMeta(string $source): array
+    {
         if ($source === '') {
             return [];
         }
 
-        preg_match_all("/request->(?:param|get|post)\\(\\s*['\"]([^'\"]+)['\"]/u", $source, $matches);
-        $params = $matches[1] ?? [];
-        $params = array_values(array_unique(array_filter(array_map('trim', $params))));
-        sort($params);
-        return $params;
+        $meta = [];
+        preg_match_all('/(?:\$this->)?request(?:\(\))?->(?:param|get|post)\(\s*[\'"]([^\'"]+)[\'"](?:\s*,\s*([^,\)]+))?/u', $source, $matches, PREG_SET_ORDER);
+
+        foreach ($matches as $match) {
+            $name = trim((string) ($match[1] ?? ''));
+            if ($name === '') {
+                continue;
+            }
+
+            $default = isset($match[2]) ? trim((string) $match[2]) : '';
+            $required = $default === '';
+            if ($default !== '') {
+                $required = !preg_match('/^(null|NULL)$/', $default);
+            }
+
+            $meta[$name] = [
+                'name' => $name,
+                'required' => $required,
+                'type' => $this->inferParameterType($name, $default),
+            ];
+        }
+
+        return array_values($meta);
+    }
+
+    protected function inferParameterType(string $name, string $default = ''): string
+    {
+        $lowerName = strtolower($name);
+        $default = trim($default);
+
+        if ($default !== '' && preg_match('/^\d+$/', $default)) {
+            return 'integer';
+        }
+
+        if ($default !== '' && preg_match('/^(true|false|0|1)$/i', $default)) {
+            return 'boolean';
+        }
+
+        if (preg_match('/^(id|uid|page|page_size|per_page|limit|sort|status|type|pid|cid|tid|rid|answer_id|question_id|article_id|item_id|chapter_id|reward_id|column_id|days|count)$/', $lowerName)) {
+            return 'integer';
+        }
+
+        if (preg_match('/^(is_|has_|enable|enabled|visible|public|checked|active|status)$/', $lowerName)) {
+            return 'boolean';
+        }
+
+        if (preg_match('/(time|date|at|_at$|_time$|start|end|expired|expires)/', $lowerName)) {
+            return 'string';
+        }
+
+        return 'string';
     }
 
     protected function guessHttpMethod(string $methodName, string $source): string
