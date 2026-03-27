@@ -715,6 +715,156 @@ class Insight extends BaseModel
         return implode(PHP_EOL, $lines);
     }
 
+    public static function getWritingWorkflow(string $mode = 'all', int $days = 7, int $limit = 3, string $topic = '', string $itemType = 'article'): array
+    {
+        $days = self::normalizeDays($days);
+        $limit = max(1, min(10, $limit));
+        $mode = strtolower(trim($mode));
+        if (!in_array($mode, ['all', 'auto', 'manual'], true)) {
+            $mode = 'all';
+        }
+
+        $itemType = in_array($itemType, self::$allowedPublishItemTypes, true) ? $itemType : 'article';
+        $topic = trim($topic);
+        $workflowWindow = self::getWeeklyExecutionPlan($days, max(3, $limit));
+        $publishAssist = self::getPublishAssist($itemType, $days, max(5, $limit));
+        $manualSeed = $topic !== ''
+            ? $topic
+            : trim((string) ($publishAssist['title_ideas'][0]['keyword'] ?? ''));
+        $manualRecommended = self::recommendArticleType($manualSeed ?: 'Frelink 内容', ['suggestion' => '手动指令发文']);
+
+        $autoCandidates = [];
+        foreach (array_slice($workflowWindow['tasks'] ?? [], 0, $limit) as $task) {
+            $autoCandidates[] = [
+                'task_id' => $task['task_id'] ?? '',
+                'title' => $task['title'] ?? '',
+                'keyword' => $task['keyword'] ?? '',
+                'content_type' => $task['content_type'] ?? 'research',
+                'content_type_label' => frelink_article_type_label($task['content_type'] ?? 'research'),
+                'priority' => $task['priority'] ?? 'low',
+                'reason' => $task['reason'] ?? '',
+                'source_key' => $task['source_key'] ?? '',
+                'task_type' => $task['task_type'] ?? '',
+                'review_required' => true,
+                'publish_allowed' => false,
+                'draft_stage' => 'draft -> review -> publish',
+                'primary_label' => $task['primary_label'] ?? '去写内容',
+                'primary_url' => $task['primary_url'] ?? '',
+                'secondary_label' => $task['secondary_label'] ?? '查看现有内容',
+                'secondary_url' => $task['secondary_url'] ?? '',
+            ];
+        }
+
+        $manualTitleIdeas = [];
+        foreach (array_slice($publishAssist['title_ideas'] ?? [], 0, $limit) as $idea) {
+            $manualTitleIdeas[] = [
+                'keyword' => $idea['keyword'] ?? '',
+                'title' => $idea['title'] ?? '',
+                'recommended_type' => $idea['recommended_type'] ?? '',
+                'recommended_type_label' => $idea['recommended_type_label'] ?? '',
+                'reason' => $idea['reason'] ?? '',
+            ];
+        }
+
+        $manualOutline = self::buildWorkflowOutline(
+            $manualRecommended['type'] ?? 'research',
+            $topic,
+            $manualSeed
+        );
+
+        $reviewPolicy = [
+            'required' => true,
+            'reviewer' => 'human',
+            'auto_publish_allowed' => false,
+            'manual_publish_allowed' => false,
+            'focus' => [
+                'title matches body',
+                'no automation traces',
+                'logic is self-consistent',
+                'boundaries and citations are explicit',
+            ],
+        ];
+
+        return [
+            'workflow_mode' => $mode,
+            'window_days' => $days,
+            'generated_at' => date('Y-m-d H:i:s'),
+            'review_policy' => $reviewPolicy,
+            'auto_flow' => [
+                'daily_target' => 2,
+                'active' => in_array($mode, ['all', 'auto'], true),
+                'source' => 'hot_search_and_content_gap',
+                'candidates' => in_array($mode, ['all', 'auto'], true) ? $autoCandidates : [],
+            ],
+            'manual_flow' => [
+                'active' => in_array($mode, ['all', 'manual'], true),
+                'topic' => $topic,
+                'item_type' => $itemType,
+                'recommended_type' => $manualRecommended['type'] ?? 'research',
+                'recommended_type_label' => $manualRecommended['label'] ?? frelink_article_type_label('research'),
+                'prompt_template' => self::buildManualPromptTemplate($topic, $itemType, $manualRecommended),
+                'outline_template' => $manualOutline,
+                'title_ideas' => $manualTitleIdeas,
+                'review_notes' => [
+                    'confirm the viewpoint and target audience before drafting',
+                    'keep the article free of generic AI phrasing',
+                    'revise until the logic chain reads like a human-written note',
+                ],
+            ],
+            'routes' => [
+                'publish_page' => get_url('article/publish', ['article_type' => $manualRecommended['type'] ?? 'research']),
+                'weekly_execution_api' => '/api/Insight/weekly_execution?days=' . $days . '&limit=' . $limit,
+                'publish_assist_api' => '/api/Insight/publish_assist?days=' . $days . '&item_type=' . $itemType . '&limit=' . $limit,
+            ],
+        ];
+    }
+
+    public static function renderWritingWorkflowBrief(array $workflow): string
+    {
+        $lines = [];
+        $lines[] = 'Frelink 发文工作流';
+        $lines[] = '工作模式：' . ($workflow['workflow_mode'] ?? 'all');
+        $lines[] = '统计窗口：最近 ' . intval($workflow['window_days'] ?? 7) . ' 天';
+        $lines[] = '生成时间：' . ($workflow['generated_at'] ?? date('Y-m-d H:i:s'));
+
+        $reviewPolicy = $workflow['review_policy'] ?? [];
+        $lines[] = '审核要求：' . (!empty($reviewPolicy['required']) ? '必须人工审核' : '未配置');
+        $lines[] = '审核闸门：' . implode('、', $reviewPolicy['focus'] ?? ['title matches body', 'no automation traces', 'logic is self-consistent']);
+
+        $autoFlow = $workflow['auto_flow'] ?? [];
+        $lines[] = '';
+        $lines[] = '自动筛选发文：';
+        $lines[] = ' - 每日目标：' . intval($autoFlow['daily_target'] ?? 2) . ' 篇';
+        $lines[] = ' - 发布前状态：仅草稿，必须人工确认';
+        foreach (array_slice($autoFlow['candidates'] ?? [], 0, 3) as $item) {
+            $lines[] = ' - ' . ($item['title'] ?? '-') . ' [' . ($item['content_type_label'] ?? ($item['content_type'] ?? '-')) . ']';
+            $lines[] = '   关键词：' . (($item['keyword'] ?? '') ?: '-');
+            $lines[] = '   原因：' . (($item['reason'] ?? '') ?: '-');
+        }
+
+        $manualFlow = $workflow['manual_flow'] ?? [];
+        $lines[] = '';
+        $lines[] = '手动指令发文：';
+        $lines[] = ' - 主题：' . (($manualFlow['topic'] ?? '') ?: '-');
+        $lines[] = ' - 推荐形态：' . (($manualFlow['recommended_type_label'] ?? '-') ?: '-');
+        if (!empty($manualFlow['prompt_template']['instruction'])) {
+            $lines[] = ' - 指令：' . $manualFlow['prompt_template']['instruction'];
+        }
+        if (!empty($manualFlow['outline_template'])) {
+            foreach ($manualFlow['outline_template'] as $item) {
+                $lines[] = ' - ' . ($item['title'] ?? '-') . '：' . ($item['description'] ?? '-');
+            }
+        }
+
+        $lines[] = '';
+        $lines[] = '路线：';
+        $lines[] = ' - ' . (($workflow['routes']['publish_page'] ?? '-') ?: '-');
+        $lines[] = ' - ' . (($workflow['routes']['weekly_execution_api'] ?? '-') ?: '-');
+        $lines[] = ' - ' . (($workflow['routes']['publish_assist_api'] ?? '-') ?: '-');
+
+        return implode(PHP_EOL, $lines);
+    }
+
     protected static function resolveExecutionPriority(array $recommendation): string
     {
         $gap = intval($recommendation['gap'] ?? 0);
@@ -727,6 +877,86 @@ class Insight extends BaseModel
             return 'medium';
         }
         return 'low';
+    }
+
+    protected static function buildWorkflowOutline(string $articleType, string $topic, string $seed): array
+    {
+        $articleType = self::normalizeWeeklyTaskKeyword($articleType) ?: 'research';
+        if ($topic === '') {
+            $topic = $seed !== '' ? $seed : 'Frelink 内容';
+        }
+
+        $outlineMap = [
+            'research' => [
+                ['title' => '背景', 'description' => '这篇综述为什么值得现在重新看一遍，它处在什么上下文里'],
+                ['title' => '核心问题', 'description' => '要回答的 2-3 个关键问题是什么'],
+                ['title' => '资料来源', 'description' => '主要参考了哪些一手资料和二手资料'],
+                ['title' => '分歧点', 'description' => '当前最重要的分歧在哪里，不同观点各自基于什么前提'],
+                ['title' => '当前判断', 'description' => '基于现有资料，当前更倾向什么判断以及原因'],
+                ['title' => '待验证', 'description' => '还有哪些关键问题没有证据，后续还要继续跟踪什么'],
+            ],
+            'fragment' => [
+                ['title' => '观察', 'description' => '这次重点看到的变化、现象或信号是什么'],
+                ['title' => '触发原因', 'description' => '是什么事件、资料或体验触发了这条记录'],
+                ['title' => '暂时判断', 'description' => '当前判断是什么，它成立的边界在哪里'],
+                ['title' => '后续待补资料', 'description' => '下一步还需要补哪些数据、案例或对照材料'],
+            ],
+            'track' => [
+                ['title' => '阶段更新', 'description' => '这一期追踪最重要的变化是什么'],
+                ['title' => '本期变化', 'description' => '相比上次判断，哪些地方发生了变化'],
+                ['title' => '旧判断是否要修正', 'description' => '哪些旧结论已经过时，为什么'],
+                ['title' => '下一步观察点', 'description' => '接下来最值得继续看的 2-3 个信号是什么'],
+            ],
+            'faq' => [
+                ['title' => '问题定义', 'description' => '这个问题到底在问什么，边界在哪里'],
+                ['title' => '直接答案', 'description' => '最直接、最清晰的答案是什么'],
+                ['title' => '常见误区', 'description' => '读者最容易误解的地方有哪些'],
+                ['title' => '补充说明', 'description' => '有哪些条件、限制或延伸说明需要补充'],
+            ],
+            'tutorial' => [
+                ['title' => '目标', 'description' => '这篇方法文要解决什么问题'],
+                ['title' => '步骤', 'description' => '操作步骤或执行路径是什么'],
+                ['title' => '关键参数', 'description' => '哪些条件、参数或设置最关键'],
+                ['title' => '避坑', 'description' => '最容易出错的环节有哪些'],
+            ],
+            'normal' => [
+                ['title' => '事件背景', 'description' => '这件事为什么现在值得关注'],
+                ['title' => '真正问题', 'description' => '热点表面之下真正重要的是什么'],
+                ['title' => '影响对象', 'description' => '会影响谁，如何影响'],
+                ['title' => '我的判断', 'description' => '基于现有信息，当前判断是什么'],
+            ],
+        ];
+
+        $outline = $outlineMap[$articleType] ?? $outlineMap['research'];
+        array_unshift($outline, [
+            'title' => $topic,
+            'description' => '围绕该主题起草正文，先写清判断，再补结构和证据',
+        ]);
+
+        return $outline;
+    }
+
+    protected static function buildManualPromptTemplate(string $topic, string $itemType, array $recommended): array
+    {
+        $topic = trim($topic);
+        $itemType = in_array($itemType, self::$allowedPublishItemTypes, true) ? $itemType : 'article';
+        $recommendedType = $recommended['type'] ?? 'research';
+        $recommendedLabel = $recommended['label'] ?? frelink_article_type_label($recommendedType);
+
+        return [
+            'instruction' => $topic !== ''
+                ? '围绕“' . $topic . '”写一篇' . $recommendedLabel . '，先给出清晰判断，再补资料和边界。'
+                : '围绕一个你感兴趣的观点写一篇内容，先给出清晰判断，再补资料和边界。',
+            'target_type' => $itemType,
+            'recommended_article_type' => $recommendedType,
+            'recommended_article_type_label' => $recommendedLabel,
+            'review_gate' => 'draft only, human review required before publish',
+            'style_constraints' => [
+                'do not sound machine generated',
+                'avoid generic filler paragraphs',
+                'state the conclusion before broadening the context',
+            ],
+        ];
     }
 
     protected static function mergeWeeklyTask(array &$tasksByKeyword, array $task, int $days): void

@@ -7,9 +7,9 @@ use app\model\Insight as InsightModel;
 
 class Insight extends Api
 {
-    protected $needLogin = ['summary', 'keywords', 'content_trends', 'topic_trends', 'opportunities', 'recommendations', 'publish_assist', 'weekly_execution'];
+    protected $needLogin = ['summary', 'keywords', 'content_trends', 'topic_trends', 'opportunities', 'recommendations', 'publish_assist', 'weekly_execution', 'writing_workflow'];
     protected $beforeActionList = [
-        'authorizeInsightAccess' => ['only' => 'summary,keywords,content_trends,topic_trends,opportunities,recommendations,publish_assist,weekly_execution'],
+        'authorizeInsightAccess' => ['only' => 'summary,keywords,content_trends,topic_trends,opportunities,recommendations,publish_assist,weekly_execution,writing_workflow'],
     ];
 
     public function track()
@@ -91,6 +91,27 @@ class Insight extends Api
         }
 
         $this->apiResult($plan);
+    }
+
+    public function writing_workflow()
+    {
+        $days = intval($this->request->param('days', 7));
+        $limit = intval($this->request->param('limit', 3));
+        $mode = strtolower(trim((string)$this->request->param('mode', 'all')));
+        $topic = trim((string)$this->request->param('topic', ''));
+        $itemType = trim((string)$this->request->param('item_type', 'article'));
+        $format = strtolower(trim((string)$this->request->param('format', 'json')));
+        $workflow = InsightModel::getWritingWorkflow($mode, $days, $limit, $topic, $itemType);
+
+        if ($format === 'markdown') {
+            return response(
+                InsightModel::renderWritingWorkflowBrief($workflow),
+                200,
+                ['Content-Type' => 'text/plain; charset=utf-8']
+            );
+        }
+
+        $this->apiResult($workflow);
     }
 
     protected function authorizeInsightAccess(): void
