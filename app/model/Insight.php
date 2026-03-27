@@ -398,6 +398,7 @@ class Insight extends BaseModel
         $targets = [
             'research' => ['label' => '综述', 'target' => 12],
             'fragment' => ['label' => '观察', 'target' => 20],
+            'track' => ['label' => '主题追踪', 'target' => 8],
             'faq' => ['label' => 'FAQ', 'target' => 30],
             'help' => ['label' => '帮助', 'target' => 12],
             'chapter' => ['label' => '知识章节', 'target' => 8],
@@ -406,6 +407,7 @@ class Insight extends BaseModel
         $counts = [
             'research' => db('article')->where(['status' => 1, 'article_type' => 'research'])->count(),
             'fragment' => db('article')->where(['status' => 1, 'article_type' => 'fragment'])->count(),
+            'track' => db('article')->where(['status' => 1, 'article_type' => 'track'])->count(),
             'faq' => db('question')->where(['status' => 1])->count(),
             'help' => db('article')->where(['status' => 1])->whereIn('article_type', ['tutorial', 'faq'])->count(),
             'chapter' => db('help_chapter')->where(['status' => 1])->count(),
@@ -444,6 +446,9 @@ class Insight extends BaseModel
                     break;
                 case 'fragment':
                     $action = '优先补一批观察记录，保证主题页和首页有持续更新的轻内容。';
+                    break;
+                case 'track':
+                    $action = '优先补主题追踪，把阶段变化、修正和下一步观察点沉淀成连续记录。';
                     break;
                 case 'faq':
                     $action = '优先从高频问题里补 FAQ，先覆盖检索入口，再慢慢升级为综述或帮助。';
@@ -964,6 +969,10 @@ class Insight extends BaseModel
             return 'knowledge_editor';
         }
 
+        if ($contentType === 'track') {
+            return 'research_editor';
+        }
+
         if ($contentType === 'fragment') {
             return 'observer';
         }
@@ -1024,6 +1033,9 @@ class Insight extends BaseModel
         if (preg_match('/(如何|怎么|教程|步骤|指南|配置|安装|部署|报错|错误|排查|解决|命令|区别|清单|实操)/u', $text)) {
             $type = 'tutorial';
             $reason = '搜索意图偏实操，优先沉淀成步骤清晰的方法内容。';
+        } elseif (preg_match('/(追踪|阶段更新|阶段判断|复盘|修正|进展|跟踪|第[0-9一二三四五六七八九十]+期|变化|演进|路线图)/u', $text)) {
+            $type = 'track';
+            $reason = '搜索意图偏阶段变化和连续观察，适合整理成主题追踪。';
         } elseif (preg_match('/(是什么|定义|术语|规则|说明|限制|条件|费用|价格|时间|入口|地址)/u', $text) || mb_strpos($suggestion, '帮助文档') !== false || mb_strpos($suggestion, '术语解释') !== false) {
             $type = 'faq';
             $reason = '搜索意图偏明确答案，适合整理成帮助或 FAQ 型内容。';
@@ -1041,6 +1053,7 @@ class Insight extends BaseModel
             'reason' => $reason,
             'title' => $thisTitle = match ($type) {
                 'tutorial' => $keyword . '：步骤、配置与避坑',
+                'track' => $keyword . '追踪：最近变了什么',
                 'faq' => $keyword . '：定义、规则与直接答案',
                 'fragment' => $keyword . '：观察记录与判断笔记',
                 'normal' => $keyword . '：发生了什么，为什么重要',

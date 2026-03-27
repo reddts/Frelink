@@ -41,6 +41,12 @@
                     {/volist}
                 </div>
                 {/if}
+                <div class="font-9 mt-2">
+                    <div class="font-weight-bold mb-2">{:L('写作模板')}</div>
+                    <a href="javascript:;" class="btn btn-outline-primary btn-sm mr-2 mb-2 js-apply-template" data-type="research">{:L('插入研究综述模板')}</a>
+                    <a href="javascript:;" class="btn btn-outline-primary btn-sm mr-2 mb-2 js-apply-template" data-type="fragment">{:L('插入观察记录模板')}</a>
+                    <a href="javascript:;" class="btn btn-outline-primary btn-sm mb-2 js-apply-template" data-type="track">{:L('插入主题追踪模板')}</a>
+                </div>
                 {if !empty($weekly_execution)}
                 <div class="font-9 mt-2">
                     <div class="font-weight-bold mb-2">{:L('本周优先写作')}</div>
@@ -259,6 +265,53 @@
             $('#title').val(title).trigger('input').trigger('focus');
         }
     });
+
+    $(document).on('click', '.js-apply-template', function () {
+        let type = $(this).data('type') || 'research';
+        let templateHtml = buildEditorTemplate(type);
+        let currentHtml = '';
+        if (typeof editor !== 'undefined' && editor.txt) {
+            currentHtml = $.trim(editor.txt.html());
+        } else {
+            currentHtml = $.trim($('textarea[name="message"]').val());
+        }
+        let nextHtml = currentHtml ? currentHtml + '<hr>' + templateHtml : templateHtml;
+        $('#articleTypeSelect').val(type === 'fragment' ? 'fragment' : (type === 'track' ? 'track' : 'research')).trigger('change');
+        if (typeof editor !== 'undefined' && editor.txt) {
+            editor.txt.html(nextHtml);
+        }
+        $('textarea[name="message"]').val(nextHtml);
+        window.scrollTo({top: document.querySelector('.card-body').offsetTop, behavior: 'smooth'});
+    });
+
+    function buildEditorTemplate(type) {
+        if (type === 'fragment') {
+            return [
+                '<h3>观察</h3><p>这次我重点看到的变化、现象或信号是什么？</p>',
+                '<h3>触发原因</h3><p>是什么事件、资料或体验触发了这条记录？</p>',
+                '<h3>暂时判断</h3><p>我当前的判断是什么？它成立的边界在哪里？</p>',
+                '<h3>后续待补资料</h3><p>下一步还需要补哪些数据、案例或对照材料？</p>'
+            ].join('');
+        }
+
+        if (type === 'track') {
+            return [
+                '<h3>阶段更新</h3><p>这一次追踪最重要的变化是什么？</p>',
+                '<h3>本期变化</h3><p>相比上次判断，哪些地方发生了变化？</p>',
+                '<h3>旧判断是否要修正</h3><p>哪些旧结论已经过时，为什么？</p>',
+                '<h3>下一步观察点</h3><p>接下来最值得继续看的 2-3 个信号是什么？</p>'
+            ].join('');
+        }
+
+        return [
+            '<h3>背景</h3><p>这个主题为什么值得现在重新看一遍？它处在什么上下文里？</p>',
+            '<h3>核心问题</h3><p>这篇综述真正要回答的 2-3 个关键问题是什么？</p>',
+            '<h3>资料来源</h3><p>我主要参考了哪些资料？哪些是一手资料，哪些是二手整理？</p>',
+            '<h3>分歧点</h3><p>当前最重要的分歧在哪里？不同观点分别基于什么前提？</p>',
+            '<h3>当前判断</h3><p>基于现有资料，我当前更倾向什么判断？为什么？</p>',
+            '<h3>待验证</h3><p>还有哪些关键问题没有证据，后续要继续跟踪？</p>'
+        ].join('');
+    }
 
     //上传文章封面
     AWS_MOBILE.upload.webUpload('filePicker_cover','cover_preview','cover','article')

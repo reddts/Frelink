@@ -1,5 +1,39 @@
 # Frelink 项目更新日志
 
+## 2026-03-27（续）
+
+### 里程碑：主题追踪成为可选内容类型
+
+- `主题追踪` 现在已经进入文章内容类型体系，可以在发布页直接选择
+- 发布页的写作模板区新增了 `主题追踪` 模板，支持阶段更新、本期变化、旧判断修正和下一步观察点
+- 搜索驱动的文章建议现在也能把阶段变化类主题推荐为 `主题追踪`，不再只能落到综述或观察
+- 冷启动统计新增了 `主题追踪` 目标，后台也能直接看到这类内容的补齐进度
+
+### 影响范围
+
+- [app/function.inc.php](/mnt/f/workwww/knowlege-github/app/function.inc.php)
+- [app/model/Insight.php](/mnt/f/workwww/knowlege-github/app/model/Insight.php)
+- [app/lang/en-us.php](/mnt/f/workwww/knowlege-github/app/lang/en-us.php)
+- [public/templates/default/html/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/publish.php)
+- [public/templates/default/mobile/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/article/publish.php)
+- [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 本地环境没有 `php` 可执行文件，无法执行本地 `php -l`
+- 远程已同步本轮变更文件
+- 远程已执行：
+  - `php -l app/function.inc.php`
+  - `php -l app/model/Insight.php`
+  - `php -l app/frontend/Article.php`
+  - `php -l app/mobile/Article.php`
+  - `sudo php think clear`
+- 远程烟测已执行：
+  - `https://www.frelink.top/`
+  - `https://www.frelink.top/questions/`
+  - `https://www.frelink.top/articles/`
+
 ## 2026-03-27
 
 ### 里程碑：文章发布页接入本周执行清单

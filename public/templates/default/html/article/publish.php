@@ -119,9 +119,19 @@
     }
     .aw-type-guide {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 12px;
         margin-bottom: 18px;
+    }
+    @media screen and (max-width: 1200px) {
+        .aw-type-guide {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+    @media screen and (max-width: 768px) {
+        .aw-type-guide {
+            grid-template-columns: 1fr;
+        }
     }
     .aw-type-guide-item {
         padding: 14px;
@@ -221,6 +231,10 @@
                                     <span>{:frelink_content_description('fragment')}</span>
                                 </div>
                                 <div class="aw-type-guide-item">
+                                    <strong>{:frelink_content_label('track')}</strong>
+                                    <span>{:frelink_content_description('track')}</span>
+                                </div>
+                                <div class="aw-type-guide-item">
                                     <strong>{:frelink_content_label('faq')}</strong>
                                     <span>{:frelink_content_description('faq')}</span>
                                 </div>
@@ -239,6 +253,7 @@
                                 <div class="aw-template-guide-actions">
                                     <button type="button" class="btn btn-outline-primary btn-sm js-apply-template" data-type="research">{:L('插入研究综述模板')}</button>
                                     <button type="button" class="btn btn-outline-primary btn-sm js-apply-template" data-type="fragment">{:L('插入观察记录模板')}</button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm js-apply-template" data-type="track">{:L('插入主题追踪模板')}</button>
                                 </div>
                             </div>
                         </div>
@@ -604,6 +619,15 @@
                     '<h3>触发原因</h3><p>是什么事件、资料或体验触发了这条记录？</p>',
                     '<h3>暂时判断</h3><p>我当前的判断是什么？它成立的边界在哪里？</p>',
                     '<h3>后续待补资料</h3><p>下一步还需要补哪些数据、案例或对照材料？</p>'
+                ].join('');
+            }
+
+            if (type === 'track') {
+                return [
+                    '<h3>阶段更新</h3><p>这一次追踪最重要的变化是什么？</p>',
+                    '<h3>本期变化</h3><p>相比上次判断，哪些地方发生了变化？</p>',
+                    '<h3>旧判断是否要修正</h3><p>哪些旧结论已经过时，为什么？</p>',
+                    '<h3>下一步观察点</h3><p>接下来最值得继续看的 2-3 个信号是什么？</p>'
                 ].join('');
             }
 

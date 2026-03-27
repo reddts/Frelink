@@ -188,6 +188,7 @@ if (! function_exists('frelink_article_type_options')) {
         $options = [
             'research' => frelink_content_label('research'),
             'fragment' => frelink_content_label('fragment'),
+            'track' => frelink_content_label('track'),
             'tutorial' => frelink_content_label('tutorial'),
             'faq' => frelink_content_label('faq'),
             'normal' => frelink_content_label('normal'),
@@ -209,6 +210,7 @@ if (! function_exists('frelink_content_label')) {
             'faq_entry' => L('FAQ 条目'),
             'research' => L('综述'),
             'fragment' => L('观察'),
+            'track' => L('主题追踪'),
             'tutorial' => L('方法'),
             'faq' => L('帮助'),
             'normal' => L('热点解释'),
@@ -228,6 +230,7 @@ if (! function_exists('frelink_content_description')) {
             'question' => L('这里承接高频问题、明确答案和可复用解释。它不再是社区问答流，而是公开知识系统里的答案入口。'),
             'research' => L('这里沉淀的是系统化综述，用来整理脉络、分歧和阶段性结论。'),
             'fragment' => L('这里沉淀的是观察记录，用来保留判断、线索和仍在形成中的洞见。'),
+            'track' => L('这里沉淀的是主题追踪，用来记录变化、修正旧判断和补充阶段更新。'),
             'faq' => L('这里沉淀的是帮助内容，用来复用明确答案、规则和术语解释。'),
             'tutorial' => L('这里沉淀的是方法内容，用来输出步骤、实践和可执行方案。'),
             'normal' => L('这里沉淀的是热点解释，用来回答“这件事为什么重要”。'),
@@ -245,6 +248,7 @@ if (! function_exists('frelink_publish_type_scene')) {
             'question' => L('更适合承接高频搜索、明确答案和可持续补充的问题。'),
             'research' => L('更适合整理背景、资料脉络、主要分歧和当前判断。'),
             'fragment' => L('更适合记录短判断、现场观察和仍在形成中的线索。'),
+            'track' => L('更适合持续记录同一主题的变化、阶段判断和后续修正。'),
             'faq' => L('更适合沉淀术语、规则、方法和稳定可复用答案。'),
             'tutorial' => L('更适合输出步骤、方法、工具链和实操方案。'),
             'normal' => L('更适合解释热点事件、案例变化和为什么值得关注。'),
@@ -275,7 +279,7 @@ if (! function_exists('frelink_article_type_label')) {
 if (! function_exists('frelink_article_type_spotlights')) {
     function frelink_article_type_spotlights(int $categoryId = 0): array
     {
-        $types = ['research', 'fragment'];
+        $types = ['research', 'fragment', 'track'];
         $spotlights = [];
 
         foreach ($types as $type) {
