@@ -1,5 +1,23 @@
 # Frelink 项目更新日志
 
+## 2026-03-27（续6）
+
+### 里程碑：桌面端与移动端发布页推荐区统一
+
+- 移动端文章/FAQ 发布页补齐了桌面端已有的标题建议理由和搜索量数字
+- 发布页推荐区现在在多端保持更接近的结构和信息密度，减少 PC 与移动端切换时的认知落差
+
+### 影响范围
+
+- [public/templates/default/mobile/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/article/publish.php)
+- [public/templates/default/mobile/question/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/question/publish.php)
+- [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 已完成远端同步和站点烟测
+- 页面相关模板已同步到线上代码
+
 ## 2026-03-27（续5）
 
 ### 里程碑：每日运营日报自动生成并接入后台

@@ -17,18 +17,20 @@
                 {if !empty($publish_insight.top_keywords)}
                 <div class="text-muted font-9 mb-2">{:L('最近有人在搜')}：
                     {volist name="publish_insight.top_keywords" id="v"}
-                    <span class="mr-2 text-primary js-fill-title" data-title="{$v.keyword|htmlspecialchars}">{$v.keyword}</span>
+                    <span class="mr-2 text-primary js-fill-title" data-title="{$v.keyword|htmlspecialchars}">{$v.keyword} · {$v.search_count}</span>
                     {/volist}
                 </div>
                 {/if}
                 {if !empty($publish_insight.title_ideas)}
                 <div class="font-9">
+                    <div class="font-weight-bold mb-2">{:L('建议文章标题')}</div>
                     {volist name="publish_insight.title_ideas" id="v"}
                     <div class="mb-2 text-primary js-apply-idea" data-title="{$v.title|htmlspecialchars}" data-type="{$v.recommended_type|default=''}">
                         {$v.title}
                         {if !empty($v.recommended_type_label)}
                         <div class="text-muted font-8 mt-1">{:L('推荐形态')}：{$v.recommended_type_label}</div>
                         {/if}
+                        <div class="text-muted font-8 mt-1">{$v.reason}</div>
                     </div>
                     {/volist}
                 </div>
