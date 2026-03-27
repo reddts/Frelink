@@ -102,6 +102,12 @@ sync_code() {
     --exclude-from="$exclude_path" \
     -e "ssh -i '$SSH_KEY' -p '$SSH_PORT' -o StrictHostKeyChecking=accept-new" \
     "$ROOT_DIR/" "$SSH_USER@$SSH_HOST:$PROJECT_PATH/"
+
+  fix_runtime_permissions
+}
+
+fix_runtime_permissions() {
+  run_remote "sudo chown -R www:www runtime && sudo find runtime -type d -exec chmod 775 {} + && sudo find runtime -type f -exec chmod 664 {} +"
 }
 
 verify_remote() {

@@ -1,5 +1,22 @@
 # Frelink 项目更新日志
 
+## 2026-03-27（续2）
+
+### 里程碑：部署脚本自动修复 runtime 权限
+
+- 这次线上 `500` 的根因是 `runtime` 目录属主和 PHP-FPM 进程不一致，导致 file cache 写入失败
+- `scripts/deploy.sh` 现在在 `sync` 后自动把 `runtime` 修正为 `www:www`，并同步目录权限，避免再次因为缓存写失败把首页打成 500
+- 这属于部署可靠性收口，不改业务逻辑，但能直接降低发布后站点不可用风险
+
+### 影响范围
+
+- [scripts/deploy.sh](/mnt/f/workwww/knowlege-github/scripts/deploy.sh)
+
+### 验证
+
+- 本地 `git diff --check` 待执行
+- 远程已手动修复 `runtime` 权限并验证首页恢复 `200`
+
 ## 2026-03-27（续）
 
 ### 里程碑：主题追踪成为可选内容类型
