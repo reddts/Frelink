@@ -32,8 +32,10 @@
                 <div class="font-9 mt-2">
                     <div class="font-weight-bold mb-2">{:L('建议优先挂载的话题')}</div>
                     {volist name="publish_insight.suggested_topics" id="v"}
-                    {if isset($v.url) && $v.url}
-                    <a href="{$v.url}" target="_blank" class="d-block mb-2 text-primary">{$v.title}</a>
+                    {if isset($v.topic_id) && $v.topic_id}
+                    <button type="button" class="btn btn-link p-0 d-block text-left text-primary mb-2 js-apply-suggested-topic" data-topic-id="{$v.topic_id}" data-topic-title="{$v.title|htmlspecialchars}" data-topic-url="{$v.url|default=''}">
+                        {$v.title|htmlspecialchars}
+                    </button>
                     {/if}
                     {/volist}
                 </div>
@@ -87,7 +89,7 @@
                         <ul class="swiper-wrapper" id="awTopicList">
                             {if !empty($question_info['topics'])}
                             {volist name="question_info['topics']" id="v"}
-                            <li class="swiper-slide"><a href="{:url('topic/detail',['id'=>$v['id']])}"><em class="tag">{$v.title}</em></a></li>
+                            <li class="swiper-slide"><a href="{:url('topic/detail',['id'=>$v['id']])}"><em class="tag" data-topic-id="{$v.id}">{$v.title|htmlspecialchars}</em></a></li>
                             {/volist}
                             <input type="hidden" name="topics" value="{:implode(',',array_column($question_info['topics'],'id'))}">
                             {/if}
@@ -177,6 +179,40 @@
         $('#title').val(title).trigger('input').trigger('focus');
         window.scrollTo({top: 0, behavior: 'smooth'});
     });
+
+    $(document).on('click', '.js-apply-suggested-topic', function () {
+        let topicId = $(this).data('topic-id');
+        let topicTitle = $(this).data('topic-title');
+        let topicUrl = $(this).data('topic-url');
+        if (!topicId || !topicTitle) {
+            return;
+        }
+        addMobileTopic(topicId, topicTitle, topicUrl);
+    });
+
+    function addMobileTopic(topicId, topicTitle, topicUrl) {
+        let topicValue = String(topicId);
+        let hiddenInput = $('input[name="topics"]');
+        let currentValues = hiddenInput.length && hiddenInput.val() ? hiddenInput.val().split(',').filter(Boolean) : [];
+        if (!currentValues.includes(topicValue)) {
+            currentValues.push(topicValue);
+        }
+
+        if (!hiddenInput.length) {
+            hiddenInput = $('<input>', {type: 'hidden', name: 'topics'}).insertAfter('#awTopicList');
+        }
+        hiddenInput.val(currentValues.join(','));
+
+        let topicList = $('#awTopicList');
+        if (!topicList.find('[data-topic-id="' + topicValue + '"]').length) {
+            let $slide = $('<li>', {class: 'swiper-slide'});
+            let $link = $('<a>', {href: topicUrl ? topicUrl : 'javascript:;'});
+            let $tag = $('<em>', {class: 'tag'}).attr('data-topic-id', topicValue).text(topicTitle);
+            $link.append($tag);
+            $slide.append($link);
+            topicList.append($slide);
+        }
+    }
 
     zxEditor.addFooterButton({
         name: 'save-draft',

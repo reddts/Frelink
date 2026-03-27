@@ -1,5 +1,38 @@
 # Frelink 项目更新日志
 
+## 2026-03-27（续4）
+
+### 里程碑：推荐话题可直接挂载到草稿
+
+- 发布页里的推荐话题不再只是跳转查看，而是可以直接加入当前草稿
+- 桌面端文章/FAQ 发布页会把推荐话题写入 `select2` 选择器
+- 移动端文章/FAQ 发布页会把推荐话题写入当前草稿的话题列表和隐藏字段
+- 这次优化把“看到建议”推进到“直接挂载”，减少了发布时的重复检索和手工补挂步骤
+
+### 影响范围
+
+- [public/templates/default/html/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/publish.php)
+- [public/templates/default/html/question/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/publish.php)
+- [public/templates/default/mobile/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/article/publish.php)
+- [public/templates/default/mobile/question/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/question/publish.php)
+- [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 本地已执行 `bash scripts/deploy.sh deploy`
+- 远程已执行：
+  - `php -l app/function.inc.php`
+  - `sudo php think clear`
+  - `curl -I -L --max-time 20 https://www.frelink.top/`
+  - `curl -I -L --max-time 20 https://www.frelink.top/questions/`
+  - `curl -I -L --max-time 20 https://www.frelink.top/articles/`
+- 远程文件抽查已确认：
+  - `public/templates/default/html/article/publish.php`
+  - `public/templates/default/html/question/publish.php`
+  - `public/templates/default/mobile/article/publish.php`
+  - `public/templates/default/mobile/question/publish.php`
+
 ## 2026-03-27（续3）
 
 ### 里程碑：移动端发布页补齐主题建议

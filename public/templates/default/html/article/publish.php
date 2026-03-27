@@ -534,8 +534,10 @@
                     <div>
                         <div class="font-weight-bold mb-2">建议优先扩展的话题</div>
                         {volist name="publish_insight.suggested_topics" id="v"}
-                        {if isset($v.url) && $v.url}
-                        <a class="d-block text-primary mb-2" href="{$v.url}" target="_blank">{$v.title}</a>
+                        {if isset($v.topic_id) && $v.topic_id}
+                        <button type="button" class="btn btn-link p-0 d-block text-left text-primary mb-2 js-apply-suggested-topic" data-topic-id="{$v.topic_id}" data-topic-title="{$v.title|htmlspecialchars}">
+                            {$v.title|htmlspecialchars}
+                        </button>
                         {/if}
                         {/volist}
                     </div>
@@ -631,6 +633,15 @@
             }
         });
 
+        $(document).on('click', '.js-apply-suggested-topic', function () {
+            let topicId = $(this).data('topic-id');
+            let topicTitle = $(this).data('topic-title');
+            if (!topicId || !topicTitle) {
+                return;
+            }
+            addTopicToSelect2(topicId, topicTitle);
+        });
+
         function buildEditorTemplate(type) {
             if (type === 'fragment') {
                 return [
@@ -686,6 +697,23 @@
             let option = $('#articleTypeSelect option:selected');
             $('#articleTypeHint strong').text(option.text() || '');
             $('#articleTypeHintText').text(option.data('hint') || '');
+        }
+
+        function addTopicToSelect2(topicId, topicTitle) {
+            let topicValue = String(topicId);
+            let currentValues = topicBox.val() || [];
+            if (!Array.isArray(currentValues)) {
+                currentValues = String(currentValues).split(',').filter(Boolean);
+            }
+
+            if (!currentValues.includes(topicValue)) {
+                let option = new Option(topicTitle, topicValue, true, true);
+                topicBox.append(option);
+                currentValues.push(topicValue);
+            }
+
+            topicBox.val(currentValues).trigger('change');
+            $('html, body').animate({scrollTop: topicBox.closest('.form-group').offset().top - 120}, 150);
         }
 
         $('#articleTypeSelect').on('change', updateArticleTypeHint);
