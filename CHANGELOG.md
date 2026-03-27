@@ -1,5 +1,37 @@
 # Frelink 项目更新日志
 
+## 2026-03-27
+
+### 里程碑：文章发布页接入本周执行清单
+
+- 文章发布页现在会直接展示 `本周优先写作` 卡片，把周执行清单带到写作入口
+- 该卡片复用了现有的搜索驱动选题结果，能直接跳转到对应的内容发布页和现有内容列表
+- 桌面端与移动端文章发布页已同步接入，避免后台有执行清单、前台却要手动来回切换
+- `优化计划.md` 里的周选题待办也补充了当前进展说明，方便继续跟踪后续收口
+
+### 影响范围
+
+- [app/frontend/Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php)
+- [app/mobile/Article.php](/mnt/f/workwww/knowlege-github/app/mobile/Article.php)
+- [public/templates/default/html/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/publish.php)
+- [public/templates/default/mobile/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/article/publish.php)
+- [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 本地环境没有 `php` 可执行文件，无法执行本地 `php -l`
+- 远程已同步本轮变更文件
+- 远程已执行：
+  - `php -l app/function.inc.php`
+  - `php -l app/frontend/Article.php`
+  - `php -l app/mobile/Article.php`
+  - `sudo php think clear`
+- 远程烟测已执行：
+  - `https://www.frelink.top/`
+  - `https://www.frelink.top/questions/`
+  - `https://www.frelink.top/articles/`
+
 ## 2026-03-26（续）
 
 ### 里程碑：API 文档补充 OpenAPI 导出

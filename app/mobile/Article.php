@@ -328,7 +328,8 @@ class Article extends Frontend
                 'suggested_help_chapters'=>$suggestedHelpChapters,
                 'access_key'=>md5($this->user_id.time()),
                 'attach_list'=>Attach::getAttach('article_attach',$article_id),
-                'publish_insight'=>checkTableExist('analytics_event') ? InsightModel::getPublishAssist('article', 7, 4) : []
+                'publish_insight'=>checkTableExist('analytics_event') ? InsightModel::getPublishAssist('article', 7, 4) : [],
+                'weekly_execution'=>checkTableExist('analytics_event') ? InsightModel::getWeeklyExecutionPlan(7, 3) : []
             ]);
 
         /**

@@ -479,6 +479,27 @@
                         </div>
                     </div>
                     {/if}
+                    {if !empty($weekly_execution)}
+                    <div class="mb-3">
+                        <div class="font-weight-bold mb-2">{:L('本周优先写作')}</div>
+                        {volist name="weekly_execution" id="v"}
+                        <div class="border rounded p-2 mb-2 bg-white">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="pr-2">
+                                    <div class="font-weight-bold">{$v.title}</div>
+                                    <div class="text-muted font-8 mt-1">{$v.label}{if !empty($v.keyword)} · {$v.keyword}{/if}</div>
+                                </div>
+                                <span class="badge badge-light border">{$v.content_type}</span>
+                            </div>
+                            <div class="text-muted font-8 mt-2">{$v.reason}</div>
+                            <div class="mt-2">
+                                <a href="{$v.primary_url}" target="_blank" class="btn btn-primary btn-sm mr-2">{$v.primary_label}</a>
+                                <a href="{$v.secondary_url}" target="_blank" class="btn btn-outline-secondary btn-sm">{$v.secondary_label}</a>
+                            </div>
+                        </div>
+                        {/volist}
+                    </div>
+                    {/if}
                     {if !empty($publish_insight.suggested_topics)}
                     <div>
                         <div class="font-weight-bold mb-2">建议优先扩展的话题</div>
