@@ -83,6 +83,7 @@ class Index extends Backend
             $coldStart = array_merge($coldStart, $weeklyPlan['cold_start']);
         }
         $weeklyExecution = $weeklyPlan['tasks'] ?? [];
+        $sitemapUrl = rtrim($this->request->domain(), '/') . '/sitemap.xml';
 
         $this->view->assign('sysInfo',$sys_info);
         $this->view->assign('usersInfo', $users_info);
@@ -91,6 +92,7 @@ class Index extends Backend
         $this->view->assign('archiveBacklog', $archiveBacklog);
         $this->view->assign('coldStart', $coldStart);
         $this->view->assign('weeklyExecution', $weeklyExecution);
+        $this->view->assign('sitemapUrl', $sitemapUrl);
         return $this->view->fetch();
     }
 
@@ -140,6 +142,55 @@ class Index extends Backend
 
         return response(
             InsightModel::renderWeeklyExecutionBrief($plan),
+            200,
+            ['Content-Type' => 'text/plain; charset=utf-8']
+        );
+    }
+
+    public function sitemapBrief()
+    {
+        $format = strtolower(trim((string) $this->request->param('format', 'markdown')));
+        $sitemapUrl = rtrim($this->request->domain(), '/') . '/sitemap.xml';
+        $brief = [
+            'generated_at' => date('Y-m-d H:i:s'),
+            'sitemap_url' => $sitemapUrl,
+            'submission_links' => [
+                [
+                    'name' => 'Google Search Console',
+                    'url' => 'https://search.google.com/search-console',
+                ],
+                [
+                    'name' => 'Bing Webmaster Tools',
+                    'url' => 'https://www.bing.com/webmasters',
+                ],
+            ],
+            'steps' => [
+                '登录对应站长平台。',
+                '提交 sitemap.xml 地址。',
+                '检查抓取/索引状态并修复报错链接。',
+            ],
+        ];
+
+        if ($format === 'json') {
+            return json($brief);
+        }
+
+        $lines = [];
+        $lines[] = '# Sitemap 提交清单';
+        $lines[] = '';
+        $lines[] = '- 生成时间：' . $brief['generated_at'];
+        $lines[] = '- Sitemap：' . $brief['sitemap_url'];
+        $lines[] = '- 提交入口：';
+        foreach ($brief['submission_links'] as $link) {
+            $lines[] = '  - ' . $link['name'] . '：' . $link['url'];
+        }
+        $lines[] = '- 推荐动作：';
+        foreach ($brief['steps'] as $step) {
+            $lines[] = '  - ' . $step;
+        }
+
+        return response(
+            implode("\n", $lines),
             200,
             ['Content-Type' => 'text/plain; charset=utf-8']
         );

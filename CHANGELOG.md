@@ -151,6 +151,41 @@
 
 ## 2026-03-27
 
+### 里程碑：Sitemap 提交清单与后台入口
+
+- `sitemap:build` 继续负责生成 `sitemap.xml`
+- 后台新增 `Sitemap 提交清单`，可直接导出 Markdown / JSON
+- 提供当前 sitemap 地址、Google Search Console 和 Bing Webmaster Tools 入口
+- 公开 ping 端点已不再作为稳定提交通道，因此改为后台提交清单辅助人工操作
+
+### 影响范围
+
+- sitemap 生成链路与提交清单：
+  - [app/common/library/helper/SitemapHelper.php](/mnt/f/workwww/knowlege-github/app/common/library/helper/SitemapHelper.php)
+- 命令行：
+  - [app/common/command/Sitemap.php](/mnt/f/workwww/knowlege-github/app/common/command/Sitemap.php)
+- 定时任务：
+  - [app/common/logic/common/CronLogic.php](/mnt/f/workwww/knowlege-github/app/common/logic/common/CronLogic.php)
+- 后台：
+  - [app/backend/Index.php](/mnt/f/workwww/knowlege-github/app/backend/Index.php)
+  - [app/backend/view/index/index.php](/mnt/f/workwww/knowlege-github/app/backend/view/index/index.php)
+- 文档：
+  - [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 远端 `php -l` 通过：
+  - [app/common/library/helper/SitemapHelper.php](/mnt/f/workwww/knowlege-github/app/common/library/helper/SitemapHelper.php)
+  - [app/common/command/Sitemap.php](/mnt/f/workwww/knowlege-github/app/common/command/Sitemap.php)
+  - [app/common/logic/common/CronLogic.php](/mnt/f/workwww/knowlege-github/app/common/logic/common/CronLogic.php)
+- 远端 `php think sitemap:build --base-url=https://www.frelink.top --notify` 可正常执行并输出 sitemap 路径，但公开 ping 端点返回非 2xx，因此改为后台提交清单入口
+
+### 下一步
+
+- 如果后续搜索引擎仍有抓取滞后，再把通知结果做成后台可视化状态卡
+
+## 2026-03-27
+
 ### 里程碑：文章发布页接入本周执行清单
 
 - 文章发布页现在会直接展示 `本周优先写作` 卡片，把周执行清单带到写作入口

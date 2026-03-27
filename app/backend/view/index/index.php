@@ -215,6 +215,26 @@
                         </div>
 
                         <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h3 class="card-title mb-0">Sitemap 提交清单</h3>
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="导出提交清单">
+                                            <a href="{:url('index/sitemapBrief',['format'=>'markdown'])}" target="_blank" class="btn btn-outline-secondary">导出 Markdown</a>
+                                            <a href="{:url('index/sitemapBrief',['format'=>'json'])}" target="_blank" class="btn btn-outline-secondary">导出 JSON</a>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted mb-2">公开 ping 端点已不再作为稳定提交通道，这里保留可直接打开的站长平台入口和当前 sitemap 地址。</p>
+                                        <textarea class="form-control" rows="10" readonly onclick="this.select()">Sitemap: {$sitemapUrl}
+Google Search Console: https://search.google.com/search-console
+Bing Webmaster Tools: https://www.bing.com/webmasters</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-header">

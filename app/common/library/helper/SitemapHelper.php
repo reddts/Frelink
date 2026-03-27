@@ -7,9 +7,10 @@ class SitemapHelper
      * 生成 sitemap.xml
      * @param string $domain 例如 https://example.com
      * @param int $limit 每类内容最大条数
+     * @param bool $notifySearchEngines 是否通知搜索引擎重新抓取
      * @return array
      */
-    public static function generate(string $domain = '', int $limit = 500): array
+    public static function generate(string $domain = '', int $limit = 500, bool $notifySearchEngines = false): array
     {
         $start = microtime(true);
         $limit = max(50, min(5000, intval($limit)));
@@ -93,8 +94,106 @@ class SitemapHelper
             'message' => 'Sitemap 生成完成',
             'file' => $file,
             'count' => count($urls),
+            'sitemap_url' => rtrim($domain, '/') . '/sitemap.xml',
         ];
+
+        if ($notifySearchEngines) {
+            $pingResult = self::notifySearchEngines($result['sitemap_url']);
+            $result['ping'] = $pingResult;
+            if (!empty($pingResult['status'])) {
+                $result['message'] .= '，已通知搜索引擎';
+            } else {
+                $result['message'] .= '，通知搜索引擎失败';
+            }
+        }
+
         self::writeLog($result, $start, $domain);
+        return $result;
+    }
+
+    /**
+     * 主动通知搜索引擎更新 sitemap
+     */
+    protected static function notifySearchEngines(string $sitemapUrl): array
+    {
+        $sitemapUrl = trim($sitemapUrl);
+        if ($sitemapUrl === '') {
+            return [
+                'status' => false,
+                'message' => '缺少 sitemap 地址',
+                'targets' => [],
+            ];
+        }
+
+        $targets = [
+            'google' => 'https://www.google.com/ping?sitemap=' . urlencode($sitemapUrl),
+            'bing' => 'https://www.bing.com/ping?sitemap=' . urlencode($sitemapUrl),
+        ];
+
+        $results = [];
+        $successCount = 0;
+        foreach ($targets as $name => $url) {
+            $response = self::requestPing($url);
+            $response['name'] = $name;
+            $response['url'] = $url;
+            $results[] = $response;
+            if (!empty($response['success'])) {
+                $successCount++;
+            }
+        }
+
+        return [
+            'status' => $successCount > 0,
+            'message' => $successCount > 0
+                ? sprintf('已成功通知 %d 个搜索引擎', $successCount)
+                : '未能通知任何搜索引擎',
+            'sitemap_url' => $sitemapUrl,
+            'targets' => $results,
+        ];
+    }
+
+    /**
+     * 执行单个 ping 请求
+     */
+    protected static function requestPing(string $url): array
+    {
+        $result = [
+            'success' => false,
+            'http_code' => 0,
+            'error' => '',
+        ];
+
+        if (!function_exists('curl_init')) {
+            $result['error'] = 'curl not available';
+            return $result;
+        }
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Frelink Sitemap Pinger/1.0');
+
+        $body = curl_exec($ch);
+        $errorNo = curl_errno($ch);
+        $error = curl_error($ch);
+        $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        $result['http_code'] = $httpCode;
+        if ($errorNo === 0 && $httpCode >= 200 && $httpCode < 400) {
+            $result['success'] = true;
+        } else {
+            $result['error'] = $error ?: (string) $body;
+        }
+
         return $result;
     }
 

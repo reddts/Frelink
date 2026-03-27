@@ -182,7 +182,7 @@
    - `docs/nav-upgrade.sql`
    - `docs/analytics-upgrade.sql`
 5. 清缓存
-6. 执行 sitemap 重建
+6. 执行 sitemap 重建并准备提交清单
 7. 访问后台首页确认“运营洞察”页签
 8. 访问以下接口做 smoke test：
    - `/api/Common/config`
