@@ -41,6 +41,20 @@
                     {/volist}
                 </div>
                 {/if}
+                {if !empty($publish_insight.fragment_ideas)}
+                <div class="font-9 mt-2">
+                    <div class="font-weight-bold mb-2">{:L('观察整理')}</div>
+                    <div class="text-muted font-8 mb-2">{:L('把高频阅读的观察整理成更稳定的综述、帮助或追踪。')}</div>
+                    {volist name="publish_insight.fragment_ideas" id="v"}
+                    <div class="mb-2 text-primary js-apply-idea" data-title="{$v.title|htmlspecialchars}" data-type="{$v.recommended_type|default='research'}">
+                        {$v.title}
+                        {if !empty($v.recommended_type_label)}
+                        <div class="text-muted font-8 mt-1">{:L('推荐形态')}：{$v.recommended_type_label}</div>
+                        {/if}
+                    </div>
+                    {/volist}
+                </div>
+                {/if}
                 <div class="font-9 mt-2">
                     <div class="font-weight-bold mb-2">{:L('写作模板')}</div>
                     <a href="javascript:;" class="btn btn-outline-primary btn-sm mr-2 mb-2 js-apply-template" data-type="research">{:L('插入研究综述模板')}</a>

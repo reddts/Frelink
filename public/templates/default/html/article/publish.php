@@ -494,6 +494,21 @@
                         </div>
                     </div>
                     {/if}
+                    {if !empty($publish_insight.fragment_ideas)}
+                    <div class="mb-3">
+                        <div class="font-weight-bold mb-2">{:L('观察整理')}</div>
+                        <div class="text-muted font-8 mb-2">{:L('把高频阅读的观察整理成更稳定的综述、帮助或追踪。')}</div>
+                        {volist name="publish_insight.fragment_ideas" id="v"}
+                        <div class="insight-title-idea insight-action js-apply-idea" data-title="{$v.title|htmlspecialchars}" data-type="{$v.recommended_type|default='research'}">
+                            <div>{$v.title}</div>
+                            {if !empty($v.recommended_type_label)}
+                            <div class="text-primary font-8 mt-1">{:L('推荐形态')}：{$v.recommended_type_label}</div>
+                            {/if}
+                            <div class="text-muted font-8 mt-1">{$v.reason}</div>
+                        </div>
+                        {/volist}
+                    </div>
+                    {/if}
                     {if !empty($weekly_execution)}
                     <div class="mb-3">
                         <div class="font-weight-bold mb-2">{:L('本周优先写作')}</div>
@@ -607,8 +622,12 @@
 
         $(document).on('click', '.js-apply-idea', function () {
             let type = $(this).data('type');
+            let title = $(this).data('title');
             if (type) {
                 $('#articleTypeSelect').val(type).trigger('change');
+            }
+            if (title) {
+                $('input[name="title"]').val(title).trigger('input').trigger('focus');
             }
         });
 

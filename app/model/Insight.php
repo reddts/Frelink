@@ -338,6 +338,7 @@ class Insight extends BaseModel
         $opportunities = self::getSearchOpportunities($days, $keywordLimit);
         $topics = self::getTopicTrends($days, $keywordLimit);
         $content = self::getContentTrends($days, $keywordLimit, $itemType);
+        $fragmentIdeas = $itemType === 'article' ? self::getFragmentPromotionIdeas($days, $limit) : [];
 
         $titleIdeas = [];
         foreach ($opportunities as $item) {
@@ -371,7 +372,9 @@ class Insight extends BaseModel
             $itemType === 'question'
                 ? '优先把高频搜索词写成可直接命中的具体问题标题。'
                 : '优先把高频搜索词整理成教程、帮助文档或专题文章。',
-            '判断依据只看最近窗口，不参考长期累计点击率。',
+            $itemType === 'article'
+                ? '把最近被持续阅读的观察，优先整理成综述、帮助或主题追踪。'
+                : '判断依据只看最近窗口，不参考长期累计点击率。',
             '先挂到相关主题，再补内链和下一步阅读，避免内容成为孤岛。',
         ];
 
@@ -388,6 +391,7 @@ class Insight extends BaseModel
             'trending_content' => array_slice($content, 0, $limit),
             'title_ideas' => $titleIdeas,
             'type_ideas' => $typeIdeas,
+            'fragment_ideas' => array_slice($fragmentIdeas, 0, $limit),
             'default_article_type' => $typeIdeas[0]['type'] ?? 'research',
             'guidance' => $guidance,
         ];

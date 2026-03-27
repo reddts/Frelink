@@ -976,3 +976,39 @@
 
 - 开始准备 `M5 API / Agent 扩展`
 - 先补周报/API 输出规范，再补更正式的 agent 接入边界说明
+
+## 2026-03-27
+
+### 里程碑：观察整理入口前置到发布辅助
+
+- 文章发布页新增 `观察整理` 候选区：
+  - 直接展示近期被持续阅读的观察内容
+  - 一键填充标题与推荐内容形态
+  - 支持继续整理成 `综述 / 帮助 / 主题追踪`
+- 后端 `publish_assist` 现在会优先输出适合整理的观察内容：
+  - 让“思想碎片”不再只停留在原始记录层
+  - 把高频阅读的观察提前推入写作入口
+- 桌面端与移动端发布页都接入了同一套建议数据：
+  - 保持内容类型提示、模板按钮和周执行清单的一致性
+  - 避免前后端看到的建议口径不一致
+
+### 影响范围
+
+- 后端：
+  - [app/model/Insight.php](/mnt/f/workwww/knowlege-github/app/model/Insight.php)
+- 前台：
+  - [public/templates/default/html/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/publish.php)
+  - [public/templates/default/mobile/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/article/publish.php)
+- 模型与语言：
+  - [app/lang/en-us.php](/mnt/f/workwww/knowlege-github/app/lang/en-us.php)
+
+### 验证
+
+- 已同步到远程服务器
+- 远端已执行 `sudo php think clear`
+- 公开站点 `https://www.frelink.top/`、`https://www.frelink.top/questions/`、`https://www.frelink.top/articles/` 均可访问
+
+### 下一步
+
+- 继续把 `思想碎片 -> 研究综述 -> 专题/帮助` 这条内容链路再收紧一点
+- 逐步把发布页建议和专题页聚合规则统一成同一套内容判断逻辑
