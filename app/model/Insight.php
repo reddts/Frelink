@@ -101,6 +101,160 @@ class Insight extends BaseModel
         ];
     }
 
+    public static function buildDailyReport(int $days = 7, int $limit = 5): array
+    {
+        $days = self::normalizeDays($days);
+        $limit = max(1, min(20, $limit));
+
+        return [
+            'window_days' => $days,
+            'generated_at' => date('Y-m-d H:i:s'),
+            'summary' => self::getWindowSummary($days),
+            'opportunities' => self::getSearchOpportunities($days, $limit),
+            'content' => self::getContentTrends($days, $limit),
+            'topics' => self::getTopicTrends($days, $limit),
+            'recommendations' => self::getRecommendations($days, $limit),
+            'weekly_execution' => self::getWeeklyExecutionPlan($days, $limit),
+        ];
+    }
+
+    public static function renderDailyReport(array $report): string
+    {
+        $days = intval($report['window_days'] ?? 7);
+        $summary = $report['summary'] ?? [];
+
+        $lines = [];
+        $lines[] = 'Frelink 每日报告';
+        $lines[] = '统计窗口：最近 ' . $days . ' 天';
+        $lines[] = '生成时间：' . ($report['generated_at'] ?? date('Y-m-d H:i:s'));
+        $lines[] = '搜索次数：' . intval($summary['search_count'] ?? 0)
+            . '，曝光次数：' . intval($summary['impression_count'] ?? 0)
+            . '，点击次数：' . intval($summary['click_count'] ?? 0)
+            . '，详情阅读：' . intval($summary['detail_view_count'] ?? 0)
+            . '，窗口CTR：' . ($summary['ctr'] ?? 0);
+
+        if (!empty($report['opportunities'])) {
+            $lines[] = '';
+            $lines[] = '搜索缺口：';
+            foreach (array_slice($report['opportunities'], 0, 3) as $item) {
+                $lines[] = '- ' . $item['keyword'] . '：搜索 ' . intval($item['search_count']) . ' 次，覆盖 ' . intval($item['matched_content_count']) . '，建议 ' . $item['suggestion'];
+            }
+        }
+
+        if (!empty($report['content'])) {
+            $lines[] = '';
+            $lines[] = '内容热点：';
+            foreach (array_slice($report['content'], 0, 3) as $item) {
+                $lines[] = '- [' . $item['item_type'] . '] ' . $item['title'] . '：曝光 ' . intval($item['impressions']) . '，点击 ' . intval($item['clicks']) . '，阅读 ' . intval($item['detail_views']) . '，CTR ' . $item['ctr'];
+            }
+        }
+
+        if (!empty($report['topics'])) {
+            $lines[] = '';
+            $lines[] = '主题热点：';
+            foreach (array_slice($report['topics'], 0, 3) as $item) {
+                $lines[] = '- ' . $item['title'] . '：阅读 ' . intval($item['detail_views']) . '，内容数 ' . intval($item['content_count']) . '，CTR ' . $item['ctr'];
+            }
+        }
+
+        if (!empty($report['recommendations'])) {
+            $lines[] = '';
+            $lines[] = '建议动作：';
+            foreach (array_slice($report['recommendations'], 0, 3) as $item) {
+                $lines[] = '- [' . $item['priority'] . '] ' . $item['title'] . '：' . $item['suggestion'];
+            }
+        }
+
+        $weeklyExecution = $report['weekly_execution']['tasks'] ?? [];
+        $lines[] = '';
+        $lines[] = '本周执行清单：';
+        if (!$weeklyExecution) {
+            $lines[] = '- 暂无数据';
+        } else {
+            foreach ($weeklyExecution as $row) {
+                $lines[] = '- [' . ($row['task_type'] ?? '-') . '/' . ($row['content_type'] ?? '-') . '] ' . ($row['title'] ?? '-');
+                $lines[] = '  - 关键词：' . (($row['keyword'] ?? '') ?: '-');
+                $lines[] = '  - 来源：' . (($row['source_key'] ?? '') ?: '-');
+                $lines[] = '  - 优先级：' . (($row['priority'] ?? '') ?: '-');
+                $lines[] = '  - 动作：' . (($row['primary_label'] ?? '-') . ' / ' . ($row['secondary_label'] ?? '-'));
+            }
+        }
+
+        return implode(PHP_EOL, $lines);
+    }
+
+    public static function storeDailyReport(int $days = 7, int $limit = 5): array
+    {
+        $report = self::buildDailyReport($days, $limit);
+        $markdown = self::renderDailyReport($report);
+        $paths = self::getDailyReportPaths($report['window_days'], $limit);
+
+        if (!is_dir($paths['dir'])) {
+            mkdir($paths['dir'], 0777, true);
+        }
+
+        file_put_contents($paths['markdown'], $markdown);
+        file_put_contents($paths['json'], json_encode(array_merge($report, [
+            'markdown' => $markdown,
+            'markdown_path' => $paths['markdown'],
+            'json_path' => $paths['json'],
+        ]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+
+        $snapshot = array_merge($report, [
+            'markdown' => $markdown,
+            'markdown_path' => $paths['markdown'],
+            'json_path' => $paths['json'],
+        ]);
+
+        cache(self::dailyReportCacheKey($report['window_days'], $limit), $snapshot, 3600);
+        return $snapshot;
+    }
+
+    public static function getDailyReportSnapshot(int $days = 7, int $limit = 5, bool $refresh = false): array
+    {
+        $days = self::normalizeDays($days);
+        $limit = max(1, min(20, $limit));
+        $cacheKey = self::dailyReportCacheKey($days, $limit);
+
+        if (!$refresh) {
+            $cached = cache($cacheKey);
+            if (is_array($cached) && !empty($cached['markdown'])) {
+                return $cached;
+            }
+
+            $paths = self::getDailyReportPaths($days, $limit);
+            if (is_file($paths['json'])) {
+                $json = json_decode((string) file_get_contents($paths['json']), true);
+                if (is_array($json)) {
+                    $json['markdown'] = $json['markdown'] ?? (is_file($paths['markdown']) ? (string) file_get_contents($paths['markdown']) : '');
+                    cache($cacheKey, $json, 3600);
+                    return $json;
+                }
+            }
+        }
+
+        $snapshot = self::storeDailyReport($days, $limit);
+        cache($cacheKey, $snapshot, 3600);
+        return $snapshot;
+    }
+
+    protected static function getDailyReportPaths(int $days, int $limit = 5): array
+    {
+        $baseDir = rtrim(runtime_path(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'insight' . DIRECTORY_SEPARATOR . 'daily' . DIRECTORY_SEPARATOR;
+        $baseName = 'insight-' . $days . '-' . $limit . '-' . date('Y-m-d');
+
+        return [
+            'dir' => $baseDir,
+            'markdown' => $baseDir . $baseName . '.md',
+            'json' => $baseDir . $baseName . '.json',
+        ];
+    }
+
+    protected static function dailyReportCacheKey(int $days, int $limit = 5): string
+    {
+        return 'insight_daily_report:' . $days . ':' . $limit;
+    }
+
     public static function getTopKeywords(int $days = 7, int $limit = 10): array
     {
         $days = self::normalizeDays($days);

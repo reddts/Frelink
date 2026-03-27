@@ -13,6 +13,7 @@ namespace app\common\logic\common;
 
 use app\common\library\helper\ReputationHelper;
 use app\common\library\helper\SitemapHelper;
+use app\model\Insight;
 
 class CronLogic
 {
@@ -70,6 +71,12 @@ class CronLogic
         try {
             SitemapHelper::generate();
         } catch (\Exception $e) {
+        }
+
+        // 每日生成运营日报，供后台和 agent 复用
+        try {
+            Insight::storeDailyReport();
+        } catch (\Throwable $e) {
         }
         hook('cronDay');
     }

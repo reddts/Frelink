@@ -1,5 +1,42 @@
 # Frelink 项目更新日志
 
+## 2026-03-27（续5）
+
+### 里程碑：每日运营日报自动生成并接入后台
+
+- `we day` 现在会在每日任务里自动生成运营日报快照，并写入 `runtime/insight/daily`
+- 后台首页新增了“每日运营日报”查看卡片，可以直接复制给 agent 或人工复盘
+- `insight:report` 现在也支持 `--save`，方便手动触发时顺手落盘相同快照
+- 这次把“每日报告和定时任务”从路线图推进成了可执行、可查看、可复用的闭环
+
+### 影响范围
+
+- [app/model/Insight.php](/mnt/f/workwww/knowlege-github/app/model/Insight.php)
+- [app/common/command/InsightReport.php](/mnt/f/workwww/knowlege-github/app/common/command/InsightReport.php)
+- [app/common/command/WeCenter.php](/mnt/f/workwww/knowlege-github/app/common/command/WeCenter.php)
+- [app/common/logic/common/CronLogic.php](/mnt/f/workwww/knowlege-github/app/common/logic/common/CronLogic.php)
+- [app/backend/Index.php](/mnt/f/workwww/knowlege-github/app/backend/Index.php)
+- [app/backend/view/index/index.php](/mnt/f/workwww/knowlege-github/app/backend/view/index/index.php)
+- [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 本地已执行 `bash scripts/deploy.sh deploy`
+- 远程已执行：
+  - `php -l app/function.inc.php`
+  - `sudo php think clear`
+  - `curl -I -L --max-time 20 https://www.frelink.top/`
+  - `curl -I -L --max-time 20 https://www.frelink.top/questions/`
+  - `curl -I -L --max-time 20 https://www.frelink.top/articles/`
+- 远程文件抽查已确认：
+  - `app/model/Insight.php`
+  - `app/common/command/InsightReport.php`
+  - `app/common/command/WeCenter.php`
+  - `app/common/logic/common/CronLogic.php`
+  - `app/backend/Index.php`
+  - `app/backend/view/index/index.php`
+
 ## 2026-03-27（续4）
 
 ### 里程碑：推荐话题可直接挂载到草稿

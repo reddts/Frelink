@@ -173,7 +173,7 @@ class WeCenter extends Command
     // 每日执行
     public function dayAction()
     {
-        hook('cronDay');
+        \app\common\logic\common\CronLogic::day();
     }
 
     // 每周执行

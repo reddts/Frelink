@@ -191,6 +191,30 @@
                         </div>
 
                         <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h3 class="card-title mb-0">每日运营日报</h3>
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="导出日报">
+                                            <a href="{:url('index/dailyInsightBrief',['days'=>7,'format'=>'markdown'])}" target="_blank" class="btn btn-outline-secondary">导出 Markdown</a>
+                                            <a href="{:url('index/dailyInsightBrief',['days'=>7,'format'=>'json'])}" target="_blank" class="btn btn-outline-secondary">导出 JSON</a>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        {if !empty($insight.daily_report.markdown)}
+                                        <div class="text-muted mb-2">
+                                            最近一次日报生成于 {$insight.daily_report.generated_at|default='-'}，窗口 {$insight.daily_report.window_days|default=7} 天。
+                                        </div>
+                                        <textarea class="form-control" rows="14" readonly onclick="this.select()">{$insight.daily_report.markdown}</textarea>
+                                        {else/}
+                                        <p class="text-muted mb-0">当前还没有日报快照，稍后会由每日任务自动生成。</p>
+                                        {/if}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-header">

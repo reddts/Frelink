@@ -224,6 +224,7 @@ class Index extends Backend
             'opportunities' => [],
             'recommendations' => [],
             'agent_brief' => '',
+            'daily_report' => [],
             'error' => '',
         ];
 
@@ -244,6 +245,7 @@ class Index extends Backend
                     'recommendations' => InsightModel::getRecommendations($insightDays, 6),
                 ];
                 $cachedInsight['agent_brief'] = $this->buildInsightBrief($insightDays, $cachedInsight);
+                $cachedInsight['daily_report'] = InsightModel::getDailyReportSnapshot(7, 5);
 
                 if ($useCache) {
                     cache($insightCacheKey, $cachedInsight, 300);
@@ -258,6 +260,25 @@ class Index extends Backend
         }
 
         return $insight;
+    }
+
+    public function dailyInsightBrief()
+    {
+        $days = InsightModel::normalizeDays(intval($this->request->param('days', 7)));
+        $limit = max(1, min(20, intval($this->request->param('limit', 5))));
+        $format = strtolower(trim((string) $this->request->param('format', 'markdown')));
+        $refresh = intval($this->request->param('refresh', 0)) === 1;
+        $report = InsightModel::getDailyReportSnapshot($days, $limit, $refresh);
+
+        if ($format === 'json') {
+            return json($report);
+        }
+
+        return response(
+            $report['markdown'] ?? '',
+            200,
+            ['Content-Type' => 'text/plain; charset=utf-8']
+        );
     }
 
     protected function buildInsightBrief(int $days, array $insight): string
