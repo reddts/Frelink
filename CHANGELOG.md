@@ -1,5 +1,22 @@
 # Frelink 项目更新日志
 
+## 2026-03-27（续7）
+
+### 里程碑：移动端 FAQ 详情页语义统一
+
+- 移动端 FAQ 详情页底部的关注按钮改为 `关注 FAQ`
+- 同一内容页内的动作文案不再出现 `问题` 与 `FAQ` 混用
+
+### 影响范围
+
+- [public/templates/default/mobile/question/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/question/detail.php)
+- [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 已完成本地模板修改
+- 已准备同步到远端进行烟测
+
 ## 2026-03-27（续6）
 
 ### 里程碑：桌面端与移动端发布页推荐区统一

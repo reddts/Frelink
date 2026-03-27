@@ -438,7 +438,7 @@
         <a onclick="AWS_MOBILE.User.focus(this,'question','{$question_info.id}')" class="pt-1 d-inline-block flex-fill {if $question_info['has_focus']}active{/if}">
             <dl class="text-center">
                 <dt><i class="fa fa-heart"></i></dt>
-                <dd class="text-muted font-8">{$question_info['has_focus'] ? L('已关注') : L('关注问题')}</dd>
+                <dd class="text-muted font-8">{$question_info['has_focus'] ? L('已关注') : L('关注 FAQ')}</dd>
             </dl>
         </a>
 
