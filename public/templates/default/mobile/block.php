@@ -94,14 +94,14 @@
                 <div class="col-6 mb-4">
                     <a href="{:frelink_publish_url('question')}" class="text-muted">
                         <i class="icon-help-with-circle font-14"></i>
-                        <span class="d-block font-9 mt-1">{:frelink_content_label('faq_entry')}</span>
+                        <span class="d-block font-9 mt-1">{:L('FAQ')}</span>
                     </a>
                 </div>
 
                 <div class="col-6 mb-4">
                     <a href="{:frelink_publish_url('article')}" class="text-muted">
                         <i class="far fa-file-alt font-14"></i>
-                        <span class="d-block font-9 mt-1">{:L('综述 / 观察')}</span>
+                        <span class="d-block font-9 mt-1">{:L('知识内容')}</span>
                     </a>
                 </div>
                 {volist name=":config('aws.publish')" id="v"}

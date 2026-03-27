@@ -1,5 +1,24 @@
 # Frelink 项目更新日志
 
+## 2026-03-27（续8）
+
+### 里程碑：站点导航词汇统一
+
+- 主导航、移动端底栏和新建入口统一到 `FAQ / 知识内容 / 专题 / 帮助中心`
+- 导航层不再混用 `问题 / FAQ` 和 `文章 / 知识内容` 两套说法
+
+### 影响范围
+
+- [app/function.inc.php](/mnt/f/workwww/knowlege-github/app/function.inc.php)
+- [public/templates/default/html/global/nav.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/global/nav.php)
+- [public/templates/default/mobile/block.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/block.php)
+- [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 已完成本地模板与词典调整
+- 准备同步到远端验证主导航与移动端底栏显示
+
 ## 2026-03-27（续7）
 
 ### 里程碑：移动端 FAQ 详情页语义统一
