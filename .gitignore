@@ -18,3 +18,7 @@ view/.idea/*
 vendor/*
 deploy.local.json
 docs/deploy.local.md
+优化计划.md
+性能优化计划任务.md
+数据库修改.md
+管理端优化计划.md
