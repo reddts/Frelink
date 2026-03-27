@@ -21,7 +21,7 @@
 ## 安装方式
 
 ### 1. 环境要求
-- PHP >= 7.4
+- PHP >= 8.2
 - MySQL 5.7+
 - Nginx/Apache（站点根目录指向 `public/`）
 - PHP 扩展：`json`、`iconv`、`zip`、`curl`、`gd`、`zlib`、`openssl`
