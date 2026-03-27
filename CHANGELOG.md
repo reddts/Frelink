@@ -1,5 +1,33 @@
 # Frelink 项目更新日志
 
+## 2026-03-27（续3）
+
+### 里程碑：移动端发布页补齐主题建议
+
+- 移动端文章发布页现在也能直接展示 `建议优先扩展的话题`
+- 移动端 FAQ 发布页现在也能直接展示 `建议优先挂载的话题`
+- 这次补齐后，文章和 FAQ 的移动端发布入口在“标题建议 + 话题建议”上保持一致，减少了只在桌面端可见的引导缺口
+
+### 影响范围
+
+- [public/templates/default/mobile/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/article/publish.php)
+- [public/templates/default/mobile/question/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/question/publish.php)
+- [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 本地 `git diff --check` 已通过
+- 本地已执行 `bash scripts/deploy.sh deploy`
+- 远程已执行：
+  - `php -l app/function.inc.php`
+  - `sudo php think clear`
+  - `curl -I -L --max-time 20 https://www.frelink.top/`
+  - `curl -I -L --max-time 20 https://www.frelink.top/questions/`
+  - `curl -I -L --max-time 20 https://www.frelink.top/articles/`
+- 远程文件抽查已确认：
+  - `public/templates/default/mobile/article/publish.php`
+  - `public/templates/default/mobile/question/publish.php`
+
 ## 2026-03-27（续2）
 
 ### 里程碑：部署脚本自动修复 runtime 权限

@@ -55,6 +55,18 @@
                     {/volist}
                 </div>
                 {/if}
+                {if !empty($publish_insight.suggested_topics)}
+                <div class="font-9 mt-2">
+                    <div class="font-weight-bold mb-2">{:L('建议优先扩展的话题')}</div>
+                    {volist name="publish_insight.suggested_topics" id="v"}
+                    {if isset($v.url) && $v.url}
+                    <a href="{$v.url}" target="_blank" class="d-block mb-2 text-primary">
+                        {$v.title}
+                    </a>
+                    {/if}
+                    {/volist}
+                </div>
+                {/if}
                 <div class="font-9 mt-2">
                     <div class="font-weight-bold mb-2">{:L('写作模板')}</div>
                     <a href="javascript:;" class="btn btn-outline-primary btn-sm mr-2 mb-2 js-apply-template" data-type="research">{:L('插入研究综述模板')}</a>

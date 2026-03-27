@@ -28,6 +28,16 @@
                     {/volist}
                 </div>
                 {/if}
+                {if !empty($publish_insight.suggested_topics)}
+                <div class="font-9 mt-2">
+                    <div class="font-weight-bold mb-2">{:L('建议优先挂载的话题')}</div>
+                    {volist name="publish_insight.suggested_topics" id="v"}
+                    {if isset($v.url) && $v.url}
+                    <a href="{$v.url}" target="_blank" class="d-block mb-2 text-primary">{$v.title}</a>
+                    {/if}
+                    {/volist}
+                </div>
+                {/if}
             </div>
             {/if}
             <div class="border rounded px-3 py-2 mb-3" style="background:#fbfdff;border-color:#e6edf5 !important;">
