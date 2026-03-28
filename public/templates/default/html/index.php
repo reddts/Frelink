@@ -430,6 +430,41 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px;
     }
+    .aw-home-map-summary-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+    }
+    .aw-home-map-summary-desc {
+        margin: 0 0 14px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+    .aw-home-map-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+    .aw-home-map-summary-grid div {
+        padding: 12px 10px;
+        border-radius: 14px;
+        background: #fff;
+        border: 1px solid #e5edf6;
+        text-align: center;
+    }
+    .aw-home-map-summary-grid strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 700;
+    }
+    .aw-home-map-summary-grid span {
+        color: #64748b;
+        font-size: 12px;
+    }
     .aw-home-topic-card {
         display: block;
         padding: 14px;
@@ -795,6 +830,27 @@
                                 {else/}
                                 <p class='text-muted mb-0'>{:L('暂无知识归档')}</p>
                                 {/if}
+                            </div>
+                        </section>
+                        <section class="aw-home-curated-card aw-home-map-summary-card">
+                            <div class="aw-home-section-title">
+                                <h4>{:L('知识地图')}</h4>
+                                <a href="{:url('help/index')}">{:L('查看全部')}</a>
+                            </div>
+                            <p class="aw-home-map-summary-desc">{:L('把章节、关联内容和主题连接起来，帮助首页保持持续聚合而不是留白。')}</p>
+                            <div class="aw-home-map-summary-grid">
+                                <div>
+                                    <strong>{$knowledge_map_summary.chapter_count|default=0}</strong>
+                                    <span>{:L('章节')}</span>
+                                </div>
+                                <div>
+                                    <strong>{$knowledge_map_summary.relation_count|default=0}</strong>
+                                    <span>{:L('关联')}</span>
+                                </div>
+                                <div>
+                                    <strong>{$knowledge_map_summary.topic_count|default=0}</strong>
+                                    <span>{:L('主题')}</span>
+                                </div>
                             </div>
                         </section>
                     </div>
