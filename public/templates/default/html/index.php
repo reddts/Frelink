@@ -343,6 +343,8 @@
         gap: 16px;
     }
     .aw-home-curated-card {
+        display: flex;
+        flex-direction: column;
         padding: 18px;
         border-radius: 16px;
         border: 1px solid #e5edf6;
@@ -383,6 +385,35 @@
         color: #64748b;
         font-size: 13px;
         line-height: 1.5;
+    }
+    .aw-home-curated-list {
+        flex: 1;
+    }
+    .aw-home-curated-empty {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 10px;
+        min-height: 172px;
+        padding: 6px 0 2px;
+    }
+    .aw-home-curated-empty p {
+        margin: 0;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+    .aw-home-curated-empty a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: fit-content;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 12px;
+        font-weight: 700;
     }
     .aw-home-feed-filter {
         display: flex;
@@ -519,7 +550,7 @@
     }
     .aw-home-slow-updates {
         margin-top: 14px;
-        padding: 18px 24px 8px;
+        padding: 18px 18px 8px;
         border: 1px solid #e7eef7;
         border-radius: 24px;
         background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
@@ -550,6 +581,7 @@
         border-radius: 0;
         background: transparent;
         box-shadow: none;
+        padding: 0 !important;
     }
     .aw-home-slow-updates .r-title {
         display: none;
@@ -754,7 +786,7 @@
                             <div class="aw-home-curated-list">
                                 {if !empty($homepage_research_cards)}
                                 {volist name="homepage_research_cards" id="v"}
-                                <a href="{:url('article/detail',['id'=>$v['id']])}" target="_blank">
+                                <a href="{$v.url}" target="_blank">
                                     <small>{:frelink_article_type_label(isset($v['article_type']) ? $v['article_type'] : 'research')}</small>
                                     <strong>{$v['title']|raw}</strong>
                                     <p>{$v.message|raw}</p>
@@ -773,14 +805,18 @@
                             <div class="aw-home-curated-list">
                                 {if !empty($homepage_fragment_cards)}
                                 {volist name="homepage_fragment_cards" id="v"}
-                                <a href="{:url('article/detail',['id'=>$v['id']])}" target="_blank">
+                                <a href="{$v.url}" target="_blank">
                                     <small>{:frelink_article_type_label(isset($v['article_type']) ? $v['article_type'] : 'fragment')}</small>
                                     <strong>{$v['title']|raw}</strong>
                                     <p>{$v.message|raw}</p>
                                 </a>
                                 {/volist}
                                 {else/}
-                                <p class='text-muted mb-0'>{:L('暂无思想碎片')}</p>
+                                <div class="aw-home-curated-empty">
+                                    <p>{:L('当前还没有可展示的观察内容，建议先把近期判断整理成一条观察记录。')}</p>
+                                    <a href="{:url('article/publish',['article_type'=>'fragment'])}">{:L('去发布观察')}</a>
+                                    <a href="{:url('article/index',['type'=>'fragment'])}">{:L('查看观察列表')}</a>
+                                </div>
                                 {/if}
                             </div>
                         </section>
@@ -905,23 +941,21 @@
                     </div>
                 </div>
             </div>
+            {if get_theme_setting('home.sidebar_show_items') && in_array('announce',get_theme_setting('home.sidebar_show_items'))}
+            <div class="aw-home-slow-updates mt-3">
+                <div class="aw-home-slow-updates-head">
+                    <div>
+                        <h4>{:L('公告与更新')}</h4>
+                        <p>{:L('这部分属于低频信息，放在首页底部，方便集中查看站点公告、规则调整和阶段更新。')}</p>
+                    </div>
+                </div>
+                {:widget('sidebar/announce')}
+            </div>
+            {/if}
             </div>
         </div>
     </div>
 </div>
-{if get_theme_setting('home.sidebar_show_items') && in_array('announce',get_theme_setting('home.sidebar_show_items'))}
-<div class="container mt-2 aw-home-main-shell">
-    <div class="aw-home-slow-updates">
-        <div class="aw-home-slow-updates-head">
-            <div>
-                <h4>{:L('公告与更新')}</h4>
-                <p>{:L('这部分属于低频信息，放在首页底部，方便集中查看站点公告、规则调整和阶段更新。')}</p>
-            </div>
-        </div>
-        {:widget('sidebar/announce')}
-    </div>
-</div>
-{/if}
 
 <!--友情链接小部件-->
 {:widget('common/links')}

@@ -90,7 +90,7 @@ class Article extends BaseModel
     {
         $limit = max(1, min(10, intval($limit)));
         $articleType = frelink_normalize_article_type($articleType, 'research');
-        $cacheKey = 'home:featured_articles:' . $articleType . ':' . $limit;
+        $cacheKey = 'home:featured_articles:v2:' . $articleType . ':' . $limit;
         $cached = cache($cacheKey);
         if ($cached !== null) {
             return $cached;
@@ -98,7 +98,9 @@ class Article extends BaseModel
 
         $items = self::getHomepageArticleRowsByType($articleType, $limit);
         if (!$items) {
-            $items = self::getHomepageArticleRowsFallback($limit);
+            $items = $articleType === 'fragment'
+                ? self::getHomepageFragmentFallback($limit)
+                : self::getHomepageArticleRowsFallback($limit);
         }
 
         $formatted = self::formatHomepageArticleRows($items, $articleType);
@@ -135,6 +137,27 @@ class Article extends BaseModel
             ->toArray();
     }
 
+    protected static function getHomepageFragmentFallback(int $limit): array
+    {
+        $ideas = Insight::getFragmentPromotionIdeas(7, $limit);
+        if (!$ideas) {
+            return [];
+        }
+
+        $rows = [];
+        foreach ($ideas as $idea) {
+            $rows[] = [
+                'id' => intval($idea['article_id'] ?? 0),
+                'title' => (string) ($idea['title'] ?? ''),
+                'message' => (string) ($idea['reason'] ?? ''),
+                'article_type' => 'fragment',
+                'url' => (string) ($idea['url'] ?? ''),
+            ];
+        }
+
+        return $rows;
+    }
+
     protected static function formatHomepageArticleRows(array $items, string $defaultType): array
     {
         if (!$items) {
@@ -145,6 +168,7 @@ class Article extends BaseModel
             $items[$key]['title'] = htmlspecialchars_decode($item['title'] ?? '');
             $items[$key]['message'] = str_cut(strip_tags(htmlspecialchars_decode($item['message'] ?? '')), 0, 120);
             $items[$key]['article_type'] = frelink_normalize_article_type($item['article_type'] ?? $defaultType, $defaultType);
+            $items[$key]['url'] = (string) ($item['url'] ?? get_url('article/detail', ['id' => intval($item['id'] ?? 0)]));
         }
 
         return $items;

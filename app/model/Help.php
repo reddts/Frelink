@@ -56,7 +56,7 @@ class Help extends BaseModel
     {
         $limit = max(1, min(20, intval($limit)));
         $itemLimit = max(1, min(10, intval($itemLimit)));
-        $cacheKey = 'home:archive_highlights:' . $limit . ':' . $itemLimit;
+        $cacheKey = 'home:archive_highlights:v2:' . $limit . ':' . $itemLimit;
         $cached = cache($cacheKey);
         if ($cached !== null) {
             return $cached;

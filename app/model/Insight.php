@@ -1521,7 +1521,7 @@ class Insight extends BaseModel
         return is_string($keyword) ? $keyword : '';
     }
 
-    protected static function getFragmentPromotionIdeas(int $days, int $limit = 3): array
+    public static function getFragmentPromotionIdeas(int $days, int $limit = 3): array
     {
         $days = self::normalizeDays($days);
         $limit = max(1, min(10, $limit));
