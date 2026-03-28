@@ -11,6 +11,7 @@
 
 namespace app\frontend;
 use app\common\controller\Frontend;
+use app\model\Article as ArticleModel;
 use app\model\Help as HelpModel;
 use think\response\Response;
 
@@ -73,7 +74,9 @@ class Index extends Frontend
             'article_type'=>$articleType,
             'feed_query' => $feedQuery,
             'article_type_options'=>frelink_article_type_options(true),
-            'archive_chapters'=>HelpModel::getFeaturedArchiveChapters(4, 3),
+            'homepage_research_cards' => ArticleModel::getHomepageFeaturedArticles('research', 3),
+            'homepage_fragment_cards' => ArticleModel::getHomepageFeaturedArticles('fragment', 3),
+            'archive_chapters'=>HelpModel::getHomepageArchiveHighlights(4, 3),
         ]);
         $this->TDK(get_setting('site_name'));
         $html = $this->fetch();

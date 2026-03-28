@@ -717,13 +717,17 @@
                                 <a href="{:url('article/index',['type'=>'research'])}">{:L('查看全部')}</a>
                             </div>
                             <div class="aw-home-curated-list">
-                                {we:article limit="3" sort="new" type="research" empty="<p class='text-muted mb-0'>".L('暂无研究综述')."</p>"}
+                                {if !empty($homepage_research_cards)}
+                                {volist name="homepage_research_cards" id="v"}
                                 <a href="{:url('article/detail',['id'=>$v['id']])}" target="_blank">
                                     <small>{:frelink_article_type_label(isset($v['article_type']) ? $v['article_type'] : 'research')}</small>
                                     <strong>{$v['title']|raw}</strong>
                                     <p>{$v.message|raw}</p>
                                 </a>
-                                {/we:article}
+                                {/volist}
+                                {else/}
+                                <p class='text-muted mb-0'>{:L('暂无研究综述')}</p>
+                                {/if}
                             </div>
                         </section>
                         <section class="aw-home-curated-card">
@@ -732,13 +736,17 @@
                                 <a href="{:url('article/index',['type'=>'fragment'])}">{:L('查看全部')}</a>
                             </div>
                             <div class="aw-home-curated-list">
-                                {we:article limit="3" sort="new" type="fragment" empty="<p class='text-muted mb-0'>".L('暂无思想碎片')."</p>"}
+                                {if !empty($homepage_fragment_cards)}
+                                {volist name="homepage_fragment_cards" id="v"}
                                 <a href="{:url('article/detail',['id'=>$v['id']])}" target="_blank">
                                     <small>{:frelink_article_type_label(isset($v['article_type']) ? $v['article_type'] : 'fragment')}</small>
                                     <strong>{$v['title']|raw}</strong>
                                     <p>{$v.message|raw}</p>
                                 </a>
-                                {/we:article}
+                                {/volist}
+                                {else/}
+                                <p class='text-muted mb-0'>{:L('暂无思想碎片')}</p>
+                                {/if}
                             </div>
                         </section>
                         <section class="aw-home-curated-card">
@@ -778,10 +786,10 @@
                             <div class="aw-home-curated-list">
                                 {if !empty($archive_chapters)}
                                 {volist name="archive_chapters" id="chapter"}
-                                <a href="{:url('help/detail',['token'=>$chapter['url_token']])}" target="_blank">
-                                    <small>{:L('归档章节')} · {$chapter.relation_count|default=0} {:L('条内容')}</small>
+                                <a href="{$chapter.link_url}" target="_blank">
+                                    <small>{$chapter.source_label} · {$chapter.metric_value} {$chapter.metric_label}</small>
                                     <strong>{$chapter.title}</strong>
-                                    <p>{if !empty($chapter['chapters'][0]['info']['title'])}{$chapter['chapters'][0]['info']['title']}{else/}{:str_cut(strip_tags((string)$chapter['description']),0,70)}{/if}</p>
+                                    <p>{$chapter.summary}</p>
                                 </a>
                                 {/volist}
                                 {else/}
@@ -846,7 +854,7 @@
     </div>
 </div>
 {if get_theme_setting('home.sidebar_show_items') && in_array('announce',get_theme_setting('home.sidebar_show_items'))}
-<div class="container">
+<div class="container mt-2 aw-home-main-shell">
     <div class="aw-home-slow-updates">
         <div class="aw-home-slow-updates-head">
             <div>

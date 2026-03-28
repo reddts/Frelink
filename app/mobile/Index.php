@@ -69,7 +69,7 @@ class Index extends Frontend
             'article_type_options' => frelink_article_type_options(true),
             'search_keywords' => $searchKeywords,
             'featured_content' => $featuredContent,
-            'archive_chapters' => HelpModel::getFeaturedArchiveChapters(3, 2),
+            'archive_chapters' => HelpModel::getHomepageArchiveHighlights(3, 2),
         ]);
 
         $linksCacheKey = 'mobile_home_links:status1';

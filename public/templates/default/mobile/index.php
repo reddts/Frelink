@@ -290,27 +290,24 @@
             border-color: #1d4ed8;
             color: #fff;
         }
-        .aw-mobile-feed-head {
-            padding: 0 14px 10px;
-        }
-        .aw-mobile-feed-head h4 {
-            margin: 0 0 4px;
-            color: #0f172a;
-            font-size: 15px;
-            font-weight: 700;
-        }
-        .aw-mobile-feed-head p {
-            margin: 0;
-            color: #64748b;
-            font-size: 12px;
-            line-height: 1.6;
-        }
         .aw-mobile-feed-shell {
             margin: 12px;
             border-radius: 18px;
             background: #fff;
             box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
             overflow: hidden;
+        }
+        .aw-mobile-feed-shell .aw-mobile-section-head {
+            margin-bottom: 0;
+            padding: 14px 14px 12px;
+            align-items: flex-start;
+        }
+        .aw-mobile-feed-shell .aw-mobile-section-head h4 {
+            margin-bottom: 6px;
+            font-size: 16px;
+        }
+        .aw-mobile-feed-shell .aw-mobile-section-head p {
+            font-size: 12px;
         }
         .aw-mobile-feed-list {
             padding: 0 14px 14px;
@@ -401,10 +398,10 @@
         <div class="aw-mobile-section-title">{:L('知识归档')}</div>
         <div class="aw-mobile-lane-list">
             {volist name="archive_chapters" id="chapter"}
-            <a href="{:url('help/detail',['token'=>$chapter['url_token']])}" data-pjax="pageMain">
-                <small>{:L('归档章节')} · {$chapter.relation_count|default=0} {:L('条内容')}</small>
+            <a href="{$chapter.link_url}" data-pjax="pageMain">
+                <small>{$chapter.source_label} · {$chapter.metric_value} {$chapter.metric_label}</small>
                 <strong>{$chapter.title}</strong>
-                <p>{if !empty($chapter['chapters'][0]['info']['title'])}{$chapter['chapters'][0]['info']['title']}{else/}{:str_cut(strip_tags((string)$chapter['description']),0,60)}{/if}</p>
+                <p>{$chapter.summary}</p>
             </a>
             {/volist}
         </div>
@@ -458,9 +455,11 @@
         {:widget('sidebar/hotTopic',['uid'=>$user_id])}
     </section>
     <section class="aw-mobile-feed-shell">
-        <div class="aw-mobile-feed-head">
-            <h4>{:L('持续更新')}</h4>
-            <p>{:L('混排综述、观察、FAQ 和帮助条目，作为首页主入口之外的更新流。')}</p>
+        <div class="aw-mobile-section-head">
+            <div>
+                <h4>{:L('持续更新')}</h4>
+                <p>{:L('混排综述、观察、FAQ 和帮助条目，作为首页主入口之外的更新流。')}</p>
+            </div>
         </div>
         <div class="aw-mobile-feed-filter">
             <a class="{if !$type || $current_sort=='unresponsive'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort])}">{:L('全部内容')}</a>

@@ -52,6 +52,73 @@ class Help extends BaseModel
         return $chapters;
     }
 
+    public static function getHomepageArchiveHighlights(int $limit = 4, int $itemLimit = 3): array
+    {
+        $limit = max(1, min(20, intval($limit)));
+        $itemLimit = max(1, min(10, intval($itemLimit)));
+        $cacheKey = 'home:archive_highlights:' . $limit . ':' . $itemLimit;
+        $cached = cache($cacheKey);
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        $chapters = self::getFeaturedArchiveChapters($limit, $itemLimit);
+        if ($chapters) {
+            $normalized = self::normalizeHomepageArchiveChapters($chapters);
+            cache($cacheKey, $normalized, 300);
+            return $normalized;
+        }
+
+        $fallback = self::getHomepageArchiveTopicFallback($limit);
+        cache($cacheKey, $fallback, 300);
+        return $fallback;
+    }
+
+    protected static function normalizeHomepageArchiveChapters(array $chapters): array
+    {
+        foreach ($chapters as $key => $chapter) {
+            $chapters[$key]['source_label'] = L('归档章节');
+            $chapters[$key]['metric_label'] = L('条内容');
+            $chapters[$key]['metric_value'] = intval($chapter['relation_count'] ?? 0);
+            $chapters[$key]['summary'] = !empty($chapter['chapters'][0]['info']['title'])
+                ? $chapter['chapters'][0]['info']['title']
+                : str_cut(strip_tags((string)($chapter['description'] ?? '')), 0, 70);
+            $chapters[$key]['link_url'] = get_url('help/detail', ['token' => $chapter['url_token']]);
+        }
+
+        return $chapters;
+    }
+
+    protected static function getHomepageArchiveTopicFallback(int $limit): array
+    {
+        $topics = db('topic')
+            ->where(['status' => 1])
+            ->order([
+                'focus' => 'DESC',
+                'discuss' => 'DESC',
+                'id' => 'DESC',
+            ])
+            ->limit($limit)
+            ->select()
+            ->toArray();
+
+        if (!$topics) {
+            return [];
+        }
+
+        foreach ($topics as $key => $topic) {
+            $topics[$key]['source_label'] = L('热门主题');
+            $topics[$key]['metric_label'] = L('关注');
+            $topics[$key]['metric_value'] = intval($topic['focus'] ?? 0);
+            $topics[$key]['summary'] = !empty($topic['description'])
+                ? str_cut(strip_tags(htmlspecialchars_decode((string)$topic['description'])), 0, 70)
+                : sprintf('%s %d · %s %d', L('讨论'), intval($topic['discuss'] ?? 0), L('关注'), intval($topic['focus'] ?? 0));
+            $topics[$key]['link_url'] = get_url('topic/detail', ['id' => $topic['id']]);
+        }
+
+        return $topics;
+    }
+
     public static function getKnowledgeMapSummary(): array
     {
         $chapterCount = db('help_chapter')->where(['status' => 1])->count();

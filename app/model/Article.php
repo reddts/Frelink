@@ -86,6 +86,70 @@ class Article extends BaseModel
 		return $result;
 	}
 
+    public static function getHomepageFeaturedArticles(string $articleType = 'research', int $limit = 3): array
+    {
+        $limit = max(1, min(10, intval($limit)));
+        $articleType = frelink_normalize_article_type($articleType, 'research');
+        $cacheKey = 'home:featured_articles:' . $articleType . ':' . $limit;
+        $cached = cache($cacheKey);
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        $items = self::getHomepageArticleRowsByType($articleType, $limit);
+        if (!$items) {
+            $items = self::getHomepageArticleRowsFallback($limit);
+        }
+
+        $formatted = self::formatHomepageArticleRows($items, $articleType);
+        cache($cacheKey, $formatted, 300);
+        return $formatted;
+    }
+
+    protected static function getHomepageArticleRowsByType(string $articleType, int $limit): array
+    {
+        return db('article')
+            ->where(['status' => 1, 'article_type' => $articleType])
+            ->order([
+                'set_top_time' => 'DESC',
+                'update_time' => 'DESC',
+                'create_time' => 'DESC',
+            ])
+            ->limit($limit)
+            ->select()
+            ->toArray();
+    }
+
+    protected static function getHomepageArticleRowsFallback(int $limit): array
+    {
+        return db('article')
+            ->where(['status' => 1])
+            ->order([
+                'set_top_time' => 'DESC',
+                'popular_value' => 'DESC',
+                'update_time' => 'DESC',
+                'create_time' => 'DESC',
+            ])
+            ->limit($limit)
+            ->select()
+            ->toArray();
+    }
+
+    protected static function formatHomepageArticleRows(array $items, string $defaultType): array
+    {
+        if (!$items) {
+            return [];
+        }
+
+        foreach ($items as $key => $item) {
+            $items[$key]['title'] = htmlspecialchars_decode($item['title'] ?? '');
+            $items[$key]['message'] = str_cut(strip_tags(htmlspecialchars_decode($item['message'] ?? '')), 0, 120);
+            $items[$key]['article_type'] = frelink_normalize_article_type($item['article_type'] ?? $defaultType, $defaultType);
+        }
+
+        return $items;
+    }
+
     /**
      * 保存文章
      * @param $uid
