@@ -364,32 +364,14 @@
                 <span>{:L('适合查看术语、规则和入门说明')}</span>
             </a>
         </div>
-        <div class="aw-mobile-hero-standards">
-            <div class="aw-mobile-hero-standard">
-                <strong>{:L('3 秒知道和自己有关')}</strong>
-                <span>{:L('首屏先说清楚这篇内容对谁有价值。')}</span>
-            </div>
-            <div class="aw-mobile-hero-standard">
-                <strong>{:L('30 秒拿到一个新判断')}</strong>
-                <span>{:L('正文要给出边界、取舍和判断标准。')}</span>
-            </div>
-            <div class="aw-mobile-hero-standard">
-                <strong>{:L('看完愿意点下一篇')}</strong>
-                <span>{:L('让综述、观察和 FAQ 可以继续串联阅读。')}</span>
-            </div>
-            <div class="aw-mobile-hero-standard">
-                <strong>{:L('标题真实反映正文')}</strong>
-                <span>{:L('不靠夸张承诺骗点击，标题只做准确表达。')}</span>
-            </div>
-        </div>
         <div class="aw-mobile-hero-badges">
             <span class="aw-mobile-hero-badge">{:L('开放检索')}</span>
             <span class="aw-mobile-hero-badge">{:L('长期归档')}</span>
             <span class="aw-mobile-hero-badge">{:L('保留判断')}</span>
         </div>
         <div class="aw-mobile-hero-panel">
-            <strong>{:L('让真正有价值的思想被看见')}</strong>
-            <p>{:L('不做博眼球的碎片流，把 FAQ、观察、综述和知识章节组织成可以持续追踪的公开知识系统。')}</p>
+            <strong>{:L('公开知识系统')}</strong>
+            <p>{:L('这里按综述、观察、FAQ、主题和知识归档组织内容，重点是可检索、可追踪、可持续更新，而不是短期流量展示。')}</p>
         </div>
     </section>
     {if !empty($search_keywords)}
