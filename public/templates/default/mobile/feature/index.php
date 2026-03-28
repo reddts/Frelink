@@ -143,4 +143,3 @@
     </div>
 </div>
 {/block}
-{block name="footer"}{/block}

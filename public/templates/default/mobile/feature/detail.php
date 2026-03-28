@@ -246,4 +246,3 @@
     }
 </script>
 {/block}
-{block name="footer"}{/block}
