@@ -1,6 +1,30 @@
 {extend name="$theme_block" /}
 {block name="main"}
 <div class="aui-content mescroll" id="ajaxPage">
+    <div class="bg-white px-3 pt-3 pb-2 border-bottom">
+        <div class="font-weight-bold font-18 text-dark">{:L('主题')}</div>
+        <div class="text-muted font-9 mt-1">{:L('用主题把相关 FAQ、知识内容和长期讨论聚合在一起，先看变化，再沿着线索继续深入。')}</div>
+        <div class="row no-gutters mt-3">
+            <div class="col-4 pr-2">
+                <a class="d-block border rounded bg-light px-2 py-2 text-dark" href="{:url('topic/index',['type'=>'new','pid'=>$pid])}" data-pjax="pageMain">
+                    <div class="font-weight-bold font-11">{:L('最新话题')}</div>
+                    <div class="text-muted font-8 mt-1">{:L('先看最近更新')}</div>
+                </a>
+            </div>
+            <div class="col-4 px-1">
+                <a class="d-block border rounded bg-light px-2 py-2 text-dark" href="{:url('topic/index',['type'=>'focus','pid'=>$pid])}" data-pjax="pageMain">
+                    <div class="font-weight-bold font-11">{:L('关注最多')}</div>
+                    <div class="text-muted font-8 mt-1">{:L('稳定长期入口')}</div>
+                </a>
+            </div>
+            <div class="col-4 pl-2">
+                <a class="d-block border rounded bg-light px-2 py-2 text-dark" href="{:url('topic/index',['type'=>'discuss','pid'=>$pid])}" data-pjax="pageMain">
+                    <div class="font-weight-bold font-11">{:L('讨论最多')}</div>
+                    <div class="text-muted font-8 mt-1">{:L('追踪变化分歧')}</div>
+                </a>
+            </div>
+        </div>
+    </div>
     <div class="swiper-container bg-white">
         <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block px-3 bg-white swiper-wrapper" style="flex-wrap: nowrap;">
             <li class="nav-item swiper-slide">

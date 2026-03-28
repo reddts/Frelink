@@ -21,6 +21,7 @@
                 radial-gradient(circle at 82% 22%, rgba(52, 211, 153, 0.28), transparent 24%),
                 linear-gradient(135deg, #08152b 0%, #0b3158 44%, #0d6a64 100%),
                 image-set(
+                    url('{$static_url}images/top-img.avif') 1x,
                     url('{$static_url}images/top-img.webp') 1x,
                     url('{$static_url}images/top-img.png') 1x
                 );
@@ -137,6 +138,33 @@
     .aw-home-quick-actions a:hover {
         background: rgba(255,255,255,0.18);
     }
+    .aw-home-hero-standards {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        position: relative;
+        z-index: 2;
+    }
+    .aw-home-hero-standard {
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: #fff;
+        backdrop-filter: blur(10px);
+    }
+    .aw-home-hero-standard strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+    .aw-home-hero-standard span {
+        color: rgba(226,232,240,0.82);
+        font-size: 12px;
+        line-height: 1.5;
+    }
     .aw-home-hero-badges {
         display: flex;
         flex-wrap: wrap;
@@ -188,7 +216,11 @@
         inset: 0;
         background:
             linear-gradient(135deg, rgba(255,255,255,0.18), transparent 42%),
-            url('{$static_url}images/top-img.webp') right center / cover no-repeat;
+            image-set(
+                url('{$static_url}images/top-img.avif') 1x,
+                url('{$static_url}images/top-img.webp') 1x,
+                url('{$static_url}images/top-img.png') 1x
+            ) right center / cover no-repeat;
         opacity: 0.78;
     }
     .aw-home-hero-kicker {
@@ -598,7 +630,7 @@
                 <form action="{:url('search/index')}" method="get" id="homeSearch" class="aw-home-search-shell">
                     <span>
                         <i class="iconfont">&#xe610;</i>
-                        <input type="text" autocomplete="off" value="{:input('get.q')}" name="q" placeholder="{:L('搜索综述、观察、FAQ、主题或帮助')}">
+                        <input type="text" autocomplete="off" value="{:input('get.q')}" name="q" placeholder="{:L('搜索综述、观察、FAQ、主题或知识章节')}">
                         <button type="button" class="btn gradientBtn px-4 ml-1" style="height: 42px;" onclick="$('#homeSearch').submit();">{:L('搜索')}</button>
                     </span>
                 </form>
@@ -608,6 +640,24 @@
                     <a class="btn btn-sm m-0" href="{:url('article/index',['type'=>'fragment'])}">{:frelink_content_label('fragment')}</a>
                     <a class="btn btn-sm m-0" href="{:url('question/index')}">{:frelink_content_label('question')}</a>
                     <a class="btn btn-sm m-0" href="{:url('article/index',['type'=>'faq'])}">{:frelink_content_label('faq')}</a>
+                </div>
+                <div class="aw-home-hero-standards">
+                    <div class="aw-home-hero-standard">
+                        <strong>{:L('3 秒知道和自己有关')}</strong>
+                        <span>{:L('首屏先说明这篇内容对谁有价值，再决定要不要继续看。')}</span>
+                    </div>
+                    <div class="aw-home-hero-standard">
+                        <strong>{:L('30 秒拿到一个新判断')}</strong>
+                        <span>{:L('内容必须带着边界、取舍和可复用的判断标准。')}</span>
+                    </div>
+                    <div class="aw-home-hero-standard">
+                        <strong>{:L('看完还愿意点下一篇')}</strong>
+                        <span>{:L('让综述、观察和 FAQ 能顺着读下去，而不是一次性消耗。')}</span>
+                    </div>
+                    <div class="aw-home-hero-standard">
+                        <strong>{:L('标题真实反映正文')}</strong>
+                        <span>{:L('不靠夸张承诺骗点击，标题只负责准确表达内容。')}</span>
+                    </div>
                 </div>
                 <div class="aw-home-hero-badges">
                     <span class="aw-home-hero-badge">{:L('开放检索')}</span>
@@ -625,7 +675,7 @@
                 <div class="aw-home-hero-card">
                     <small>{:L('内容不是越多越好')}</small>
                     <strong>{:L('让真正有价值的思想被看见')}</strong>
-                    <p>{:L('不做博眼球的碎片流，把问题、观察、综述和知识章节组织成可以持续追踪的公开知识系统。')}</p>
+                    <p>{:L('不做博眼球的碎片流，把 FAQ、观察、综述和知识章节组织成可以持续追踪的公开知识系统。')}</p>
                 </div>
             </div>
         </div>
@@ -773,7 +823,7 @@
                 {if $current_sort=='unresponsive'}
                 {:L('当前只看仍待补充的 FAQ 条目，不再混入其他内容类型。')}
                 {elseif $type=='question'}
-                {:L('当前只看 FAQ 条目，更适合承接检索、高频问题和明确答案。')}
+                {:L('当前只看 FAQ 条目，更适合承接检索、高频 FAQ 和明确答案。')}
                 {elseif $type=='article' && $article_type=='research'/}
                 {:L('当前只看综述，更适合系统理解、资料沉淀和长期追踪。')}
                 {elseif $type=='article' && $article_type=='fragment'/}

@@ -9,6 +9,18 @@ class Insight extends BaseModel
     protected static array $allowedItemTypes = ['question', 'article', 'topic', 'column'];
     protected static array $allowedPublishItemTypes = ['question', 'article'];
 
+    protected static function rememberCache(string $key, callable $resolver, int $ttl = 300)
+    {
+        $cached = cache($key);
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        $value = $resolver();
+        cache($key, $value, $ttl);
+        return $value;
+    }
+
     public static function normalizeDays(int $days): int
     {
         return in_array($days, self::$allowedDays, true) ? $days : 7;
@@ -258,227 +270,435 @@ class Insight extends BaseModel
     public static function getTopKeywords(int $days = 7, int $limit = 10): array
     {
         $days = self::normalizeDays($days);
-        [$start, $end] = self::timeRange($days);
-        $rows = db('search_log')
-            ->whereBetween('create_time', [$start, $end])
-            ->where('keyword', '<>', '')
-            ->fieldRaw('keyword, COUNT(*) AS search_count')
-            ->group('keyword')
-            ->order('search_count', 'desc')
-            ->limit(max(1, min(100, $limit)))
-            ->select()
-            ->toArray();
+        $limit = max(1, min(100, $limit));
 
-        foreach ($rows as &$row) {
-            $row['keyword'] = trim((string) $row['keyword']);
-            $row['search_count'] = intval($row['search_count']);
-        }
+        return self::rememberCache('insight:top_keywords:' . $days . ':' . $limit, function () use ($days, $limit) {
+            [$start, $end] = self::timeRange($days);
+            $rows = db('search_log')
+                ->whereBetween('create_time', [$start, $end])
+                ->where('keyword', '<>', '')
+                ->fieldRaw('keyword, COUNT(*) AS search_count')
+                ->group('keyword')
+                ->order('search_count', 'desc')
+                ->limit($limit)
+                ->select()
+                ->toArray();
 
-        return array_values(array_filter($rows, function ($row) {
-            $keyword = trim((string) ($row['keyword'] ?? ''));
-            if (mb_strlen($keyword, 'UTF-8') < 2) {
-                return false;
+            foreach ($rows as &$row) {
+                $row['keyword'] = trim((string) $row['keyword']);
+                $row['search_count'] = intval($row['search_count']);
             }
 
-            return self::isMeaningfulSearchKeyword($keyword);
-        }));
+            return array_values(array_filter($rows, function ($row) {
+                $keyword = trim((string) ($row['keyword'] ?? ''));
+                if (mb_strlen($keyword, 'UTF-8') < 2) {
+                    return false;
+                }
+
+                return self::isMeaningfulSearchKeyword($keyword);
+            }));
+        }, 300);
     }
 
     public static function getSearchOpportunities(int $days = 7, int $limit = 10): array
     {
-        $keywords = self::getTopKeywords($days, max(10, $limit * 2));
-        $result = [];
+        $days = self::normalizeDays($days);
+        $limit = max(1, min(100, $limit));
 
-        foreach ($keywords as $row) {
-            $keyword = $row['keyword'];
-            $searchCount = intval($row['search_count']);
-            if ($searchCount < 2) {
-                continue;
+        return self::rememberCache('insight:search_opportunities:' . $days . ':' . $limit, function () use ($days, $limit) {
+            $keywords = self::getTopKeywords($days, max(10, $limit * 2));
+            $result = [];
+
+            foreach ($keywords as $row) {
+                $keyword = $row['keyword'];
+                $searchCount = intval($row['search_count']);
+                if ($searchCount < 2) {
+                    continue;
+                }
+
+                $match = self::countKeywordMatches($keyword);
+                $matchedContent = $match['question_count'] + $match['article_count'] + $match['topic_count'] + $match['help_count'];
+                $suggestion = '保持观察';
+
+                if ($matchedContent === 0) {
+                    $suggestion = '高频无内容，优先补问题或帮助文档';
+                } elseif ($matchedContent <= 2 && $searchCount >= 3) {
+                    $suggestion = '内容偏少，建议补教程、专题或术语解释';
+                } elseif ($searchCount > $matchedContent * 2) {
+                    $suggestion = '搜索热度高于供给，建议扩展该主题';
+                }
+
+                $result[] = [
+                    'keyword' => $keyword,
+                    'search_count' => $searchCount,
+                    'matched_content_count' => $matchedContent,
+                    'question_count' => $match['question_count'],
+                    'article_count' => $match['article_count'],
+                    'topic_count' => $match['topic_count'],
+                    'help_count' => $match['help_count'],
+                    'gap_score' => $matchedContent > 0 ? round($searchCount / $matchedContent, 2) : round($searchCount, 2),
+                    'suggestion' => $suggestion,
+                ];
             }
 
-            $match = self::countKeywordMatches($keyword);
-            $matchedContent = $match['question_count'] + $match['article_count'] + $match['topic_count'] + $match['help_count'];
-            $suggestion = '保持观察';
+            usort($result, function ($a, $b) {
+                return $b['gap_score'] <=> $a['gap_score'];
+            });
 
-            if ($matchedContent === 0) {
-                $suggestion = '高频无内容，优先补问题或帮助文档';
-            } elseif ($matchedContent <= 2 && $searchCount >= 3) {
-                $suggestion = '内容偏少，建议补教程、专题或术语解释';
-            } elseif ($searchCount > $matchedContent * 2) {
-                $suggestion = '搜索热度高于供给，建议扩展该主题';
-            }
-
-            $result[] = [
-                'keyword' => $keyword,
-                'search_count' => $searchCount,
-                'matched_content_count' => $matchedContent,
-                'question_count' => $match['question_count'],
-                'article_count' => $match['article_count'],
-                'topic_count' => $match['topic_count'],
-                'help_count' => $match['help_count'],
-                'gap_score' => $matchedContent > 0 ? round($searchCount / $matchedContent, 2) : round($searchCount, 2),
-                'suggestion' => $suggestion,
-            ];
-        }
-
-        usort($result, function ($a, $b) {
-            return $b['gap_score'] <=> $a['gap_score'];
-        });
-
-        return array_slice($result, 0, $limit);
+            return array_slice($result, 0, $limit);
+        }, 300);
     }
 
     public static function getContentTrends(int $days = 7, int $limit = 10, string $itemType = ''): array
     {
         $days = self::normalizeDays($days);
-        [$start, $end, $prevStart, $prevEnd] = self::compareRange($days);
-        $recentStats = self::getEventStats($start, $end, $itemType);
-        $prevStats = self::getEventStats($prevStart, $prevEnd, $itemType);
-        $browseRecent = self::getBrowseStats($start, $end, $itemType);
-        $browsePrev = self::getBrowseStats($prevStart, $prevEnd, $itemType);
+        $limit = max(1, min(100, $limit));
 
-        $keys = array_unique(array_merge(array_keys($recentStats), array_keys($browseRecent)));
-        $rows = [];
-        foreach ($keys as $key) {
-            [$type, $id] = explode(':', $key);
-            $recent = $recentStats[$key] ?? ['impressions' => 0, 'clicks' => 0, 'detail_views' => 0];
-            $prev = $prevStats[$key] ?? ['impressions' => 0, 'clicks' => 0, 'detail_views' => 0];
-            $recent['detail_views'] += intval($browseRecent[$key] ?? 0);
-            $prev['detail_views'] += intval($browsePrev[$key] ?? 0);
-            $rows[] = [
-                'item_type' => $type,
-                'item_id' => intval($id),
-                'impressions' => intval($recent['impressions']),
-                'clicks' => intval($recent['clicks']),
-                'detail_views' => intval($recent['detail_views']),
-                'ctr' => intval($recent['impressions']) > 0 ? round($recent['clicks'] / $recent['impressions'], 4) : 0,
-                'previous_detail_views' => intval($prev['detail_views']),
-                'trend_ratio' => intval($prev['detail_views']) > 0
-                    ? round($recent['detail_views'] / max(1, $prev['detail_views']), 2)
-                    : ($recent['detail_views'] > 0 ? round($recent['detail_views'], 2) : 0),
-            ];
-        }
+        return self::rememberCache('insight:content_trends:' . $days . ':' . $limit . ':' . md5($itemType), function () use ($days, $limit, $itemType) {
+            [$start, $end, $prevStart, $prevEnd] = self::compareRange($days);
+            $recentStats = self::getEventStats($start, $end, $itemType);
+            $prevStats = self::getEventStats($prevStart, $prevEnd, $itemType);
+            $browseRecent = self::getBrowseStats($start, $end, $itemType);
+            $browsePrev = self::getBrowseStats($prevStart, $prevEnd, $itemType);
 
-        usort($rows, function ($a, $b) {
-            if ($a['detail_views'] === $b['detail_views']) {
-                return $b['ctr'] <=> $a['ctr'];
+            $keys = array_unique(array_merge(array_keys($recentStats), array_keys($browseRecent)));
+            $rows = [];
+            foreach ($keys as $key) {
+                [$type, $id] = explode(':', $key);
+                $recent = $recentStats[$key] ?? ['impressions' => 0, 'clicks' => 0, 'detail_views' => 0];
+                $prev = $prevStats[$key] ?? ['impressions' => 0, 'clicks' => 0, 'detail_views' => 0];
+                $recent['detail_views'] += intval($browseRecent[$key] ?? 0);
+                $prev['detail_views'] += intval($browsePrev[$key] ?? 0);
+                $rows[] = [
+                    'item_type' => $type,
+                    'item_id' => intval($id),
+                    'impressions' => intval($recent['impressions']),
+                    'clicks' => intval($recent['clicks']),
+                    'detail_views' => intval($recent['detail_views']),
+                    'ctr' => intval($recent['impressions']) > 0 ? round($recent['clicks'] / $recent['impressions'], 4) : 0,
+                    'previous_detail_views' => intval($prev['detail_views']),
+                    'trend_ratio' => intval($prev['detail_views']) > 0
+                        ? round($recent['detail_views'] / max(1, $prev['detail_views']), 2)
+                        : ($recent['detail_views'] > 0 ? round($recent['detail_views'], 2) : 0),
+                ];
             }
-            return $b['detail_views'] <=> $a['detail_views'];
-        });
 
-        $rows = array_slice($rows, 0, max(1, min(100, $limit)));
-        return self::hydrateContentRows($rows);
+            usort($rows, function ($a, $b) {
+                if ($a['detail_views'] === $b['detail_views']) {
+                    return $b['ctr'] <=> $a['ctr'];
+                }
+                return $b['detail_views'] <=> $a['detail_views'];
+            });
+
+            $rows = array_slice($rows, 0, $limit);
+            return self::hydrateContentRows($rows);
+        }, 180);
     }
 
     public static function getTopicTrends(int $days = 7, int $limit = 10): array
     {
-        $contentRows = self::getContentTrends($days, 100);
-        if (!$contentRows) {
-            return [];
+        $days = self::normalizeDays($days);
+        $limit = max(1, min(100, $limit));
+
+        return self::rememberCache('insight:topic_trends:' . $days . ':' . $limit, function () use ($days, $limit) {
+            $contentRows = self::getContentTrends($days, 100);
+            if (!$contentRows) {
+                return [];
+            }
+
+            $topicMap = [];
+            foreach ($contentRows as $row) {
+                $relations = db('topic_relation')
+                    ->where([
+                        'item_type' => $row['item_type'],
+                        'item_id' => $row['item_id'],
+                        'status' => 1,
+                    ])
+                    ->column('topic_id');
+
+                foreach ($relations as $topicId) {
+                    $topicId = intval($topicId);
+                    if (!isset($topicMap[$topicId])) {
+                        $topicMap[$topicId] = [
+                            'topic_id' => $topicId,
+                            'impressions' => 0,
+                            'clicks' => 0,
+                            'detail_views' => 0,
+                            'content_count' => 0,
+                        ];
+                    }
+                    $topicMap[$topicId]['impressions'] += intval($row['impressions']);
+                    $topicMap[$topicId]['clicks'] += intval($row['clicks']);
+                    $topicMap[$topicId]['detail_views'] += intval($row['detail_views']);
+                    $topicMap[$topicId]['content_count']++;
+                }
+            }
+
+            foreach ($topicMap as &$row) {
+                $row['ctr'] = $row['impressions'] > 0 ? round($row['clicks'] / $row['impressions'], 4) : 0;
+                $info = db('topic')->where(['id' => $row['topic_id'], 'status' => 1])->field('title,description')->find();
+                $row['title'] = $info['title'] ?? '';
+                $row['description'] = isset($info['description']) ? str_cut(strip_tags(htmlspecialchars_decode((string) $info['description'])), 0, 120) : '';
+            }
+
+            $rows = array_values(array_filter($topicMap, function ($row) {
+                return $row['title'] !== '';
+            }));
+
+            usort($rows, function ($a, $b) {
+                return $b['detail_views'] <=> $a['detail_views'];
+            });
+
+            return array_slice($rows, 0, $limit);
+        }, 180);
+    }
+
+    public static function getTopicGraph(int $days = 30, int $limit = 10): array
+    {
+        $days = self::normalizeDays($days);
+        $limit = max(1, min(20, $limit));
+        [$start, $end] = self::timeRange($days);
+
+        $relationRows = db('topic_relation')
+            ->where([
+                ['status', '=', 1],
+                ['create_time', '>=', $start],
+                ['create_time', '<=', $end],
+            ])
+            ->field('topic_id,item_type,item_id')
+            ->select()
+            ->toArray();
+
+        if (!$relationRows) {
+            return [
+                'window_days' => $days,
+                'from' => date('Y-m-d H:i:s', $start),
+                'to' => date('Y-m-d H:i:s', $end),
+                'nodes' => [],
+                'edges' => [],
+            ];
         }
 
-        $topicMap = [];
-        foreach ($contentRows as $row) {
-            $relations = db('topic_relation')
-                ->where([
-                    'item_type' => $row['item_type'],
-                    'item_id' => $row['item_id'],
-                    'status' => 1,
-                ])
-                ->column('topic_id');
+        $itemTopicMap = [];
+        $topicUsage = [];
+        foreach ($relationRows as $row) {
+            $topicId = intval($row['topic_id'] ?? 0);
+            $itemKey = trim((string) ($row['item_type'] ?? '')) . ':' . intval($row['item_id'] ?? 0);
+            if ($topicId <= 0 || $itemKey === ':0') {
+                continue;
+            }
 
-            foreach ($relations as $topicId) {
-                $topicId = intval($topicId);
-                if (!isset($topicMap[$topicId])) {
-                    $topicMap[$topicId] = [
-                        'topic_id' => $topicId,
-                        'impressions' => 0,
-                        'clicks' => 0,
-                        'detail_views' => 0,
-                        'content_count' => 0,
-                    ];
+            $itemTopicMap[$itemKey][$topicId] = true;
+            if (!isset($topicUsage[$topicId])) {
+                $topicUsage[$topicId] = 0;
+            }
+            $topicUsage[$topicId]++;
+        }
+
+        if (!$itemTopicMap) {
+            return [
+                'window_days' => $days,
+                'from' => date('Y-m-d H:i:s', $start),
+                'to' => date('Y-m-d H:i:s', $end),
+                'nodes' => [],
+                'edges' => [],
+            ];
+        }
+
+        $edgeWeights = [];
+        foreach ($itemTopicMap as $topics) {
+            $topicIds = array_keys($topics);
+            sort($topicIds);
+            $count = count($topicIds);
+            if ($count < 2) {
+                continue;
+            }
+
+            for ($i = 0; $i < $count; $i++) {
+                for ($j = $i + 1; $j < $count; $j++) {
+                    $a = intval($topicIds[$i]);
+                    $b = intval($topicIds[$j]);
+                    $edgeKey = $a . ':' . $b;
+                    if (!isset($edgeWeights[$edgeKey])) {
+                        $edgeWeights[$edgeKey] = 0;
+                    }
+                    $edgeWeights[$edgeKey]++;
                 }
-                $topicMap[$topicId]['impressions'] += intval($row['impressions']);
-                $topicMap[$topicId]['clicks'] += intval($row['clicks']);
-                $topicMap[$topicId]['detail_views'] += intval($row['detail_views']);
-                $topicMap[$topicId]['content_count']++;
             }
         }
 
-        foreach ($topicMap as &$row) {
-            $row['ctr'] = $row['impressions'] > 0 ? round($row['clicks'] / $row['impressions'], 4) : 0;
-            $info = db('topic')->where(['id' => $row['topic_id'], 'status' => 1])->field('title,description')->find();
-            $row['title'] = $info['title'] ?? '';
-            $row['description'] = isset($info['description']) ? str_cut(strip_tags(htmlspecialchars_decode((string) $info['description'])), 0, 120) : '';
+        $topicIds = array_keys($topicUsage);
+        $topicRows = db('topic')
+            ->whereIn('id', $topicIds)
+            ->where(['status' => 1])
+            ->field('id,title,description,url_token')
+            ->select()
+            ->toArray();
+
+        $topicMap = [];
+        foreach ($topicRows as $row) {
+            $topicId = intval($row['id']);
+            $topicMap[$topicId] = [
+                'topic_id' => $topicId,
+                'title' => trim((string) ($row['title'] ?? '')),
+                'description' => isset($row['description']) ? str_cut(strip_tags(htmlspecialchars_decode((string) $row['description'])), 0, 120) : '',
+                'url' => get_url('topic/detail', ['id' => $topicId]),
+                'url_token' => (string) ($row['url_token'] ?? ''),
+            ];
         }
 
-        $rows = array_values(array_filter($topicMap, function ($row) {
-            return $row['title'] !== '';
-        }));
+        $adjacency = [];
+        $edges = [];
+        foreach ($edgeWeights as $edgeKey => $weight) {
+            [$leftId, $rightId] = array_map('intval', explode(':', $edgeKey, 2));
+            if (!isset($topicMap[$leftId], $topicMap[$rightId])) {
+                continue;
+            }
 
-        usort($rows, function ($a, $b) {
-            return $b['detail_views'] <=> $a['detail_views'];
+            $edges[] = [
+                'source' => $leftId,
+                'target' => $rightId,
+                'weight' => intval($weight),
+                'source_title' => $topicMap[$leftId]['title'],
+                'target_title' => $topicMap[$rightId]['title'],
+            ];
+
+            if (!isset($adjacency[$leftId])) {
+                $adjacency[$leftId] = [];
+            }
+            if (!isset($adjacency[$rightId])) {
+                $adjacency[$rightId] = [];
+            }
+            $adjacency[$leftId][$rightId] = intval($weight);
+            $adjacency[$rightId][$leftId] = intval($weight);
+        }
+
+        usort($edges, function ($a, $b) {
+            if ($a['weight'] === $b['weight']) {
+                return strcmp($a['source_title'] . $a['target_title'], $b['source_title'] . $b['target_title']);
+            }
+            return $b['weight'] <=> $a['weight'];
         });
 
-        return array_slice($rows, 0, $limit);
+        $nodes = [];
+        foreach ($topicUsage as $topicId => $usageCount) {
+            if (!isset($topicMap[$topicId])) {
+                continue;
+            }
+
+            $relatedTopics = [];
+            foreach (($adjacency[$topicId] ?? []) as $relatedId => $weight) {
+                if (!isset($topicMap[$relatedId])) {
+                    continue;
+                }
+                $relatedTopics[] = [
+                    'topic_id' => $relatedId,
+                    'title' => $topicMap[$relatedId]['title'],
+                    'weight' => intval($weight),
+                    'url' => $topicMap[$relatedId]['url'],
+                ];
+            }
+
+            usort($relatedTopics, function ($a, $b) {
+                if ($a['weight'] === $b['weight']) {
+                    return strcmp($a['title'], $b['title']);
+                }
+                return $b['weight'] <=> $a['weight'];
+            });
+
+            $graphScore = $usageCount + array_sum(array_column($relatedTopics, 'weight'));
+            $nodes[] = [
+                'topic_id' => $topicId,
+                'title' => $topicMap[$topicId]['title'],
+                'description' => $topicMap[$topicId]['description'],
+                'url' => $topicMap[$topicId]['url'],
+                'url_token' => $topicMap[$topicId]['url_token'],
+                'content_count' => $usageCount,
+                'weight' => $graphScore,
+                'related_topics' => array_slice($relatedTopics, 0, 3),
+            ];
+        }
+
+        usort($nodes, function ($a, $b) {
+            if ($a['weight'] === $b['weight']) {
+                if ($a['content_count'] === $b['content_count']) {
+                    return strcmp($a['title'], $b['title']);
+                }
+                return $b['content_count'] <=> $a['content_count'];
+            }
+            return $b['weight'] <=> $a['weight'];
+        });
+
+        return [
+            'window_days' => $days,
+            'from' => date('Y-m-d H:i:s', $start),
+            'to' => date('Y-m-d H:i:s', $end),
+            'nodes' => array_slice($nodes, 0, $limit),
+            'edges' => array_slice($edges, 0, max($limit * 3, $limit)),
+        ];
     }
 
     public static function getRecommendations(int $days = 7, int $limit = 10): array
     {
-        $keywords = self::getSearchOpportunities($days, $limit);
-        $content = self::getContentTrends($days, $limit);
-        $topics = self::getTopicTrends($days, $limit);
-        $actions = [];
+        $days = self::normalizeDays($days);
+        $limit = max(1, min(100, $limit));
 
-        foreach ($keywords as $item) {
-            if ($item['matched_content_count'] === 0) {
-                $actions[] = [
-                    'type' => 'content_gap',
-                    'priority' => 'high',
-                    'title' => '补充新内容：' . $item['keyword'],
-                    'reason' => '最近窗口内该词搜索次数高，但站内没有匹配内容',
-                    'suggestion' => '优先新增问题或帮助文档，再补文章与专题',
-                    'window_days' => self::normalizeDays($days),
-                ];
-            } elseif ($item['gap_score'] >= 3) {
-                $actions[] = [
-                    'type' => 'expand_topic',
-                    'priority' => 'medium',
-                    'title' => '扩展主题：' . $item['keyword'],
-                    'reason' => '最近搜索热度明显高于内容供给',
-                    'suggestion' => '补术语解释、FAQ、教程和关联主题',
-                    'window_days' => self::normalizeDays($days),
-                ];
+        return self::rememberCache('insight:recommendations:' . $days . ':' . $limit, function () use ($days, $limit) {
+            $keywords = self::getSearchOpportunities($days, $limit);
+            $content = self::getContentTrends($days, $limit);
+            $topics = self::getTopicTrends($days, $limit);
+            $actions = [];
+
+            foreach ($keywords as $item) {
+                if ($item['matched_content_count'] === 0) {
+                    $actions[] = [
+                        'type' => 'content_gap',
+                        'priority' => 'high',
+                        'title' => '补充新内容：' . $item['keyword'],
+                        'reason' => '最近窗口内该词搜索次数高，但站内没有匹配内容',
+                        'suggestion' => '优先新增问题或帮助文档，再补文章与专题',
+                        'window_days' => self::normalizeDays($days),
+                    ];
+                } elseif ($item['gap_score'] >= 3) {
+                    $actions[] = [
+                        'type' => 'expand_topic',
+                        'priority' => 'medium',
+                        'title' => '扩展主题：' . $item['keyword'],
+                        'reason' => '最近搜索热度明显高于内容供给',
+                        'suggestion' => '补术语解释、FAQ、教程和关联主题',
+                        'window_days' => self::normalizeDays($days),
+                    ];
+                }
             }
-        }
 
-        foreach ($content as $item) {
-            if ($item['ctr'] >= 0.2 && $item['impressions'] > 0 && $item['impressions'] <= 20) {
-                $actions[] = [
-                    'type' => 'boost_exposure',
-                    'priority' => 'medium',
-                    'title' => '提高曝光：' . $item['title'],
-                    'reason' => '点击率较高，但最近窗口曝光不足',
-                    'suggestion' => '增加内链、挂到主题页、加入帮助或专题推荐',
-                    'window_days' => self::normalizeDays($days),
-                ];
+            foreach ($content as $item) {
+                if ($item['ctr'] >= 0.2 && $item['impressions'] > 0 && $item['impressions'] <= 20) {
+                    $actions[] = [
+                        'type' => 'boost_exposure',
+                        'priority' => 'medium',
+                        'title' => '提高曝光：' . $item['title'],
+                        'reason' => '点击率较高，但最近窗口曝光不足',
+                        'suggestion' => '增加内链、挂到主题页、加入帮助或专题推荐',
+                        'window_days' => self::normalizeDays($days),
+                    ];
+                }
             }
-        }
 
-        foreach ($topics as $item) {
-            if ($item['detail_views'] >= 5 && $item['content_count'] <= 2) {
-                $actions[] = [
-                    'type' => 'topic_expand',
-                    'priority' => 'medium',
-                    'title' => '扩充主题内容：' . $item['title'],
-                    'reason' => '主题访问增长明显，但挂载内容偏少',
-                    'suggestion' => '围绕该主题继续补问题、文章和专题',
-                    'window_days' => self::normalizeDays($days),
-                ];
+            foreach ($topics as $item) {
+                if ($item['detail_views'] >= 5 && $item['content_count'] <= 2) {
+                    $actions[] = [
+                        'type' => 'topic_expand',
+                        'priority' => 'medium',
+                        'title' => '扩充主题内容：' . $item['title'],
+                        'reason' => '主题访问增长明显，但挂载内容偏少',
+                        'suggestion' => '围绕该主题继续补问题、文章和专题',
+                        'window_days' => self::normalizeDays($days),
+                    ];
+                }
             }
-        }
 
-        return array_slice($actions, 0, $limit);
+            return array_slice($actions, 0, $limit);
+        }, 180);
     }
 
     public static function getPublishAssist(string $itemType = 'question', int $days = 7, int $limit = 6): array
@@ -486,69 +706,74 @@ class Insight extends BaseModel
         $days = self::normalizeDays($days);
         $limit = max(1, min(20, $limit));
         $itemType = in_array($itemType, self::$allowedPublishItemTypes, true) ? $itemType : 'question';
-        $keywordLimit = max(5, $limit);
 
-        $keywords = self::getTopKeywords($days, $keywordLimit);
-        $opportunities = self::getSearchOpportunities($days, $keywordLimit);
-        $topics = self::getTopicTrends($days, $keywordLimit);
-        $content = self::getContentTrends($days, $keywordLimit, $itemType);
-        $fragmentIdeas = $itemType === 'article' ? self::getFragmentPromotionIdeas($days, $limit) : [];
+        return self::rememberCache('insight:publish_assist:' . $itemType . ':' . $days . ':' . $limit, function () use ($itemType, $days, $limit) {
+            $keywordLimit = max(5, $limit);
 
-        $titleIdeas = [];
-        foreach ($opportunities as $item) {
-            $keyword = trim((string)($item['keyword'] ?? ''));
-            if (!$keyword) {
-                continue;
+            $keywords = self::getTopKeywords($days, $keywordLimit);
+            $opportunities = self::getSearchOpportunities($days, $keywordLimit);
+            $topics = self::getTopicTrends($days, $keywordLimit);
+            $topicGraph = self::getTopicGraph(max($days, 30), $keywordLimit);
+            $content = self::getContentTrends($days, $keywordLimit, $itemType);
+            $fragmentIdeas = $itemType === 'article' ? self::getFragmentPromotionIdeas($days, $limit) : [];
+
+            $titleIdeas = [];
+            foreach ($opportunities as $item) {
+                $keyword = trim((string)($item['keyword'] ?? ''));
+                if (!$keyword) {
+                    continue;
+                }
+
+                $recommendedType = $itemType === 'article'
+                    ? self::recommendArticleType($keyword, $item)
+                    : null;
+
+                $titleIdeas[] = [
+                    'keyword' => $keyword,
+                    'title' => $itemType === 'question'
+                        ? $keyword . ' 应该怎么处理？'
+                        : $keyword . '：完整说明与实操指南',
+                    'recommended_type' => $recommendedType['type'] ?? '',
+                    'recommended_type_label' => $recommendedType['label'] ?? '',
+                    'reason' => $item['suggestion'] ?? '',
+                    'search_count' => intval($item['search_count'] ?? 0),
+                    'matched_content_count' => intval($item['matched_content_count'] ?? 0),
+                ];
+
+                if (count($titleIdeas) >= $limit) {
+                    break;
+                }
             }
 
-            $recommendedType = $itemType === 'article'
-                ? self::recommendArticleType($keyword, $item)
-                : null;
-
-            $titleIdeas[] = [
-                'keyword' => $keyword,
-                'title' => $itemType === 'question'
-                    ? $keyword . ' 应该怎么处理？'
-                    : $keyword . '：完整说明与实操指南',
-                'recommended_type' => $recommendedType['type'] ?? '',
-                'recommended_type_label' => $recommendedType['label'] ?? '',
-                'reason' => $item['suggestion'] ?? '',
-                'search_count' => intval($item['search_count'] ?? 0),
-                'matched_content_count' => intval($item['matched_content_count'] ?? 0),
+            $guidance = [
+                $itemType === 'question'
+                    ? '优先把高频搜索词写成可直接命中的具体问题标题。'
+                    : '优先把高频搜索词整理成教程、帮助文档或专题文章。',
+                $itemType === 'article'
+                    ? '把最近被持续阅读的观察，优先整理成综述、帮助或主题追踪。'
+                    : '判断依据只看最近窗口，不参考长期累计点击率。',
+                '先挂到相关主题，再补内链和下一步阅读，避免内容成为孤岛。',
             ];
 
-            if (count($titleIdeas) >= $limit) {
-                break;
-            }
-        }
+            $typeIdeas = $itemType === 'article'
+                ? self::buildArticleTypeIdeas($opportunities, $limit)
+                : [];
 
-        $guidance = [
-            $itemType === 'question'
-                ? '优先把高频搜索词写成可直接命中的具体问题标题。'
-                : '优先把高频搜索词整理成教程、帮助文档或专题文章。',
-            $itemType === 'article'
-                ? '把最近被持续阅读的观察，优先整理成综述、帮助或主题追踪。'
-                : '判断依据只看最近窗口，不参考长期累计点击率。',
-            '先挂到相关主题，再补内链和下一步阅读，避免内容成为孤岛。',
-        ];
-
-        $typeIdeas = $itemType === 'article'
-            ? self::buildArticleTypeIdeas($opportunities, $limit)
-            : [];
-
-        return [
-            'item_type' => $itemType,
-            'window_days' => $days,
-            'top_keywords' => array_slice($keywords, 0, $limit),
-            'opportunities' => array_slice($opportunities, 0, $limit),
-            'suggested_topics' => array_slice($topics, 0, $limit),
-            'trending_content' => array_slice($content, 0, $limit),
-            'title_ideas' => $titleIdeas,
-            'type_ideas' => $typeIdeas,
-            'fragment_ideas' => array_slice($fragmentIdeas, 0, $limit),
-            'default_article_type' => $typeIdeas[0]['type'] ?? 'research',
-            'guidance' => $guidance,
-        ];
+            return [
+                'item_type' => $itemType,
+                'window_days' => $days,
+                'top_keywords' => array_slice($keywords, 0, $limit),
+                'opportunities' => array_slice($opportunities, 0, $limit),
+                'suggested_topics' => array_slice($topics, 0, $limit),
+                'topic_graph' => $topicGraph,
+                'trending_content' => array_slice($content, 0, $limit),
+                'title_ideas' => $titleIdeas,
+                'type_ideas' => $typeIdeas,
+                'fragment_ideas' => array_slice($fragmentIdeas, 0, $limit),
+                'default_article_type' => $typeIdeas[0]['type'] ?? 'research',
+                'guidance' => $guidance,
+            ];
+        }, 180);
     }
 
     public static function getColdStartSummary(): array

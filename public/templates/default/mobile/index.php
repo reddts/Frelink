@@ -92,6 +92,32 @@
             gap: 8px;
             margin-top: 14px;
         }
+        .aw-mobile-hero-standards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .aw-mobile-hero-standard {
+            padding: 10px 11px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff;
+        }
+        .aw-mobile-hero-standard strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+        .aw-mobile-hero-standard span {
+            display: block;
+            color: rgba(226,232,240,0.82);
+            font-size: 11px;
+            line-height: 1.45;
+        }
         .aw-mobile-hero-badge {
             display: inline-flex;
             align-items: center;
@@ -251,7 +277,7 @@
         <div class="aw-mobile-hero-title">{:L('公开、开放、可检索的知识系统')}</div>
         <div class="aw-mobile-hero-desc">{:L('用综述沉淀脉络，用主题追踪变化，用观察保留判断，用 FAQ 承接检索，不再依赖问答社区逻辑。')}</div>
         <form class="aw-mobile-search-form" action="{:url('search/index')}" method="get">
-            <input class="aw-mobile-search-input" type="search" name="q" placeholder="{:L('搜索综述、观察、FAQ、主题或帮助')}">
+            <input class="aw-mobile-search-input" type="search" name="q" placeholder="{:L('搜索综述、观察、FAQ、主题或知识章节')}">
             <button class="aw-mobile-search-btn" type="submit">{:L('搜索')}</button>
         </form>
         <div class="aw-mobile-quick-grid">
@@ -269,12 +295,30 @@
             </a>
             <a class="aw-mobile-quick-card" href="{:url('question/index')}">
                 <strong>{:L('FAQ')}</strong>
-                <span>{:L('高频问题、术语解释和可快速复用的明确答案')}</span>
+                <span>{:L('高频 FAQ、术语解释和可快速复用的明确答案')}</span>
             </a>
             <a class="aw-mobile-quick-card" href="{:url('help/index')}">
                 <strong>{:L('帮助')}</strong>
                 <span>{:L('适合查看术语、规则和入门说明')}</span>
             </a>
+        </div>
+        <div class="aw-mobile-hero-standards">
+            <div class="aw-mobile-hero-standard">
+                <strong>{:L('3 秒知道和自己有关')}</strong>
+                <span>{:L('首屏先说清楚这篇内容对谁有价值。')}</span>
+            </div>
+            <div class="aw-mobile-hero-standard">
+                <strong>{:L('30 秒拿到一个新判断')}</strong>
+                <span>{:L('正文要给出边界、取舍和判断标准。')}</span>
+            </div>
+            <div class="aw-mobile-hero-standard">
+                <strong>{:L('看完愿意点下一篇')}</strong>
+                <span>{:L('让综述、观察和 FAQ 可以继续串联阅读。')}</span>
+            </div>
+            <div class="aw-mobile-hero-standard">
+                <strong>{:L('标题真实反映正文')}</strong>
+                <span>{:L('不靠夸张承诺骗点击，标题只做准确表达。')}</span>
+            </div>
         </div>
         <div class="aw-mobile-hero-badges">
             <span class="aw-mobile-hero-badge">{:L('开放检索')}</span>
@@ -283,7 +327,7 @@
         </div>
         <div class="aw-mobile-hero-panel">
             <strong>{:L('让真正有价值的思想被看见')}</strong>
-            <p>{:L('不做博眼球的碎片流，把问题、观察、综述和知识章节组织成可以持续追踪的公开知识系统。')}</p>
+            <p>{:L('不做博眼球的碎片流，把 FAQ、观察、综述和知识章节组织成可以持续追踪的公开知识系统。')}</p>
         </div>
     </section>
     {if !empty($search_keywords)}
@@ -337,7 +381,7 @@
             </a>
             <a href="{:url('question/index')}" data-pjax="pageMain">
                 <small>{:L('FAQ')}</small>
-                <strong>{:L('先看高频问题和明确答案')}</strong>
+                <strong>{:L('先看高频 FAQ 和明确答案')}</strong>
                 <p>{:L('适合快速检索、复用和补齐站内知识缺口。')}</p>
             </a>
         </div>
@@ -380,7 +424,7 @@
         {if $current_sort=='unresponsive'}
         {:L('当前只看仍待补充的 FAQ 条目，方便快速找到仍缺答案的内容。')}
         {elseif $type=='question'}
-        {:L('当前只看 FAQ 条目，优先承接检索和高频问题。')}
+        {:L('当前只看 FAQ 条目，优先承接检索和高频 FAQ。')}
         {elseif $type=='article' && $article_type=='research'/}
         {:L('当前只看综述，适合系统理解和长期跟踪。')}
         {elseif $type=='article' && $article_type=='fragment'/}

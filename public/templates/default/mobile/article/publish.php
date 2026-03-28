@@ -69,11 +69,44 @@
                     {/volist}
                 </div>
                 {/if}
+                {if !empty($publish_insight.topic_graph.nodes)}
+                <div class="font-9 mt-2">
+                    <div class="font-weight-bold mb-2">{:L('主题图谱')}</div>
+                    <div class="text-muted font-8 mb-2">{:L('优先把经常一起出现的主题串成一条内容线，减少内容割裂。')}</div>
+                    {volist name="publish_insight.topic_graph.nodes" id="v"}
+                    <div class="border rounded px-2 py-2 mb-2" style="background:#fff;border-color:#e5edf6 !important;">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="pr-2">
+                                <button type="button" class="btn btn-link p-0 text-left text-primary font-weight-bold js-apply-suggested-topic" data-topic-id="{$v.topic_id}" data-topic-title="{$v.title|htmlspecialchars}" data-topic-url="{$v.url|default=''}">{$v.title}</button>
+                                <div class="text-muted font-8 mt-1">{:L('内容关联')}：{$v.content_count} {:L('条')}</div>
+                            </div>
+                            <span class="badge badge-light border">{:L('图谱')}：{$v.weight}</span>
+                        </div>
+                        {if !empty($v.related_topics)}
+                        <div class="mt-2">
+                            {volist name="v.related_topics" id="related"}
+                            <span class="insight-chip js-apply-suggested-topic" data-topic-id="{$related.topic_id}" data-topic-title="{$related.title|htmlspecialchars}" data-topic-url="{$related.url|default=''}">{$related.title} · {$related.weight}</span>
+                            {/volist}
+                        </div>
+                        {/if}
+                    </div>
+                    {/volist}
+                </div>
+                {/if}
                 <div class="font-9 mt-2">
                     <div class="font-weight-bold mb-2">{:L('写作模板')}</div>
                     <a href="javascript:;" class="btn btn-outline-primary btn-sm mr-2 mb-2 js-apply-template" data-type="research">{:L('插入研究综述模板')}</a>
                     <a href="javascript:;" class="btn btn-outline-primary btn-sm mr-2 mb-2 js-apply-template" data-type="fragment">{:L('插入观察记录模板')}</a>
                     <a href="javascript:;" class="btn btn-outline-primary btn-sm mb-2 js-apply-template" data-type="track">{:L('插入主题追踪模板')}</a>
+                </div>
+                <div class="font-9 mt-2">
+                    <div class="font-weight-bold mb-2">{:L('运营规则')}</div>
+                    <div class="text-muted font-8 mb-2">{:L('不同内容类型的写法侧重点不同，先按规则选型，再往下写。')}</div>
+                    <ul class="text-muted pl-3 mb-0" id="mobileArticleTypeRulesList">
+                        {volist name="$publish_type_rules_map[$article_info['article_type'] ?? 'research']" id="rule"}
+                        <li class="mb-2">{$rule}</li>
+                        {/volist}
+                    </ul>
                 </div>
                 {if !empty($weekly_execution)}
                 <div class="font-9 mt-2">
@@ -123,9 +156,10 @@
                     <label class="mb-3">{:L('内容类型')}</label>
                     <select class="aw-form-control" id="articleTypeSelect" name="article_type">
                         {foreach $article_type_options as $typeKey => $label}
-                        <option value="{$typeKey}" {if isset($article_info['article_type']) && $article_info['article_type']==$typeKey}selected{/if}>{$label}</option>
+                        <option value="{$typeKey}" data-hint="{:frelink_publish_type_scene($typeKey)}" {if isset($article_info['article_type']) && $article_info['article_type']==$typeKey}selected{/if}>{$label}</option>
                         {/foreach}
                     </select>
+                    <div class="text-muted font-8 mt-2" id="mobileArticleTypeHintText">{:frelink_publish_type_scene($article_info['article_type'] ?? 'research')}</div>
                 </div>
                 <div class="form-group">
                     <label class="mb-3">{:L('内容分类')}</label>
@@ -263,6 +297,8 @@
     </div>
 </div>
 <script>
+    let PUBLISH_TYPE_RULES = {:json_encode($publish_type_rules_map, JSON_UNESCAPED_UNICODE)};
+
     $(document).on('click', '.js-fill-title', function () {
         let title = $(this).data('title');
         if (!title) {
@@ -321,6 +357,21 @@
         }
         addMobileTopic(topicId, topicTitle, topicUrl);
     });
+
+    $('#articleTypeSelect').on('change', updateMobileArticleTypeHint);
+    updateMobileArticleTypeHint();
+
+    function updateMobileArticleTypeHint() {
+        let option = $('#articleTypeSelect option:selected');
+        $('#mobileArticleTypeHintText').text(option.data('hint') || '');
+        let selectedType = $('#articleTypeSelect').val() || 'research';
+        let rules = PUBLISH_TYPE_RULES[selectedType] || PUBLISH_TYPE_RULES.normal || [];
+        let html = '';
+        rules.forEach(function (item) {
+            html += '<li class="mb-2">' + item + '</li>';
+        });
+        $('#mobileArticleTypeRulesList').html(html);
+    }
 
     function buildEditorTemplate(type) {
         if (type === 'fragment') {

@@ -4729,6 +4729,82 @@
         ]
       }
     },
+    "/Insight/topic_graph": {
+      "get": {
+        "tags": [
+          "Insight"
+        ],
+        "summary": "返回最近窗口主题共现图谱",
+        "operationId": "Insight_topic_graph",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Successful response",
+                    "value": {
+                      "code": 0,
+                      "msg": "success",
+                      "time": 1774538366,
+                      "data": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "examples": {
+                  "error": {
+                    "summary": "Generic failure response",
+                    "value": {
+                      "code": 1,
+                      "msg": "参数错误",
+                      "time": 1774538366,
+                      "data": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "UserTokenAuth": []
+          }
+        ]
+      }
+    },
     "/Insight/topic_trends": {
       "get": {
         "tags": [

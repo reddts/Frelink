@@ -7,9 +7,9 @@ use app\model\Insight as InsightModel;
 
 class Insight extends Api
 {
-    protected $needLogin = ['summary', 'keywords', 'content_trends', 'topic_trends', 'opportunities', 'recommendations', 'publish_assist', 'weekly_execution', 'writing_workflow'];
+    protected $needLogin = ['summary', 'keywords', 'content_trends', 'topic_trends', 'topic_graph', 'opportunities', 'recommendations', 'publish_assist', 'weekly_execution', 'writing_workflow'];
     protected $beforeActionList = [
-        'authorizeInsightAccess' => ['only' => 'summary,keywords,content_trends,topic_trends,opportunities,recommendations,publish_assist,weekly_execution,writing_workflow'],
+        'authorizeInsightAccess' => ['only' => 'summary,keywords,content_trends,topic_trends,topic_graph,opportunities,recommendations,publish_assist,weekly_execution,writing_workflow'],
     ];
 
     public function track()
@@ -58,6 +58,13 @@ class Insight extends Api
         $days = intval($this->request->param('days', 7));
         $limit = intval($this->request->param('limit', 10));
         $this->apiResult(InsightModel::getTopicTrends($days, $limit));
+    }
+
+    public function topic_graph()
+    {
+        $days = intval($this->request->param('days', 30));
+        $limit = intval($this->request->param('limit', 10));
+        $this->apiResult(InsightModel::getTopicGraph($days, $limit));
     }
 
     public function recommendations()

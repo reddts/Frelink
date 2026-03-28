@@ -262,6 +262,7 @@ class Article extends Frontend
                 'column_list'=>\app\model\Column::getColumnByUid($this->user_id),
                 'article_category_list'=>\app\model\Category::getCategoryListByType('article'),
                 'article_type_options'=>frelink_article_type_options(),
+                'publish_type_rules_map'=>frelink_publish_type_rules_map(),
                 'help_chapter_options'=>$helpChapterOptions,
                 'selected_help_chapter_ids'=>$selectedHelpChapterIds,
                 'suggested_help_chapters'=>$suggestedHelpChapters,

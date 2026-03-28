@@ -30,6 +30,23 @@
 {block name="main"}
 <div class="aui-content mescroll" id="ajaxPage">
     <style>
+        .aw-mobile-article-hero {
+            padding: 14px 12px 10px;
+            background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
+            border-bottom: 1px solid #eef2f7;
+        }
+        .aw-mobile-article-hero h1 {
+            margin-bottom: 4px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .aw-mobile-article-hero p {
+            margin-bottom: 0;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
         .aw-mobile-lane-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -101,6 +118,25 @@
             font-size: 11px;
             line-height: 1.5;
         }
+        .aw-mobile-article-badges {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 0 12px 12px;
+            background: #fff;
+            border-bottom: 1px solid #eef2f7;
+        }
+        .aw-mobile-article-badges a {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid #dbe7f3;
+            color: #60758b;
+            background: #fff;
+            font-size: 11px;
+        }
     </style>
     <div class="bg-white">
         <div class="d-flex p-3 border-bottom aw-mobile-cross-nav">
@@ -114,9 +150,9 @@
                 <a href="{:url('topic/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:frelink_nav_label('主题')}</a>
             </div>
         </div>
-        <div class="px-3 pb-3">
-            <div class="font-weight-bold font-12 mb-1">{:frelink_article_type_label($article_type)}</div>
-            <div class="text-muted font-9">{:frelink_content_description($article_type)}</div>
+        <div class="aw-mobile-article-hero px-3">
+            <h1>{:frelink_article_type_label($article_type)}</h1>
+            <p>{:frelink_content_description($article_type)}</p>
         </div>
         {if $article_type=='all' && !empty($article_type_spotlights)}
         <div class="aw-mobile-spotlight-grid">
@@ -136,6 +172,12 @@
             {/foreach}
         </div>
         {/if}
+        <div class="aw-mobile-article-badges">
+            <a href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">{:L('最新更新')}</a>
+            <a href="{:url('article/index',['sort'=>'recommend','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">{:L('精选')}</a>
+            <a href="{:url('article/index',['sort'=>'hot','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">{:L('高关注')}</a>
+            <a href="{:url('topic/index')}" data-pjax="pageMain">{:L('转到主题')}</a>
+        </div>
         <div class="px-3 pb-3">
             <div class="aw-mobile-lane-grid">
                 <a class="aw-mobile-lane-card" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">

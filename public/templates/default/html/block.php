@@ -20,6 +20,7 @@
     <meta name="robots" content="{$_page_robots|default='index,follow'}">
     <link rel="canonical" href="{:request()->domain().request()->baseUrl()}">
     {if $thisController=='index' && $thisAction=='index'}
+    <link rel="preload" as="image" href="{$static_url}images/top-img.avif" type="image/avif">
     <link rel="preload" as="image" href="{$static_url}images/top-img.webp" type="image/webp">
     <link rel="preload" as="image" href="{$static_url}images/top-img.png" type="image/png">
     {/if}

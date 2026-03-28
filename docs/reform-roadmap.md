@@ -26,9 +26,11 @@
   - `GET /api/Insight/opportunities`
   - `GET /api/Insight/content_trends`
   - `GET /api/Insight/topic_trends`
+  - `GET /api/Insight/topic_graph`
   - `GET /api/Insight/recommendations`
 - 新增 `analytics_event` 表，记录匿名和登录用户的曝光、点击、详情阅读。
 - 桌面端和移动端列表页、详情页已接入最小埋点。
+- 发布页已接入 `主题图谱` 建议，帮助选题时优先串联高频共现主题。
 
 ### 后台可视化
 

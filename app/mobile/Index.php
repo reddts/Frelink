@@ -71,7 +71,14 @@ class Index extends Frontend
             'featured_content' => $featuredContent,
             'archive_chapters' => HelpModel::getFeaturedArchiveChapters(3, 2),
         ]);
-        $this->assign('links',db('links')->where('status',1)->select()->toArray());
+
+        $linksCacheKey = 'mobile_home_links:status1';
+        $links = cache($linksCacheKey);
+        if ($links === null) {
+            $links = db('links')->where('status',1)->select()->toArray();
+            cache($linksCacheKey, $links, 600);
+        }
+        $this->assign('links', $links);
         $this->TDK(get_setting('site_name'));
 		return $this->fetch();
 	}

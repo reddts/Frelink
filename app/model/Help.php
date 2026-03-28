@@ -27,8 +27,17 @@ class Help extends BaseModel
 
     public static function getFeaturedArchiveChapters($limit = 4, $itemLimit = 3): array
     {
+        $limit = max(1, min(20, intval($limit)));
+        $itemLimit = max(1, min(10, intval($itemLimit)));
+        $cacheKey = 'help:featured_archive_chapters:' . $limit . ':' . $itemLimit;
+        $cached = cache($cacheKey);
+        if ($cached !== null) {
+            return $cached;
+        }
+
         $chapters = self::getActiveChapterList($limit);
         if (!$chapters) {
+            cache($cacheKey, [], 300);
             return [];
         }
 
@@ -39,6 +48,7 @@ class Help extends BaseModel
                 ->count();
         }
 
+        cache($cacheKey, $chapters, 300);
         return $chapters;
     }
 

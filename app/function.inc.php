@@ -227,7 +227,7 @@ if (! function_exists('frelink_content_description')) {
     function frelink_content_description(string $type): string
     {
         $map = [
-            'question' => L('这里承接高频问题、明确答案和可复用解释。它不再是社区问答流，而是公开知识系统里的答案入口。'),
+            'question' => L('这里承接高频 FAQ、明确答案和可复用解释。它不再是社区问答流，而是公开知识系统里的 FAQ 入口。'),
             'research' => L('这里沉淀的是系统化综述，用来整理脉络、分歧和阶段性结论。'),
             'fragment' => L('这里沉淀的是观察记录，用来保留判断、线索和仍在形成中的洞见。'),
             'track' => L('这里沉淀的是主题追踪，用来记录变化、修正旧判断和补充阶段更新。'),
@@ -245,7 +245,7 @@ if (! function_exists('frelink_publish_type_scene')) {
     function frelink_publish_type_scene(string $type): string
     {
         $map = [
-            'question' => L('更适合承接高频搜索、明确答案和可持续补充的问题。'),
+            'question' => L('更适合承接高频搜索、明确答案和可持续补充的 FAQ。'),
             'research' => L('更适合整理背景、资料脉络、主要分歧和当前判断。'),
             'fragment' => L('更适合记录短判断、现场观察和仍在形成中的线索。'),
             'track' => L('更适合持续记录同一主题的变化、阶段判断和后续修正。'),
@@ -255,6 +255,52 @@ if (! function_exists('frelink_publish_type_scene')) {
         ];
 
         return $map[$type] ?? ($map['normal'] ?? '');
+    }
+}
+
+if (! function_exists('frelink_publish_type_rules_map')) {
+    function frelink_publish_type_rules_map(): array
+    {
+        return [
+            'research' => [
+                L('先写结论，再补背景，不要把标题写成只有概念没有判断。'),
+                L('必须保留资料来源、主要分歧和当前判断，避免变成资料堆砌。'),
+                L('如果暂时没有结论，先写成思想碎片，不要硬凑研究综述。'),
+            ],
+            'fragment' => [
+                L('只保留一个观察焦点，不要在一条内容里塞多个主题。'),
+                L('允许不完整，但要明确触发原因、暂时判断和后续待补资料。'),
+                L('思想碎片的价值在于保留思考现场，不在于一次写完。'),
+            ],
+            'track' => [
+                L('先说明本期变化，再说明旧判断是否要修正。'),
+                L('必须能看出这是连续更新，而不是重复改写上一期内容。'),
+                L('结尾要保留下一步观察点，方便持续追踪。'),
+            ],
+            'tutorial' => [
+                L('步骤必须可执行，避免只写概念不写操作。'),
+                L('把最容易出错的地方单独列出来，减少用户反复试错。'),
+                L('适合做方法文，不适合写成纯观点文。'),
+            ],
+            'faq' => [
+                L('问题要具体，答案要直接，避免绕圈子。'),
+                L('优先补术语、规则和明确边界，减少重复解释。'),
+                L('如果问题更像观点判断，可以考虑改成研究综述或热点解释。'),
+            ],
+            'normal' => [
+                L('先讲这件事为什么值得关注，再讲它会影响谁。'),
+                L('热点解释要有判断，不要只做新闻摘要。'),
+                L('如果内容已经稳定下来，优先转成综述或帮助文档。'),
+            ],
+        ];
+    }
+}
+
+if (! function_exists('frelink_publish_type_rules')) {
+    function frelink_publish_type_rules(string $type): array
+    {
+        $map = frelink_publish_type_rules_map();
+        return $map[$type] ?? ($map['normal'] ?? []);
     }
 }
 

@@ -8,10 +8,81 @@
         margin-right: 10px;
         font-size: 14px;
     }
+    .aw-topic-hero {
+        padding: 20px 24px 12px;
+        border-bottom: 1px solid #eef2f7;
+        background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
+    }
+    .aw-topic-hero h1 {
+        margin: 0 0 8px;
+        font-size: 24px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .aw-topic-hero p {
+        margin: 0;
+        color: #64748b;
+        line-height: 1.7;
+    }
+    .aw-topic-lanes {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        padding: 14px 24px 18px;
+        border-bottom: 1px solid #eef2f7;
+        background: #fff;
+    }
+    .aw-topic-lane {
+        display: block;
+        padding: 14px;
+        border: 1px solid #e5edf6;
+        border-radius: 14px;
+        background: #fbfdff;
+        color: #0f172a;
+    }
+    .aw-topic-lane:hover {
+        text-decoration: none;
+        transform: translateY(-1px);
+        transition: all .2s ease;
+    }
+    .aw-topic-lane strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 15px;
+    }
+    .aw-topic-lane span {
+        display: block;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    @media (max-width: 991.98px) {
+        .aw-topic-lanes {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 <div class="container mt-2">
     <div class="row justify-content-between">
         <div class="aw-left radius col-md-9 bg-white mb-2">
+            <div class="aw-topic-hero">
+                <h1>{:L('主题')}</h1>
+                <p>{:L('用主题把相关 FAQ、知识内容和长期讨论聚合在一起，先看变化，再沿着线索继续深入。')}</p>
+            </div>
+            <div class="aw-topic-lanes">
+                <a class="aw-topic-lane" href="{:url('topic/index',['type'=>'new','pid'=>$pid])}" data-pjax="pageMain">
+                    <strong>{:L('最新话题')}</strong>
+                    <span>{:L('先看最近更新的主题，快速跟上当前讨论和内容补充。')}</span>
+                </a>
+                <a class="aw-topic-lane" href="{:url('topic/index',['type'=>'focus','pid'=>$pid])}" data-pjax="pageMain">
+                    <strong>{:L('关注最多')}</strong>
+                    <span>{:L('优先查看关注人数更高的主题，直接进入更稳定的长期入口。')}</span>
+                </a>
+                <a class="aw-topic-lane" href="{:url('topic/index',['type'=>'discuss','pid'=>$pid])}" data-pjax="pageMain">
+                    <strong>{:L('讨论最多')}</strong>
+                    <span>{:L('跟着讨论最活跃的主题继续追踪分歧、背景和后续变化。')}</span>
+                </a>
+            </div>
             <nav>
                 <div class="nav nav-tabs pl-4 pr-4 aw-pjax-a" role="tablist">
                     <a class="nav-item nav-link {if !$type || $type=='new'}active{/if}" data-pjax="pageMain" href="{:url('topic/index',['type'=>'new','pid'=>$pid])}">

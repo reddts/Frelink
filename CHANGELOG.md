@@ -1,5 +1,123 @@
 # Frelink 项目更新日志
 
+## 2026-03-28
+
+### 里程碑：移动端文章页首屏收口
+
+- 移动端文章列表页现在补上了和首页一致的首屏标题与说明区，内容入口不再直接从分类说明跳到列表
+- 增加了 `最新更新 / 精选 / 高关注 / 转到主题` 的快捷入口，减少用户在内容类型和主题入口之间来回找路
+- 文章页移动端首屏现在和桌面端一样，开始把“内容形态”放在比列表更前的位置
+
+### 里程碑：主题页首屏引导统一
+
+- 桌面端和移动端主题页都补齐了统一的首屏引导块，开始和首页、FAQ、文章页保持一致的信息层级
+- 主题页新增 `最新话题 / 关注最多 / 讨论最多` 三个快速入口，继续把主题页定位成长期追踪入口，而不是零散话题列表
+- 这次调整属于 UI 收口的一部分，后续可以继续向列表页、详情页和发布页扩展同类结构
+
+### 里程碑：发布页补齐研究综述与思想碎片运营规则
+
+- 文章发布页和移动端发文页现在都会直接展示 `运营规则`，把 `研究综述 / 思想碎片 / 主题追踪 / 教程 / FAQ / 普通内容` 的写法侧重点放到写作入口
+- 内容类型切换后会同步刷新对应规则说明，避免只改标题和模板、不改正文组织方式
+- `思想碎片` 现在在发布页中有了明确的运营规则承接，不再只是一个内部标签
+
+### 里程碑：移动端基础模板继续收口首屏阻塞
+
+- 移动端基础模板把 `swiper / module / highlight / mescroll / captcha` 等非关键 CSS 改成预加载方式，减少同步样式阻塞
+- 保留 `aui`、`app.css` 和字体样式为同步直出，避免影响移动端基础布局与交互初始化
+- 这一步先收 CSS 链路，脚本链路保持稳定，不扩大到可能影响底部内联逻辑的 defer 改造
+
+### 里程碑：首页头图补上 AVIF 优先级
+
+- 首页头图现在优先走 `top-img.avif`，其次是 `top-img.webp`，最后回退 `top-img.png`
+- `top-img.avif` 已生成并接入首页头图与全局 preload 链路，进一步压低首屏图片体积
+- 这一步保留了 WebP / PNG 回退，不影响不支持 AVIF 的浏览器
+
+### 里程碑：首页首屏标准直接写进 hero 文案
+
+- 桌面端和移动端首页都补上了 `3 秒 / 30 秒 / 下一篇 / 标题真实反映正文` 的筛选标准
+- 首页首屏现在会直接告诉用户这站点为什么值得看、看完能得到什么、是否值得继续点下一篇
+- 这一步把内容策略从计划文档推进到了用户可见的首屏文案
+
+### 里程碑：移动端首页洞察数据开始走缓存
+
+- `Insight` 和 `Help` 的首页相关读模型增加了缓存，减少移动端首页每次请求都重新统计热门词、内容趋势和知识归档章节
+- 移动端首页的 `links` 查询也改成了短时缓存，减少重复打库
+- 这一步直接针对首页 TTFB 的实时统计查询开刀，不再只靠页面级缓存兜底
+
+### 影响范围
+
+- [app/function.inc.php](/mnt/f/workwww/knowlege-github/app/function.inc.php)
+- [app/frontend/Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php)
+- [app/mobile/Article.php](/mnt/f/workwww/knowlege-github/app/mobile/Article.php)
+- [public/templates/default/html/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/publish.php)
+- [public/templates/default/mobile/article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/article/publish.php)
+- [public/templates/default/mobile/block.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/block.php)
+- [public/templates/default/html/block.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/block.php)
+- [public/templates/default/html/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/index.php)
+- [public/templates/default/mobile/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/index.php)
+- [app/model/Insight.php](/mnt/f/workwww/knowlege-github/app/model/Insight.php)
+- [app/model/Help.php](/mnt/f/workwww/knowlege-github/app/model/Help.php)
+- [app/mobile/Index.php](/mnt/f/workwww/knowlege-github/app/mobile/Index.php)
+- [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 已完成本地页面与文案联动修改
+- 当前环境无 `php` 可执行文件，未能执行本地语法检查
+
+## 2026-03-27（续10）
+
+### 里程碑：首页、列表页与栏目页语义继续收口
+
+- 首页与移动端首页继续统一为 `FAQ / 知识内容 / 知识章节` 的公开语境
+- 话题详情页的发布入口从 `写文章` 收口为 `写知识内容`
+- 栏目页顶部 CTA 从 `开始写文章` 收口为 `开始写知识内容`
+
+### 影响范围
+
+- [public/templates/default/html/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/index.php)
+- [public/templates/default/mobile/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/index.php)
+- [public/templates/default/html/topic/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/topic/detail.php)
+- [public/templates/default/mobile/topic/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/topic/detail.php)
+- [public/templates/default/html/column/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/column/index.php)
+- [public/templates/default/html/draft/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/draft/index.php)
+- [public/templates/default/html/focus/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/focus/index.php)
+- [public/templates/default/html/widget/member/lists.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/widget/member/lists.php)
+- [public/templates/default/mobile/search/ajax_search.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/search/ajax_search.php)
+- [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 已完成本地模板语义调整
+- 已通过远端文件抽查确认相关页面文案已同步到生产机
+
+## 2026-03-27（续9）
+
+### 里程碑：详情页与发布页语义统一
+
+- FAQ 列表、详情、发布和移动端详情页进一步统一语义
+- 帮助中心的章节筛选与搜索提示统一到 `FAQ / 知识内容` 语境
+- 文章详情页的管理动作统一到 `知识内容` 语境
+
+### 影响范围
+
+- [app/function.inc.php](/mnt/f/workwww/knowlege-github/app/function.inc.php)
+- [public/templates/default/html/question/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/index.php)
+- [public/templates/default/html/question/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/detail.php)
+- [public/templates/default/html/question/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/publish.php)
+- [public/templates/default/html/help/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/help/index.php)
+- [public/templates/default/html/help/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/help/detail.php)
+- [public/templates/default/html/article/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/detail.php)
+- [public/templates/default/mobile/question/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/question/index.php)
+- [public/templates/default/mobile/question/detail.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/question/detail.php)
+- [public/templates/default/mobile/question/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/question/publish.php)
+- [优化计划.md](/mnt/f/workwww/knowlege-github/优化计划.md)
+
+### 验证
+
+- 已完成本地模板语义调整
+- 已通过远端文件抽查确认相关页面文案已同步到生产机
+
 ## 2026-03-27（续8）
 
 ### 里程碑：站点导航词汇统一

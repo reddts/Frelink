@@ -14,12 +14,16 @@
     <meta name="description" content="{block name='meta_description'} {$_page_description} {/block}">
     <link rel="stylesheet" href="{$cdnUrl}/static/common/fonts/fonts.min.css?v={$version|default='1.0.0'}">
     <link rel="stylesheet" type="text/css" href="{$static_url}mobile/css/aui.min.css?v={$version|default='1.0.0'}"/>
-    <link rel="stylesheet" href="{$cdnUrl}/static/libs/swiper/swiper.min.css?v={$version|default='1.0.0'}">
-    <link rel="stylesheet" type="text/css" href="{$cdnUrl}/static/common/js/module/module.min.css?v={$version}" media="screen" />
-    <link rel="stylesheet" href="{$cdnUrl}/static/libs/highlight/styles/tomorrow.css?v={$version}">
-    <link rel="stylesheet" type="text/css" href="{$static_url}mobile/lib/mescroll/mescroll.min.css?v={$version|default='1.0.0'}">
+    <link rel="preload" as="style" href="{$cdnUrl}/static/libs/swiper/swiper.min.css?v={$version|default='1.0.0'}" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" as="style" href="{$cdnUrl}/static/common/js/module/module.min.css?v={$version}" onload="this.onload=null;this.rel='stylesheet'">
+    {if $needHighlightAssets}
+    <link rel="preload" as="style" href="{$cdnUrl}/static/libs/highlight/styles/tomorrow.css?v={$version}" onload="this.onload=null;this.rel='stylesheet'">
+    {/if}
+    <link rel="preload" as="style" href="{$static_url}mobile/lib/mescroll/mescroll.min.css?v={$version|default='1.0.0'}" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="stylesheet" href="{$static_url}mobile/css/fonts/iconfont.css?v={$version|default='1.0.0'}">
-    <link rel="stylesheet" type="text/css" href="{$cdnUrl}/static/libs/captcha/css/captcha.css?v={$version}" />
+    {if $needCaptchaAssets}
+    <link rel="preload" as="style" href="{$cdnUrl}/static/libs/captcha/css/captcha.css?v={$version}" onload="this.onload=null;this.rel='stylesheet'">
+    {/if}
     <link rel="stylesheet" type="text/css" href="{$static_url}mobile/css/app.css?v={$version|default='1.0.0'}"/>
     {block name="meta_style"}{/block}
     <script type="text/javascript" src="{$static_url}mobile/lib/mescroll/mescroll.min.js?v={$version|default='1.0.0'}"></script>
@@ -58,6 +62,17 @@
     <script type="text/javascript" src="{$static_url}mobile/js/aws_mobile.js?v={$version|default='1.0.0'}"></script>
     <script type="text/javascript" src="{$cdnUrl}/static/common/js/analytics.js?v={$version}"></script>
     <script type="text/javascript" src="{$static_url}mobile/js/app.js?v={$version|default='1.0.0'}"></script>
+    <noscript>
+        <link rel="stylesheet" href="{$cdnUrl}/static/libs/swiper/swiper.min.css?v={$version|default='1.0.0'}">
+        <link rel="stylesheet" href="{$cdnUrl}/static/common/js/module/module.min.css?v={$version}">
+        {if $needHighlightAssets}
+        <link rel="stylesheet" href="{$cdnUrl}/static/libs/highlight/styles/tomorrow.css?v={$version}">
+        {/if}
+        <link rel="stylesheet" href="{$static_url}mobile/lib/mescroll/mescroll.min.css?v={$version|default='1.0.0'}">
+        {if $needCaptchaAssets}
+        <link rel="stylesheet" href="{$cdnUrl}/static/libs/captcha/css/captcha.css?v={$version}">
+        {/if}
+    </noscript>
     {block name="meta_script"} {/block}
 </head>
 <body id="pageMain">
