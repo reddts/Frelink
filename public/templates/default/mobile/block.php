@@ -140,13 +140,13 @@
                 <a href="{:url('topic/index')}" data-pjax="pageMain"><i class="iconfont icon-huati1"></i><p class="mt-1">{:frelink_nav_label('主题')}</p></a>
             </div>
             <div class="aui-footer-list {if $thisController=='question'}active{/if}">
-                <a href="{:url('question/index')}" data-pjax="pageMain"><i class="iconfont icon-help-with-circle"></i><p class="mt-1">{:frelink_nav_label('问题')}</p></a>
+                <a href="{:url('question/index')}" data-pjax="pageMain"><i class="iconfont icon-tiwenquestion"></i><p class="mt-1">{:frelink_nav_label('问题')}</p></a>
             </div>
             <div class="aui-footer-list {if $thisController=='article'}active{/if}">
                 <a href="{:url('article/index')}" data-pjax="pageMain"><i class="far fa-file-alt"></i><p class="mt-1">{:frelink_nav_label('文章')}</p></a>
             </div>
             <div class="aui-footer-list {if $thisController=='feature'}active{/if}">
-                <a href="{:url('feature/index')}" data-pjax="pageMain"><i class="fa fa-bookmark-o"></i><p class="mt-1">{:frelink_nav_label('专题')}</p></a>
+                <a href="{:url('feature/index')}" data-pjax="pageMain"><i class="iconfont icon-zhuanlan1"></i><p class="mt-1">{:frelink_nav_label('专题')}</p></a>
             </div>
         </footer>
         {/block}
