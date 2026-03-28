@@ -133,8 +133,9 @@
             margin-top: 14px;
             padding: 14px;
             border-radius: 18px;
-            background: rgba(7, 16, 31, 0.56);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(7, 16, 31, 0.42);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-left: 3px solid rgba(103, 232, 249, 0.78);
             color: #fff;
         }
         .aw-mobile-hero-panel strong {
@@ -151,9 +152,41 @@
         .aw-mobile-section {
             margin: 12px;
             padding: 14px;
-            border-radius: 16px;
+            border-radius: 18px;
             background: #fff;
-            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+        }
+        .aw-mobile-section-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .aw-mobile-section-head h4 {
+            margin: 0 0 4px;
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .aw-mobile-section-head p {
+            margin: 0;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .aw-mobile-section-link {
+            flex: 0 0 auto;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .aw-mobile-structure {
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
         }
         .aw-mobile-section-title {
             margin-bottom: 10px;
@@ -196,18 +229,33 @@
             font-size: 12px;
             line-height: 1.5;
         }
-        .aw-mobile-secondary {
+        .aw-mobile-explore {
             margin: 12px;
+            padding: 14px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+        }
+        .aw-mobile-explore .aui-card {
+            margin-bottom: 0;
+        }
+        #ajaxPage .aui-noticebar {
+            margin: 12px;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
         }
         .aw-mobile-lane-list a {
             display: block;
-            padding: 10px 0;
-            border-bottom: 1px solid #eef2f7;
+            padding: 14px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #f9fcff 0%, #ffffff 100%);
+            border: 1px solid #e5eef8;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
             color: #0f172a;
         }
         .aw-mobile-lane-list a:last-child {
-            border-bottom: 0;
-            padding-bottom: 0;
+            padding-bottom: 14px;
         }
         .aw-mobile-lane-list small {
             display: block;
@@ -220,19 +268,10 @@
             font-size: 12px;
             line-height: 1.5;
         }
-        .aw-mobile-secondary summary {
-            color: #64748b;
-            font-size: 13px;
-            cursor: pointer;
-            list-style: none;
-        }
-        .aw-mobile-secondary summary::-webkit-details-marker {
-            display: none;
-        }
         .aw-mobile-feed-filter {
             display: flex;
             gap: 8px;
-            padding: 0 12px 12px;
+            padding: 0 14px 12px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -251,14 +290,8 @@
             border-color: #1d4ed8;
             color: #fff;
         }
-        .aw-mobile-feed-note {
-            padding: 0 12px 12px;
-            color: #64748b;
-            font-size: 12px;
-            line-height: 1.7;
-        }
         .aw-mobile-feed-head {
-            padding: 0 12px 10px;
+            padding: 0 14px 10px;
         }
         .aw-mobile-feed-head h4 {
             margin: 0 0 4px;
@@ -271,6 +304,35 @@
             color: #64748b;
             font-size: 12px;
             line-height: 1.6;
+        }
+        .aw-mobile-feed-shell {
+            margin: 12px;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+        .aw-mobile-feed-list {
+            padding: 0 14px 14px;
+        }
+        .aw-mobile-feed-list #ajaxResult {
+            margin: 0;
+        }
+        .aw-mobile-feed-list #ajaxResult > .aui-card {
+            margin: 0 0 12px;
+        }
+        .aw-mobile-feed-list #ajaxResult > .aui-card:last-child {
+            margin-bottom: 0;
+        }
+        .aw-mobile-feed-list #ajaxResult > .aui-card > .aui-card-main > .aui-card {
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+            overflow: hidden;
+        }
+        .aw-mobile-feed-list #ajaxResult > .aui-card > .aui-card-main > .aui-card .aui-card-title {
+            border-top-left-radius: 18px;
+            border-top-right-radius: 18px;
         }
     </style>
     <section class="aw-mobile-hero">
@@ -331,7 +393,7 @@
         </div>
     </section>
     {if !empty($search_keywords)}
-    <section class="aw-mobile-section">
+    <section class="aw-mobile-section aw-mobile-structure">
         <div class="aw-mobile-section-title">{:L('最近有人在搜')}</div>
         <div class="aw-mobile-chip-list">
             {volist name="search_keywords" id="item"}
@@ -387,77 +449,50 @@
         </div>
     </section>
     {:widget('sidebar/announce')}
-    <details class="aw-mobile-secondary">
-        <summary>{:L('展开次级入口')}</summary>
+    <section class="aw-mobile-explore">
+        <div class="aw-mobile-section-head">
+            <div>
+                <h4>{:L('继续探索')}</h4>
+                <p>{:L('先看热门话题和专题，再顺着横向列表继续浏览。')}</p>
+            </div>
+            <a class="aw-mobile-section-link" href="{:url('topic/index',['type'=>'discuss'])}" data-pjax="pageMain">{:L('去话题广场')}</a>
+        </div>
         <!--热门用户、话题-->
-    {if get_theme_setting('mobile.index_hot_banner_enable','Y')=='Y'}
-    <div class="hotUserTopic d-flex p-2">
-        <div class="flex-fill mr-1">
-            <a href="{:get_theme_setting('mobile.index_hot_user_url',(string)url('people/lists'))}">
-                <img src="{:get_theme_setting('mobile.index_hot_user_image',$static_url.'mobile/img/hot-user.png')}" style="width: 100%;display: inline-block" loading="lazy" decoding="async">
-            </a>
+        {if get_theme_setting('mobile.index_hot_banner_enable','Y')=='Y'}
+        <div class="hotUserTopic d-flex p-2">
+            <div class="flex-fill mr-1">
+                <a href="{:get_theme_setting('mobile.index_hot_user_url',(string)url('people/lists'))}">
+                    <img src="{:get_theme_setting('mobile.index_hot_user_image',$static_url.'mobile/img/hot-user.png')}" style="width: 100%;display: inline-block" loading="lazy" decoding="async">
+                </a>
+            </div>
+            <div class="flex-fill ml-1">
+                <a href="{:get_theme_setting('mobile.index_hot_topic_url',(string)url('topic/index'))}">
+                    <img src="{:get_theme_setting('mobile.index_hot_topic_image',$static_url.'mobile/img/hot-topic.png')}" style="width: 100%;display: inline-block" loading="lazy" decoding="async">
+                </a>
+            </div>
         </div>
-        <div class="flex-fill ml-1">
-            <a href="{:get_theme_setting('mobile.index_hot_topic_url',(string)url('topic/index'))}">
-                <img src="{:get_theme_setting('mobile.index_hot_topic_image',$static_url.'mobile/img/hot-topic.png')}" style="width: 100%;display: inline-block" loading="lazy" decoding="async">
-            </a>
+        {/if}
+
+        {:widget('sidebar/hotTopic',['uid'=>$user_id])}
+    </section>
+    <section class="aw-mobile-feed-shell">
+        <div class="aw-mobile-feed-head">
+            <h4>{:L('持续更新')}</h4>
+            <p>{:L('混排综述、观察、FAQ 和帮助条目，作为首页主入口之外的更新流。')}</p>
         </div>
-    </div>
-    {/if}
-
-    {:widget('sidebar/hotTopic',['uid'=>$user_id])}
-    </details>
-    <div class="aw-mobile-feed-head">
-        <h4>{:L('持续更新')}</h4>
-        <p>{:L('这里保留会持续滚动更新的知识流，用来补充综述、观察、FAQ 和帮助内容。')}</p>
-    </div>
-    <div class="aw-mobile-feed-filter">
-        <a class="{if !$type || $current_sort=='unresponsive'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort])}">{:L('全部内容')}</a>
-        <a class="{if $type=='question'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'question'])}">{:L('FAQ')}</a>
-        {if $current_sort!='unresponsive'}
-        <a class="{if $type=='article' && $article_type=='research'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'research'])}">{:L('综述')}</a>
-        <a class="{if $type=='article' && $article_type=='fragment'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'fragment'])}">{:L('观察')}</a>
-        <a class="{if $type=='article' && $article_type=='faq'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'faq'])}">{:L('帮助')}</a>
-        {/if}
-    </div>
-    <div class="aw-mobile-feed-note">
-        {if $current_sort=='unresponsive'}
-        {:L('当前只看仍待补充的 FAQ 条目，方便快速找到仍缺答案的内容。')}
-        {elseif $type=='question'}
-        {:L('当前只看 FAQ 条目，优先承接检索和高频 FAQ。')}
-        {elseif $type=='article' && $article_type=='research'/}
-        {:L('当前只看综述，适合系统理解和长期跟踪。')}
-        {elseif $type=='article' && $article_type=='fragment'/}
-        {:L('当前只看观察，适合快速判断和思考现场。')}
-        {elseif $type=='article' && $article_type=='faq'/}
-        {:L('当前只看帮助内容，适合快速检索和直接取用。')}
-        {else/}
-        {:L('首页会混排综述、观察、FAQ 和帮助条目，帮助用户先找到合适的知识入口。')}
-        {/if}
-    </div>
-
-    <div class="swiper-container">
-        <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block px-2 bg-white swiper-wrapper" style="flex-wrap: nowrap;">
-            {if $user_id}
-            <li class="nav-item swiper-slide">
-                <a class="nav-link {if $current_sort=='focus'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>'focus'])}">{:L('关注主题')}</a>
-            </li>
+        <div class="aw-mobile-feed-filter">
+            <a class="{if !$type || $current_sort=='unresponsive'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort])}">{:L('全部内容')}</a>
+            <a class="{if $type=='question'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'question'])}">{:L('FAQ')}</a>
+            {if $current_sort!='unresponsive'}
+            <a class="{if $type=='article' && $article_type=='research'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'research'])}">{:L('综述')}</a>
+            <a class="{if $type=='article' && $article_type=='fragment'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'fragment'])}">{:L('观察')}</a>
+            <a class="{if $type=='article' && $article_type=='faq'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'faq'])}">{:L('帮助')}</a>
             {/if}
-            <li class="nav-item swiper-slide" data-type="new">
-        <a class="nav-link {if $current_sort=='new'}active{/if}" data-pjax="pageMain" href="{:url('index/index',array_merge(['sort'=>'new'],$feed_query))}">{:L('更新')}</a>
-            </li>
-            <li class="nav-item swiper-slide" data-type="recommend">
-        <a class="nav-link {if $current_sort=='recommend'}active{/if}" data-pjax="pageMain" href="{:url('index/index',array_merge(['sort'=>'recommend'],$feed_query))}">{:L('精选')}</a>
-            </li>
-            <li class="nav-item swiper-slide" data-type="hot">
-        <a class="nav-link {if $current_sort=='hot'}active{/if}" data-pjax="pageMain" href="{:url('index/index',array_merge(['sort'=>'hot'],$feed_query))}">{:L('高关注')}</a>
-            </li>
-            <li class="nav-item swiper-slide" data-type="unresponsive">
-                <a class="nav-link {if $current_sort=='unresponsive'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>'unresponsive'])}" >{:L('待补充 FAQ')}</a>
-            </li>
-        </ul>
-    </div>
-    <div class="aw-common-list" id="ajaxResult"></div>
+        </div>
+        <div class="aw-mobile-feed-list">
+            <div class="aw-common-list" id="ajaxResult"></div>
+        </div>
+    </section>
 </div>
 
 <script>
