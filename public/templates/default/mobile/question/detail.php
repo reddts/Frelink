@@ -422,10 +422,10 @@
 {block name="footer"}
 <footer class="aw-footer border-top">
     <div class="py-1 d-flex text-center justify-content-center" style="height: 100%">
-        <a href="javascript:;" class="flex-fill pt-1 {$question_info['vote_value']==1 ? 'active' : ''}" onclick="AWS_MOBILE.User.agree(this,'question','{$question_info.id}');" title="{:L('这是个好问题')}">
+        <a href="javascript:;" class="flex-fill pt-1 {$question_info['vote_value']==1 ? 'active' : ''}" onclick="AWS_MOBILE.User.agree(this,'question','{$question_info.id}');" title="{:L('这是个好 FAQ')}">
             <dl class="text-center">
                 <dt><i class="fa fa-thumbs-up"></i></dt>
-                <dd class="text-muted font-8">{:L('好问题')}</dd>
+                <dd class="text-muted font-8">{:L('高价值')}</dd>
             </dl>
         </a>
         <a class="d-inline-block flex-fill pt-1" onclick="AWS_MOBILE.User.invite(this,'{$question_info.id}')">
@@ -442,7 +442,7 @@
             </dl>
         </a>
 
-        <a href="javascript:;" data-title="回答问题" data-url="{:url('ajax/editor',['question_id'=>$question_info['id'],'answer_id'=>0])}" class="aw-ajax-open d-inline-block pt-1 flex-fill">
+        <a href="javascript:;" data-title="回答 FAQ" data-url="{:url('ajax/editor',['question_id'=>$question_info['id'],'answer_id'=>0])}" class="aw-ajax-open d-inline-block pt-1 flex-fill">
             <dl class="text-center">
                 <dt><i class="fa fa-edit"></i></dt>
                 <dd class="text-muted font-8">{:L('写回答')}</dd>

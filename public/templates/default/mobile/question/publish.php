@@ -2,7 +2,7 @@
 {block name="header"}
 <header class="aui-header">
     <div class="aui-header-left"><a href="{$baseUrl}" class="text-muted" data-pjax="pageMain"><i class="fa fa-home font-11"></i></a></div>
-    <div class="aui-header-title font-10">{:L('新建 FAQ 条目')}</div>
+    <div class="aui-header-title font-10">{:L('新建 FAQ')}</div>
     <a class="aui-header-right font-10 saveQuestion">{:L('发布')}</a>
 </header>
 {/block}
@@ -23,7 +23,7 @@
                 {/if}
                 {if !empty($publish_insight.title_ideas)}
                 <div class="font-9">
-                    <div class="font-weight-bold mb-2">{:L('建议问题标题')}</div>
+                    <div class="font-weight-bold mb-2">{:L('建议 FAQ 标题')}</div>
                     {volist name="publish_insight.title_ideas" id="v"}
                     <div class="mb-2 text-primary js-fill-title" data-title="{$v.title|htmlspecialchars}">
                         {$v.title}
@@ -61,7 +61,7 @@
                 <input type="hidden" name="access_key" value="{$access_key}">
                 <input type="hidden" name="id" value="{$question_info['id']|default=0}">
                 <div class="border rounded px-3 py-2 mb-3" style="background:#fbfdff;border-color:#e6edf5 !important;">
-                <div class="font-weight-bold mb-2">{:L('FAQ 条目建议')}</div>
+                <div class="font-weight-bold mb-2">{:L('FAQ 发布建议')}</div>
                 <div class="text-muted font-9">{:frelink_content_description('question')}</div>
                 </div>
                 <div class="form-group mb-3">
@@ -126,7 +126,7 @@
                 {/if}
 
                 <div class="form-group mb-3">
-                    <label class="mb-3">{:L('FAQ 说明')}</label>
+                    <label class="mb-3">{:L('FAQ 补充说明')}</label>
                     {:hook('editor',['name'=>'detail','cat'=>'question','value'=>isset($question_info['detail']) ? $question_info['detail'] : '','access_key'=>$access_key])}
                 </div>
 

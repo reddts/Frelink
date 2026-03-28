@@ -7,8 +7,8 @@
             <div class="col-md-10" id="wrapMain">
                 <div class="bg-white">
                     <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block">
-                        <li class="nav-item"><a class="nav-link {if $type=='question'}active{/if}" data-pjax="tabMain" href="{:url('draft/index',['type'=>'question'])}">{:L('问题草稿')}</a></li>
-                        <li class="nav-item"><a class="nav-link {if $type=='article'}active{/if}" data-pjax="tabMain" href="{:url('draft/index',['type'=>'article'])}">{:L('文章草稿')}</a></li>
+                        <li class="nav-item"><a class="nav-link {if $type=='question'}active{/if}" data-pjax="tabMain" href="{:url('draft/index',['type'=>'question'])}">{:L('FAQ 草稿')}</a></li>
+                        <li class="nav-item"><a class="nav-link {if $type=='article'}active{/if}" data-pjax="tabMain" href="{:url('draft/index',['type'=>'article'])}">{:L('知识内容草稿')}</a></li>
                         <li class="nav-item"><a class="nav-link {if $type=='answer'}active{/if}" data-pjax="tabMain" href="{:url('draft/index',['type'=>'answer'])}">{:L('回答草稿')}</a></li>
                     </ul>
                 </div>
@@ -95,7 +95,7 @@
                                 <a href="{$user_info['url']}" class="aw-user-name">
                                     <img src="{$user_info['avatar']}" alt="{$user_info['name']}">{$user_info['name']}
                                 </a>
-                                <span>{:L('回答了问题')}</span>
+                                <span>{:L('回答了 FAQ')}</span>
                                 <label class="float-right">{:date_friendly($v['create_time'])}</label>
                             </dt>
                             <dd class="title">

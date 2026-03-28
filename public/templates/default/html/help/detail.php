@@ -30,7 +30,7 @@
             <div class="col-md-8 mb-2">
                 <div class="d-flex flex-wrap">
                     <span class="badge badge-light border mr-2 mb-2 px-3 py-2">{:L('已归档内容')} {$chapter_stats.total_count|default=0}</span>
-                    <span class="badge badge-light border mr-2 mb-2 px-3 py-2">{:L('FAQ 条目')} {$chapter_stats.question_count|default=0}</span>
+                    <span class="badge badge-light border mr-2 mb-2 px-3 py-2">{:L('FAQ')} {$chapter_stats.question_count|default=0}</span>
                     <span class="badge badge-light border mr-2 mb-2 px-3 py-2">{:L('知识内容')} {$chapter_stats.article_count|default=0}</span>
                     <span class="badge badge-light border mr-2 mb-2 px-3 py-2">{:L('相关主题')} {:count($related_topics)}</span>
                 </div>
@@ -76,12 +76,12 @@
     <div class="bg-white p-3 aw-content-shell help-list-shell">
         <div class="d-flex flex-wrap align-items-center mb-3">
             <a href="{:url('help/detail',['token'=>$info['url_token'],'content_type'=>'all'])}" class="btn btn-sm mr-2 mb-2 {if $current_content_type=='all'}btn-primary{else/}btn-light{/if}">{:L('全部内容')}</a>
-            <a href="{:url('help/detail',['token'=>$info['url_token'],'content_type'=>'question'])}" class="btn btn-sm mr-2 mb-2 {if $current_content_type=='question'}btn-primary{else/}btn-light{/if}">{:L('FAQ 条目')}</a>
+            <a href="{:url('help/detail',['token'=>$info['url_token'],'content_type'=>'question'])}" class="btn btn-sm mr-2 mb-2 {if $current_content_type=='question'}btn-primary{else/}btn-light{/if}">{:L('FAQ')}</a>
             <a href="{:url('help/detail',['token'=>$info['url_token'],'content_type'=>'article'])}" class="btn btn-sm mb-2 {if $current_content_type=='article'}btn-primary{else/}btn-light{/if}">{:L('知识内容')}</a>
         </div>
         <div class="text-muted font-12 mb-3">
             {if $current_content_type=='question'}
-            {:L('当前只看这个章节里的 FAQ 条目，适合先确认高频问题和明确答案。')}
+            {:L('当前只看这个章节里的 FAQ，适合先确认高频 FAQ 和明确答案。')}
             {elseif $current_content_type=='article'/}
             {:L('当前只看这个章节里的知识内容，适合继续阅读综述、观察和帮助资料。')}
             {else/}
@@ -92,12 +92,12 @@
         {if $current_content_type == 'all' || $current_content_type == 'question'}
         {if !empty($faq_list)}
         <div class="mb-4">
-            <div class="font-weight-bold mb-2">{:L('FAQ 条目')}</div>
+            <div class="font-weight-bold mb-2">{:L('FAQ')}</div>
             <ul class="pb-2 help-link-list mb-0">
                 {foreach $faq_list as $k=>$v}
                 <li class="py-2">
                     <a href="{:url($v['item_type'].'/detail',['id'=>$v['item_id']])}" target="_blank">{$v.info.title}</a>
-                    <small class="d-block text-muted mt-1">{:L('FAQ 条目')}</small>
+                    <small class="d-block text-muted mt-1">{:L('FAQ')}</small>
                 </li>
                 {/foreach}
             </ul>

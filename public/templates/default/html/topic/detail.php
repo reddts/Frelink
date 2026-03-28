@@ -42,8 +42,8 @@
                 <div class="clearfix border-bottom">
                     <div class="nav nav-tabs px-4 aw-pjax-a border-0 float-left">
                         <a class="nav-item nav-link {if !$type}active {/if}" data-pjax="wrapMain" href="{:url('topic/detail',['id'=>$topic_info['id'],'sort'=>$sort])}">{:L('综合')}</a>
-                        <a class="nav-item nav-link {if $type=='question'}active{/if}" data-pjax="wrapMain" href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>'question','sort'=>$sort])}">{:L('问题')}</a>
-                        <a class="nav-item nav-link {if $type=='article'}active{/if}" data-pjax="wrapMain" href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>'article','sort'=>$sort])}">{:L('文章')}</a>
+                        <a class="nav-item nav-link {if $type=='question'}active{/if}" data-pjax="wrapMain" href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>'question','sort'=>$sort])}">{:L('FAQ')}</a>
+                        <a class="nav-item nav-link {if $type=='article'}active{/if}" data-pjax="wrapMain" href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>'article','sort'=>$sort])}">{:L('知识内容')}</a>
                         {volist name=":config('aws.tabs')" id="v"}
                         <a class="nav-link nav-item " href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>$key,'sort'=>$sort])}" data-pjax="wrapMain">{$v.title}</a>
                         {/volist}
@@ -59,7 +59,7 @@
                             <div class="text-center d-block py-2 aw-nav aw-dropdown-nav text-center aw-answer-sort" style="min-width: 100px">
                                 <div class="{$sort=='new' ? 'active':''} py-1"><a href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>$type,'sort'=>'new'])}"  data-pjax="wrapMain">{:L('最新排序')}</a> </div>
                                 <div class="{$sort=='hot' ? 'active':''} py-1"><a href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>$type,'sort'=>'hot'])}"  data-pjax="wrapMain">{:L('热门排序')} </a></div>
-                                <div class="{$sort=='recommend' ? 'active':''} py-1"><a href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>$type,'sort'=>'recommend'])}"  data-pjax="wrapMain">{:L('推荐内容')} </a></div>
+                                <div class="{$sort=='recommend' ? 'active':''} py-1"><a href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>$type,'sort'=>'recommend'])}"  data-pjax="wrapMain">{:L('推荐知识内容')} </a></div>
                                 {if $type=='question'}
                                 <div class="{$sort=='unresponsive' ? 'active':''} py-1"><a href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>$type,'sort'=>'unresponsive'])}"  data-pjax="wrapMain">{:L('等待回答')} </a></div>
                                 {/if}
@@ -97,7 +97,7 @@
                     </a>
                     <a class="col-4 text-center" href="{:frelink_publish_url('article',['topic_id'=>$topic_info['id']])}" target="_blank" rel="noopener noreferrer">
                         <i class="far fa-file-alt fa-2x d-inline-block" style="color:#fd5e5e;background: #ffdfdf;border-radius: 50px;height: 56px;line-height: 56px;margin-bottom: 10px;width: 56px"></i>
-                        <h6>{:L('写文章')}</h6>
+                        <h6>{:L('写知识内容')}</h6>
                     </a>
                     <a class="col-4 aw-ajax-open" href="javascript:;" data-title="话题日志" data-url="{:url('ajax.topic/logs',['id'=>$topic_info['id']])}">
                         <i class="icon-book circle fa-2x d-inline-block" style="color:#6f5a90;background: #ece7f3;border-radius: 50px;height: 56px;line-height: 56px;margin-bottom: 10px;width: 56px"></i>

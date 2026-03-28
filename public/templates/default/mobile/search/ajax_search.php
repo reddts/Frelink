@@ -205,7 +205,7 @@
                 <img src="{$v['answer_info']['user_info']['avatar']}" onerror="this.src='/static/common/image/default-avatar.svg'" class="circle" alt="{$v['answer_info']['user_info']['name']}" loading="lazy" decoding="async">{$v['answer_info']['user_info']['name']}
             </a>
             {/if}
-            <i>{:L('回复了问题')}（{$v['answer_count']}{:L('回复')}）</i>
+            <i>{:L('回复了 FAQ')}（{$v['answer_count']}{:L('回复')}）</i>
             <em class="time">{:date_friendly($v['answer_info']['create_time'])}</em>
             {/if}
             {if $v['topics']}
@@ -254,7 +254,7 @@
         <dd>
             {if (!$v['answer_info'])}
             <label>
-                <a type="button" class="{$v['has_focus'] ? 'ygz' : 'gz'} btn btn-primary btn-sm" onclick="AWS.User.focus(this,'question','{$v.id}')">{$v['has_focus'] ? L('已关注') : L('关注问题')} <span class="badge focus-count">{$v.focus_count}</span></a>
+                <a type="button" class="{$v['has_focus'] ? 'ygz' : 'gz'} btn btn-primary btn-sm" onclick="AWS.User.focus(this,'question','{$v.id}')">{$v['has_focus'] ? L('已关注') : L('关注 FAQ')} <span class="badge focus-count">{$v.focus_count}</span></a>
             </label>
             <label class="ml-3 mr-3"><i class="iconfont">&#xe625;</i>{:L('%s 人感谢', $v.thanks_count)}</label>
             <label class="mr-3"><i class="iconfont">&#xe601;</i>{$v['comment_count']}{:L('评论')}</label>

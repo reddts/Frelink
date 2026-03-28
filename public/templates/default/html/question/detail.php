@@ -166,7 +166,7 @@
                                             <a href="{:frelink_publish_url('question',['id'=>$question_info['id']])}" class="dropdown-item"><span>{:L('编辑 FAQ')}</span></a>
                                             {/if}
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('remove_question')=='Y'}
-                                            <a class="aw-ajax-get dropdown-item"  href="javascript:;" data-confirm="{:L('是否删除该问题')}?" data-url="{:url('ajax.Question/remove_question',['id'=>$question_info['id']])}">
+                                            <a class="aw-ajax-get dropdown-item"  href="javascript:;" data-confirm="{:L('是否删除该 FAQ')}?" data-url="{:url('ajax.Question/remove_question',['id'=>$question_info['id']])}">
                                                 <span>{:L('删除 FAQ')}</span>
                                             </a>
                                             {/if}
@@ -194,8 +194,8 @@
                                             {/if}
 
                                             {if isSuperAdmin() || isNormalAdmin()}
-                                            <a class="aw-ajax-open dropdown-item" data-title="{:L('添加到帮助')}" href="javascript:;" data-url="{:url('ajax.Help/select_chapter',['item_id'=>$question_info['id'],'item_type'=>'question'])}">
-                                                <span>{:L('添加到帮助')}</span>
+                                            <a class="aw-ajax-open dropdown-item" data-title="{:L('添加到知识章节')}" href="javascript:;" data-url="{:url('ajax.Help/select_chapter',['item_id'=>$question_info['id'],'item_type'=>'question'])}">
+                                                <span>{:L('添加到知识章节')}</span>
                                             </a>
                                             {/if}
                                         </div>
@@ -266,7 +266,7 @@
                                             <a href="{:frelink_publish_url('question',['id'=>$question_info['id']])}" class="dropdown-item"><span>{:L('编辑 FAQ')}</span></a>
                                             {/if}
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('remove_question')=='Y'}
-                                            <a class="aw-ajax-get dropdown-item"  href="javascript:;" data-confirm="{:L('是否删除该问题')}?" data-url="{:url('ajax.Question/remove_question',['id'=>$question_info['id']])}">
+                                            <a class="aw-ajax-get dropdown-item"  href="javascript:;" data-confirm="{:L('是否删除该 FAQ')}?" data-url="{:url('ajax.Question/remove_question',['id'=>$question_info['id']])}">
                                                 <span>{:L('删除 FAQ')}</span>
                                             </a>
                                             {/if}
@@ -292,8 +292,8 @@
                                             {/if}
 
                                             {if isSuperAdmin() || isNormalAdmin()}
-                                            <a class="aw-ajax-open dropdown-item" data-title="{:L('添加到帮助')}" href="javascript:;" data-url="{:url('ajax.Help/select_chapter',['item_id'=>$question_info['id'],'item_type'=>'question'])}">
-                                                <span>{:L('添加到帮助')}</span>
+                                            <a class="aw-ajax-open dropdown-item" data-title="{:L('添加到知识章节')}" href="javascript:;" data-url="{:url('ajax.Help/select_chapter',['item_id'=>$question_info['id'],'item_type'=>'question'])}">
+                                                <span>{:L('添加到知识章节')}</span>
                                             </a>
                                             {/if}
                                         </div>
@@ -566,7 +566,7 @@
                         <p class="float-left mr-5 font-weight-bold">
                             <span class="aw-answer-count">{:L('修改记录')}
                         </p>
-                        <a href="{:url('question/detail',['id'=>$question_info.id])}" class="float-right text-muted font-8" data-pjax="wrapMain">{:L('返回问题')} »</a>
+                        <a href="{:url('question/detail',['id'=>$question_info.id])}" class="float-right text-muted font-8" data-pjax="wrapMain">{:L('返回 FAQ')} »</a>
                     </div>
 
                     <div class="aw-mod-body py-3 aw-modify-log">
@@ -626,7 +626,7 @@
                             <a href="{:get_user_url($question_info['uid'],['type'=>'question'])}" target="_blank" class="flex-fill mb-0">
                                 <dl class="mb-0">
                                     <dt>{$publish_question_count}</dt>
-                                    <dd>{:L('问题')}</dd>
+                                    <dd>{:L('FAQ')}</dd>
                                 </dl>
                             </a>
                         </div>
@@ -647,7 +647,7 @@
 
                 <div class="r-box mb-2">
                     <div class="r-title">
-                        <h4>{:L('问题动态')}</h4>
+                        <h4>{:L('FAQ 动态')}</h4>
                     </div>
                     <div class="block-content2 pb-2">
                         <div class="text-center text-muted">
@@ -687,7 +687,7 @@
                 {if $relation_question && get_theme_setting('question_detail.sidebar_show_relation_question')=='Y'}
                 <div class="r-box mb-2">
                     <div class="r-title">
-                        <h4>{:L('相关问题')}</h4>
+                        <h4>{:L('相关 FAQ')}</h4>
                     </div>
                     <div class="aboutanswer">
                         {volist name="relation_question" id="v"}
@@ -710,7 +710,7 @@
                 {if $recommend_post && get_theme_setting('question_detail.sidebar_show_recommend_post')=='Y'}
                 <div class="r-box mb-2">
                     <div class="r-title">
-                        <h4>{:L('推荐内容')}</h4>
+                        <h4>{:L('推荐 FAQ')}</h4>
                     </div>
                     <div  class="aboutanswer">
                         {volist name="recommend_post" id="v"}

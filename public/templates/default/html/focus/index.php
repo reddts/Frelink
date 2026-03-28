@@ -20,12 +20,12 @@
                         <div class="float-right">
                             <div class="mod-head-more dropdown show">
                                 <a href="javascript:;" class="dropdown-toggle d-none-arrow aw-focus-show" data-toggle="dropdown">
-                                    <span>{:L('关注的问题')}</span>
+                                    <span>{:L('关注的 FAQ')}</span>
                                 </a>
                                 <div class="dropdown-menu text-center aw-focus-dropdown">
                                     <span class="arrow"></span>
                                     <ul>
-                                        <li class="active dropdown-item" data-type="question"><a href="javascript:;">{:L('关注的问题')}</a></li>
+                                        <li class="active dropdown-item" data-type="question"><a href="javascript:;">{:L('关注的 FAQ')}</a></li>
                                         <li class="dropdown-item" data-type="friend"><a href="javascript:;">{:L('关注的人')}</a></li>
                                         <li class="dropdown-item" data-type="fans"><a href="javascript:;">{:L('关注我的')}</a></li>
                                         <li class="dropdown-item" data-type="column"><a href="javascript:;">{:L('关注的专栏')}</a></li>

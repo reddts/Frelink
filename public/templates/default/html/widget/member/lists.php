@@ -21,7 +21,7 @@
             <a href="{$v['answer_info']['user_info']['url']}" class="aw-user-name">
                 <img src="{$v['answer_info']['user_info']['avatar']}" alt="{$v['answer_info']['user_info']['name']}">{$v['answer_info']['user_info']['name']}
             </a>
-            <span>{:L('回复了问题')}（{$v['answer_count']}{:L('回复')}）</span>
+            <span>{:L('回复了 FAQ')}（{$v['answer_count']}{:L('回复')}）</span>
             <label class="float-right">{:date_friendly($v['answer_info']['create_time'])}</label>
             {/if}
             {if $v['topics']}
@@ -53,7 +53,7 @@
         {if (!$v['answer_info'])}
         <div class="aw-common-footer">
             <label class="mr-2">
-                <a href="javascript:;" class="btn btn-primary btn-sm px-3 mr-3 {if $v['has_focus']}active ygz{/if}" data-toggle="popover" title="{:L('关注问题')}" onclick="AWS.User.focus(this,'question','{$v.id}')">{:L($v['has_focus'] ? '已关注' : '关注问题')} <span class="focus-count">{$v.focus_count}</span></a>
+                <a href="javascript:;" class="btn btn-primary btn-sm px-3 mr-3 {if $v['has_focus']}active ygz{/if}" data-toggle="popover" title="{:L('关注 FAQ')}" onclick="AWS.User.focus(this,'question','{$v.id}')">{:L($v['has_focus'] ? '已关注' : '关注 FAQ')} <span class="focus-count">{$v.focus_count}</span></a>
             </label>
             <label class="mr-2"><i class="icon-eye"></i> {$v.view_count} {:L('浏览')}</label>
             <label class="mr-2"><i class="icon-comment"></i> {$v['comment_count']} {:L('评论')}</label>
@@ -131,7 +131,7 @@
             <a href="{$v['answer_info']['user_info']['url']}" class="aw-user-name">
                 <img src="{$v['answer_info']['user_info']['avatar']}" alt="{$v['answer_info']['user_info']['name']}">{$v['answer_info']['user_info']['name']}
             </a>
-            <span>{:L('回复了问题')}（{$v['answer_count']}{:L('回复')}）</span>
+            <span>{:L('回复了 FAQ')}（{$v['answer_count']}{:L('回复')}）</span>
             <label class="float-right">{:date_friendly($v['answer_info']['create_time'])}</label>
             {/if}
             {if $v['topics']}
@@ -163,7 +163,7 @@
         {if (!$v['answer_info'])}
         <div class="aw-common-footer">
             <label class="mr-2">
-                <a href="javascript:;" class="btn btn-primary btn-sm px-3 mr-3 {if $v['has_focus']}active ygz{/if}" data-toggle="popover" title="{:L('关注问题')}" onclick="AWS.User.focus(this,'question','{$v.id}')">{:L($v['has_focus'] ? '已关注' : '关注问题')} <span class="focus-count">{$v.focus_count}</span></a>
+                <a href="javascript:;" class="btn btn-primary btn-sm px-3 mr-3 {if $v['has_focus']}active ygz{/if}" data-toggle="popover" title="{:L('关注 FAQ')}" onclick="AWS.User.focus(this,'question','{$v.id}')">{:L($v['has_focus'] ? '已关注' : '关注 FAQ')} <span class="focus-count">{$v.focus_count}</span></a>
             </label>
             <label class="mr-2"><i class="icon-eye"></i> {$v.view_count} {:L('浏览')}</label>
             <label class="mr-2"><i class="icon-comment"></i> {$v['comment_count']} {:L('评论')}</label>

@@ -66,7 +66,7 @@
             <div class="aw-left radius col-md-9 bg-white mb-2">
                 <div class="aw-faq-hero">
                     <h1>{:L('FAQ')}</h1>
-                    <p>{:L('这里承接高频问题、明确答案和可复用解释。它不再是社区问答流，而是公开知识系统里的答案入口。')}</p>
+                    <p>{:L('这里承接高频 FAQ、明确答案和可复用解释。它不再是社区问答流，而是公开知识系统里的 FAQ 入口。')}</p>
                 </div>
                 <div class="aw-faq-lanes">
                     <a class="aw-faq-lane" href="{:url('question/index',['sort'=>'new','category_id'=>$category])}" data-pjax="wrapMain">
@@ -75,7 +75,7 @@
                     </a>
                     <a class="aw-faq-lane" href="{:url('question/index',['sort'=>'unresponsive','category_id'=>$category])}" data-pjax="wrapMain">
                         <strong>{:L('待补充 FAQ')}</strong>
-                        <span>{:L('优先发现仍缺答案或需要继续完善说明的问题入口。')}</span>
+                        <span>{:L('优先发现仍缺答案或需要继续完善说明的 FAQ 入口。')}</span>
                     </a>
                     <a class="aw-faq-lane" href="{:url('topic/index')}">
                         <strong>{:L('转到主题')}</strong>
@@ -138,7 +138,7 @@
                                         <a href="{:url('question/detail',['id'=>$v['id']])}" target="_blank" class="js-analytics-click" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="question_index" data-analytics-position="{$key + 1}" data-analytics-source="desktop_question_index">{$v.title|raw}</a>
                                         {:hook('extend_title_label',['area'=>'question_list','info'=>$v])}
                                     </div>
-                                    <div class="text-muted mb-2" style="font-size: 13px;">{:L('优先沉淀高频问题、明确答案和后续补充说明。')}</div>
+                                    <div class="text-muted mb-2" style="font-size: 13px;">{:L('优先沉淀高频 FAQ、明确答案和后续补充说明。')}</div>
                                     <div class="pcon {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}row{/if}">
                                         {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}
                                         <div class="col-md-12 t-imglist row">

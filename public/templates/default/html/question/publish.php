@@ -203,12 +203,12 @@
                         <input type="hidden" name="access_key" value="{$access_key}">
                         <input type="hidden" name="id" value="{$question_info['id']|default=0}">
                         <div class="mb-3">
-                            <h4 class="mb-2">{:L('新建 FAQ 条目')}</h4>
+                            <h4 class="mb-2">{:L('新建 FAQ')}</h4>
                             <p class="text-muted mb-3">{:frelink_content_description('question')}</p>
                             <div class="aw-faq-guide">
                                 <div class="aw-faq-guide-item">
                                     <strong>{:L('检索入口')}</strong>
-                                    <span>{:L('优先补充用户会反复搜索的问题，而不是偶发讨论。')}</span>
+                                    <span>{:L('优先补充用户会反复搜索的 FAQ，而不是偶发讨论。')}</span>
                                 </div>
                                 <div class="aw-faq-guide-item">
                                     <strong>{:L('明确答案')}</strong>
@@ -265,7 +265,7 @@
                         </div>
 
                         <div class="form-group mb-3 aw-content">
-                            <label class="mb-3">{:L('FAQ 说明')}</label>
+                        <label class="mb-3">{:L('FAQ 补充说明')}</label>
                             {:hook('editor',['name'=>'detail','cat'=>'question','value'=>isset($question_info['detail']) ? $question_info['detail'] : '','access_key'=>$access_key])}
                         </div>
 
@@ -419,7 +419,7 @@
                     {/if}
                     {if !empty($publish_insight.title_ideas)}
                     <div class="mb-3">
-                        <div class="font-weight-bold mb-2">{:L('建议问题标题')}</div>
+                        <div class="font-weight-bold mb-2">{:L('建议 FAQ 标题')}</div>
                         {volist name="publish_insight.title_ideas" id="v"}
                         <div class="insight-title-idea insight-action js-fill-title" data-title="{$v.title|htmlspecialchars}">
                             <div>{$v.title}</div>
@@ -462,22 +462,22 @@
                 </div>
                 <div class="pb-2">
                     <dl class="text-muted font-9">
-                        <dt>{:L('问题标题')}：</dt>
-                        <dd>{:L('请用准确的语言描述您发布的问题思想')}</dd>
+                        <dt>{:L('FAQ 标题')}：</dt>
+                        <dd>{:L('请用准确的语言描述您发布的 FAQ 主题')}</dd>
                     </dl>
                     <dl class="text-muted font-9">
-                        <dt>{:L('问题补充')}：</dt>
-                        <dd>{:L('详细补充您的问题内容,并提供一些相关的素材以供参与者更多的了解您所要问题的主题思想')}</dd>
+                        <dt>{:L('FAQ 补充')}：</dt>
+                        <dd>{:L('详细补充您的 FAQ 内容，并提供一些相关的素材以供参与者更多地了解您所要表达的主题。')}</dd>
                     </dl>
                     <dl class="text-muted font-9">
                         <dt>{:L('选择话题')}：</dt>
-                        <dd>{:L('选择一个或者多个合适的话题,让您发布的文章得到更多有相同兴趣的人参与,所有人可以在您发布文章之后添加和编辑该文章所属的话题')}</dd>
+                        <dd>{:L('选择一个或者多个合适的话题，让您发布的 FAQ 得到更多有相同兴趣的人参与，所有人可以在发布后添加和编辑该条目所属的话题')}</dd>
                     </dl>
                     <dl class="text-muted font-9">
                         <dt>{:L('关于')}{:L($setting.score_unit)}：</dt>
-                        <dd>{:L('发起一个问题会消耗您')} {$integral_rule.NEW_QUESTION}{:L($setting.score_unit)},
+                        <dd>{:L('发起一个 FAQ 会消耗您')} {$integral_rule.NEW_QUESTION}{:L($setting.score_unit)},
                             {:L('每多一个回复你将获得')} {$integral_rule.QUESTION_ANSWER} {:L($setting.score_unit)}{:L('的奖励')} ,{:L('为了您的利益')},
-                            {:L('在发起问题的时候希望能够更好的描述您的问题以及多使用站内搜索功能')}.</dd>
+                            {:L('在发起 FAQ 的时候希望能够更好地描述条目主题并多使用站内搜索功能')}.</dd>
                     </dl>
                     {if !empty($publish_insight.guidance)}
                     <dl class="text-muted font-9">

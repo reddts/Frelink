@@ -41,7 +41,7 @@
         </div>
         <div class="px-3 pb-3">
             <div class="font-weight-bold font-12 mb-1">{:L('FAQ')}</div>
-            <div class="text-muted font-9">{:L('承接高频问题、明确答案和后续补充，不再沿社区问答模式组织内容。')}</div>
+            <div class="text-muted font-9">{:L('承接高频 FAQ、明确答案和后续补充，不再沿社区问答模式组织内容。')}</div>
         </div>
         <div class="px-3 pb-3">
             <div class="aw-mobile-lane-grid">
@@ -50,7 +50,7 @@
                     <span>{:L('先看最近新增的 FAQ。')}</span>
                 </a>
                 <a class="aw-mobile-lane-card" href="{:url('question/index',['sort'=>'unresponsive','category_id'=>$category])}" data-pjax="pageMain">
-                    <strong>{:L('待补充')}</strong>
+                    <strong>{:L('待补充 FAQ')}</strong>
                     <span>{:L('优先发现仍缺答案的条目。')}</span>
                 </a>
                 <a class="aw-mobile-lane-card" href="{:url('topic/index')}" data-pjax="pageMain">

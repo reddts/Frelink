@@ -78,23 +78,23 @@
                         <div class="text-center d-block py-2" style="min-width: 100px">
                             {if get_user_permission('recommend_post')=='Y'}
                             <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-url="{:url('ajax.article/action',['type'=>'recommend','is_recommend'=>$article_info['is_recommend'],'article_id'=>$article_info['id']])}">
-                                <span>{$article_info['is_recommend'] ? L('取消推荐') : '推荐内容'}</span>
+                                <span>{$article_info['is_recommend'] ? L('取消推荐') : '推荐知识内容'}</span>
                             </a>
                             {/if}
                             {if get_user_permission('set_top_post')=='Y'}
                             <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-url="{:url('ajax.article/action',['type'=>'set_top','set_top'=>$article_info['set_top'],'article_id'=>$article_info['id']])}">
-                                <span>{$article_info['set_top'] ? L('取消置顶') : '置顶内容'}</span>
+                                <span>{$article_info['set_top'] ? L('取消置顶') : '置顶知识内容'}</span>
                             </a>
                             {/if}
 
                             {if $user_id && (get_user_permission('modify_article')=='Y' || $user_info['uid']==$article_info['uid'])}
                             <a href="{:frelink_publish_url('article',['id'=>$article_info['id']])}" class="py-1 text-muted dropdown-item" target="_blank" rel="noopener noreferrer">
-                                <span>编辑内容</span>
+                                <span>编辑知识内容</span>
                             </a>
                             {/if}
                             {if $user_id && (get_user_permission('remove_article')=='Y' || $user_info['uid']==$article_info['uid'])}
                             <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-confirm="{:L('确定要删除吗')}？" data-url="{:url('ajax.article/remove_article',['id'=>$article_info['id']])}">
-                                <span>删除内容</span>
+                                <span>删除知识内容</span>
                             </a>
 
                             {if !$article_info['column_id'] && ($user_info['uid']==$article_info['uid'] || isNormalAdmin() || isSuperAdmin())}
@@ -104,8 +104,8 @@
                             {/if}
 
                             {if isSuperAdmin() || isNormalAdmin()}
-                            <a class="aw-ajax-open py-1 text-muted dropdown-item" data-title="{:L('添加到帮助')}" href="javascript:;" data-url="{:url('ajax.Help/select_chapter',['item_id'=>$article_info['id'],'item_type'=>'article'])}">
-                                <span>{:L('添加到帮助')}</span>
+                            <a class="aw-ajax-open py-1 text-muted dropdown-item" data-title="{:L('添加到知识章节')}" href="javascript:;" data-url="{:url('ajax.Help/select_chapter',['item_id'=>$article_info['id'],'item_type'=>'article'])}">
+                                <span>{:L('添加到知识章节')}</span>
                             </a>
                             {/if}
 
@@ -285,23 +285,23 @@
                                 <div class="text-center d-block py-2" style="min-width: 100px">
                                     {if get_user_permission('recommend_post')=='Y'}
                                     <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-url="{:url('ajax.article/action',['type'=>'recommend','is_recommend'=>$article_info['is_recommend'],'article_id'=>$article_info['id']])}">
-                                        <span>{$article_info['is_recommend'] ? L('取消推荐') : '推荐内容'}</span>
+                                        <span>{$article_info['is_recommend'] ? L('取消推荐') : '推荐知识内容'}</span>
                                     </a>
                                     {/if}
                                     {if get_user_permission('set_top_post')=='Y'}
                                     <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-url="{:url('ajax.article/action',['type'=>'set_top','set_top'=>$article_info['set_top'],'article_id'=>$article_info['id']])}">
-                                        <span>{$article_info['set_top'] ? L('取消置顶') : '置顶内容'}</span>
+                                        <span>{$article_info['set_top'] ? L('取消置顶') : '置顶知识内容'}</span>
                                     </a>
                                     {/if}
 
                                     {if $user_id && (get_user_permission('modify_article') || $user_info['uid']==$article_info['uid'])}
                                     <a href="{:frelink_publish_url('article',['id'=>$article_info['id']])}" class=" py-1 text-muted dropdown-item" target="_blank" rel="noopener noreferrer">
-                                        <span>编辑内容</span>
+                                        <span>编辑知识内容</span>
                                     </a>
                                     {/if}
                                     {if $user_id && (get_user_permission('remove_article') || $user_info['uid']==$article_info['uid'])}
                                     <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-confirm="{:L('确定要删除吗')}?" data-url="{:url('ajax.article/remove_article',['id'=>$article_info['id']])}">
-                                        <span>删除内容</span>
+                                        <span>删除知识内容</span>
                                     </a>
                                     {/if}
 
@@ -312,8 +312,8 @@
                                     {/if}
 
                                     {if isSuperAdmin() || isNormalAdmin()}
-                                    <a class="aw-ajax-open py-1 text-muted dropdown-item" data-title="{:L('添加到帮助')}" href="javascript:;" data-url="{:url('ajax.Help/select_chapter',['item_id'=>$article_info['id'],'item_type'=>'article'])}">
-                                        <span>{:L('添加到帮助')}</span>
+                                    <a class="aw-ajax-open py-1 text-muted dropdown-item" data-title="{:L('添加到知识章节')}" href="javascript:;" data-url="{:url('ajax.Help/select_chapter',['item_id'=>$article_info['id'],'item_type'=>'article'])}">
+                                        <span>{:L('添加到知识章节')}</span>
                                     </a>
                                     {/if}
                                 </div>
@@ -522,7 +522,7 @@
                 {if $recommend_post && $theme_config['article_detail']['sidebar_show_recommend_post']=='Y'}
                 <div class="r-box mb-2 hot-topic">
                     <div class="r-title">
-                        <h4>{:L('推荐内容')}</h4>
+                        <h4>{:L('推荐知识内容')}</h4>
                     </div>
                     <div >
                         {volist name="recommend_post" id="v"}

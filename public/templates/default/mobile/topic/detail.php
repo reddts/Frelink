@@ -80,7 +80,7 @@
                 <i class="fa icon-help-with-circle d-inline-block"></i> {:L('发讨论')}
             </a>
             <a class="flex-fill text-light" href="{:url('article/publish',['topic_id'=>$topic_info['id']])}" >
-                <i class="far fa-file-alt d-inline-block" ></i> {:L('写文章')}
+                <i class="far fa-file-alt d-inline-block" ></i> {:L('写知识内容')}
             </a>
             <a class="flex-fill aw-ajax-open text-light" href="javascript:;" data-title="话题日志" data-url="{:url('ajax.topic/logs',['id'=>$topic_info['id']])}">
                 <i class="icon-book d-inline-block"></i> {:L('话题日志')}
@@ -112,10 +112,10 @@
                 <a class="nav-link {if !$type}active {/if}" data-pjax="pageMain" href="{:url('topic/detail',['id'=>$topic_info['id'],'sort'=>$sort])}">{:L('综合')}</a>
             </li>
             <li class="nav-item swiper-slide">
-                <a class="nav-link {if $type=='question'}active{/if}" data-pjax="pageMain" href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>'question','sort'=>$sort])}">{:L('问题')}</a>
+                <a class="nav-link {if $type=='question'}active{/if}" data-pjax="pageMain" href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>'question','sort'=>$sort])}">{:L('FAQ')}</a>
             </li>
             <li class="nav-item swiper-slide">
-                <a class="nav-link {if $type=='article'}active{/if}" data-pjax="pageMain" href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>'article','sort'=>$sort])}">{:L('文章')}</a>
+                <a class="nav-link {if $type=='article'}active{/if}" data-pjax="pageMain" href="{:url('topic/detail',['id'=>$topic_info['id'],'type'=>'article','sort'=>$sort])}">{:L('知识内容')}</a>
             </li>
             {volist name=":config('aws.tabs')" id="v"}
             <li class="nav-item swiper-slide">

@@ -7,7 +7,7 @@
             <h2 class="col-12"><img src="{$theme_config['column']['navbar_bg']|default=$static_url.'images/zl-img1.png'}"></h2>
             <h3 class="col-12">{$theme_config['column']['navbar_text']|default=L('随心写作,自由表达')}</h3>
             <div class="col-12">
-                <a href="{:frelink_publish_url('article')}" class="btn btn-primary px-4 btn-lg">{:L('开始写文章')}</a>
+                <a href="{:frelink_publish_url('article')}" class="btn btn-primary px-4 btn-lg">{:L('开始写知识内容')}</a>
             </div>
         </div>
     </div>

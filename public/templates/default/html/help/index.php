@@ -29,7 +29,7 @@
             <div class="col-md-3 col-6 mb-2">
                 <div class="border rounded py-3">
                     <div class="font-weight-bold font-16">{$map_summary.question_count|default=0}</div>
-                    <div class="text-muted font-12">{:L('FAQ 条目')}</div>
+                    <div class="text-muted font-12">{:L('FAQ')}</div>
                 </div>
             </div>
             <div class="col-md-3 col-6 mb-2">
@@ -75,7 +75,7 @@
             <form action="{:url('search/index')}" method="get" id="homeSearch">
                 <div class="w-100 px-3 py-1" style="background: #eee;border-radius: 50px">
                     <i class="iconfont">&#xe610;</i>
-                    <input type="text" autocomplete="off" style="width: 96%;height: 32px;line-height: 32px;" value="{:input('get.q')}"  name="q" placeholder="{:L('请输入你遇到的问题进行搜索')}">
+                    <input type="text" autocomplete="off" style="width: 96%;height: 32px;line-height: 32px;" value="{:input('get.q')}"  name="q" placeholder="{:L('请输入你想查找的 FAQ 或知识内容')}">
                 </div>
             </form>
         </div>
@@ -125,7 +125,7 @@
                 <p class="text-muted font-12 mb-2">{:str_cut(strip_tags((string)$v['description']),0,52)}</p>
                 {/if}
                 <div class="d-flex flex-wrap mb-2">
-                    <span class="badge badge-light border mr-2 mb-2 px-2 py-2">{:L('FAQ 条目')} {$v.question_count|default=0}</span>
+                    <span class="badge badge-light border mr-2 mb-2 px-2 py-2">{:L('FAQ')} {$v.question_count|default=0}</span>
                     <span class="badge badge-light border mr-2 mb-2 px-2 py-2">{:L('知识内容')} {$v.article_count|default=0}</span>
                     <span class="badge badge-light border mr-2 mb-2 px-2 py-2">{:L('相关主题')} {$v.topic_count|default=0}</span>
                 </div>
