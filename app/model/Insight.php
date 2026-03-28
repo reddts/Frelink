@@ -1244,6 +1244,125 @@ class Insight extends BaseModel
         return implode(PHP_EOL, $lines);
     }
 
+    public static function getAgentBrief(int $days = 7, int $limit = 3, string $mode = 'all', string $topic = '', string $itemType = 'article'): array
+    {
+        $days = self::normalizeDays($days);
+        $limit = max(1, min(10, $limit));
+        $itemType = in_array($itemType, self::$allowedPublishItemTypes, true) ? $itemType : 'article';
+        $mode = strtolower(trim($mode));
+        if (!in_array($mode, ['all', 'auto', 'manual'], true)) {
+            $mode = 'all';
+        }
+
+        $weeklyExecution = self::getWeeklyExecutionPlan($days, $limit);
+        $dailyReport = self::getDailyReportSnapshot($days, $limit);
+        $publishAssist = self::getPublishAssist($itemType, $days, max(5, $limit));
+        $writingWorkflow = self::getWritingWorkflow($mode, $days, $limit, $topic, $itemType);
+        $recommendations = self::getRecommendations($days, $limit);
+        $topicGraph = self::getTopicGraph(max($days, 30), $limit);
+
+        return [
+            'window_days' => $days,
+            'generated_at' => date('Y-m-d H:i:s'),
+            'summary' => self::getWindowSummary($days),
+            'daily_report' => $dailyReport,
+            'weekly_execution' => $weeklyExecution,
+            'publish_assist' => $publishAssist,
+            'writing_workflow' => $writingWorkflow,
+            'recommendations' => $recommendations,
+            'topic_graph' => $topicGraph,
+            'routes' => [
+                'agent_brief_api' => '/api/Insight/agent_brief?days=' . $days . '&limit=' . $limit,
+                'weekly_execution_api' => '/api/Insight/weekly_execution?days=' . $days . '&limit=' . $limit,
+                'writing_workflow_api' => '/api/Insight/writing_workflow?mode=' . $mode . '&days=' . $days . '&limit=' . $limit,
+                'publish_assist_api' => '/api/Insight/publish_assist?days=' . $days . '&item_type=' . $itemType . '&limit=' . $limit,
+            ],
+            'review_policy' => $writingWorkflow['review_policy'] ?? [
+                'required' => true,
+                'reviewer' => 'human',
+                'auto_publish_allowed' => false,
+                'manual_publish_allowed' => false,
+            ],
+        ];
+    }
+
+    public static function renderAgentBrief(array $brief): string
+    {
+        $days = intval($brief['window_days'] ?? 7);
+        $summary = $brief['summary'] ?? [];
+        $workflow = $brief['writing_workflow'] ?? [];
+        $weeklyExecution = $brief['weekly_execution']['tasks'] ?? [];
+        $publishAssist = $brief['publish_assist'] ?? [];
+        $topicGraph = $brief['topic_graph'] ?? [];
+        $recommendations = $brief['recommendations'] ?? [];
+
+        $lines = [];
+        $lines[] = 'Frelink Agent Brief';
+        $lines[] = '统计窗口：最近 ' . $days . ' 天';
+        $lines[] = '生成时间：' . ($brief['generated_at'] ?? date('Y-m-d H:i:s'));
+        $lines[] = '搜索 ' . intval($summary['search_count'] ?? 0)
+            . ' / 曝光 ' . intval($summary['impression_count'] ?? 0)
+            . ' / 点击 ' . intval($summary['click_count'] ?? 0)
+            . ' / 详情 ' . intval($summary['detail_view_count'] ?? 0)
+            . ' / CTR ' . ($summary['ctr'] ?? 0);
+
+        if (!empty($recommendations)) {
+            $lines[] = '';
+            $lines[] = '优先动作：';
+            foreach (array_slice($recommendations, 0, 3) as $item) {
+                $lines[] = '- [' . ($item['priority'] ?? '-') . '] ' . ($item['title'] ?? '-') . '：' . ($item['suggestion'] ?? '-');
+            }
+        }
+
+        if (!empty($weeklyExecution)) {
+            $lines[] = '';
+            $lines[] = '本周执行：';
+            foreach (array_slice($weeklyExecution, 0, 3) as $item) {
+                $lines[] = '- [' . ($item['task_type'] ?? '-') . '/' . ($item['content_type'] ?? '-') . '] ' . ($item['title'] ?? '-');
+                $lines[] = '  关键词：' . (($item['keyword'] ?? '') ?: '-');
+                $lines[] = '  动作：' . (($item['primary_label'] ?? '-') . ' / ' . ($item['secondary_label'] ?? '-'));
+            }
+        }
+
+        if (!empty($workflow['manual_flow'])) {
+            $lines[] = '';
+            $lines[] = '写作工作流：';
+            $lines[] = '- 审核：' . (!empty($workflow['review_policy']['required']) ? '必须人工审核' : '未配置');
+            $lines[] = '- 手动主题：' . (($workflow['manual_flow']['topic'] ?? '') ?: '-');
+            $lines[] = '- 推荐形态：' . (($workflow['manual_flow']['recommended_type_label'] ?? '-') ?: '-');
+            if (!empty($workflow['manual_flow']['prompt_template']['instruction'])) {
+                $lines[] = '- 指令：' . $workflow['manual_flow']['prompt_template']['instruction'];
+            }
+        }
+
+        if (!empty($publishAssist['title_ideas'])) {
+            $lines[] = '';
+            $lines[] = '发布辅助：';
+            foreach (array_slice($publishAssist['title_ideas'], 0, 3) as $item) {
+                $lines[] = '- ' . ($item['title'] ?? '-') . ' [' . ($item['recommended_type_label'] ?? '-') . ']';
+            }
+        }
+
+        if (!empty($topicGraph['nodes'])) {
+            $lines[] = '';
+            $lines[] = '主题图谱：';
+            foreach (array_slice($topicGraph['nodes'], 0, 3) as $node) {
+                $lines[] = '- ' . ($node['title'] ?? '-') . '：内容 ' . intval($node['content_count'] ?? 0) . '，关联 ' . count((array) ($node['related_topics'] ?? []));
+            }
+        }
+
+        $routes = $brief['routes'] ?? [];
+        if (!empty($routes)) {
+            $lines[] = '';
+            $lines[] = '接口：';
+            foreach ($routes as $route) {
+                $lines[] = '- ' . $route;
+            }
+        }
+
+        return implode(PHP_EOL, $lines);
+    }
+
     protected static function resolveExecutionPriority(array $recommendation): string
     {
         $gap = intval($recommendation['gap'] ?? 0);

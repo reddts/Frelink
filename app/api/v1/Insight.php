@@ -7,9 +7,9 @@ use app\model\Insight as InsightModel;
 
 class Insight extends Api
 {
-    protected $needLogin = ['summary', 'keywords', 'content_trends', 'topic_trends', 'topic_graph', 'opportunities', 'recommendations', 'publish_assist', 'weekly_execution', 'writing_workflow'];
+    protected $needLogin = ['summary', 'keywords', 'content_trends', 'topic_trends', 'topic_graph', 'opportunities', 'recommendations', 'publish_assist', 'weekly_execution', 'writing_workflow', 'agent_brief'];
     protected $beforeActionList = [
-        'authorizeInsightAccess' => ['only' => 'summary,keywords,content_trends,topic_trends,topic_graph,opportunities,recommendations,publish_assist,weekly_execution,writing_workflow'],
+        'authorizeInsightAccess' => ['only' => 'summary,keywords,content_trends,topic_trends,topic_graph,opportunities,recommendations,publish_assist,weekly_execution,writing_workflow,agent_brief'],
     ];
 
     public function track()
@@ -119,6 +119,27 @@ class Insight extends Api
         }
 
         $this->apiResult($workflow);
+    }
+
+    public function agent_brief()
+    {
+        $days = intval($this->request->param('days', 7));
+        $limit = intval($this->request->param('limit', 3));
+        $mode = strtolower(trim((string)$this->request->param('mode', 'all')));
+        $topic = trim((string)$this->request->param('topic', ''));
+        $itemType = trim((string)$this->request->param('item_type', 'article'));
+        $format = strtolower(trim((string)$this->request->param('format', 'json')));
+        $brief = InsightModel::getAgentBrief($days, $limit, $mode, $topic, $itemType);
+
+        if ($format === 'markdown') {
+            return response(
+                InsightModel::renderAgentBrief($brief),
+                200,
+                ['Content-Type' => 'text/plain; charset=utf-8']
+            );
+        }
+
+        $this->apiResult($brief);
     }
 
     protected function authorizeInsightAccess(): void

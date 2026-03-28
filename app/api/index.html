@@ -79,6 +79,7 @@
                 <li><code>GET /api/Insight/keywords?days=7&amp;limit=10</code></li>
                 <li><code>GET /api/Insight/opportunities?days=7&amp;limit=10</code></li>
                 <li><code>GET /api/Insight/content_trends?days=7&amp;limit=10</code></li>
+                <li><code>GET /api/Insight/agent_brief?days=7&amp;limit=3</code></li>
                 <li><code>GET /api/Insight/writing_workflow?mode=all&amp;days=7&amp;limit=3</code></li>
             </ul>
         </div>
@@ -89,6 +90,7 @@
                 <li>版本头：<code>version: v1</code></li>
                 <li>建议为 agent 使用独立账号与权限</li>
                 <li>生产环境优先走低风险只读能力</li>
+                <li>agent 首选 <code>/api/Insight/agent_brief</code>，再按需拆分查询</li>
                 <li>洞察数据以最近周期窗口为准</li>
             </ul>
         </div>
