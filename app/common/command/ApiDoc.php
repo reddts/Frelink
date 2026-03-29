@@ -127,6 +127,7 @@ class ApiDoc extends Command
                 'params' => $this->extractParams($source),
                 'param_meta' => $this->extractParamMeta($source),
                 'summary' => $this->buildSummary($method->getName(), $source),
+                'response_notes' => $this->buildResponseNotes($refClass->getShortName(), $method->getName(), $source),
             ];
         }
 
@@ -226,6 +227,21 @@ class ApiDoc extends Command
                 $lines[] = '| `' . $method['name'] . '` | `' . $method['route'] . '` | `' . $method['http'] . '` | ' . $method['login'] . ' | ' . $params . ' | ' . $summary . ' |';
             }
             $lines[] = '';
+
+            $responseNotes = array_values(array_filter(array_map(function ($method) {
+                return !empty($method['response_notes']) ? $method : null;
+            }, $controller['methods'])));
+            if ($responseNotes) {
+                $lines[] = '#### 特殊返回说明';
+                $lines[] = '';
+                foreach ($responseNotes as $method) {
+                    $lines[] = '- `' . $method['route'] . '`';
+                    foreach (($method['response_notes'] ?? []) as $note) {
+                        $lines[] = '  - ' . $note;
+                    }
+                }
+                $lines[] = '';
+            }
         }
 
         $lines[] = '## 爬虫与训练数据采集隐私声明';
@@ -318,18 +334,7 @@ class ApiDoc extends Command
                                     'schema' => [
                                         '$ref' => '#/components/schemas/ApiResponse',
                                     ],
-                                    'examples' => [
-                                        'success' => [
-                                            'summary' => 'Successful response',
-                                            'value' => [
-                                                'code' => 1,
-                                                'msg' => 'success',
-                                                'time' => time(),
-                                                'request_id' => 'req_0123456789abcdef',
-                                                'data' => new \stdClass(),
-                                            ],
-                                        ],
-                                    ],
+                                    'examples' => $this->buildSuccessExamples($controllerName, $method),
                                 ],
                             ],
                         ],
@@ -358,6 +363,12 @@ class ApiDoc extends Command
                         ],
                     ],
                 ];
+
+                if (!empty($method['response_notes'])) {
+                    $operation['description'] = implode("\n", array_map(function ($note) {
+                        return '- ' . $note;
+                    }, $method['response_notes']));
+                }
 
                 foreach (($method['param_meta'] ?? []) as $paramMeta) {
                     $parameter = [
@@ -630,6 +641,76 @@ class ApiDoc extends Command
             $summary .= '，参数：' . implode(', ', $params);
         }
         return $summary;
+    }
+
+    protected function buildResponseNotes(string $controllerName, string $methodName, string $source): array
+    {
+        $notes = [];
+
+        if ($controllerName === 'Article' && $methodName === 'publish') {
+            $notes[] = '当命中文章审核时，接口仍返回 `code=1`。';
+            $notes[] = '`data.status` 会返回 `pending_review`，并附带 `data.approval_id`。';
+            $notes[] = '调用方应把“发表成功,请等待管理员审核”视为待审成功，而不是发布失败。';
+        }
+
+        if ($controllerName === 'Topic' && $methodName === 'create') {
+            $notes[] = '当 `create_topic_approval` 生效时，创建话题会先进入审核队列。';
+            $notes[] = '待审场景返回 `code=1`，并在 `data` 中携带 `status=pending_review` 与 `approval_id`。';
+            $notes[] = '待审话题尚未产生正式 `id`，不能直接用于后续内容绑定。';
+        }
+
+        return $notes;
+    }
+
+    protected function buildSuccessExamples(string $controllerName, array $method): array
+    {
+        $examples = [
+            'success' => [
+                'summary' => 'Successful response',
+                'value' => [
+                    'code' => 1,
+                    'msg' => 'success',
+                    'time' => time(),
+                    'request_id' => 'req_0123456789abcdef',
+                    'data' => new \stdClass(),
+                ],
+            ],
+        ];
+
+        if ($controllerName === 'Article' && ($method['name'] ?? '') === 'publish') {
+            $examples['pending_review'] = [
+                'summary' => 'Submitted for review',
+                'value' => [
+                    'code' => 1,
+                    'msg' => '发表成功,请等待管理员审核',
+                    'time' => time(),
+                    'request_id' => 'req_0123456789abcdef',
+                    'data' => [
+                        'status' => 'pending_review',
+                        'approval_id' => 123,
+                    ],
+                ],
+            ];
+        }
+
+        if ($controllerName === 'Topic' && ($method['name'] ?? '') === 'create') {
+            $examples['pending_review'] = [
+                'summary' => 'Topic submitted for review',
+                'value' => [
+                    'code' => 1,
+                    'msg' => '创建成功,请等待管理员审核',
+                    'time' => time(),
+                    'request_id' => 'req_0123456789abcdef',
+                    'data' => [
+                        'status' => 'pending_review',
+                        'approval_id' => 123,
+                        'title' => '待审话题示例',
+                    ],
+                ],
+            ];
+        }
+
+        return $examples;
     }
 
     protected function escapeTableCell(string $value): string

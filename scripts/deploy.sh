@@ -63,6 +63,14 @@ run_remote() {
   "${SSH_BASE[@]}" "cd '$PROJECT_PATH' && $1"
 }
 
+generate_remote_api_docs() {
+  echo "run: sudo php think api:doc --output docs/api-v1.md"
+  run_remote "sudo php think api:doc --output docs/api-v1.md"
+  echo "run: sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json"
+  run_remote "sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json"
+  run_remote "sudo chown '$SSH_USER:$SSH_USER' docs/api-v1.md public/docs/api-v1.openapi.json"
+}
+
 show_config() {
   cat <<EOF
 target: $TARGET_NAME ($TARGET_LABEL)
@@ -125,6 +133,8 @@ verify_remote() {
     echo "run: $cmd"
     run_remote "$cmd"
   done <<< "$CLEAR_COMMANDS"
+
+  generate_remote_api_docs
 
   if command -v curl >/dev/null 2>&1 && [[ -n "$SITE_URL" ]]; then
     while IFS= read -r path; do

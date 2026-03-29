@@ -2,6 +2,12 @@
 
 ## 2026-03-29
 
+### 里程碑：API 文档自动生成接入部署
+
+- `scripts/deploy.sh` 的远端验证流程现在会自动执行 `php think api:doc`，同步重建 `docs/api-v1.md` 和 `public/docs/api-v1.openapi.json`
+- `app/common/command/ApiDoc.php` 已补上 `Article/publish` 与 `Topic/create` 的待审返回说明，Markdown 文档会追加 `特殊返回说明`
+- OpenAPI 输出现在会为上述接口生成 `pending_review` 成功示例，明确 `code=1`、`data.status=pending_review` 与 `approval_id` 的契约
+
 ### 里程碑：话题审核链与 agent 发布测试补齐
 
 - API 与前台的 `Topic/create` 现在都支持进入 `approval` 审核流，不再只有文章、问题、回答有待审闸门
