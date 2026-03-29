@@ -345,7 +345,7 @@ if (! function_exists('frelink_article_type_spotlights')) {
                 'label' => frelink_article_type_label($type),
                 'description' => frelink_content_description($type),
                 'count' => (int) $count,
-                'latest' => $latest ? $latest->toArray() : null,
+                'latest' => is_array($latest) ? $latest : ($latest ? $latest->toArray() : null),
             ];
         }
 

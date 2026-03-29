@@ -167,14 +167,19 @@
 
             {:hook('pageDetailBottom',['info'=>$question_info])}
             {if !empty($next_reads)}
-            <div class="bg-light border rounded p-3 mt-3">
-                <div class="font-weight-bold mb-2">下一步阅读</div>
-                {volist name="next_reads" id="item"}
-                <a class="d-block py-2 border-bottom text-body" href="{$item.url}" data-pjax="pageMain">
-                    <div class="font-weight-bold mb-1"><i class="icon-book text-primary mr-1"></i>{$item.title}</div>
-                    {if $item.desc}<div class="text-muted font-8">{$item.desc}</div>{/if}
-                </a>
-                {/volist}
+            <div class="question-next-read-panel mt-3">
+                <div class="question-next-read-heading">
+                    <span>下一步阅读</span>
+                    <em>自动延展阅读</em>
+                </div>
+                <div class="question-next-read-list">
+                    {volist name="next_reads" id="item"}
+                    <a class="question-next-read-item" href="{$item.url}" data-pjax="pageMain">
+                        <div class="question-next-read-title"><span>{$item.title}</span></div>
+                        {if $item.desc}<div class="question-next-read-desc">{$item.desc}</div>{/if}
+                    </a>
+                    {/volist}
+                </div>
             </div>
             {/if}
             {if !empty($archive_chapters)}

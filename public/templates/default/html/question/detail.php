@@ -108,14 +108,19 @@
 
                             {:hook('pageDetailBottom',['info'=>$question_info])}
                             {if !empty($next_reads)}
-                            <section class="bg-light rounded p-3 mb-3">
-                                <div class="font-weight-bold mb-2">{:L('下一步阅读')}</div>
-                                {volist name="next_reads" id="item"}
-                                <a class="d-block py-2 border-bottom text-dark" href="{$item.url}">
-                                    <div class="font-weight-bold mb-1"><i class="icon-book text-primary mr-1"></i>{$item.title}</div>
-                                    {if $item.desc}<div class="text-muted font-12">{$item.desc}</div>{/if}
-                                </a>
-                                {/volist}
+                            <section class="question-next-read-panel mb-3">
+                                <div class="question-next-read-heading">
+                                    <span>{:L('下一步阅读')}</span>
+                                    <em>{:L('自动延展阅读')}</em>
+                                </div>
+                                <div class="question-next-read-list">
+                                    {volist name="next_reads" id="item"}
+                                    <a class="question-next-read-item" href="{$item.url}">
+                                        <div class="question-next-read-title"><span>{$item.title}</span></div>
+                                        {if $item.desc}<div class="question-next-read-desc">{$item.desc}</div>{/if}
+                                    </a>
+                                    {/volist}
+                                </div>
                             </section>
                             {/if}
                             {if !empty($archive_chapters)}
@@ -747,10 +752,6 @@
                 </div>
                 {/if}
 
-                {if get_theme_setting('question_detail.sidebar_show_items') && in_array('announce',get_theme_setting('question_detail.sidebar_show_items'))}
-                {:widget('sidebar/announce')}
-                {/if}
-
                 {if get_theme_setting('question_detail.sidebar_show_items') && in_array('focus_topic',get_theme_setting('question_detail.sidebar_show_items'))}
                 {:widget('sidebar/focusTopic',['uid'=>$user_id])}
                 {/if}
@@ -765,10 +766,6 @@
 
                 {if get_theme_setting('question_detail.sidebar_show_items') && in_array('hot_users',get_theme_setting('question_detail.sidebar_show_items'))}
                 {:widget('sidebar/hotUsers',['uid'=>$user_id])}
-                {/if}
-
-                {if get_theme_setting('question_detail.sidebar_show_items') && in_array('diy_content',get_theme_setting('question_detail.sidebar_show_items'))}
-                {$theme_config['home']['sidebar_diy_content']|raw|htmlspecialchars_decode}
                 {/if}
 
                 {:hook('sidebarBottom')}

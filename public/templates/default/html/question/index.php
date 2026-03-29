@@ -365,10 +365,6 @@
                 {:widget('sidebar/writeNav')}
                 {/if}
 
-                {if $theme_config['question']['sidebar_show_items'] && in_array('announce',$theme_config['question']['sidebar_show_items'])}
-                {:widget('sidebar/announce')}
-                {/if}
-
                 {if $theme_config['question']['sidebar_show_items'] && in_array('focus_topic',$theme_config['question']['sidebar_show_items'])}
                 {:widget('sidebar/focusTopic',['uid'=>$user_id])}
                 {/if}

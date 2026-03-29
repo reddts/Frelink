@@ -174,6 +174,9 @@
             grid-template-columns: 1fr;
         }
     }
+    .aw-right .hot-list dl dd {
+        padding: 0;
+    }
 </style>
 {/block}
 {block name="main"}
@@ -311,10 +314,6 @@
                 {:widget('sidebar/writeNav')}
                 {/if}
 
-                {if $theme_config['article']['sidebar_show_items'] && in_array('announce',$theme_config['article']['sidebar_show_items'])}
-                {:widget('sidebar/announce')}
-                {/if}
-
                 {if $theme_config['article']['sidebar_show_items'] && in_array('focus_topic',$theme_config['article']['sidebar_show_items'])}
                 {:widget('sidebar/focusTopic',['uid'=>$user_id])}
                 {/if}
@@ -329,10 +328,6 @@
 
                 {if $theme_config['article']['sidebar_show_items'] && in_array('hot_users',$theme_config['article']['sidebar_show_items'])}
                 {:widget('sidebar/hotUsers',['uid'=>$user_id])}
-                {/if}
-
-                {if in_array('diy_content',$theme_config['article']['sidebar_show_items'])}
-                {$theme_config['article']['sidebar_diy_content']|raw|htmlspecialchars_decode}
                 {/if}
 
                 <!--侧边栏底部钩子-->
