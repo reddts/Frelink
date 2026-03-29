@@ -33,7 +33,7 @@ def make_slug(value: str) -> str:
     return f"publish-chain-{digest}"
 
 
-def request_json(base_url: str, token: str, path: str, data: Dict[str, Any] | None = None) -> Dict[str, Any]:
+def request_payload(base_url: str, token: str, path: str, data: Dict[str, Any] | None = None) -> Dict[str, Any]:
     url = base_url.rstrip("/") + path
     body = None if data is None else urllib.parse.urlencode(data, doseq=True).encode("utf-8")
     headers = {"ApiToken": token}
@@ -54,20 +54,41 @@ def request_json(base_url: str, token: str, path: str, data: Dict[str, Any] | No
     except json.JSONDecodeError as exc:
         raise RuntimeError(f"{path} returned invalid JSON: {raw}") from exc
 
+    return payload
+
+
+def request_json(base_url: str, token: str, path: str, data: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    payload = request_payload(base_url, token, path, data)
     if payload.get("code") != 1:
         raise RuntimeError(f"{path} failed: {payload}")
     return payload
 
 
 def ensure_topic(base_url: str, token: str, title: str) -> Dict[str, Any]:
-    payload = request_json(base_url, token, "/api/Topic/create", {"title": title})
-    items = payload.get("data") or []
-    if not items:
-        raise RuntimeError(f"topic create returned empty data for title={title!r}")
-    topic = items[0]
-    if "id" not in topic:
-        raise RuntimeError(f"topic create returned invalid item for title={title!r}: {topic}")
-    return topic
+    payload = request_payload(base_url, token, "/api/Topic/create", {"title": title})
+    if payload.get("code") == 1:
+        if (payload.get("data") or {}).get("status") == "pending_review":
+            return {
+                "id": 0,
+                "title": title,
+                "status": "pending_review",
+                "approval_id": int((payload.get("data") or {}).get("approval_id", 0)),
+            }
+        items = payload.get("data") or []
+        if not items:
+            raise RuntimeError(f"topic create returned empty data for title={title!r}")
+        topic = items[0]
+        if "id" not in topic:
+            raise RuntimeError(f"topic create returned invalid item for title={title!r}: {topic}")
+        return topic
+
+    if "已存在" in str(payload.get("msg", "")):
+        search_payload = request_json(base_url, token, f"/api/Topic/search?keywords={urllib.parse.quote(title)}")
+        for item in search_payload.get("data") or []:
+            if str(item.get("title", "")).strip() == title:
+                return item
+
+    raise RuntimeError(f"/api/Topic/create failed: {payload}")
 
 
 def post_question(base_url: str, token: str, theme: str, category_id: int, topic_ids: List[int], access_key: str) -> int:
@@ -114,6 +135,7 @@ def post_answer(base_url: str, token: str, question_id: int, access_key: str) ->
         token,
         "/api/Question/save_answer",
         {
+            "id": 0,
             "question_id": question_id,
             "content": content,
             "is_anonymous": 0,
@@ -131,7 +153,7 @@ def post_article(
     cover: str,
     article_type: str,
     access_key: str,
-) -> int:
+) -> Dict[str, Any]:
     title = f"{theme}的选择：先定场景，再看实时、治理与成本"
     message = (
         "<p>大数据展示平台选型，最容易犯的错是只看界面，不看数据链路。</p>"
@@ -156,11 +178,27 @@ def post_article(
     for index, topic_id in enumerate(topic_ids):
         data[f"topics[{index}][id]"] = topic_id
 
-    payload = request_json(base_url, token, "/api/Article/publish", data)
-    article_id = int((payload.get("data") or {}).get("id", 0))
-    if not article_id:
-        raise RuntimeError(f"article publish returned invalid id: {payload}")
-    return article_id
+    payload = request_payload(base_url, token, "/api/Article/publish", data)
+    if payload.get("code") == 1:
+        if (payload.get("data") or {}).get("status") == "pending_review":
+            return {
+                "status": "pending_review",
+                "id": int((payload.get("data") or {}).get("id", 0)),
+                "payload": payload,
+            }
+        article_id = int((payload.get("data") or {}).get("id", 0))
+        if not article_id:
+            raise RuntimeError(f"article publish returned invalid id: {payload}")
+        return {"status": "published", "id": article_id, "payload": payload}
+
+    if "等待管理员审核" in str(payload.get("msg", "")):
+        return {
+            "status": "pending_review",
+            "id": int((payload.get("data") or {}).get("id", 0)),
+            "payload": payload,
+        }
+
+    raise RuntimeError(f"article publish failed: {payload}")
 
 
 def main() -> int:
@@ -190,8 +228,19 @@ def main() -> int:
     created_topics: List[Dict[str, Any]] = []
     for title in topic_titles:
         topic = ensure_topic(args.base_url, args.api_token, title)
-        topic_ids.append(int(topic["id"]))
-        created_topics.append({"id": int(topic["id"]), "title": title})
+        topic_id = int(topic.get("id", 0))
+        if topic_id:
+            topic_ids.append(topic_id)
+        created_topics.append({
+            "id": topic_id,
+            "title": title,
+            "status": topic.get("status", "published"),
+            "approval_id": int(topic.get("approval_id", 0)),
+        })
+
+    ready_topic_ids = [topic_id for topic_id in topic_ids if topic_id]
+    if not ready_topic_ids:
+        raise RuntimeError("no approved topic id available for downstream publish")
 
     hot_questions = request_json(args.base_url, args.api_token, "/api/Question/index?sort=hot&page=1&page_size=5")
     hot_articles = request_json(args.base_url, args.api_token, "/api/Article/index?sort=hot&page=1&page_size=5")
@@ -203,7 +252,7 @@ def main() -> int:
         args.api_token,
         theme,
         args.question_category_id,
-        topic_ids,
+        ready_topic_ids,
         f"publish-chain-question-{slug}-{stamp}",
     )
     post_answer(
@@ -212,20 +261,21 @@ def main() -> int:
         question_id,
         f"publish-chain-answer-{slug}-{stamp}",
     )
-    article_id = post_article(
+    article_result = post_article(
         args.base_url,
         args.api_token,
         theme,
         args.article_category_id,
-        topic_ids,
+        ready_topic_ids,
         args.cover,
         args.article_type,
         f"publish-chain-article-{slug}-{stamp}",
     )
+    article_id = int(article_result["id"])
 
     question_detail = request_json(args.base_url, args.api_token, f"/api/Question/detail?id={question_id}")
     answer_list = request_json(args.base_url, args.api_token, f"/api/Question/answers?question_id={question_id}&page=1&per_page=3")
-    article_detail = request_json(args.base_url, args.api_token, f"/api/Article/detail?id={article_id}")
+    article_detail = request_json(args.base_url, args.api_token, f"/api/Article/detail?id={article_id}") if article_id else {"data": {}}
 
     summary = {
         "hot_question": (hot_questions.get("data") or [{}])[0].get("id"),
@@ -236,6 +286,8 @@ def main() -> int:
         "answer_count": (question_detail.get("data") or {}).get("info", {}).get("answer_count"),
         "answer_preview": ((answer_list.get("data") or [{}])[0].get("content") if answer_list.get("data") else ""),
         "article_id": article_id,
+        "article_status": article_result["status"],
+        "article_message": article_result["payload"].get("msg"),
         "article_title": article_detail.get("data", {}).get("title"),
         "article_cover": article_detail.get("data", {}).get("cover"),
         "article_topics": [item.get("title") for item in article_detail.get("data", {}).get("topics", [])],

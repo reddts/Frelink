@@ -11,6 +11,7 @@
 namespace app\frontend;
 use app\common\controller\Frontend;
 use app\common\library\helper\LogHelper;
+use app\model\Approval;
 use app\logic\common\FocusLogic;
 use app\model\Answer;
 use app\model\Draft;
@@ -492,6 +493,16 @@ class Ajax extends Frontend
                 validate(\app\validate\Topic::class)->check($data);
             } catch (ValidateException $e) {
                 $this->error($e->getError());
+            }
+            $data['title'] = trim($data['title'] ?? '');
+            if ($this->publish_approval_valid($data['title'], 'create_topic_approval')) {
+                Approval::saveApproval('topic', [
+                    'title' => $data['title'],
+                ], $this->user_id);
+                $this->success('创建成功,请等待管理员审核', url('index'), [
+                    'status' => 'pending_review',
+                    'title' => $data['title'],
+                ]);
             }
             $result = TopicModel::saveTopic($data['title'],$this->user_id);
             if (!$result) {

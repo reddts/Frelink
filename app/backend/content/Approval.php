@@ -34,6 +34,7 @@ class Approval extends Backend
                 [
                     'question' => '问题',
                     'article' => '文章',
+                    'topic' => '话题',
                     'answer' => '回答',
                     'modify_question'=>'修改问题',
                     'modify_article'=>'修改文章',
@@ -49,6 +50,7 @@ class Approval extends Backend
             ['select', 'type', '审核类型', '=',$type,[
                 'question' => '问题审核',
                 'article' => '文章审核',
+                'topic' => '话题审核',
                 'answer' => '回答审核',
                 'modify_question'=>'修改问题',
                 'modify_article'=>'修改文章',
@@ -188,6 +190,11 @@ class Approval extends Backend
                     'active'=> $type=='article'
                 ],
                 [
+                    'title'=>'话题',
+                    'link'=>(string)url('index', ['status' => $status,'type'=>'topic']),
+                    'active'=> $type=='topic'
+                ],
+                [
                     'title'=>'回答',
                     'link'=>(string)url('index', ['status' => $status,'type'=>'answer']),
                     'active'=> $type=='answer'
@@ -281,6 +288,16 @@ class Approval extends Backend
                 ->addSelect('column_id','文章专栏','',$column_list,$data['column_id']??'','disabled readonly')
                 ->hideBtn(['submit'])
                 ->fetch();
+        }
+
+        if($info['type']=='topic')
+        {
+            return $this->formBuilder
+                ->addHidden('approval_id',$info['id'])
+                ->addText('title','话题标题','',$data['title'] ?? '','disabled readonly')
+                ->hideBtn(['submit'])
+                ->fetch();
+
         }
 
         if($info['type']=='answer')

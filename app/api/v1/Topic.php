@@ -4,6 +4,7 @@ namespace app\api\v1;
 use app\common\controller\Api;
 use app\common\library\helper\ImageHelper;
 use app\logic\common\FocusLogic;
+use app\model\Approval;
 use app\model\Topic as TopicModel;
 use think\exception\ValidateException;
 
@@ -241,6 +242,19 @@ class Topic extends Api
             validate(\app\validate\Topic::class)->check($data);
         } catch (ValidateException $e) {
             $this->apiError($e->getError());
+        }
+
+        $data['title'] = trim($data['title'] ?? '');
+
+        if ($this->publish_approval_valid($data['title'], 'create_topic_approval')) {
+            $approvalId = Approval::saveApproval('topic', [
+                'title' => $data['title'],
+            ], $this->user_id);
+            $this->apiSuccess('创建成功,请等待管理员审核', [
+                'status' => 'pending_review',
+                'approval_id' => intval($approvalId),
+                'title' => $data['title'],
+            ]);
         }
 
         if ($result = TopicModel::saveTopic($data['title'], $this->user_id)) {

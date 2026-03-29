@@ -161,8 +161,11 @@ class Article extends Api
 
         // 需要审核
         if ($this->publish_approval_valid($postData['message'],'publish_article_approval') && !$postData['id']) {
-            Approval::saveApproval('article', $postData, $uid, $access_key);
-            $this->apiError('发表成功,请等待管理员审核');
+            $approvalId = Approval::saveApproval('article', $postData, $uid, $access_key);
+            $this->apiSuccess('发表成功,请等待管理员审核', [
+                'status' => 'pending_review',
+                'approval_id' => intval($approvalId),
+            ]);
         }
 
         // 修改需要审核

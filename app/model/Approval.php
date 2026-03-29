@@ -112,6 +112,17 @@ class Approval extends BaseModel
                 }else{
                     self::setError(Article::getError());
                 }
+            }elseif($val['type']=='topic'){
+                $dataId = Topic::saveTopic($val['data']['title'] ?? '', $val['uid']);
+                if($dataId) {
+                    db('approval')->where(['id'=>$val['id']])->update(['status'=>1,'item_id'=>$dataId]);
+                    send_notify(0, $val['uid'], 'TYPE_SYSTEM_NOTIFY', 'topic', $dataId, [
+                        'subject' => '话题审核通过',
+                        'message' => '亲爱的用户您好,您创建的话题 [' . ($val['data']['title'] ?? '') . '] 已审核通过！',
+                    ]);
+                }else{
+                    self::setError(Topic::getError());
+                }
             }else{
                 //审核钩子
                 hook('approval_'.$val['type'],$val);
@@ -172,6 +183,13 @@ class Approval extends BaseModel
                 $message = '亲爱的用户您好,您修改的文章 ['.$val['data']['title'].'] 未审核通过！';
                 if($reason) $message = '亲爱的用户您好,您修改的文章 ['.$val['data']['title'].'] 未审核通过！拒绝原因：【'.$reason.'】';
                 send_notify(0,$val['uid'],'TYPE_ARTICLE_MODIFY_DECLINE','article',$val['data']['id'],['message'=>$message]);
+            }elseif($val['type']=='topic'){
+                $message = '亲爱的用户您好,您创建的话题 [' . ($val['data']['title'] ?? '') . '] 未审核通过！';
+                if($reason) $message = '亲爱的用户您好,您创建的话题 [' . ($val['data']['title'] ?? '') . '] 未审核通过！拒绝原因：【'.$reason.'】';
+                send_notify(0, $val['uid'], 'TYPE_SYSTEM_NOTIFY', 'topic', 0, [
+                    'subject' => '话题审核未通过',
+                    'message' => $message,
+                ]);
             }else{
                 //拒绝审核钩子
                 hook('decline_approval_'.$val['type'],$val);
@@ -210,6 +228,10 @@ class Approval extends BaseModel
             if($val['type']=='answer' || $val['type']=='modify_answer')
             {
                 $list[$key]['data']['title'] = db('question')->where(['status'=>1,'id'=>$list[$key]['data']['question_id']])->value('title');
+            }
+            if($val['type']=='topic')
+            {
+                $list[$key]['data']['title'] = $list[$key]['data']['title'] ?? '';
             }
 		}
 		return ['list'=>$list,'page'=>$pageVar];

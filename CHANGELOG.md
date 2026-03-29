@@ -2,6 +2,14 @@
 
 ## 2026-03-29
 
+### 里程碑：话题审核链与 agent 发布测试补齐
+
+- API 与前台的 `Topic/create` 现在都支持进入 `approval` 审核流，不再只有文章、问题、回答有待审闸门
+- 后台审核列表、管理员通知和审核预览页已补上 `topic` 类型，审核员现在可以直接查看并通过/拒绝待审话题
+- `Article/publish` 的 API 待审返回从错误态收口为成功态，外部 agent 不需要再把“等待管理员审核”误判成失败
+- `scripts/publish_chain.py` 已补齐两类兼容逻辑：话题已存在时自动复用；文章进入待审时按正常结果记录 `status`
+- 已补充现网升级脚本 `docs/topic-approval-upgrade.sql`，用于给存量站点插入 `create_topic_approval` 权限项
+
 ### 里程碑：后台登录跳转循环修复
 
 - 后台登录态现在统一以 `admin_login_uid` 作为判定依据，不再误用前台 `login_uid` 参与后台跳转判断

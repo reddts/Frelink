@@ -60,6 +60,7 @@ class NotifyHelper
         $data = [
             'question_approval_count' => db('approval')->where(['type' => 'question', 'status' => 0])->count(),
             'article_approval_count' => db('approval')->where(['type' => 'article', 'status' => 0])->count(),
+            'topic_approval_count' => db('approval')->where(['type' => 'topic', 'status' => 0])->count(),
             'answer_approval_count' => db('approval')->where(['type' => 'answer', 'status' => 0])->count(),
             'modify_question_approval_count' => db('approval')->where(['type' => 'modify_question', 'status' => 0])->count(),
             'modify_answer_approval_count' => db('approval')->where(['type' => 'modify_answer', 'status' => 0])->count(),
@@ -97,6 +98,14 @@ class NotifyHelper
             $notifications_texts[] = array(
                 'url' => url('content.Approval/index', ['status' => 0, 'type' => 'article']),
                 'text' => lang('有 %s 个文章待审核', [$notifications['article_approval_count']])
+            );
+        }
+
+        /*话题*/
+        if ($notifications['topic_approval_count']) {
+            $notifications_texts[] = array(
+                'url' => url('content.Approval/index', ['status' => 0, 'type' => 'topic']),
+                'text' => lang('有 %s 个话题待审核', [$notifications['topic_approval_count']])
             );
         }
 
