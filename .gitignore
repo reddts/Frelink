@@ -17,6 +17,8 @@ view/.idea/*
 /update/*
 vendor/*
 scripts/*
+!scripts/deploy.sh
+!scripts/publish_chain.py
 deploy.local.json
 docs/deploy.local.md
 优化计划.md

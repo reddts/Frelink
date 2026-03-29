@@ -263,13 +263,16 @@ Bing Webmaster Tools: https://www.bing.com/webmasters</textarea>
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="card">
-                                    <div class="card-header">
-                                        <h3 class="card-title">内容冷启动进度</h3>
-                                        <div class="card-tools">
-                                            <div class="btn-group btn-group-sm" role="group" aria-label="导出执行清单">
-                                                <a href="{:url('index/weeklyExecutionBrief',['days'=>$insight.window_days,'format'=>'markdown'])}" target="_blank" class="btn btn-outline-secondary">导出周报</a>
-                                                <a href="{:url('index/weeklyExecutionBrief',['days'=>$insight.window_days,'format'=>'json'])}" target="_blank" class="btn btn-outline-secondary">导出 JSON</a>
-                                            </div>
+                                        <div class="card-header">
+                                            <h3 class="card-title">内容冷启动进度</h3>
+                                            <div class="card-tools">
+                                                <div class="btn-group btn-group-sm mr-2" role="group" aria-label="知识地图自动化">
+                                                    <a href="javascript:;" class="btn btn-primary aw-ajax-get" data-confirm="将自动建立基础知识章节并归档未收录的 FAQ / 文章，是否继续？" data-url="{:url('index/autoKnowledgeMap',['chapter_limit'=>5,'items_per_chapter'=>6])}">自动建章归档</a>
+                                                </div>
+                                                <div class="btn-group btn-group-sm" role="group" aria-label="导出执行清单">
+                                                    <a href="{:url('index/weeklyExecutionBrief',['days'=>$insight.window_days,'format'=>'markdown'])}" target="_blank" class="btn btn-outline-secondary">导出周报</a>
+                                                    <a href="{:url('index/weeklyExecutionBrief',['days'=>$insight.window_days,'format'=>'json'])}" target="_blank" class="btn btn-outline-secondary">导出 JSON</a>
+                                                </div>
                                         </div>
                                     </div>
                                     <div class="card-body">

@@ -322,14 +322,7 @@ class Article extends BaseModel
                 $topics = is_array($postData['topics']) ? array_filter($postData['topics']) : explode(',',trim($postData['topics']));
                 if (!empty($topics))
                 {
-                    foreach ($topics as $title)
-                    {
-                        if($title)
-                        {
-                            $topic_id = Topic::saveTopic($title, $uid, true);
-                            Topic::saveTopicRelation($uid, $topic_id, $article_id, 'article');
-                        }
-                    }
+                    Topic::updateRelation('article', $article_id, $topics, $uid);
                 }
             }
 
@@ -454,12 +447,8 @@ class Article extends BaseModel
             if(isset($postData['topics']) && $postData['topics']){
                 $topics = is_array($postData['topics']) ? $postData['topics'] : explode(',',$postData['topics']);
                 //更新话题关联
-                if($topics && db('topic_relation')->where(['item_type' => 'article', 'item_id' => $postData['id']])->delete()) {
-                    foreach (array_unique($topics) as $key => $title)
-                    {
-                        $topic_id = Topic::saveTopic($title, $uid);
-                        Topic::saveTopicRelation($uid, $topic_id, $postData['id'], 'article');
-                    }
+                if($topics) {
+                    Topic::updateRelation('article', $postData['id'], $topics, $uid);
                 }
             }
 

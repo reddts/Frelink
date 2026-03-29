@@ -210,14 +210,6 @@ body {
     padding-left: 0;
 }
 
-.extend-info .line {
-    width: 1px;
-    height: 24px;
-    background: #d8e4ec;
-    position: relative;
-    top: 12px;
-}
-
 .d-inline {
     background: none;
 }

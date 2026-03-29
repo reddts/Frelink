@@ -264,6 +264,21 @@ class Index extends Backend
         $this->success('已归档到章节');
     }
 
+    public function autoKnowledgeMap()
+    {
+        $chapterLimit = intval($this->request->param('chapter_limit', 5));
+        $itemsPerChapter = intval($this->request->param('items_per_chapter', 6));
+        $result = HelpModel::bootstrapKnowledgeMap($chapterLimit, $itemsPerChapter);
+
+        if (empty($result['chapter_count']) && empty($result['attached_count'])) {
+            $this->error($result['message'] ?? '未生成可用的知识地图数据');
+        }
+
+        $message = $result['message'] ?? '知识地图已自动初始化完成';
+        $message .= '，新建章节 ' . intval($result['chapter_count'] ?? 0) . ' 个，复用章节 ' . intval($result['reused_count'] ?? 0) . ' 个，归档内容 ' . intval($result['attached_count'] ?? 0) . ' 条。';
+        $this->success($message);
+    }
+
     protected function getInsightPayload(int $insightDays, bool $useCache = true): array
     {
         $insight = [

@@ -1,6 +1,9 @@
 <?php
 namespace app\model;
 
+use think\facade\Db;
+use think\facade\Cache;
+
 class Help extends BaseModel
 {
     public static function archiveFeatureAvailable(): bool
@@ -653,13 +656,19 @@ class Help extends BaseModel
             return true;
         }
 
-        return (bool)db('help_chapter_relation')->insert([
+        $result = (bool)db('help_chapter_relation')->insert([
             'chapter_id' => $chapter_id,
             'item_id' => $item_id,
             'item_type' => $item_type,
             'sort' => 999,
             'status' => 1
         ]);
+
+        if ($result) {
+            self::clearKnowledgeMapCache();
+        }
+
+        return $result;
     }
 
     public static function syncItemArchiveChapters($item_type, $item_id, array $chapter_ids = []): bool
@@ -692,7 +701,11 @@ class Help extends BaseModel
                 ];
             }
 
-            return (bool)db('help_chapter_relation')->insertAll($rows);
+            $result = (bool)db('help_chapter_relation')->insertAll($rows);
+            if ($result) {
+                self::clearKnowledgeMapCache();
+            }
+            return $result;
         } catch (\Throwable $e) {
             return false;
         }
@@ -1026,5 +1039,235 @@ class Help extends BaseModel
         }
 
         return $chapters;
+    }
+
+    public static function bootstrapKnowledgeMap(int $chapterLimit = 5, int $itemsPerChapter = 6): array
+    {
+        if (!self::archiveFeatureAvailable()) {
+            return [
+                'created_chapters' => [],
+                'attached_items' => [],
+                'chapter_count' => 0,
+                'reused_count' => 0,
+                'attached_count' => 0,
+                'message' => '知识章节表尚未安装，无法自动建立知识地图',
+            ];
+        }
+
+        $chapterLimit = max(1, min(10, $chapterLimit));
+        $itemsPerChapter = max(1, min(12, $itemsPerChapter));
+
+        $presets = [
+            [
+                'title' => L('FAQ'),
+                'url_token' => 'knowledge-faq',
+                'description' => L('高频问题与可复用答案的归档入口，优先承接可直接检索的 FAQ。'),
+                'sort' => 10,
+                'item_type' => 'question',
+                'archive_types' => ['question'],
+                'order' => ['answer_count' => 'DESC', 'view_count' => 'DESC', 'update_time' => 'DESC', 'id' => 'DESC'],
+            ],
+            [
+                'title' => L('帮助'),
+                'url_token' => 'knowledge-help',
+                'description' => L('规则、术语、方法和说明文档的稳定入口，适合长期维护。'),
+                'sort' => 20,
+                'item_type' => 'article',
+                'archive_types' => ['faq', 'tutorial'],
+                'order' => ['view_count' => 'DESC', 'comment_count' => 'DESC', 'update_time' => 'DESC', 'id' => 'DESC'],
+            ],
+            [
+                'title' => L('研究综述'),
+                'url_token' => 'knowledge-research',
+                'description' => L('用于承接背景、脉络、分歧和阶段性判断的长期章节。'),
+                'sort' => 30,
+                'item_type' => 'article',
+                'archive_types' => ['research'],
+                'order' => ['view_count' => 'DESC', 'update_time' => 'DESC', 'id' => 'DESC'],
+            ],
+            [
+                'title' => L('观察'),
+                'url_token' => 'knowledge-fragment',
+                'description' => L('用于承接短判断、现场观察和仍在形成中的线索。'),
+                'sort' => 40,
+                'item_type' => 'article',
+                'archive_types' => ['fragment'],
+                'order' => ['view_count' => 'DESC', 'update_time' => 'DESC', 'id' => 'DESC'],
+            ],
+            [
+                'title' => L('主题追踪'),
+                'url_token' => 'knowledge-track',
+                'description' => L('用于承接同一主题的连续变化、修正和后续观察点。'),
+                'sort' => 50,
+                'item_type' => 'article',
+                'archive_types' => ['track'],
+                'order' => ['view_count' => 'DESC', 'update_time' => 'DESC', 'id' => 'DESC'],
+            ],
+        ];
+
+        $bootstrappedChapters = [];
+        $createdCount = 0;
+        $reusedCount = 0;
+        $attachedItems = [];
+
+        Db::startTrans();
+        try {
+            foreach (array_slice($presets, 0, $chapterLimit) as $preset) {
+                $chapter = self::upsertBootstrapChapter($preset);
+                if (!$chapter) {
+                    continue;
+                }
+
+                $bootstrappedChapters[] = $chapter;
+                if (!empty($chapter['__created'])) {
+                    $createdCount++;
+                } else {
+                    $reusedCount++;
+                }
+                $attachedItems = array_merge(
+                    $attachedItems,
+                    self::bootstrapArchiveChapterItems($chapter, $preset, $itemsPerChapter)
+                );
+            }
+
+            Db::commit();
+        } catch (\Throwable $e) {
+            Db::rollback();
+            return [
+                'created_chapters' => [],
+                'attached_items' => [],
+                'chapter_count' => 0,
+                'reused_count' => 0,
+                'attached_count' => 0,
+                'message' => '自动建立知识地图失败：' . $e->getMessage(),
+            ];
+        }
+
+        self::clearKnowledgeMapCache();
+
+        return [
+            'created_chapters' => $bootstrappedChapters,
+            'attached_items' => $attachedItems,
+            'chapter_count' => $createdCount,
+            'reused_count' => $reusedCount,
+            'attached_count' => count($attachedItems),
+            'message' => '知识地图已自动初始化完成',
+        ];
+    }
+
+    protected static function upsertBootstrapChapter(array $preset): array
+    {
+        $title = trim((string)($preset['title'] ?? ''));
+        $urlToken = trim((string)($preset['url_token'] ?? ''));
+        if ($title === '' || $urlToken === '') {
+            return [];
+        }
+
+        $info = db('help_chapter')
+            ->where(function ($query) use ($title, $urlToken) {
+                $query->where('title', $title)->whereOr('url_token', $urlToken);
+            })
+            ->find();
+
+        if ($info) {
+            if (intval($info['status'] ?? 0) !== 1) {
+                db('help_chapter')->where(['id' => intval($info['id'])])->update(['status' => 1]);
+                $info['status'] = 1;
+            }
+            $info['__created'] = false;
+            return $info;
+        }
+
+        $payload = [
+            'title' => $title,
+            'url_token' => $urlToken,
+            'description' => (string)($preset['description'] ?? ''),
+            'image' => '',
+            'sort' => intval($preset['sort'] ?? 0),
+            'status' => 1,
+        ];
+
+        $chapterId = db('help_chapter')->insertGetId($payload);
+        if (!$chapterId) {
+            return [];
+        }
+
+        return array_merge(['id' => $chapterId, '__created' => true], $payload);
+    }
+
+    protected static function bootstrapArchiveChapterItems(array $chapter, array $preset, int $limit): array
+    {
+        $chapterId = intval($chapter['id'] ?? 0);
+        $itemType = trim((string)($preset['item_type'] ?? ''));
+        $archiveTypes = array_values(array_filter((array)($preset['archive_types'] ?? [])));
+        if (!$chapterId || !$itemType || !$archiveTypes) {
+            return [];
+        }
+
+        $order = $preset['order'] ?? ['update_time' => 'DESC', 'id' => 'DESC'];
+        $attached = [];
+
+        if ($itemType === 'question') {
+            $candidates = db('question')
+                ->alias('q')
+                ->join('help_chapter_relation r', "r.item_id = q.id AND r.item_type = 'question' AND r.status = 1", 'LEFT')
+                ->where(['q.status' => 1])
+                ->whereRaw('r.id IS NULL')
+                ->field('q.id,q.title,q.detail,q.update_time,q.view_count,q.answer_count')
+                ->order($order)
+                ->limit($limit)
+                ->select()
+                ->toArray();
+
+            foreach ($candidates as $candidate) {
+                $itemId = intval($candidate['id'] ?? 0);
+                if (!$itemId) {
+                    continue;
+                }
+                if (self::attachItemArchiveChapter('question', $itemId, $chapterId)) {
+                    $attached[] = [
+                        'chapter_id' => $chapterId,
+                        'item_type' => 'question',
+                        'item_id' => $itemId,
+                    ];
+                }
+            }
+
+            return $attached;
+        }
+
+        $candidates = db('article')
+            ->alias('a')
+            ->join('help_chapter_relation r', "r.item_id = a.id AND r.item_type = 'article' AND r.status = 1", 'LEFT')
+            ->where(['a.status' => 1])
+            ->whereRaw('r.id IS NULL')
+            ->whereIn('a.article_type', $archiveTypes)
+            ->field('a.id,a.title,a.message,a.update_time,a.view_count,a.comment_count,a.article_type')
+            ->order($order)
+            ->limit($limit)
+            ->select()
+            ->toArray();
+
+        foreach ($candidates as $candidate) {
+            $itemId = intval($candidate['id'] ?? 0);
+            if (!$itemId) {
+                continue;
+            }
+            if (self::attachItemArchiveChapter('article', $itemId, $chapterId)) {
+                $attached[] = [
+                    'chapter_id' => $chapterId,
+                    'item_type' => 'article',
+                    'item_id' => $itemId,
+                ];
+            }
+        }
+
+        return $attached;
+    }
+
+    protected static function clearKnowledgeMapCache(): void
+    {
+        Cache::delete('help:featured_archive_chapters:4:3');
+        Cache::delete('home:archive_highlights:v2:4:3');
     }
 }

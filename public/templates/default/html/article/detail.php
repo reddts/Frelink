@@ -174,8 +174,7 @@
                         <div class="font-weight-bold mb-2">下一步阅读</div>
                         {volist name="next_reads" id="item"}
                         <a class="d-block py-2 border-bottom text-dark" href="{$item.url}">
-                            <div class="text-primary font-12 mb-1">{$item.label}</div>
-                            <div class="font-weight-bold mb-1">{$item.title}</div>
+                            <div class="font-weight-bold mb-1"><i class="icon-book text-primary mr-1"></i>{$item.title}</div>
                             {if $item.desc}<div class="text-muted font-12">{$item.desc}</div>{/if}
                         </a>
                         {/volist}

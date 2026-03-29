@@ -7,6 +7,7 @@ return array (
         'we' => 'app\\common\\command\\WeCenter',
         'sitemap:build' => 'app\\common\\command\\Sitemap',
         'insight:report' => 'app\\common\\command\\InsightReport',
+        'knowledge:bootstrap' => 'app\\common\\command\\KnowledgeMapBootstrap',
         'api:doc' => 'app\\common\\command\\ApiDoc',
     ),
 );

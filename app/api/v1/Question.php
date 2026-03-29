@@ -132,9 +132,10 @@ class Question extends Api
     public function publish()
     {
         $postData = $this->request->post();
+        $postData['id'] = intval($postData['id'] ?? 0);
 
-        if ($postData['id'] = intval($postData['id'])) {
-            $question_info = QuestionModel::getQuestionInfo(intval($postData['id']), 'uid,id');
+        if ($postData['id']) {
+            $question_info = QuestionModel::getQuestionInfo($postData['id'], 'uid,id');
             if (!$question_info || ($question_info['uid'] != $this->user_id && get_user_permission('modify_question') != 'Y')) $this->apiError('您没有修改问题的权限');
         } else {
             if ($this->user_info['permission']['publish_question_enable'] != 'Y') $this->apiError('您没有发布问题的权限');
@@ -160,6 +161,7 @@ class Question extends Api
             $topics = array_column($topics, 'id');
         }
         $topics = array_values(array_unique(array_filter(array_map('intval', $topics))));
+        $postData['topics'] = $topics;
 
         /*问题提交前钩子*/
         hook('question_publish_post_before', $postData);
@@ -167,7 +169,6 @@ class Question extends Api
         if ($this->settings['enable_category'] && !intval($postData['category_id'])) $this->apiError('请选择问题分类');
 
         if (get_setting('topic_enable') == 'Y' && empty($topics)) $this->apiError('请至少选择一个话题');
-
 
         if (get_setting('topic_enable') == 'Y' && get_setting('max_topic_select') < count($topics)) {
             $this->apiError('您最多只可设置' . get_setting('max_topic_select') . '个话题');
@@ -199,7 +200,7 @@ class Question extends Api
             $this->apiError('修改成功,请等待管理员审核');
         }
 
-        if ($id = \app\model\api\v1\Question::saveQuestion($postData['uid'], $postData, $access_key)) {
+        if ($id = \app\model\Question::saveQuestion($postData['uid'], $postData, $access_key)) {
             // 问题提交后钩子
             hook('question_publish_post_after', $id);
             $this->apiSuccess('发布成功', compact('id'));

@@ -387,6 +387,7 @@ class Topic extends BaseModel
                 $tmp['create_time'] = time();
                 $tmp['item_id'] = (int)$item_id;
                 $tmp['item_type'] = $type;
+                $tmp['status'] = 1;
                 $_data[] = $tmp;
             }
             if(db('topic_relation')->insertAll($_data))

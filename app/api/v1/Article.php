@@ -110,7 +110,8 @@ class Article extends Api
     public function publish()
     {
         $postData = $this->request->post();
-        if ($postData['id'] = intval($postData['id'])) {
+        $postData['id'] = intval($postData['id'] ?? 0);
+        if ($postData['id']) {
             $article_info = ArticleModel::getArticleInfo($postData['id']);
             if (!$article_info || ($article_info['uid'] != $this->user_id && get_user_permission('modify_article') != 'Y')) $this->apiError('您没有修改文章的权限');
         } else {
@@ -127,12 +128,21 @@ class Article extends Api
         /*文章提交前钩子*/
         hook('article_publish_post_before', $postData);
 
+        $topics = $postData['topics'] ?? [];
+        $topics = is_array($topics) ? $topics : explode(',', (string) $topics);
+        if (!empty($topics) && is_array(current($topics))) {
+            $topics = array_column($topics, 'id');
+        }
+        $topics = array_values(array_unique(array_filter(array_map('intval', $topics))));
+        $postData['topics'] = $topics;
+        $postData['cover'] = $postData['cover'] ?? '';
+
         if (htmlspecialchars_decode($postData['title'])=='' || removeEmpty($postData['title']) == '') $this->apiError('请填写文章标题');
         if ($this->settings['enable_category'] && isset($postData['category_id']) && !$postData['category_id']) $this->apiError('请选择文章分类');
 
-        if (get_setting('topic_enable') == 'Y' && (!isset($postData['topics']) || empty($postData['topics']))) $this->apiError('请至少选择一个话题');
+        if (get_setting('topic_enable') == 'Y' && empty($topics)) $this->apiError('请至少选择一个话题');
 
-        if (get_setting('topic_enable') == 'Y' && get_setting('max_topic_select') < count($postData['topics'])) {
+        if (get_setting('topic_enable') == 'Y' && get_setting('max_topic_select') < count($topics)) {
             $this->apiError('您最多只可设置'.get_setting('max_topic_select').'个话题');
         }
 
@@ -147,7 +157,7 @@ class Article extends Api
         $uid = $postData['uid'] ?? $this->user_id;
         unset($postData['__token__'], $postData['access_key']);
         $postData['message'] = htmlspecialchars_decode($postData['message']);
-        $postData['topics'] = array_unique(array_column($postData['topics'], 'id'));
+        $postData['topics'] = array_values(array_unique(array_filter(array_map('intval', $postData['topics'] ?? []))));
 
         // 需要审核
         if ($this->publish_approval_valid($postData['message'],'publish_article_approval') && !$postData['id']) {
