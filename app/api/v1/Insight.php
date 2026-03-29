@@ -7,9 +7,9 @@ use app\model\Insight as InsightModel;
 
 class Insight extends Api
 {
-    protected $needLogin = ['summary', 'keywords', 'content_trends', 'topic_trends', 'topic_graph', 'opportunities', 'recommendations', 'publish_assist', 'weekly_execution', 'writing_workflow', 'agent_brief'];
+    protected $needLogin = ['summary', 'keywords', 'content_trends', 'topic_trends', 'topic_graph', 'opportunities', 'recommendations', 'publish_assist', 'weekly_execution', 'writing_workflow', 'agent_brief', 'agent_draft'];
     protected $beforeActionList = [
-        'authorizeInsightAccess' => ['only' => 'summary,keywords,content_trends,topic_trends,topic_graph,opportunities,recommendations,publish_assist,weekly_execution,writing_workflow,agent_brief'],
+        'authorizeInsightAccess' => ['only' => 'summary,keywords,content_trends,topic_trends,topic_graph,opportunities,recommendations,publish_assist,weekly_execution,writing_workflow,agent_brief,agent_draft'],
     ];
 
     public function track()
@@ -140,6 +140,41 @@ class Insight extends Api
         }
 
         $this->apiResult($brief);
+    }
+
+    public function agent_draft()
+    {
+        $itemType = trim((string)$this->request->param('item_type', 'article'));
+        $days = intval($this->request->param('days', 7));
+        $limit = intval($this->request->param('limit', 3));
+        $topic = trim((string)$this->request->param('topic', ''));
+        $mode = strtolower(trim((string)$this->request->param('mode', 'manual')));
+        $itemId = intval($this->request->param('item_id', 0));
+        $result = InsightModel::buildAgentDraft($itemType, $days, $limit, $topic, $mode);
+        $draft = $result['draft'] ?? [];
+
+        if (empty($draft)) {
+            $this->apiResult([], 0, '草稿生成失败');
+        }
+
+        if ($itemType === 'article') {
+            $draft['message'] = $draft['message'] ?? $draft['detail'] ?? '';
+            $draft['detail'] = $draft['detail'] ?? $draft['message'] ?? '';
+        }
+
+        $topicItems = [];
+        if (!empty($draft['topics']) && is_array($draft['topics'])) {
+            $topicItems = \app\model\Topic::getTopicByIds($draft['topics']) ?: [];
+        }
+
+        \app\model\Draft::saveDraft($this->user_id, $result['item_type'] ?? $itemType, $draft, $itemId);
+
+        $this->apiResult([
+            'item_type' => $result['item_type'] ?? $itemType,
+            'draft' => $draft,
+            'topics' => $topicItems,
+            'summary' => $result['summary'] ?? [],
+        ]);
     }
 
     protected function authorizeInsightAccess(): void

@@ -24,7 +24,7 @@
                     </a>
                 </label>
                 <label class="px-1 py-2 bg-white rounded d-block">
-                    <a href="javascript:;"  style="color: #76839b" class="font-weight-bold aw-ajax-against {$article_info['vote_value']==-1 ? 'active' : ''}" onclick="AWS.User.against(this,'article','{$article_info.id}');">
+                    <a href="javascript:;" class="font-weight-bold aw-ajax-against article-action-link {$article_info['vote_value']==-1 ? 'active' : ''}" onclick="AWS.User.against(this,'article','{$article_info.id}');">
                         <i class="icon-thumb_down font-12"></i>
                         <span class="d-block">{:L('反对')}</span>
                     </a>
@@ -32,14 +32,14 @@
                 {if $user_id}
                 {if $user_id!=$article_info['uid']}
                 <label class="px-1 py-2 bg-white rounded d-block"  onclick="AWS.User.report(this,'article','{$article_info.id}');">
-                    <a href="javascript:;"  style="color: #76839b" class="font-weight-bold">
+                    <a href="javascript:;" class="font-weight-bold article-action-link">
                         <i class="icon-warning font-12"></i>
                         <span class="d-block">{if $article_info['is_report']}{:L('已举报')}{else/}{:L('举报')}{/if}</span>
                     </a>
                 </label>
                 {/if}
                 <label class="px-1 py-2 bg-white rounded d-block" onclick="AWS.User.favorite(this,'article','{$article_info.id}');">
-                    <a href="javascript:;"  style="color: #76839b" class="font-weight-bold">
+                    <a href="javascript:;" class="font-weight-bold article-action-link">
                         <i class="icon-star-outlined font-12"></i>
                         <span class="d-block">{if $article_info['is_favorite']}{:L('已收藏')}{else/}{:L('收藏')}{/if}</span>
                     </a>
@@ -47,12 +47,12 @@
                 {/if}
 
                 <div class="dropdown px-1 py-2 bg-white rounded d-block mb-2">
-                    <a href="javascript:;" style="color: #76839b" class="font-weight-bold" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a href="javascript:;" class="font-weight-bold article-action-link article-action-trigger" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="icon-share"></i>
                         <span class="d-block">{:L('分享')}</span>
                     </a>
                     <div class="dropdown-menu p-0 border-0 font-size-sm">
-                        <div class="text-center d-block py-2" style="min-width: 100px">
+                        <div class="text-center d-block py-2 article-action-menu">
                             <a href="javascript:;"  class="dropdown-item aw-clipboard" data-clipboard-text="{:url('article/detail',['id'=>$article_info.id],true,true)}"><i class="icon-link"></i>
                                 {:L('复制链接')}</a>
                             <a href="javascript:;" onclick="AWS.User.share('{$article_info.title}','{:url('article/detail',['id'=>$article_info.id],true,true)}','','weibo')" class="dropdown-item "><i class="fab fa-weibo text-warning"></i>
@@ -70,12 +70,12 @@
 
                 {if $user_id && ($user_id==$article_info['uid'] || isSuperAdmin() || isNormalAdmin())}
                 <div class="dropdown px-1 py-2 bg-white rounded d-block mb-2">
-                    <a href="javascript:;" class="font-weight-bold" style="color: #76839b" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a href="javascript:;" class="font-weight-bold article-action-link article-action-trigger" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="icon-more-horizontal"></i>
                         <span class="d-block">{:L('更多')}</span>
                     </a>
                     <div class="dropdown-menu p-0 border-0 font-size-sm">
-                        <div class="text-center d-block py-2" style="min-width: 100px">
+                        <div class="text-center d-block py-2 article-action-menu">
                             {if get_user_permission('recommend_post')=='Y'}
                             <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-url="{:url('ajax.article/action',['type'=>'recommend','is_recommend'=>$article_info['is_recommend'],'article_id'=>$article_info['id']])}">
                                 <span>{$article_info['is_recommend'] ? L('取消推荐') : '推荐知识内容'}</span>
@@ -90,6 +90,11 @@
                             {if $user_id && (get_user_permission('modify_article')=='Y' || $user_info['uid']==$article_info['uid'])}
                             <a href="{:frelink_publish_url('article',['id'=>$article_info['id']])}" class="py-1 text-muted dropdown-item" target="_blank" rel="noopener noreferrer">
                                 <span>编辑知识内容</span>
+                            </a>
+                            {/if}
+                            {if $user_id && (get_user_permission('modify_article')=='Y' || $user_info['uid']==$article_info['uid'])}
+                            <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-confirm="{:L('确定要回滚到上一版吗')}？" data-url="{:url('ajax.article/action',['type'=>'rollback','article_id'=>$article_info['id']])}">
+                                <span>回滚到上一版</span>
                             </a>
                             {/if}
                             {if $user_id && (get_user_permission('remove_article')=='Y' || $user_info['uid']==$article_info['uid'])}
@@ -237,11 +242,11 @@
                         </label>
 
                         <div class="dropdown d-inline-block mr-3">
-                            <a href="javascript:;"  class="font-weight-bold" style="color: #76839b" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a href="javascript:;" class="font-weight-bold article-action-link article-action-trigger" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="icon-share"></i> {:L('分享')}
                             </a>
                             <div class="dropdown-menu p-0 border-0 font-size-sm">
-                                <div class="text-left d-block py-2" style="min-width: 100px">
+                                <div class="text-left d-block py-2 article-action-menu">
                                     <a href="javascript:;"  class="dropdown-item aw-clipboard" data-clipboard-text="{:url('article/detail',['id'=>$article_info.id],true,true)}"><i class="icon-link"></i>
                                         {:L('复制链接')}</a>
                                     <a href="javascript:;" onclick="AWS.User.share('{$article_info.title}','{:url('article/detail',['id'=>$article_info.id],true,true)}','','weibo')" class="dropdown-item "><i class="fab fa-weibo text-warning"></i>
@@ -278,11 +283,11 @@
                         {/if}
                         {if $user_id && ($user_info['uid']==$article_info['uid'] || isSuperAdmin() || isNormalAdmin())}
                         <div class="dropdown px-1 py-2 bg-white rounded d-inline-block mb-2">
-                            <a href="javascript:;" class="font-weight-bold" style="color: #76839b" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a href="javascript:;" class="font-weight-bold article-action-link article-action-trigger" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="icon-more-horizontal"></i> <span class="d-inline-block">{:L('更多')}</span>
                             </a>
                             <div class="dropdown-menu p-0 border-0 font-size-sm">
-                                <div class="text-center d-block py-2" style="min-width: 100px">
+                                <div class="text-center d-block py-2 article-action-menu">
                                     {if get_user_permission('recommend_post')=='Y'}
                                     <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-url="{:url('ajax.article/action',['type'=>'recommend','is_recommend'=>$article_info['is_recommend'],'article_id'=>$article_info['id']])}">
                                         <span>{$article_info['is_recommend'] ? L('取消推荐') : '推荐知识内容'}</span>
@@ -297,6 +302,9 @@
                                     {if $user_id && (get_user_permission('modify_article') || $user_info['uid']==$article_info['uid'])}
                                     <a href="{:frelink_publish_url('article',['id'=>$article_info['id']])}" class=" py-1 text-muted dropdown-item" target="_blank" rel="noopener noreferrer">
                                         <span>编辑知识内容</span>
+                                    </a>
+                                    <a href="javascript:;" class="ajax-get py-1 text-muted dropdown-item" data-confirm="{:L('确定要回滚到上一版吗')}？" data-url="{:url('ajax.article/action',['type'=>'rollback','article_id'=>$article_info['id']])}">
+                                        <span>回滚到上一版</span>
                                     </a>
                                     {/if}
                                     {if $user_id && (get_user_permission('remove_article') || $user_info['uid']==$article_info['uid'])}

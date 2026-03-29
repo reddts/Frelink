@@ -414,6 +414,7 @@
 
                         <div class="mt-4 clearfix">
                             <a href="{:url('page/score')}" target="_blank" ><i class="fa fa-database"></i> {:get_setting("score_unit")}{:L('规则')}</a>
+                            <button type="button" class="btn btn-outline-secondary btn-sm px-4 js-agent-generate-draft ml-3 float-right">{:L('生成草稿')}</button>
                             <button type="button" class="btn btn-primary btn-sm px-4 aw-article-publish ml-3 float-right">{:L('发布内容')}</button>
                             {if get_setting('auto_save_draft')=='Y'}
                             <script>
@@ -760,6 +761,78 @@
             topicBox.val(currentValues).trigger('change');
             $('html, body').animate({scrollTop: topicBox.closest('.form-group').offset().top - 120}, 150);
         }
+
+        function applyGeneratedTopics(topics) {
+            if (!topics || !topics.length) {
+                return;
+            }
+            topics.forEach(function (topic) {
+                if (topic && topic.id && topic.title) {
+                    addTopicToSelect2(topic.id, topic.title);
+                }
+            });
+        }
+
+        function applyGeneratedArticleDraft(payload) {
+            let draft = payload.draft || {};
+            if (draft.title) {
+                $('input[name="title"]').val(draft.title).trigger('input').trigger('focus');
+            }
+            if (draft.article_type) {
+                $('#articleTypeSelect').val(draft.article_type).trigger('change');
+            }
+            if (draft.category_id) {
+                $('select[name="category_id"]').val(String(draft.category_id)).trigger('change');
+            }
+            if (draft.column_id) {
+                $('select[name="column_id"]').val(String(draft.column_id)).trigger('change');
+            }
+            if (draft.message) {
+                setEditorHtml(draft.message);
+            }
+            if (draft.cover) {
+                $('input[name="cover"]').val(draft.cover);
+                $('#cover_preview').attr('src', draft.cover);
+            }
+            applyGeneratedTopics(payload.topics || []);
+        }
+
+        $(document).on('click', '.js-agent-generate-draft', function () {
+            let btn = $(this);
+            let originalText = btn.text();
+            btn.prop('disabled', true).text('{:L("生成中")}...');
+            $.ajax({
+                type: 'POST',
+                url: "{:url('ajax.Insight/agent_draft')}",
+                dataType: 'json',
+                data: {
+                    item_type: 'article',
+                    item_id: ITEM_ID,
+                    topic: $('input[name="title"]').val() || '',
+                    days: 7,
+                    limit: 3,
+                    mode: 'manual'
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (res) {
+                    if (res.code === 1) {
+                        applyGeneratedArticleDraft(res.data || {});
+                        layer.msg(res.msg || '{:L("草稿已生成")}');
+                        return;
+                    }
+                    layer.msg(res.msg || '{:L("草稿生成失败")}');
+                },
+                error: function (xhr) {
+                    let ret = {code: xhr.status, msg: xhr.statusText, data: null};
+                    AWS.events.onAjaxError(ret, xhr);
+                },
+                complete: function () {
+                    btn.prop('disabled', false).text(originalText);
+                }
+            });
+        });
 
         $('#articleTypeSelect').on('change', updateArticleTypeHint);
         updateArticleTypeHint();

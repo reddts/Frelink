@@ -361,6 +361,7 @@
                             </label>
                             {/if}
                             <a href="{:url('page/score')}" target="_blank" ><i class="fa fa-database"></i> {:L(get_setting("score_unit"))}{:L('规则')}</a>
+                            <button type="button" class="btn btn-outline-secondary btn-sm px-3 js-agent-generate-draft mr-3 float-right">{:L('生成草稿')}</button>
                             <button type="button" onclick="AWS.User.draft(this,'question','{$question_info.id|default=0}')" class="btn btn-outline-primary px-3 btn-sm aw-save-draft float-right">
                                 {:L('存草稿')}</button>
                             {if get_setting('auto_save_draft')=='Y'}
@@ -612,6 +613,73 @@
             topicBox.val(currentValues).trigger('change');
             $('html, body').animate({scrollTop: topicBox.closest('.form-group').offset().top - 120}, 150);
         }
+
+        function setQuestionEditorHtml(html) {
+            if (typeof editor !== 'undefined' && editor.txt) {
+                editor.txt.html(html);
+            }
+            $('textarea[name="detail"]').val(html);
+        }
+
+        function applyGeneratedQuestionDraft(payload) {
+            let draft = payload.draft || {};
+            if (draft.title) {
+                $('#title').val(draft.title).trigger('input').trigger('focus');
+            }
+            if (draft.category_id) {
+                $('select[name="category_id"]').val(String(draft.category_id)).trigger('change');
+            }
+            if (draft.detail) {
+                setQuestionEditorHtml(draft.detail);
+            }
+            if (draft.is_anonymous !== undefined) {
+                $('input[name="is_anonymous"]').prop('checked', String(draft.is_anonymous) === '1' || draft.is_anonymous === 1);
+            }
+            if (payload.topics && payload.topics.length) {
+                payload.topics.forEach(function (topic) {
+                    if (topic && topic.id && topic.title) {
+                        addTopicToSelect2(topic.id, topic.title);
+                    }
+                });
+            }
+        }
+
+        $(document).on('click', '.js-agent-generate-draft', function () {
+            let btn = $(this);
+            let originalText = btn.text();
+            btn.prop('disabled', true).text('{:L("生成中")}...');
+            $.ajax({
+                type: 'POST',
+                url: "{:url('ajax.Insight/agent_draft')}",
+                dataType: 'json',
+                data: {
+                    item_type: 'question',
+                    item_id: {$question_info['id']|default=0},
+                    topic: $('#title').val() || '',
+                    days: 7,
+                    limit: 3,
+                    mode: 'manual'
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (res) {
+                    if (res.code === 1) {
+                        applyGeneratedQuestionDraft(res.data || {});
+                        layer.msg(res.msg || '{:L("草稿已生成")}');
+                        return;
+                    }
+                    layer.msg(res.msg || '{:L("草稿生成失败")}');
+                },
+                error: function (xhr) {
+                    let ret = {code: xhr.status, msg: xhr.statusText, data: null};
+                    AWS.events.onAjaxError(ret, xhr);
+                },
+                complete: function () {
+                    btn.prop('disabled', false).text(originalText);
+                }
+            });
+        });
 
         $('#topics').select2(option).on('select2:select', function(e) {
             // 如果选择了新创建的选项，则需要把它添加到select2选项中

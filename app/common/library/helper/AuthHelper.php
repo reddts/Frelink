@@ -358,9 +358,9 @@ class AuthHelper
 	 * 是否是超级管理员
 	 * @return bool
 	 */
-	public function isSuperAdmin(): bool
+    public function isSuperAdmin(): bool
     {
-		return session('admin_user_info')['group_id']==1;
+		return (int)(session('admin_user_info')['group_id'] ?? 0) === 1;
 	}
 
 	//获取用户权限数
@@ -579,6 +579,7 @@ class AuthHelper
             return  false;
         }
         session('admin_user_info',$userInfo);
+        session('admin_login_user_info',$userInfo);
         session('admin_login_uid',$userInfo['uid']);
         return true;
     }

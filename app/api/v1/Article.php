@@ -220,26 +220,43 @@ class Article extends Api
     {
         $action = input('type');
         $article_id = input('id',0,'intval');
-        if ($action == 'recommend') {
-            $is_recommend = input('is_recommend');
-            $msg=$is_recommend ? '取消成功' : '推荐成功';
-            $ret = db('article')->where('id',$article_id)->update(['is_recommend'=>$is_recommend ? 0 : 1]);
-            if($ret){
-                PostRelation::updatePostRelation($article_id,'article',['is_recommend'=>$is_recommend?0:1]);
-                $this->apiError($msg);
-            }
+        $article_info = ArticleModel::getArticleInfo($article_id, 'uid');
+        if (!$article_info) {
+            $this->apiError('文章不存在');
         }
 
-        if($action=='set_top')
-        {
-            $set_top = input('set_top');
-            $msg=$set_top ?  '取消成功' : '置顶成功';
-            $ret= db('article')->where(['id'=>$article_id])->update(['set_top'=>$set_top ? 0 : 1,'set_top_time'=>time()]);
-            if($ret){
-                PostRelation::updatePostRelation($article_id,'article',['set_top'=>$set_top ? 0 : 1,'set_top_time'=>$set_top ? 0 : time()]);
-                $this->apiError($msg);
-            }
+        if ($this->user_id != $article_info['uid'] && get_user_permission('modify_article') != 'Y' && !isSuperAdmin() && !isNormalAdmin()) {
+            $this->apiError('您没有操作权限');
         }
+
+        switch ($action) {
+            case 'recommend':
+                $is_recommend = input('is_recommend');
+                $msg = $is_recommend ? '取消成功' : '推荐成功';
+                $ret = db('article')->where('id', $article_id)->update(['is_recommend' => $is_recommend ? 0 : 1]);
+                if ($ret !== false) {
+                    PostRelation::updatePostRelation($article_id, 'article', ['is_recommend' => $is_recommend ? 0 : 1]);
+                    $this->apiSuccess($msg);
+                }
+                break;
+            case 'set_top':
+                $set_top = input('set_top');
+                $msg = $set_top ? '取消成功' : '置顶成功';
+                $ret = db('article')->where(['id' => $article_id])->update(['set_top' => $set_top ? 0 : 1, 'set_top_time' => $set_top ? 0 : time()]);
+                if ($ret !== false) {
+                    PostRelation::updatePostRelation($article_id, 'article', ['set_top' => $set_top ? 0 : 1, 'set_top_time' => $set_top ? 0 : time()]);
+                    $this->apiSuccess($msg);
+                }
+                break;
+            case 'rollback':
+                if (!ArticleModel::rollbackArticle(intval($article_info['uid']), $article_id)) {
+                    $this->apiError(ArticleModel::getError() ?: '回滚失败');
+                }
+                $this->apiSuccess('回滚成功');
+                break;
+        }
+
+        $this->apiError('请求参数不正确');
     }
 
     /*删除文章*/

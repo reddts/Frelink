@@ -323,7 +323,21 @@ class Question extends Api
             $this->apiError('请求参数不正确');
         }
 
-        if (QuestionModel::manger($question_id, $type,$value)) {
+        if ($type === 'rollback') {
+            $question_info = QuestionModel::getQuestionInfo($question_id, 'uid');
+            if (!$question_info) {
+                $this->apiError('问题不存在');
+            }
+            if ($this->user_id != $question_info['uid'] && get_user_permission('modify_question') != 'Y' && !isSuperAdmin() && !isNormalAdmin()) {
+                $this->apiError('您没有操作权限');
+            }
+            if (!QuestionModel::rollbackQuestion(intval($question_info['uid']), $question_id)) {
+                $this->apiError(QuestionModel::getError() ?: '回滚失败');
+            }
+            $this->apiSuccess('回滚成功');
+        }
+
+        if (QuestionModel::manger($question_id, $type, $value)) {
             $this->apiSuccess('操作成功');
         }
 

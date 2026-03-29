@@ -19,6 +19,9 @@ if(get_setting('url_rewrite_enable')=='Y' && ENTRANCE!='api')
         }
         foreach ($routes as $k=>$v)
         {
+            if (ENTRANCE === 'backend' && $v['entrance'] === 'all' && $v['rule'] === 'explore/[:sort]' && $v['url'] === 'index/index') {
+                continue;
+            }
             //通用路由
             if($v['entrance']=='all'){
                 if($v['method']!='*')

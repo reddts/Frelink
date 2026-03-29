@@ -1044,6 +1044,16 @@ class Insight extends BaseModel
         });
 
         $unique = array_slice($unique, 0, $limit);
+        foreach ($unique as &$task) {
+            $task['primary_label'] = (string)($task['primary_label'] ?? '');
+            $task['primary_url'] = (string)($task['primary_url'] ?? '');
+            $task['secondary_label'] = (string)($task['secondary_label'] ?? '');
+            $task['secondary_url'] = (string)($task['secondary_url'] ?? '');
+            $task['label'] = (string)($task['label'] ?? '');
+            $task['title'] = (string)($task['title'] ?? '');
+            $task['reason'] = (string)($task['reason'] ?? '');
+        }
+        unset($task);
 
         return [
             'window_days' => $days,
@@ -1361,6 +1371,141 @@ class Insight extends BaseModel
         }
 
         return implode(PHP_EOL, $lines);
+    }
+
+    public static function buildAgentDraft(string $itemType = 'article', int $days = 7, int $limit = 3, string $topic = '', string $mode = 'manual'): array
+    {
+        $itemType = in_array($itemType, self::$allowedPublishItemTypes, true) ? $itemType : 'article';
+        $days = self::normalizeDays($days);
+        $limit = max(1, min(10, $limit));
+
+        $brief = self::getAgentBrief($days, $limit, $mode, $topic, $itemType);
+        $publishAssist = $brief['publish_assist'] ?? [];
+        $workflow = $brief['writing_workflow'] ?? [];
+        $manualFlow = $workflow['manual_flow'] ?? [];
+        $outline = $manualFlow['outline_template'] ?? self::buildWorkflowOutline($itemType === 'question' ? 'faq' : 'research', $topic, $topic);
+        $titleIdeas = $publishAssist['title_ideas'] ?? [];
+        $suggestedTopics = array_values(array_filter(array_map(static function ($row) {
+            return intval($row['topic_id'] ?? 0);
+        }, $publishAssist['suggested_topics'] ?? [])));
+
+        if ($itemType === 'question') {
+            $title = trim((string)($titleIdeas[0]['title'] ?? ''));
+            if ($title === '') {
+                $title = ($topic !== '' ? $topic : '这个问题') . '怎么处理？';
+            }
+            $body = self::buildQuestionDraftBody($title, $outline, $brief, $topic);
+
+            return [
+                'item_type' => 'question',
+                'draft' => [
+                    'title' => $title,
+                    'detail' => $body,
+                    'category_id' => 0,
+                    'is_anonymous' => 0,
+                    'question_type' => 'normal',
+                    'topics' => $suggestedTopics,
+                    'agent_meta' => [
+                        'window_days' => $days,
+                        'mode' => $mode,
+                        'source' => 'insight_agent_draft',
+                    ],
+                ],
+                'summary' => $brief,
+            ];
+        }
+
+        $recommendedType = $publishAssist['default_article_type'] ?? 'research';
+        $title = trim((string)($titleIdeas[0]['title'] ?? ''));
+        if ($title === '') {
+            $title = ($topic !== '' ? $topic : '内容') . '：整理版';
+        }
+
+        $body = self::buildArticleDraftBody($title, $outline, $brief, $topic, $recommendedType);
+
+        return [
+            'item_type' => 'article',
+            'draft' => [
+                'title' => $title,
+                'message' => $body,
+                'detail' => $body,
+                'category_id' => 0,
+                'column_id' => 0,
+                'cover' => '',
+                'article_type' => $recommendedType,
+                'topics' => $suggestedTopics,
+                'agent_meta' => [
+                    'window_days' => $days,
+                    'mode' => $mode,
+                    'source' => 'insight_agent_draft',
+                ],
+            ],
+            'summary' => $brief,
+        ];
+    }
+
+    protected static function buildArticleDraftBody(string $title, array $outline, array $brief, string $topic, string $articleType): string
+    {
+        $lines = [];
+        $lines[] = '<h2>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</h2>';
+        $lines[] = '<p>本文基于最近 ' . intval($brief['window_days'] ?? 7) . ' 天的洞察整理，先给出判断，再补证据和边界。</p>';
+        if ($topic !== '') {
+            $lines[] = '<p>主题：' . htmlspecialchars($topic, ENT_QUOTES, 'UTF-8') . '</p>';
+        }
+        $lines[] = '<p>建议形态：' . htmlspecialchars(frelink_article_type_label($articleType), ENT_QUOTES, 'UTF-8') . '</p>';
+        foreach ($outline as $section) {
+            $sectionTitle = htmlspecialchars((string)($section['title'] ?? ''), ENT_QUOTES, 'UTF-8');
+            $sectionDesc = htmlspecialchars((string)($section['description'] ?? ''), ENT_QUOTES, 'UTF-8');
+            if ($sectionTitle === '') {
+                continue;
+            }
+            $lines[] = '<h3>' . $sectionTitle . '</h3>';
+            $lines[] = '<p>' . $sectionDesc . '</p>';
+        }
+
+        $recommendations = array_slice($brief['recommendations'] ?? [], 0, 3);
+        if ($recommendations) {
+            $lines[] = '<h3>建议动作</h3>';
+            $lines[] = '<ul>';
+            foreach ($recommendations as $item) {
+                $lines[] = '<li>' . htmlspecialchars((string)($item['title'] ?? ''), ENT_QUOTES, 'UTF-8')
+                    . '：' . htmlspecialchars((string)($item['suggestion'] ?? ''), ENT_QUOTES, 'UTF-8') . '</li>';
+            }
+            $lines[] = '</ul>';
+        }
+
+        return implode('', $lines);
+    }
+
+    protected static function buildQuestionDraftBody(string $title, array $outline, array $brief, string $topic): string
+    {
+        $lines = [];
+        $lines[] = '<p><strong>问题：</strong>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</p>';
+        if ($topic !== '') {
+            $lines[] = '<p><strong>主题：</strong>' . htmlspecialchars($topic, ENT_QUOTES, 'UTF-8') . '</p>';
+        }
+        $lines[] = '<p>这条 FAQ 基于最近 ' . intval($brief['window_days'] ?? 7) . ' 天的洞察生成，先确保问题定义清楚，再补答案和边界。</p>';
+        foreach ($outline as $section) {
+            $sectionTitle = htmlspecialchars((string)($section['title'] ?? ''), ENT_QUOTES, 'UTF-8');
+            $sectionDesc = htmlspecialchars((string)($section['description'] ?? ''), ENT_QUOTES, 'UTF-8');
+            if ($sectionTitle === '') {
+                continue;
+            }
+            $lines[] = '<h3>' . $sectionTitle . '</h3>';
+            $lines[] = '<p>' . $sectionDesc . '</p>';
+        }
+
+        $weekly = array_slice($brief['weekly_execution']['tasks'] ?? [], 0, 2);
+        if ($weekly) {
+            $lines[] = '<h3>相关执行线索</h3>';
+            $lines[] = '<ul>';
+            foreach ($weekly as $item) {
+                $lines[] = '<li>' . htmlspecialchars((string)($item['title'] ?? ''), ENT_QUOTES, 'UTF-8') . '</li>';
+            }
+            $lines[] = '</ul>';
+        }
+
+        return implode('', $lines);
     }
 
     protected static function resolveExecutionPriority(array $recommendation): string

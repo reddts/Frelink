@@ -128,10 +128,23 @@ class Question extends Frontend
     {
         $question_id = $this->request->param('id');
         $type=$this->request->param('type');
-
         if(!$question_id && !$type)
         {
             $this->error('请求参数不正确');
+        }
+
+        if ($type === 'rollback') {
+            $question_info = QuestionModel::getQuestionInfo($question_id, 'uid');
+            if (!$question_info) {
+                $this->error('问题不存在');
+            }
+            if ($this->user_id != $question_info['uid'] && get_user_permission('modify_question') != 'Y' && !isSuperAdmin() && !isNormalAdmin()) {
+                $this->error('您没有操作权限');
+            }
+            if (!QuestionModel::rollbackQuestion(intval($question_info['uid']), $question_id)) {
+                $this->error(QuestionModel::getError() ?: '回滚失败');
+            }
+            $this->success('回滚成功');
         }
 
         if(QuestionModel::manger($question_id,$type))

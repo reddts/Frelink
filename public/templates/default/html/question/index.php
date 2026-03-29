@@ -1,57 +1,204 @@
 {extend name="$theme_block" /}
 {block name="style"}
 <style>
-    .aw-faq-hero {
-        padding: 20px 24px 10px;
-        border-bottom: 1px solid #eef2f7;
-        background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
+    .aw-faq-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        padding: 14px 24px 0;
+        margin: 0 24px 18px;
+        border: 0 !important;
+        border-bottom: 0 !important;
+        background: transparent;
+        box-shadow: none;
     }
-    .aw-faq-hero h1 {
-        margin: 0 0 8px;
-        font-size: 24px;
-        font-weight: 700;
+
+    .aw-faq-tabs .nav-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 18px;
+        margin: 0;
+        border-radius: 14px;
+        border: 1px solid #d9e4ec;
+        background: linear-gradient(180deg, #fff 0%, #f6fbff 100%);
+        color: #475569;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+    }
+
+    .aw-faq-tabs .nav-link:hover {
+        color: #0f172a;
+        background: #eef5f7;
+        border-color: #cddae5;
+        text-decoration: none;
+    }
+
+    .aw-faq-tabs .nav-link.active {
+        color: #fff;
+        background: linear-gradient(135deg, #1d4ed8 0%, #0f766e 100%);
+        border-color: transparent;
+        box-shadow: 0 10px 18px rgba(29, 78, 216, 0.18);
+    }
+
+    .aw-question-feed {
+        padding: 0 8px 6px;
+    }
+
+    .aw-faq-lanes {
+        padding: 0 12px 18px;
+    }
+
+    .aw-question-feed .aw-question-card {
+        position: relative;
+        margin: 0 0 18px;
+        padding: 16px 18px 14px;
+        border: 1px solid #d9e4ec;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .aw-question-feed .aw-question-card:hover {
+        transform: translateY(-1px);
+        border-color: #cbd9e6;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    .aw-question-feed .aw-question-card > dt {
+        margin-bottom: 12px;
+    }
+
+    .aw-question-feed .aw-question-card > dd:last-child {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        padding-top: 16px;
+        margin-top: 16px;
+        border-top: 1px solid #e5edf4;
+    }
+
+    .aw-question-feed .n-title {
+        margin-bottom: 10px;
         color: #0f172a;
     }
-    .aw-faq-hero p {
-        margin: 0;
-        color: #64748b;
+
+    .aw-question-feed .n-title a {
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.45;
+    }
+
+    .aw-question-feed .n-title a:hover {
+        color: #1d4ed8;
+        text-decoration: none;
+    }
+
+    .aw-question-feed .text-muted.mb-2 {
+        color: #64748b !important;
+        font-size: 13px;
         line-height: 1.7;
     }
-    .aw-faq-lanes {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
-        padding: 14px 24px 18px;
-        border-bottom: 1px solid #eef2f7;
-        background: #fff;
-    }
-    .aw-faq-lane {
-        display: block;
-        padding: 14px;
-        border: 1px solid #e5edf6;
-        border-radius: 14px;
-        background: #fbfdff;
+
+    .aw-question-card .aw-ajax-agree,
+    .aw-question-card .aw-ajax-against {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 40px;
+        padding: 0 16px;
+        border: 1px solid #d9e4ec;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #fff 0%, #f6fbff 100%);
         color: #0f172a;
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+        transition: all 0.2s ease;
     }
-    .aw-faq-lane:hover {
+
+    .aw-question-card .aw-ajax-agree:hover,
+    .aw-question-card .aw-ajax-against:hover {
+        background: #eef5f7;
+        border-color: #cddae5;
+        color: #0f172a;
         text-decoration: none;
-        transform: translateY(-1px);
-        transition: all .2s ease;
     }
-    .aw-faq-lane strong {
-        display: block;
-        margin-bottom: 6px;
-        font-size: 15px;
+
+    .aw-question-card .aw-ajax-agree i,
+    .aw-question-card .aw-ajax-against i {
+        color: inherit;
     }
-    .aw-faq-lane span {
-        display: block;
-        color: #64748b;
-        font-size: 13px;
-        line-height: 1.6;
+
+    .aw-question-card .aw-ajax-agree.active {
+        background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+        border-color: #1d4ed8;
+        color: #fff;
     }
-    @media (max-width: 991.98px) {
-        .aw-faq-lanes {
-            grid-template-columns: 1fr;
+
+    .aw-question-card .aw-ajax-against.active {
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        border-color: #dc2626;
+        color: #fff;
+    }
+
+    .aw-question-card .aw-ajax-agree .badge,
+    .aw-question-card .aw-ajax-against .badge {
+        background: rgba(255, 255, 255, 0.16);
+        color: inherit;
+    }
+
+    .aw-question-card .dz {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .aw-question-card .dz .btn {
+        padding: 0 14px !important;
+        line-height: 38px;
+    }
+
+    .aw-question-feed label.dz a {
+        color: #ffffff !important;
+    }
+
+    .aw-question-feed label.dz a i {
+        color: #ffffff !important;
+    }
+
+    .aw-question-feed label.dz a:hover,
+    .aw-question-feed label.dz a.active,
+    .aw-question-feed label.dz a:hover i,
+    .aw-question-feed label.dz a.active i {
+        color: #ffc107 !important;
+    }
+
+    @media (max-width: 767.98px) {
+        .aw-faq-tabs {
+            margin: 0 16px 16px;
+            padding: 10px 16px 0;
+            gap: 8px;
+        }
+
+        .aw-faq-tabs .nav-link {
+            min-height: 38px;
+            padding: 0 14px;
+        }
+
+        .aw-question-feed .aw-question-card {
+            margin: 0 0 16px;
+            padding: 14px 14px 12px;
+            border-radius: 20px;
+        }
+
+        .aw-question-feed .aw-question-card > dd:last-child {
+            gap: 8px;
         }
     }
 </style>
@@ -65,8 +212,14 @@
         <div class="row justify-content-between">
             <div class="aw-left radius col-md-9 bg-white mb-2">
                 <div class="aw-faq-hero">
-                    <h1>{:L('FAQ')}</h1>
-                    <p>{:L('这里承接高频 FAQ、明确答案和可复用解释。它不再是社区问答流，而是公开知识系统里的 FAQ 入口。')}</p>
+                    <div class="aw-page-kicker">FAQ Atlas</div>
+                    <h1>{:L('问题索引')}</h1>
+                    <p>{:L('这里承接高频 FAQ、明确答案和可复用解释。它不再是社区问答流，而是公开知识系统里的问题入口。')}</p>
+                    <div class="aw-page-chips">
+                        <span>{:L('高频问题优先')}</span>
+                        <span>{:L('答案可复用')}</span>
+                        <span>{:L('沿主题继续追踪')}</span>
+                    </div>
                 </div>
                 <div class="aw-faq-lanes">
                     <a class="aw-faq-lane" href="{:url('question/index',['sort'=>'new','category_id'=>$category])}" data-pjax="wrapMain">
@@ -82,7 +235,7 @@
                         <span>{:L('如果单条 FAQ 不够，就沿主题继续追踪背景、资料和后续变化。')}</span>
                     </a>
                 </div>
-                <nav class="nav nav-tabs aw-pjax-a px-4" aria-label="{:L('FAQ 列表筛选')}">
+                <nav class="aw-pjax-a aw-faq-tabs" aria-label="{:L('FAQ 列表筛选')}">
                     <a class="nav-item nav-link {if $sort=='recommend'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'recommend','category_id'=>$category])}" {if $sort=='recommend'}aria-current="page"{/if}>{:L('精选')}</a>
                     <a class="nav-item nav-link {if $sort=='new'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'new','category_id'=>$category])}" {if $sort=='new'}aria-current="page"{/if}>{:L('更新')}</a>
                     <a class="nav-item nav-link {if $sort=='hot'}active{/if}" data-pjax="wrapMain" href="{:url('question/index',['sort'=>'hot','category_id'=>$category])}" {if $sort=='hot'}aria-current="page"{/if}>{:L('高关注')}</a>
@@ -91,10 +244,10 @@
 
                 <div id="tabMain" class="tab-content" >
                     <div class="tab-pane fade show active">
-                        <div class="aw-common-list">
+                        <div class="aw-common-list aw-question-feed">
                             {we:question sort="$sort" category_id="$category"}
                             {:hook('postsListsExtend',['info'=>$v,'key'=>$key,'type'=>'question'])}
-                            <dl class="js-analytics-impression" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="question_index" data-analytics-position="{$key + 1}" data-analytics-source="desktop_question_index">
+                            <dl class="js-analytics-impression aw-question-card" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="question_index" data-analytics-position="{$key + 1}" data-analytics-source="desktop_question_index">
                                 <dt>
                                     {if (!$v['answer_info'])}
                                     {if $v.is_anonymous}
@@ -138,7 +291,6 @@
                                         <a href="{:url('question/detail',['id'=>$v['id']])}" target="_blank" class="js-analytics-click" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="question_index" data-analytics-position="{$key + 1}" data-analytics-source="desktop_question_index">{$v.title|raw}</a>
                                         {:hook('extend_title_label',['area'=>'question_list','info'=>$v])}
                                     </div>
-                                    <div class="text-muted mb-2" style="font-size: 13px;">{:L('优先沉淀高频 FAQ、明确答案和后续补充说明。')}</div>
                                     <div class="pcon {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}row{/if}">
                                         {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}
                                         <div class="col-md-12 t-imglist row">
@@ -231,10 +383,6 @@
 
                 {if $theme_config['question']['sidebar_show_items'] && in_array('hot_users',$theme_config['question']['sidebar_show_items'])}
                 {:widget('sidebar/hotUsers',['uid'=>$user_id])}
-                {/if}
-
-                {if $theme_config['question']['sidebar_show_items'] && in_array('diy_content',$theme_config['question']['sidebar_show_items'])}
-                {$theme_config['question']['sidebar_diy_content']|raw|htmlspecialchars_decode}
                 {/if}
 
                 <!--侧边栏底部钩子-->

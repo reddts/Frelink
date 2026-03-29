@@ -8,11 +8,25 @@
     }
     .w-top-img-default {
         position: relative;
-        overflow: hidden;
+        overflow: visible;
         background:
             radial-gradient(circle at 14% 18%, rgba(96, 165, 250, 0.42), transparent 28%),
             radial-gradient(circle at 82% 22%, rgba(52, 211, 153, 0.28), transparent 24%),
             linear-gradient(135deg, #08152b 0%, #0b3158 44%, #0d6a64 100%);
+    }
+    .w-top-img-default .navbox-2,
+    .w-top-img-default .navbar {
+        position: relative;
+        z-index: 1105;
+    }
+    .w-top-img-default .newnavbar,
+    .w-top-img-default .nav-links-container,
+    .w-top-img-default .nav-form {
+        position: relative;
+        z-index: 1105;
+    }
+    .w-top-img-default .dropdown-menu {
+        z-index: 1200;
     }
     @supports (background-image: image-set(url("x.webp") 1x)) {
         .w-top-img-default {

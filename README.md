@@ -60,6 +60,60 @@ composer install
 - 支持多端：网页端、移动端、API
 - 保留扩展机制：插件系统、钩子、定时任务
 
-
 ## API 与自动化
 
+### OpenAPI 导出
+
+- 机器可读规范默认输出到 `public/docs/api-v1.openapi.json`
+- 浏览器可直接访问 `https://your-domain/docs/api-v1.openapi.json`
+- 生成命令：`php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+- 当前 API 响应统一包含 `request_id`；失败响应还会附带 `error_code`，方便日志串联和程序分支判断
+- 当前接口语义保持 `code=1` 表示成功、`code=0` 表示失败，与 `msg` / `data` / `request_id` 一起构成响应包
+- API 登录态仍可使用 `UserToken`；如果你在后台创建了 `app_token` 的 API 认证项，也可以改用 `ApiToken` 或 `AccessToken`，并绑定到指定用户后直接作为该用户访问接口
+
+### 推荐的 agent 使用边界
+
+- 允许：
+  - 搜索词采集与选题建议
+  - 内容健康巡检
+  - 发布后链接检查
+  - 收录状态巡检
+  - 低风险草稿生成
+  - 先调用 `agent_brief` 获取整合后的运营与写作上下文
+- 不建议直接开放：
+  - 删除内容
+  - 修改权限
+  - 自动正式发布
+  - 无审批的生产运维操作
+
+### 接入前建议
+
+1. 为 agent 单独创建账号与权限组。
+2. 先补齐接口 smoke test，再接入自动化发布流程。
+3. 为发布、删除、推荐、置顶等动作记录审计日志。
+4. 对登录、短信、发布、评论等接口增加限频与监控。
+
+### smoke test 建议
+
+```bash
+curl -H "version: v1" https://your-domain/api/Common/config
+curl -H "version: v1" "https://your-domain/api/Common/search?q=frelink"
+curl -H "version: v1" "https://your-domain/api/Question/index?page=1&page_size=5"
+curl -H "version: v1" "https://your-domain/api/Article/index?page=1&page_size=5"
+curl -H "version: v1" -H "UserToken: <token>" "https://your-domain/api/Insight/agent_brief?days=7&limit=3"
+curl -H "version: v1" -H "UserToken: <token>" "https://your-domain/api/Insight/agent_brief?days=7&limit=3&format=markdown"
+curl -H "version: v1" -H "UserToken: <token>" "https://your-domain/api/Insight/weekly_execution?days=7&limit=3"
+curl -H "version: v1" -H "UserToken: <token>" "https://your-domain/api/Insight/weekly_execution?days=7&limit=3&format=markdown"
+curl -H "version: v1" -H "UserToken: <token>" "https://your-domain/api/Insight/writing_workflow?mode=all&days=7&limit=3"
+curl -X POST -H "version: v1" -H "Content-Type: application/json" \
+  -d '{"event_type":"detail_view","item_type":"article","item_id":1,"visitor_token":"debug-token","source":"smoke_test"}' \
+  https://your-domain/api/Insight/track
+```
+
+### 后续改造方向
+
+- 增加 OpenAPI 文档
+- 统一错误码规范
+- 为 agent 提供只读巡检 token
+- 为发布流程增加审批与回滚机制
+- 为 Insight 增加后台面板与定时报表

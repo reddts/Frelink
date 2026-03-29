@@ -16,6 +16,7 @@ view/.hbuilderx/*
 view/.idea/*
 /update/*
 vendor/*
+scripts/*
 deploy.local.json
 docs/deploy.local.md
 优化计划.md

@@ -1963,6 +1963,12 @@ CREATE TABLE `aws_app_token` (
      `version` varchar(32) DEFAULT NULL COMMENT '模块客户端版本',
      `plugin` varchar(255) NULL COMMENT '对应插件',
      `type` tinyint(1) UNSIGNED NULL DEFAULT 1 COMMENT '1系统模块，2插件',
+     `uid` int(11) NOT NULL DEFAULT 0 COMMENT '绑定用户UID',
+     `status` tinyint(1) NOT NULL DEFAULT 1 COMMENT '状态 1启用 0禁用',
+     `expire_time` int(10) NOT NULL DEFAULT 0 COMMENT '过期时间',
+     `last_use_time` int(10) NOT NULL DEFAULT 0 COMMENT '最后使用时间',
+     `last_use_ip` varchar(64) NOT NULL DEFAULT '' COMMENT '最后使用IP',
+     `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '备注',
      `create_time` int(11) DEFAULT '0' COMMENT '创建时间',
      PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='接口请求表';

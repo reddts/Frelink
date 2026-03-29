@@ -43,7 +43,7 @@
         {/if}
         <div class="row">
             <div class="aw-left col-md-9 px-xs-0 mb-1">
-                <div class="aw-question-container aw-content-shell bg-white pt-3 pb-3 mb-2">
+                <div class="aw-question-container aw-content-shell bg-white pt-3 pb-3 mb-2 aw-question-hero-card">
                     <div class="container position-relative">
                         <div class="extend-info position-absolute d-xs-none">
                             <div class="d-flex text-center text-muted">
@@ -133,7 +133,7 @@
                             </section>
                             {/if}
                             {if !$log}
-                            <div class="actions">
+                            <div class="actions aw-question-actions">
                                 {if $isMobile}
                                 <label class="mr-3">
                                     <button onclick="AWS.User.focus(this,'question','{$question_info.id}')" class="btn btn-primary btn-sm px-3 {if $question_info['has_focus']}active ygz{/if}">{$question_info['has_focus'] ? L('已关注') : L('关注')}</button>
@@ -164,6 +164,9 @@
                                             </a>
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('modify_question')=='Y'}
                                             <a href="{:frelink_publish_url('question',['id'=>$question_info['id']])}" class="dropdown-item"><span>{:L('编辑 FAQ')}</span></a>
+                                            <a href="javascript:;" class="aw-ajax-get dropdown-item" data-confirm="{:L('确定要回滚到上一版吗')}?" data-url="{:url('ajax.Question/manager',['id'=>$question_info['id'],'type'=>'rollback'])}">
+                                                <span>{:L('回滚到上一版')}</span>
+                                            </a>
                                             {/if}
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('remove_question')=='Y'}
                                             <a class="aw-ajax-get dropdown-item"  href="javascript:;" data-confirm="{:L('是否删除该 FAQ')}?" data-url="{:url('ajax.Question/remove_question',['id'=>$question_info['id']])}">
@@ -264,6 +267,9 @@
                                             </a>
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('modify_question')=='Y'}
                                             <a href="{:frelink_publish_url('question',['id'=>$question_info['id']])}" class="dropdown-item"><span>{:L('编辑 FAQ')}</span></a>
+                                            <a href="javascript:;" class="aw-ajax-get dropdown-item" data-confirm="{:L('确定要回滚到上一版吗')}?" data-url="{:url('ajax.Question/manager',['id'=>$question_info['id'],'type'=>'rollback'])}">
+                                                <span>{:L('回滚到上一版')}</span>
+                                            </a>
                                             {/if}
                                             {if isSuperAdmin() || isNormalAdmin() || $question_info['uid']==$user_id || get_user_permission('remove_question')=='Y'}
                                             <a class="aw-ajax-get dropdown-item"  href="javascript:;" data-confirm="{:L('是否删除该 FAQ')}?" data-url="{:url('ajax.Question/remove_question',['id'=>$question_info['id']])}">
@@ -304,7 +310,7 @@
                             </div>
 
                             <!--评论框动态显示-->
-                            <div class="answerCommentBox mt-2 border" id="questionCommentBox-{$question_info.id}" style="display: none">
+                            <div class="answerCommentBox mt-2 border aw-comment-panel" id="questionCommentBox-{$question_info.id}" style="display: none">
                                 <div class="answerCommentHeader clearfix px-3 pt-3">
                                     <h6 class="font-10 float-left mb-1"><span class="question-comment-count">{$question_info.comment_count}</span> {:L('评论')}</h6>
                                 </div>

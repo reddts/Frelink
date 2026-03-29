@@ -46,6 +46,43 @@ class Draft extends BaseModel
 	}
 
     /**
+     * 保存修订快照，供回滚使用
+     * @param $uid
+     * @param $item_type
+     * @param $data
+     * @param int $item_id
+     * @return Draft|bool|Model
+     */
+    public static function saveRevisionSnapshot($uid, $item_type, $data, $item_id = 0)
+    {
+        return self::saveDraft($uid, $item_type . '_revision', $data, $item_id);
+    }
+
+    /**
+     * 获取修订快照
+     * @param $uid
+     * @param $item_type
+     * @param int $item_id
+     * @return mixed
+     */
+    public static function getRevisionSnapshot($uid, $item_type, int $item_id = 0)
+    {
+        return self::getDraftByItemID($uid, $item_type . '_revision', $item_id);
+    }
+
+    /**
+     * 删除修订快照
+     * @param $uid
+     * @param $item_type
+     * @param int $item_id
+     * @return mixed
+     */
+    public static function deleteRevisionSnapshot($uid, $item_type, int $item_id = 0)
+    {
+        return self::deleteDraftByItemID($uid, $item_type . '_revision', $item_id);
+    }
+
+    /**
      * 获取草稿列表
      * @param $uid
      * @param $item_type

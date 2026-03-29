@@ -64,6 +64,105 @@ class Article extends BaseModel
 	}
 
     /**
+     * 保存文章更新前的修订快照
+     * @param array $articleInfo
+     * @param array $topics
+     * @return void
+     */
+    protected static function saveRevisionSnapshot(array $articleInfo, array $topics = []): void
+    {
+        if (empty($articleInfo['id']) || empty($articleInfo['uid'])) {
+            return;
+        }
+
+        $snapshot = [
+            'id' => intval($articleInfo['id']),
+            'title' => $articleInfo['title'] ?? '',
+            'message' => $articleInfo['message'] ?? '',
+            'detail' => $articleInfo['message'] ?? '',
+            'category_id' => intval($articleInfo['category_id'] ?? 0),
+            'column_id' => intval($articleInfo['column_id'] ?? 0),
+            'article_type' => $articleInfo['article_type'] ?? 'research',
+            'cover' => $articleInfo['cover'] ?? '',
+            'topics' => $topics,
+        ];
+
+        Draft::saveRevisionSnapshot(intval($articleInfo['uid']), 'article', $snapshot, intval($articleInfo['id']));
+    }
+
+    /**
+     * 获取文章修订快照
+     * @param int $uid
+     * @param int $articleId
+     * @return array|false|mixed
+     */
+    public static function getRevisionSnapshot(int $uid, int $articleId)
+    {
+        return Draft::getRevisionSnapshot($uid, 'article', $articleId);
+    }
+
+    /**
+     * 回滚文章到上一版
+     * @param int $uid
+     * @param int $articleId
+     * @return bool
+     */
+    public static function rollbackArticle(int $uid, int $articleId): bool
+    {
+        $snapshot = Draft::getRevisionSnapshot($uid, 'article', $articleId);
+        if (!$snapshot || empty($snapshot['data']) || empty($snapshot['data']['id'])) {
+            self::setError('没有可回滚的文章版本');
+            return false;
+        }
+
+        $articleInfo = db('article')->where(['id' => $articleId])->find();
+        if (!$articleInfo) {
+            self::setError('文章不存在');
+            return false;
+        }
+
+        $data = $snapshot['data'];
+        $topics = array_values(array_unique(array_filter(array_map('intval', $data['topics'] ?? []))));
+        $currentTopics = Topic::getTopicByItemType('article', $articleId);
+        $currentTopicIds = $currentTopics ? array_column($currentTopics, 'id') : [];
+        Db::startTrans();
+        try {
+            self::saveRevisionSnapshot($articleInfo, $currentTopicIds);
+
+            $updateData = [
+                'title' => strip_tags($data['title'] ?? $articleInfo['title']),
+                'message' => HtmlHelper::fetchContentImagesToLocal($data['message'] ?? $articleInfo['message'], 'article', $uid, true),
+                'search_text' => strip_tags(htmlspecialchars_decode(str_replace("`", "", substr((string)($data['message'] ?? $articleInfo['message']), 0, 65535)))),
+                'article_type' => frelink_normalize_article_type($data['article_type'] ?? ($articleInfo['article_type'] ?? 'research'), 'research'),
+                'category_id' => intval($data['category_id'] ?? $articleInfo['category_id'] ?? 0),
+                'column_id' => intval($data['column_id'] ?? $articleInfo['column_id'] ?? 0),
+                'cover' => $data['cover'] ?? ($articleInfo['cover'] ?? ''),
+                'update_time' => time(),
+                'status' => 1,
+            ];
+
+            self::update($updateData, ['id' => $articleId]);
+
+            db('topic_relation')->where(['item_type' => 'article', 'item_id' => $articleId])->delete();
+            if ($topics) {
+                foreach ($topics as $topicId) {
+                    Topic::saveTopicRelation($uid, $topicId, $articleId, 'article');
+                }
+            }
+
+            PostRelation::savePostRelation($articleId, 'article');
+            ElasticSearch::instance()->update('article', db('article')->where(['id' => $articleId])->find());
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            self::setError($e->getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * 根据文章id获取文章列表
      * @param $article_ids
      * @return array|false
@@ -307,6 +406,9 @@ class Article extends BaseModel
         Db::startTrans();
         try {
             $article_info = db('article')->where('id',intval($postData['id']))->find();
+            $old_topics = Topic::getTopicByItemType('article', $article_info['id']);
+            $old_topic_ids = $old_topics ? array_column($old_topics, 'id') : [];
+            self::saveRevisionSnapshot($article_info, $old_topic_ids);
 
             unset($data['uid']);
             self::update($data,['id'=>intval($postData['id'])]);
@@ -327,12 +429,11 @@ class Article extends BaseModel
             }
 
             //内容修改记录
-            $old_topics = Topic::getTopicByItemType('article',$article_info['id']);
             $old_info = [
                 'message'=>$old_message,
                 'title'=>$article_info['title'],
                 'category_id'=>$article_info['category_id'],
-                'topics'=>$old_topics?array_column($old_topics,'id'):[]
+                'topics'=>$old_topic_ids
             ];
             $new_info = [
                 'message'=>$new_message,

@@ -280,8 +280,12 @@ trait Jump
             'code' => $code,
             'msg'  => $msg,
             'time' => time(),
+            'request_id' => $this->getRequestId(),
             'data' => $data,
         ];
+        if ($errorCode = $this->buildErrorCode($code, $msg)) {
+            $result['error_code'] = $errorCode;
+        }
         $type     = 'json';
         $response = Response::create($result, $type)->header($header);
         throw new HttpResponseException($response);
@@ -300,6 +304,7 @@ trait Jump
             'code' => 1,
             'msg'  => $msg,
             'time' => time(),
+            'request_id' => $this->getRequestId(),
             'data' => $data,
         ];
         $type     = 'json';
@@ -320,10 +325,74 @@ trait Jump
             'code' => 0,
             'msg'  => $msg,
             'time' => time(),
+            'request_id' => $this->getRequestId(),
             'data' => $data,
         ];
+        if ($errorCode = $this->buildErrorCode(0, $msg)) {
+            $result['error_code'] = $errorCode;
+        }
         $type     = 'json';
         $response = Response::create($result, $type)->header($header);
         throw new HttpResponseException($response);
+    }
+
+    /**
+     * 获取请求追踪 ID。
+     */
+    protected function getRequestId(): string
+    {
+        $requestId = trim((string) request()->header('X-Request-Id', ''));
+        if ($requestId === '') {
+            $requestId = trim((string) request()->header('Request-Id', ''));
+        }
+
+        if ($requestId !== '') {
+            $requestId = preg_replace('/[^A-Za-z0-9._-]/', '', $requestId) ?: '';
+            return substr($requestId, 0, 64);
+        }
+
+        try {
+            return 'req_' . bin2hex(random_bytes(8));
+        } catch (\Throwable $e) {
+            return 'req_' . str_replace('.', '', uniqid('', true));
+        }
+    }
+
+    /**
+     * 生成可机器识别的错误码。
+     */
+    protected function buildErrorCode(int $code, string $msg = ''): ?string
+    {
+        if ($code === 1) {
+            return null;
+        }
+
+        if ($code === 99) {
+            return 'AUTH_REQUIRED';
+        }
+
+        $msg = trim($msg);
+        if ($msg === '') {
+            return 'BUSINESS_ERROR';
+        }
+
+        $rules = [
+            'AUTH_REQUIRED' => ['请先登录', '登录后', '未登录', '缺少登录凭证'],
+            'PERMISSION_DENIED' => ['没有权限', '无权', '权限不足', '不允许'],
+            'INVALID_REQUEST' => ['参数错误', '请求参数', '错误的请求', '不能为空', '请选择', '请输入', '不一致'],
+            'NOT_FOUND' => ['不存在', '已被删除', '已被取消'],
+            'RATE_LIMITED' => ['过于频繁', '频繁'],
+            'VALIDATION_FAILED' => ['校验', '验证错误', '内容不符合'],
+        ];
+
+        foreach ($rules as $errorCode => $keywords) {
+            foreach ($keywords as $keyword) {
+                if (str_contains($msg, $keyword)) {
+                    return $errorCode;
+                }
+            }
+        }
+
+        return 'BUSINESS_ERROR';
     }
 }

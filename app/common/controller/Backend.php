@@ -74,12 +74,38 @@ class Backend extends Base
 
         //权限验证器
         $this->auth =AuthHelper::instance();
-        if(session('admin_login_uid') && getLoginUid())
-        {
-            $this->user_info = Users::getUserInfo(getLoginUid());
+        $adminUid = (int) session('admin_login_uid');
+        if ($adminUid) {
+            $this->user_info = Users::getUserInfo($adminUid);
+            if (!$this->user_info) {
+                session('admin_login_uid', null);
+                session('admin_user_info', null);
+                session('admin_login_user_info', null);
+            }
+        } else {
+            $allowAutoLogin = intval($this->request->param('backend_autologin', 0)) === 1;
+            if (!$allowAutoLogin) {
+                $allowAutoLogin = intval($this->request->param('auto_login', 0)) === 1;
+            }
+            if (!$allowAutoLogin) {
+                $allowAutoLogin = intval($this->request->param('from_nav', 0)) === 1;
+            }
+            if ($allowAutoLogin) {
+            $frontendUid = (int) getLoginUid();
+            if ($frontendUid) {
+                $frontendUser = Users::getUserInfo($frontendUid);
+                if ($frontendUser && in_array((int) ($frontendUser['group_id'] ?? 0), [1, 2], true)) {
+                    session('admin_user_info', $frontendUser);
+                    session('admin_login_user_info', $frontendUser);
+                    session('admin_login_uid', $frontendUid);
+                    $this->user_info = $frontendUser;
+                    $adminUid = $frontendUid;
+                }
+            }
+            }
         }
 
-        $this->user_id = $this->user_info ? $this->user_info['uid'] : 0;
+        $this->user_id = $this->user_info ? (int) $this->user_info['uid'] : 0;
         $controller = $this->request->controller();
         $actionName = Str::snake(request()->action());
 
@@ -95,13 +121,13 @@ class Backend extends Base
         // 检测是否需要验证登录
         if (!$this->auth->match($this->noNeedLogin)) {
             //检测是否登录
-            if (!$this->user_id && !getLoginUid()) {
+            if (!$this->user_id && !$adminUid) {
                 hook('admin_no_login', $this);
-                $this->loading('/account/login');
+                $this->redirect('index/login');
             }
 
-            if (!$this->user_id && getLoginUid()) {
-                $this->loading('index/login');
+            if (!$this->user_id && $adminUid) {
+                $this->redirect('index/login');
             }
             // 判断是否需要验证权限
             // 判断控制器和方法判断是否有对应权限

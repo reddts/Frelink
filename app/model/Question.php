@@ -46,8 +46,104 @@ class Question extends BaseModel
         return $question_info;
 	}
 
-	//根据问题ids获取问题列表
-	public static function getQuestionByIds($question_ids)
+    /**
+     * 保存问题更新前的修订快照
+     * @param array $questionInfo
+     * @param array $topics
+     * @return void
+     */
+    protected static function saveRevisionSnapshot(array $questionInfo, array $topics = []): void
+    {
+        if (empty($questionInfo['id']) || empty($questionInfo['uid'])) {
+            return;
+        }
+
+        $snapshot = [
+            'id' => intval($questionInfo['id']),
+            'title' => $questionInfo['title'] ?? '',
+            'detail' => $questionInfo['detail'] ?? '',
+            'category_id' => intval($questionInfo['category_id'] ?? 0),
+            'question_type' => $questionInfo['question_type'] ?? 'normal',
+            'is_anonymous' => intval($questionInfo['is_anonymous'] ?? 0),
+            'topics' => $topics,
+        ];
+
+        Draft::saveRevisionSnapshot(intval($questionInfo['uid']), 'question', $snapshot, intval($questionInfo['id']));
+    }
+
+    /**
+     * 获取问题修订快照
+     * @param int $uid
+     * @param int $questionId
+     * @return mixed
+     */
+    public static function getRevisionSnapshot(int $uid, int $questionId)
+    {
+        return Draft::getRevisionSnapshot($uid, 'question', $questionId);
+    }
+
+    /**
+     * 回滚问题到上一版
+     * @param int $uid
+     * @param int $questionId
+     * @return bool
+     */
+    public static function rollbackQuestion(int $uid, int $questionId): bool
+    {
+        $snapshot = Draft::getRevisionSnapshot($uid, 'question', $questionId);
+        if (!$snapshot || empty($snapshot['data']) || empty($snapshot['data']['id'])) {
+            self::setError('没有可回滚的问题版本');
+            return false;
+        }
+
+        $questionInfo = db('question')->where(['id' => $questionId])->find();
+        if (!$questionInfo) {
+            self::setError('问题不存在');
+            return false;
+        }
+
+        $data = $snapshot['data'];
+        $topics = array_values(array_unique(array_filter(array_map('intval', $data['topics'] ?? []))));
+        $currentTopics = Topic::getTopicByItemType('question', $questionId);
+        $currentTopicIds = $currentTopics ? array_column($currentTopics, 'id') : [];
+        Db::startTrans();
+        try {
+            self::saveRevisionSnapshot($questionInfo, $currentTopicIds);
+
+            $updateData = [
+                'title' => strip_tags($data['title'] ?? $questionInfo['title']),
+                'detail' => HtmlHelper::fetchContentImagesToLocal($data['detail'] ?? $questionInfo['detail'], 'question', $uid, true),
+                'search_text' => strip_tags(htmlspecialchars_decode($data['detail'] ?? $questionInfo['detail'])),
+                'category_id' => intval($data['category_id'] ?? $questionInfo['category_id'] ?? 0),
+                'question_type' => $data['question_type'] ?? ($questionInfo['question_type'] ?? 'normal'),
+                'is_anonymous' => intval($data['is_anonymous'] ?? $questionInfo['is_anonymous'] ?? 0),
+                'update_time' => time(),
+                'status' => 1,
+            ];
+
+            self::update($updateData, ['id' => $questionId]);
+
+            db('topic_relation')->where(['item_type' => 'question', 'item_id' => $questionId])->delete();
+            if ($topics) {
+                foreach ($topics as $topicId) {
+                    Topic::saveTopicRelation($uid, $topicId, $questionId, 'question', 1);
+                }
+            }
+
+            ElasticSearch::instance()->update('question', db('question')->where(['id' => $questionId])->find());
+            PostRelation::savePostRelation($questionId, 'question');
+            Db::commit();
+        } catch (\Exception $e) {
+            Db::rollback();
+            self::setError($e->getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
+    //根据问题ids获取问题列表
+    public static function getQuestionByIds($question_ids)
 	{
 		if (!$question_ids) return false;
         $question_ids = is_array($question_ids) ? $question_ids : explode(',',$question_ids);
@@ -106,6 +202,9 @@ class Question extends BaseModel
                 try {
                     $question_info = db('question')->where('id',$question_id)->find();
                     if(!$question_info) return false;
+                    $old_topics = Topic::getTopicByItemType('question',$question_info['id']);
+                    $old_topic_ids = $old_topics ? array_column($old_topics,'id') : [];
+                    self::saveRevisionSnapshot($question_info, $old_topic_ids);
                     $insertData['modify_count'] = intval($question_info['modify_count'])+1;
                     $result =db('question')->where('id',$question_id)->update($insertData);
                     if($result)
@@ -127,12 +226,11 @@ class Question extends BaseModel
                         }
 
                         //内容修改记录
-                        $old_topics = Topic::getTopicByItemType('question',$question_info['id']);
                         $old_info = [
                             'detail'=>$question_info['detail'],
                             'title'=>$question_info['title'],
                             'category_id'=>$question_info['category_id'],
-                            'topics'=>$old_topics?array_column($old_topics,'id'):[]
+                            'topics'=>$old_topic_ids
                         ];
                         $new_info = [
                             'detail'=>$insertData['detail'],

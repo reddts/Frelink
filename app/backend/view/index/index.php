@@ -307,8 +307,12 @@ Bing Webmaster Tools: https://www.bing.com/webmasters</textarea>
                                                             <div class="mt-2 font-weight-bold">{$v.title}</div>
                                                             <div class="text-muted mt-2">{$v.reason}</div>
                                                             <div class="mt-3">
-                                                                <a href="{$v.primary_url}" target="_blank" class="btn btn-sm btn-primary mr-2">{$v.primary_label}</a>
-                                                                <a href="{$v.secondary_url}" target="_blank" class="btn btn-sm btn-outline-secondary">{$v.secondary_label}</a>
+                                                                {if !empty($v.primary_url)}
+                                                                <a href="{$v.primary_url}" target="_blank" class="btn btn-sm btn-primary mr-2">{$v.primary_label|default='查看'}</a>
+                                                                {/if}
+                                                                {if !empty($v.secondary_url)}
+                                                                <a href="{$v.secondary_url}" target="_blank" class="btn btn-sm btn-outline-secondary">{$v.secondary_label|default='查看'}</a>
+                                                                {/if}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -332,11 +336,11 @@ Bing Webmaster Tools: https://www.bing.com/webmasters</textarea>
                                                             <div class="text-muted mt-2">{$v.status}，当前进度 {$v.progress}%</div>
                                                             <div class="mt-2">{$v.action}</div>
                                                             <div class="mt-3">
-                                                                {if $v.primary_url}
-                                                                <a href="{$v.primary_url}" target="_blank" class="btn btn-sm btn-primary mr-2">{$v.primary_label}</a>
+                                                                {if !empty($v.primary_url)}
+                                                                <a href="{$v.primary_url}" target="_blank" class="btn btn-sm btn-primary mr-2">{$v.primary_label|default='查看'}</a>
                                                                 {/if}
-                                                                {if $v.secondary_url}
-                                                                <a href="{$v.secondary_url}" target="_blank" class="btn btn-sm btn-outline-secondary">{$v.secondary_label}</a>
+                                                                {if !empty($v.secondary_url)}
+                                                                <a href="{$v.secondary_url}" target="_blank" class="btn btn-sm btn-outline-secondary">{$v.secondary_label|default='查看'}</a>
                                                                 {/if}
                                                             </div>
                                                         </div>

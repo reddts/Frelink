@@ -778,6 +778,7 @@ class Users extends BaseModel
             TokenHelper::delete($token);
         }
         session('admin_login_uid',null);
+        session('admin_user_info',null);
         session('admin_login_user_info',null);
         session('login_uid',null);
         session('login_user_info',null);

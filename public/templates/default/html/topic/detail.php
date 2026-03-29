@@ -15,22 +15,22 @@
 
     <div class="row justify-content-between">
         <div class="aw-left radius col-md-9 mb-2">
-            <div class="bg-white px-3 rounded">
+            <div class="bg-white px-3 rounded aw-topic-hero-card">
                 <dl class="topic-detail-top py-3 overflow-hidden mb-0">
                     <dt class="float-left">
-                        <div style='background-image:url("{$topic_info.pic|default='/static/common/image/topic.svg'}") ;background-size: cover;width:100px;height:100px' class="rounded"></div>
+                        <div class="aw-topic-cover rounded" style='background-image:url("{$topic_info.pic|default='/static/common/image/topic.svg'}")'></div>
                     </dt>
                     <dd class="float-right">
                         <h4 class="mb-0 font-12 clearfix">
                             {$topic_info.title}
                             {if $user_id}
-                            <a href="javascript:;" style="height: 26px;line-height: 1.2" class="btn btn-primary btn-sm float-right px-4 cursor-pointer {if $topic_info['has_focus']}active ygz {/if}" onclick="AWS.User.focus(this,'topic','{$topic_info.id}')">{$topic_info['has_focus'] ? '<span>'.L('已关注').'</span>' : '<span>+ '.L('关注').'</span>'}</a>
+                            <a href="javascript:;" class="btn btn-primary btn-sm float-right px-4 cursor-pointer aw-topic-follow-btn {if $topic_info['has_focus']}active ygz {/if}" onclick="AWS.User.focus(this,'topic','{$topic_info.id}')">{$topic_info['has_focus'] ? '<span>'.L('已关注').'</span>' : '<span>+ '.L('关注').'</span>'}</a>
                             {/if}
                         </h4>
                         {if $topic_info['description']}
                         <p class="text-muted aw-two-line mt-2">{:str_cut(strip_tags(htmlspecialchars_decode($topic_info['description'])),0,100)}
                             {if mb_strlen(strip_tags($topic_info['description']))>=100}
-                            <a href="{:url('topic/detail',['type'=>'about','id'=>$topic_info['id']])}"  data-pjax="aw-index-main" class="pl-3 text-primary">{:L('查看详情')}></a>
+                            <a href="{:url('topic/detail',['type'=>'about','id'=>$topic_info['id']])}"  data-pjax="aw-index-main" class="pl-3 text-primary">{:L('查看详情')}</a>
                             {/if}
                         </p>
                         {/if}
@@ -38,7 +38,7 @@
                     </dd>
                 </dl>
             </div>
-            <div class="bg-white mt-2" id="wrapMain">
+            <div class="bg-white mt-2 aw-topic-content-panel" id="wrapMain">
                 <div class="clearfix border-bottom">
                     <div class="nav nav-tabs px-4 aw-pjax-a border-0 float-left">
                         <a class="nav-item nav-link {if !$type}active {/if}" data-pjax="wrapMain" href="{:url('topic/detail',['id'=>$topic_info['id'],'sort'=>$sort])}">{:L('综合')}</a>
@@ -89,18 +89,18 @@
             <!--侧边栏顶部钩子-->
             {:hook('sidebarTop')}
 
-            <div class="r-box w-fun mb-2">
+            <div class="r-box w-fun mb-2 aw-topic-action-rail">
                 <div class="row">
                     <a class="col-4" href="{:frelink_publish_url('question',['topic_id'=>$topic_info['id']])}" target="_blank" rel="noopener noreferrer">
-                        <i class="fa icon-help-with-circle fa-2x d-inline-block" style="color:#ff9d08;background: #f7f9da;border-radius: 50px;height: 56px;line-height: 56px;margin-bottom: 10px;width: 56px"></i>
+                        <i class="fa icon-help-with-circle fa-2x d-inline-block aw-topic-action-icon aw-topic-action-icon--question"></i>
                         <h6>{:L('发讨论')}</h6>
                     </a>
                     <a class="col-4 text-center" href="{:frelink_publish_url('article',['topic_id'=>$topic_info['id']])}" target="_blank" rel="noopener noreferrer">
-                        <i class="far fa-file-alt fa-2x d-inline-block" style="color:#fd5e5e;background: #ffdfdf;border-radius: 50px;height: 56px;line-height: 56px;margin-bottom: 10px;width: 56px"></i>
+                        <i class="far fa-file-alt fa-2x d-inline-block aw-topic-action-icon aw-topic-action-icon--article"></i>
                         <h6>{:L('写知识内容')}</h6>
                     </a>
                     <a class="col-4 aw-ajax-open" href="javascript:;" data-title="话题日志" data-url="{:url('ajax.topic/logs',['id'=>$topic_info['id']])}">
-                        <i class="icon-book circle fa-2x d-inline-block" style="color:#6f5a90;background: #ece7f3;border-radius: 50px;height: 56px;line-height: 56px;margin-bottom: 10px;width: 56px"></i>
+                        <i class="icon-book circle fa-2x d-inline-block aw-topic-action-icon aw-topic-action-icon--log"></i>
                         <h6>{:L('话题日志')}</h6>
                     </a>
                 </div>
@@ -163,7 +163,7 @@
                 <div class="page-detail-topic pb-3">
                     <ul class="d-block py-1" id="awTopicList">
                         {volist name="$topic_info['relation_topics']" id="v"}
-                        <li class="d-inline-block aw-tag my-1"><a href="{:url('topic/detail',['id'=>$v['id']])}"><em class="tag">{$v.title}</em></a></li>
+                        <li class="d-inline-block aw-topic-related-chip aw-tag my-1"><a href="{:url('topic/detail',['id'=>$v['id']])}"><em class="tag">{$v.title}</em></a></li>
                         {/volist}
                         {if $topic_info['relation_topics']}
                         <input type="hidden" name="topics" value="{:implode(',',array_column($topic_info['relation_topics'],'id'))}">
@@ -201,7 +201,7 @@
             <div class="r-box mb-2 py-2">
                 {if $top_parent_topic}
                 <dl class="mb-0">
-                    <dt class="clearfix r-title" style="height: 36px;line-height: 36px">{:L('根话题')}
+                    <dt class="clearfix r-title aw-topic-section-title">{:L('根话题')}
 <!--                        <a href="javascript:;" class="aw-ajax-open" data-title="{:L('话题树')}" data-url="{:url('ajax.topic/tree',['pid'=>$top_parent_topic['id']])}" ><label class="iconfont font-weight-light">&#xe660;</label></a>
 -->                 </dt>
                     <dd><a href="{:url('topic/detail',['id'=>$top_parent_topic.id])}" class="aw-topic" data-id="{$top_parent_topic.id}" target="_blank"><em class="tag">{$top_parent_topic.title}</em></a> </dd>
@@ -209,17 +209,17 @@
                 {/if}
                 {if $parent_topic}
                 <dl class="mb-0">
-                    <dt class="r-title" style="height: 36px;line-height: 36px">{:L('父话题')}</dt>
+                    <dt class="r-title aw-topic-section-title">{:L('父话题')}</dt>
                     <dd><a href="{:url('topic/detail',['id'=>$parent_topic.id])}" class="aw-topic" data-id="{$parent_topic.id}" target="_blank"><em class="tag">{$parent_topic.title}</em></a> </dd>
                 </dl>
                 {/if}
 
                 {if $child_topics}
                 <dl class="mb-0">
-                    <dt class="r-title" style="height: 36px;line-height: 36px">{:L('子话题')}</dt>
+                    <dt class="r-title aw-topic-section-title">{:L('子话题')}</dt>
                     <dd>
                         {foreach $child_topics as $topic}
-                        <a href="{:url('topic/detail',['id'=>$topic.id])}" class="aw-topic my-2" data-id="{$topic.id}" target="_blank" style="display: inline-block;"><em class="tag">{$topic.title}</em></a>
+                        <a href="{:url('topic/detail',['id'=>$topic.id])}" class="aw-topic my-2 aw-topic-related-chip" data-id="{$topic.id}" target="_blank"><em class="tag">{$topic.title}</em></a>
                         {/foreach}
                     </dd>
                 </dl>
@@ -232,10 +232,10 @@
                 <div class="r-title">
                     <h4>{:L('%s 人关注该话题',$topic_info['focus'])}</h4>
                 </div>
-                <div class="hot-list hot-yh-list pb-3" style="margin: 0 -20px">
+                <div class="hot-list hot-yh-list pb-3 aw-topic-hot-list">
                     <ul class="row">
                         {foreach $focus_user as $k=>$v}
-                        <li class="col-2"><a href="{$v.url}" class="aw-username text-center" target="_blank" data-id="{$v.uid}"><img src="{$v['avatar']|default='/static/common/image/default-avatar.svg'}" style="width: 32px;he 32px;border-radius: 50%"></a> </li>
+                        <li class="col-2"><a href="{$v.url}" class="aw-username text-center" target="_blank" data-id="{$v.uid}"><img src="{$v['avatar']|default='/static/common/image/default-avatar.svg'}" class="aw-topic-hot-avatar" alt="{$v.nick_name}"></a> </li>
                         {/foreach}
                     </ul>
                 </div>

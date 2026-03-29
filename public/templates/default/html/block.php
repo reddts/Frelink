@@ -283,7 +283,7 @@
                                     </a>
                                     <div role="separator" class="dropdown-divider"></div>
                                     {if $user_info['group_id']==1 || $user_info['group_id']==2}
-                                    <a class="dropdown-item align-items-center" target="_blank" href="/{:config('app.admin')}">
+                                    <a class="dropdown-item align-items-center" target="_blank" href="/{:config('app.admin')}?backend_autologin=1">
                                         <span>{:L('管理后台')}</span>
                                     </a>
                                     {/if}

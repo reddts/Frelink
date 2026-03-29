@@ -583,7 +583,7 @@ class Index extends Backend
     //系统登录
     public function login()
     {
-        if(session('admin_login_uid'))
+        if (session('admin_login_uid'))
         {
             $this->redirect(url('index'));
         }
@@ -599,11 +599,9 @@ class Index extends Backend
             $this->success('登录成功',url('index/index'));
         }
 
-        if($login_user_info = get_user_info(getLoginUid()))
+        if($login_user_info = get_user_info((int) session('admin_login_uid')))
         {
             $this->assign('user_info',$login_user_info);
-        }else{
-            $this->redirect(get_url('account/login'));
         }
 
         return $this->fetch();
@@ -613,6 +611,7 @@ class Index extends Backend
     public function logout()
     {
         session('admin_user_info',null);
+        session('admin_login_user_info',null);
         session('admin_login_uid',null);
         $this->success('退出成功','login');
     }

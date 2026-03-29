@@ -9,6 +9,7 @@
 // | Author: WeCenter团队 <devteam@wecenter.com>
 // +----------------------------------------------------------------------
 namespace app\common\controller;
+use app\common\library\helper\ApiTokenHelper;
 use app\common\library\helper\StringHelper;
 use app\common\library\helper\TokenHelper;
 use app\common\library\helper\UserAuthHelper;
@@ -19,7 +20,7 @@ use think\App;
 
 // 预检请求基础响应，具体跨域放行由 checkCrossRequest 控制
 header('Access-Control-Allow-Methods: GET,POST,OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type,AccessToken,version,UserToken,ClientType,origin');
+header('Access-Control-Allow-Headers: Content-Type,AccessToken,ApiToken,version,UserToken,ClientType,origin');
 if (request()->method() == "OPTIONS") {
     exit();
 }
@@ -62,6 +63,7 @@ abstract class Api
 	protected $action;
 
     protected $settings;
+    protected $api_token_info = [];
 
 	/**
 	 * 构造方法
@@ -101,6 +103,22 @@ abstract class Api
                 $this->user_id = 0;
             }else{
                 $this->user_id = intval($data['uid']);
+                if ($this->user_id) {
+                    $this->user_info = Users::getUserInfo($this->user_id);
+                }
+            }
+        }
+
+        if (!$this->user_id) {
+            $apiToken = (string) $this->request->header('ApiToken');
+            $accessToken = (string) $this->request->header('AccessToken');
+            $version = (string) $this->request->header('version', '');
+            $this->api_token_info = $apiToken ? ApiTokenHelper::resolveAppToken($apiToken, $version) : [];
+            if (!$this->api_token_info && $accessToken) {
+                $this->api_token_info = ApiTokenHelper::resolveAppToken($accessToken, $version);
+            }
+            if ($this->api_token_info) {
+                $this->user_id = intval($this->api_token_info['uid'] ?? 0);
                 if ($this->user_id) {
                     $this->user_info = Users::getUserInfo($this->user_id);
                 }

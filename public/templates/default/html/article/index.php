@@ -42,6 +42,37 @@
         color: #64748b;
         line-height: 1.7;
     }
+    .aw-page-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .aw-page-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+    }
+    .aw-page-chips span {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: rgba(255, 255, 255, 0.88);
+        font-size: 13px;
+    }
     .aw-knowledge-lanes {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -52,7 +83,7 @@
     }
     .aw-knowledge-spotlights {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 14px;
         padding: 0 24px 18px;
         border-bottom: 1px solid #eef2f7;
@@ -154,8 +185,14 @@
         <div class="row justify-content-between">
             <div class="aw-left radius col-md-9 bg-white mb-2">
                 <div class="aw-knowledge-hero">
+                    <div class="aw-page-kicker">Knowledge Content Atlas</div>
                     <h1>{:frelink_article_type_label($article_type)}</h1>
                     <p>{:frelink_content_description($article_type)}</p>
+                    <div class="aw-page-chips">
+                        <span>{:L('精选')}</span>
+                        <span>{:L('更新')}</span>
+                        <span>{:L('高关注')}</span>
+                    </div>
                 </div>
                 {if $article_type=='all' && !empty($article_type_spotlights)}
                 <div class="aw-knowledge-spotlights">

@@ -34,6 +34,13 @@ class Article extends Frontend
     {
         $action=input('type');
         $article_id=input('article_id',0,'intval');
+        $article_info = ArticleModel::getArticleInfo($article_id, 'uid');
+        if (!$article_info) {
+            $this->error('文章不存在');
+        }
+        if ($this->user_id != $article_info['uid'] && get_user_permission('modify_article') != 'Y' && !isSuperAdmin() && !isNormalAdmin()) {
+            $this->error('您没有操作权限');
+        }
         switch ($action) {
             case 'recommend':
                 $is_recommend=input('is_recommend');
@@ -53,7 +60,14 @@ class Article extends Frontend
                     $this->success($msg);
                 }
                 break;
+            case 'rollback':
+                if (!ArticleModel::rollbackArticle(intval($article_info['uid']), $article_id)) {
+                    $this->error(ArticleModel::getError() ?: '回滚失败');
+                }
+                $this->success('回滚成功');
+                break;
         }
+        $this->error('请求参数不正确');
     }
 
     //ajax加载文章评论

@@ -1,6 +1,7 @@
 <?php
 namespace app\common\middleware;
 
+use app\common\library\helper\ApiTokenHelper;
 use think\exception\HttpResponseException;
 use think\Request;
 use think\Response;
@@ -11,6 +12,7 @@ class AppInit
         if(!defined('ENTRANCE'))
         {
             $AccessToken = request()->header('AccessToken');
+            $ApiToken = request()->header('ApiToken');
             $version = request()->header('version');
             if ($version === null || $version === '') {
                 $version = request()->header('version ');
@@ -26,13 +28,11 @@ class AppInit
                 || strpos($routeQuery, 'api/') === 0
                 || $routeQuery === 'api';
             $apiEnable = false;
-            $client = authCode($AccessToken);
-            $isClient = db('app_token')
-                ->where(['token' => $client,'type'=>1,'version'=>$version])
-                ->whereOr(['token' => $AccessToken,'type'=>1,'version'=>$version])
-                ->value('id');
-            if (($client && $isClient) || ($AccessToken && $isClient))
-            {
+            $tokenInfo = $ApiToken ? ApiTokenHelper::resolveAppToken((string) $ApiToken, (string) $version) : [];
+            if (!$tokenInfo && $AccessToken) {
+                $tokenInfo = ApiTokenHelper::resolveAppToken((string) $AccessToken, (string) $version);
+            }
+            if ($tokenInfo) {
                 $apiEnable = true;
             }
             //手机wap

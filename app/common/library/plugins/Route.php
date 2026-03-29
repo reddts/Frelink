@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace app\common\library\plugins;
 
+use app\common\library\helper\ApiTokenHelper;
 use think\facade\Request;
 use think\facade\Event;
 use think\facade\Config;
@@ -80,14 +81,9 @@ class Route
         //接口请求需定义ApiToken
         $AccessToken = request()->header('ApiToken');
         $apiEnable = false;
-        $client = authCode($AccessToken);
         $plugin = request()->route('plugin');
-        $isClient = db('app_token')
-            ->where(['token' => $client,'plugin'=>$plugin,'type'=>2])
-            ->whereOr(['token' => $AccessToken,'plugin'=>$plugin,'type'=>2])
-            ->value('id');
-        if (($client && $isClient) || ($AccessToken && $isClient))
-        {
+        $isClient = ApiTokenHelper::resolvePluginToken((string) $AccessToken, (string) $plugin);
+        if ($isClient) {
             $apiEnable = true;
         }
         //手机wap
