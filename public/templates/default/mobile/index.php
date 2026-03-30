@@ -356,10 +356,6 @@
                 <strong>{:L('FAQ')}</strong>
                 <span>{:L('高频 FAQ、术语解释和可快速复用的明确答案')}</span>
             </a>
-            <a class="aw-mobile-quick-card" href="{:url('help/index')}">
-                <strong>{:L('帮助')}</strong>
-                <span>{:L('适合查看术语、规则和入门说明')}</span>
-            </a>
         </div>
         <div class="aw-mobile-hero-badges">
             <span class="aw-mobile-hero-badge">{:L('开放检索')}</span>
