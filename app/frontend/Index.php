@@ -60,6 +60,7 @@ class Index extends Frontend
             'sort' => (string)$sort,
             'type' => (string)$type,
             'article_type' => (string)$articleType,
+            'article_version' => ArticleModel::getHomepageCacheVersion(),
             'lang' => (string)$this->request->cookie('aws_lang', ''),
         ]));
 

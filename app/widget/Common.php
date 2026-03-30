@@ -136,6 +136,7 @@ class Common extends Widget
             'topic_ids' => is_array($topic_ids) ? implode(',', $topic_ids) : (string)$topic_ids,
             'category_id' => (string)$category_id,
             'article_type' => (string)$article_type,
+            'article_version' => ArticleModel::getHomepageCacheVersion(),
             'page' => (int)$page,
             'focus' => (int)($sort === 'focus'),
             'lang' => (string)$this->request->cookie('aws_lang', ''),

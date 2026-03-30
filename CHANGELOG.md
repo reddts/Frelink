@@ -2,6 +2,12 @@
 
 ## 2026-03-30
 
+### 里程碑：首页文章残留缓存修复
+
+- 首页整页缓存、首页公共列表缓存和首页文章卡片缓存现在统一挂到文章内容版本号上
+- 文章发布、更新、删除、恢复和回滚时会主动刷新首页内容版本，避免首页继续显示刚删掉或刚改状态的文章
+- 这次修复不依赖缩短 TTL，而是让文章状态变化直接触发首页缓存换 key
+
 ### 里程碑：API 发文审核闸门补强
 
 - `ApiToken` 触发的文章发布与文章修改现在强制进入审核流，不再因为绑定管理员账号而直接绕过人工审核
@@ -10,8 +16,11 @@
 
 ### 验证
 
+- 本地已完成改动 diff 复核，当前环境仍无 `php`，语法检查放到远端执行
 - 本地已完成脚本语法检查：`python3 -m py_compile scripts/publish_chain.py`
 - 生产环境已执行 `bash scripts/deploy.sh deploy`，远端 `php -l app/function.inc.php`、`sudo php think clear`、API 文档重建与首页/列表 smoke 均通过
+- 生产库已确认旧测试文章 `149 / 148 / 147` 当前均为 `status=0`
+- 生产首页 `https://www.frelink.top/`、文章页 `https://www.frelink.top/articles/` 与 `api/Article/index?sort=new&page=1&page_size=10` 均已查不到 `审核待审文章-*` 残留标题
 - 生产站点已用真实 `ApiToken` 调用 `/api/Article/publish`，返回 `code=1`、`data.status=pending_review`、`approval_id=9`
 - 生产库已确认 `kn_approval.id=9` 为新增待审文章记录，`status=0`、`item_id=0`
 - 生产库已确认测试标题 `审核链路 API 验证 20260330 文章待审` 未写入 `kn_article`，计数结果为 `0`

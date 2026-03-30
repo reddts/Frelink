@@ -34,6 +34,22 @@ class Article extends BaseModel
 	protected $updateTime = 'update_time';
 	protected $autoWriteTimestamp = true;
 
+    protected static function homepageCacheVersionKey(): string
+    {
+        return 'homepage_content_version:article';
+    }
+
+    public static function getHomepageCacheVersion(): string
+    {
+        $version = cache(self::homepageCacheVersionKey());
+        return $version === null ? '0' : (string) $version;
+    }
+
+    public static function touchHomepageCacheVersion(): void
+    {
+        cache(self::homepageCacheVersionKey(), (string) microtime(true), 86400 * 30);
+    }
+
 	/**
 	 * 文章详情获取器
 	 * @param $value
@@ -159,6 +175,7 @@ class Article extends BaseModel
             return false;
         }
 
+        self::touchHomepageCacheVersion();
         return true;
     }
 
@@ -189,7 +206,7 @@ class Article extends BaseModel
     {
         $limit = max(1, min(10, intval($limit)));
         $articleType = frelink_normalize_article_type($articleType, 'research');
-        $cacheKey = 'home:featured_articles:v2:' . $articleType . ':' . $limit;
+        $cacheKey = 'home:featured_articles:v3:' . $articleType . ':' . $limit . ':' . self::getHomepageCacheVersion();
         $cached = cache($cacheKey);
         if ($cached !== null) {
             return $cached;
@@ -369,6 +386,8 @@ class Article extends BaseModel
             return  false;
         }
 
+        self::touchHomepageCacheVersion();
+
 		return $article_id;
 	}
 
@@ -478,6 +497,7 @@ class Article extends BaseModel
             self::setError($e->getMessage());
             return false;
         }
+        self::touchHomepageCacheVersion();
         return $postData['id'];
 	}
 
@@ -540,6 +560,7 @@ class Article extends BaseModel
             self::setError($e->getMessage());
             return false;
         }
+        self::touchHomepageCacheVersion();
         return true;
     }
 
@@ -585,6 +606,7 @@ class Article extends BaseModel
             return false;
         }
         //更新首页表
+        self::touchHomepageCacheVersion();
         return true;
     }
 
