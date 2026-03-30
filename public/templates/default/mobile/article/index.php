@@ -147,7 +147,7 @@
                 <a href="{:url('article/index')}" data-pjax="pageMain" class="font-weight-bold font-11 text-primary">{:frelink_nav_label('文章')}</a>
             </div>
             <div class="flex-fill text-left">
-                <a href="{:url('feature/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:L('观察专题')}</a>
+                <a href="{:url('topic/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:L('主题')}</a>
             </div>
         </div>
         <div class="aw-mobile-article-hero px-3">
