@@ -171,45 +171,22 @@ label {
     font-size: 24px
 }
 
-.aw-mobile-footer-icon-wrap {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-}
-
 .aw-mobile-footer-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    position: absolute;
-    inset: 0;
     width: 28px;
     height: 28px;
     font-size: 22px !important;
     line-height: 1;
     vertical-align: middle;
-    transition: opacity .18s ease, transform .18s ease, color .18s ease;
-}
-
-.aw-mobile-footer-icon-outline {
     color: #64748b;
-    display: inline-flex;
+    transition: color .18s ease, transform .18s ease;
 }
 
-.aw-mobile-footer-icon-filled {
+.aui-footer-list.active .aw-mobile-footer-icon {
     color: #1d4ed8;
-    display: none;
-}
-
-.aui-footer-list.active .aw-mobile-footer-icon-outline {
-    display: none;
-}
-
-.aui-footer-list.active .aw-mobile-footer-icon-filled {
-    display: inline-flex;
+    transform: translateY(-1px);
 }
 
 .aui-footer-list p {

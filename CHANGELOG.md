@@ -8,6 +8,12 @@
 - 移动端底部导航的双态图标从“透明叠放切换”收口为“显隐切换”，避免个别导航项在移动端同时绘制 outline 和 filled 两个图标
 - 这轮调整只收口移动端公共样式和知识内容列表筛选结构，不改文章查询、分类参数和页面路由
 
+### 里程碑：移动端底部导航改为单图标渲染
+
+- 移动端底部导航已进一步从“双层图标切换”收口为“单图标渲染”，每个导航项只输出一个 `<i>`，激活态直接在模板层切换图标类
+- `首页 / 主题 / FAQ / 知识内容 / 观察专题` 现在都不再依赖两层 iconfont 叠加，因此可以彻底避免某一项同时出现两个图标
+- 这次调整只影响移动端底部导航模板和对应公共样式，不改跳转地址、文案和 active 判定逻辑
+
 ### 验证
 
 - 本地已复核 `public/templates/default/mobile/article/index.php` 与 `public/templates/default/static/mobile/css/app.css` diff，确认改动仅覆盖筛选条和底部导航图标显示逻辑
@@ -17,6 +23,8 @@
 - 远端已执行 `sudo php think clear`
 - 远端已执行 `sudo php think api:doc --output docs/api-v1.md` 与 `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
 - 生产环境已完成 `https://www.frelink.top/`、`https://www.frelink.top/questions/`、`https://www.frelink.top/articles/` 基础 smoke 检查
+- 生产移动端首页 `https://www.frelink.top/m/` 已确认底部导航不再输出 `aw-mobile-footer-icon-wrap / aw-mobile-footer-icon-outline / aw-mobile-footer-icon-filled` 双层结构
+- 生产移动端首页底部导航 HTML 已确认每个导航项只保留一个 `aw-mobile-footer-icon` 图标节点
 
 ## 2026-03-30
 
