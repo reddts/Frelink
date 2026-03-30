@@ -47,8 +47,7 @@ class Ajax extends Frontend
         if ($featureId > 0) {
             $data = FeatureModel::getRelationFeatureList($this->user_id, $featureId, $sort, $this->request->param('page',1), 0, 'pageMain', $contentType);
         } elseif ($item_type === 'article') {
-            $queryArticleType = $articleType === 'all' ? 'public' : $articleType;
-            $data = ArticleModel::getArticleList($this->user_id, $sort, $topic_ids, $category_id, $this->request->param('page',1), 0, 0, 'pageMain', $queryArticleType);
+            $data = ArticleModel::getArticleList($this->user_id, $sort, $topic_ids, $category_id, $this->request->param('page',1), 0, 0, 'pageMain', $articleType);
         } else {
             $data = PostRelation::getPostRelationList($this->user_id,$item_type,$sort,$topic_ids,$category_id,$this->request->param('page',1));
         }

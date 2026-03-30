@@ -1,9 +1,11 @@
 {volist name="list" id="v"}
 <div class="aw-mobile-topic-card topic-item">
-    <a href="{:url('topic/detail',['id'=>$v['id']])}" data-pjax="pageMain">
-        <img src="{$v['pic']|default='static/common/image/topic.svg'}" onerror="this.src='static/common/image/topic.svg'" class="aw-mobile-topic-card-cover" alt="{$v.title|raw}">
-    </a>
-    <a href="{:url('topic/detail',['id'=>$v['id']])}" data-pjax="pageMain" class="aw-mobile-topic-card-title">#{$v.title|raw}</a>
+    <div class="aw-mobile-topic-card-head">
+        <a href="{:url('topic/detail',['id'=>$v['id']])}" data-pjax="pageMain">
+            <img src="{$v['pic']|default='static/common/image/topic.svg'}" onerror="this.src='static/common/image/topic.svg'" class="aw-mobile-topic-card-cover" alt="{$v.title|raw}">
+        </a>
+        <a href="{:url('topic/detail',['id'=>$v['id']])}" data-pjax="pageMain" class="aw-mobile-topic-card-title">#{$v.title|raw}</a>
+    </div>
     <div class="aw-mobile-topic-card-desc">{$v.description|raw}</div>
     <div class="aw-mobile-topic-card-meta">
         <div>{:L('讨论')} {$v.discuss} · {:L('关注')} {$v.focus}</div>

@@ -60,57 +60,62 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            padding: 12px;
+            padding: 10px;
             border-radius: 14px;
             background: #fff;
             border: 1px solid #e5edf6;
             box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
         }
+        .aw-mobile-topic-card-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
         .aw-mobile-topic-card-cover {
-            width: 44px;
-            height: 44px;
+            flex: 0 0 34px;
+            width: 34px;
+            height: 34px;
             border-radius: 12px;
             object-fit: cover;
             background: #f8fafc;
-            margin-bottom: 10px;
         }
         .aw-mobile-topic-card-title {
             display: -webkit-box;
             overflow: hidden;
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
-            margin-bottom: 6px;
             color: #0f172a;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            line-height: 1.5;
+            line-height: 1.4;
         }
         .aw-mobile-topic-card-desc {
             display: -webkit-box;
             overflow: hidden;
             -webkit-box-orient: vertical;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 2;
             color: #64748b;
-            font-size: 11px;
-            line-height: 1.6;
+            font-size: 10px;
+            line-height: 1.5;
         }
         .aw-mobile-topic-card-meta {
             margin-top: auto;
-            padding-top: 10px;
+            padding-top: 8px;
             color: #475569;
-            font-size: 11px;
-            line-height: 1.6;
+            font-size: 10px;
+            line-height: 1.5;
         }
         .aw-mobile-topic-card-action {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-top: 8px;
-            padding: 5px 10px;
+            margin-top: 6px;
+            padding: 4px 9px;
             border-radius: 999px;
             background: #eff6ff;
             color: #1d4ed8;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
         }
     </style>

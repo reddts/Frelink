@@ -244,8 +244,6 @@ class TemplateTag
         $where[] = ['status','=',1];
         if ($article_type === 'public') {
             $where[] = ['article_type', 'IN', frelink_public_article_type_keys()];
-        } elseif ($article_type === 'all' && strtolower((string)request()->controller()) === 'article') {
-            $where[] = ['article_type', 'IN', frelink_public_article_type_keys()];
         } elseif($article_type && $article_type !== 'all') {
             $where[] = ['article_type','=',frelink_normalize_article_type($article_type)];
         }

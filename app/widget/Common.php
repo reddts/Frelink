@@ -149,10 +149,6 @@ class Common extends Widget
         $perPage = $isHomeController ? $this->homePerPage() : 0;
 
         if ($item_type === 'article') {
-            $queryArticleType = $article_type ?: 'all';
-            if (in_array(strtolower($this->request->controller()), ['article', 'index'], true) && $queryArticleType === 'all') {
-                $queryArticleType = 'public';
-            }
             $data = ArticleModel::getArticleList(
                 $this->user_id,
                 $sort,
@@ -162,7 +158,7 @@ class Common extends Widget
                 $perPage,
                 0,
                 'tabMain',
-                $queryArticleType
+                $article_type ?: 'all'
             );
         } elseif ($item_type === 'question' || $sort === 'unresponsive') {
             $data = QuestionModel::getQuestionList(
