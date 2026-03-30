@@ -47,19 +47,29 @@
             font-size: 12px;
             line-height: 1.6;
         }
-        .aw-mobile-lane-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 8px;
+        .aw-mobile-article-note {
+            margin: 0 12px 12px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: #f8fbff;
+            border: 1px solid #e5edf6;
+            color: #64748b;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+        .aw-mobile-article-note a {
+            color: #1d4ed8;
+            font-weight: 700;
         }
         .aw-mobile-spotlight-grid {
             display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 10px;
             margin: 0 12px 12px;
         }
         .aw-mobile-spotlight-card {
             display: block;
-            padding: 12px;
+            padding: 11px;
             border-radius: 14px;
             background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
             border: 1px solid #dbe7f3;
@@ -82,60 +92,27 @@
             font-size: 14px;
         }
         .aw-mobile-spotlight-card p {
-            margin: 0 0 8px;
+            margin: 0 0 6px;
             color: #64748b;
-            font-size: 12px;
-            line-height: 1.6;
+            font-size: 11px;
+            line-height: 1.55;
         }
         .aw-mobile-spotlight-meta {
             color: #334155;
-            font-size: 11px;
-            line-height: 1.6;
+            font-size: 10px;
+            line-height: 1.5;
         }
         .aw-mobile-spotlight-action {
             display: inline-block;
-            margin-top: 8px;
+            margin-top: 6px;
             color: #1d4ed8;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
         }
-        .aw-mobile-lane-card {
-            display: block;
-            padding: 10px;
-            border-radius: 12px;
-            background: #f8fbff;
-            border: 1px solid #e5edf6;
-            color: #0f172a;
-        }
-        .aw-mobile-lane-card strong {
-            display: block;
-            margin-bottom: 4px;
-            font-size: 12px;
-        }
-        .aw-mobile-lane-card span {
-            display: block;
-            color: #64748b;
-            font-size: 11px;
-            line-height: 1.5;
-        }
-        .aw-mobile-article-badges {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding: 0 12px 12px;
-            background: #fff;
-            border-bottom: 1px solid #eef2f7;
-        }
-        .aw-mobile-article-badges a {
-            flex: 0 0 auto;
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 10px;
-            border-radius: 999px;
-            border: 1px solid #dbe7f3;
-            color: #60758b;
-            background: #fff;
-            font-size: 11px;
+        @media (max-width: 360px) {
+            .aw-mobile-spotlight-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
     <div class="bg-white">
@@ -172,27 +149,14 @@
             {/foreach}
         </div>
         {/if}
-        <div class="aw-mobile-article-badges">
-            <a href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">{:L('最新更新')}</a>
-            <a href="{:url('article/index',['sort'=>'recommend','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">{:L('精选')}</a>
-            <a href="{:url('article/index',['sort'=>'hot','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">{:L('高关注')}</a>
-            <a href="{:url('feature/index')}" data-pjax="pageMain">{:L('观察专题')}</a>
-        </div>
-        <div class="px-3 pb-3">
-            <div class="aw-mobile-lane-grid">
-                <a class="aw-mobile-lane-card" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">
-                    <strong>{:L('最新更新')}</strong>
-                    <span>{:L('先看知识内容最近补了哪些综述和观察。')}</span>
-                </a>
-                <a class="aw-mobile-lane-card" href="{:url('article/index',['sort'=>'hot','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">
-                    <strong>{:L('高关注')}</strong>
-                    <span>{:L('优先看被持续阅读和反复引用的条目。')}</span>
-                </a>
-                <a class="aw-mobile-lane-card" href="{:url('feature/index')}" data-pjax="pageMain">
-                    <strong>{:L('观察专题')}</strong>
-                    <span>{:L('沿同一主题查看持续更新的观察专题。')}</span>
-                </a>
-            </div>
+        <div class="aw-mobile-article-note">
+            {if $article_type=='all'}
+            {:L('先从上面的主入口区分综述和观察；如果想沿同一主题继续追踪变化，再去')}
+            <a href="{:url('feature/index')}" data-pjax="pageMain">{:L('观察专题')}</a>。
+            {else/}
+            {:L('这一页先按当前内容形态继续阅读；如果你想沿同一主题看长期变化，可转到')}
+            <a href="{:url('feature/index')}" data-pjax="pageMain">{:L('观察专题')}</a>。
+            {/if}
         </div>
         <!--热门用户、话题-->
         <!--<div class="hotUserTopic d-flex p-2">
