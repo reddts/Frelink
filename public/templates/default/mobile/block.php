@@ -134,19 +134,49 @@
         {/if}
         <footer class="aui-footer row-before" aria-label="{:L('主导航')}">
             <div class="aui-footer-list {if $thisController=='index'}active{/if}">
-                <a href="{$baseUrl}"><i class="iconfont icon-faxian aw-mobile-footer-icon"></i><p class="mt-1">{:frelink_nav_label('首页')}</p></a>
+                <a href="{$baseUrl}">
+                    <span class="aw-mobile-footer-icon-wrap" aria-hidden="true">
+                        <i class="iconfont icon-shouye aw-mobile-footer-icon aw-mobile-footer-icon-outline"></i>
+                        <i class="iconfont icon-shouye1 aw-mobile-footer-icon aw-mobile-footer-icon-filled"></i>
+                    </span>
+                    <p class="mt-1">{:frelink_nav_label('首页')}</p>
+                </a>
             </div>
             <div class="aui-footer-list {if $thisController=='topic'}active{/if}">
-                <a href="{:url('topic/index')}" data-pjax="pageMain"><i class="iconfont icon-huati1 aw-mobile-footer-icon"></i><p class="mt-1">{:frelink_nav_label('主题')}</p></a>
+                <a href="{:url('topic/index')}" data-pjax="pageMain">
+                    <span class="aw-mobile-footer-icon-wrap" aria-hidden="true">
+                        <i class="iconfont icon-huati aw-mobile-footer-icon aw-mobile-footer-icon-outline"></i>
+                        <i class="iconfont icon-huati1 aw-mobile-footer-icon aw-mobile-footer-icon-filled"></i>
+                    </span>
+                    <p class="mt-1">{:frelink_nav_label('主题')}</p>
+                </a>
             </div>
             <div class="aui-footer-list {if $thisController=='question'}active{/if}">
-                <a href="{:url('question/index')}" data-pjax="pageMain"><i class="iconfont icon-tiwenquestion aw-mobile-footer-icon"></i><p class="mt-1">{:frelink_nav_label('问题')}</p></a>
+                <a href="{:url('question/index')}" data-pjax="pageMain">
+                    <span class="aw-mobile-footer-icon-wrap" aria-hidden="true">
+                        <i class="iconfont icon-wenhao- aw-mobile-footer-icon aw-mobile-footer-icon-outline"></i>
+                        <i class="iconfont icon-tiwenquestion aw-mobile-footer-icon aw-mobile-footer-icon-filled"></i>
+                    </span>
+                    <p class="mt-1">{:frelink_nav_label('问题')}</p>
+                </a>
             </div>
             <div class="aui-footer-list {if $thisController=='article'}active{/if}">
-                <a href="{:url('article/index')}" data-pjax="pageMain"><i class="iconfont icon-wenzhang1 aw-mobile-footer-icon"></i><p class="mt-1">{:frelink_nav_label('文章')}</p></a>
+                <a href="{:url('article/index')}" data-pjax="pageMain">
+                    <span class="aw-mobile-footer-icon-wrap" aria-hidden="true">
+                        <i class="iconfont icon-wenzhang aw-mobile-footer-icon aw-mobile-footer-icon-outline"></i>
+                        <i class="iconfont icon-wenzhang1 aw-mobile-footer-icon aw-mobile-footer-icon-filled"></i>
+                    </span>
+                    <p class="mt-1">{:frelink_nav_label('文章')}</p>
+                </a>
             </div>
             <div class="aui-footer-list {if $thisController=='feature'}active{/if}">
-                <a href="{:url('feature/index')}" data-pjax="pageMain"><i class="iconfont icon-zhuanlan1 aw-mobile-footer-icon"></i><p class="mt-1">{:L('观察专题')}</p></a>
+                <a href="{:url('feature/index')}" data-pjax="pageMain">
+                    <span class="aw-mobile-footer-icon-wrap" aria-hidden="true">
+                        <i class="iconfont icon-zhuanlan aw-mobile-footer-icon aw-mobile-footer-icon-outline"></i>
+                        <i class="iconfont icon-zhuanlan1 aw-mobile-footer-icon aw-mobile-footer-icon-filled"></i>
+                    </span>
+                    <p class="mt-1">{:L('观察专题')}</p>
+                </a>
             </div>
         </footer>
         {/block}
