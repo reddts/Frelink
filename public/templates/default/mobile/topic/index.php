@@ -2,13 +2,6 @@
 {block name="main"}
 <div class="aui-content mescroll" id="ajaxPage">
     <style>
-        .aw-mobile-cross-nav a {
-            display: block;
-            color: #6b7280;
-        }
-        .aw-mobile-cross-nav a.text-primary {
-            color: #1d4ed8 !important;
-        }
         .aw-mobile-topic-hero {
             padding: 14px 12px 10px;
             background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
@@ -120,17 +113,6 @@
         }
     </style>
     <div class="bg-white">
-        <div class="d-flex p-3 border-bottom aw-mobile-cross-nav">
-            <div class="flex-fill text-right">
-                <a href="{:url('question/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:L('FAQ')}</a>
-            </div>
-            <div class="flex-fill text-center">
-                <a href="{:url('article/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:L('知识内容')}</a>
-            </div>
-            <div class="flex-fill text-left">
-                <a href="{:url('topic/index')}" data-pjax="pageMain" class="font-weight-bold font-11 text-primary">{:L('主题')}</a>
-            </div>
-        </div>
         <div class="aw-mobile-topic-hero px-3">
             <h1>{:L('主题')}</h1>
             <p>{:L('用主题把相关 FAQ、知识内容和长期讨论聚合在一起，先看变化，再沿着线索继续深入。')}</p>

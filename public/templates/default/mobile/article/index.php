@@ -1,13 +1,6 @@
 {extend name="$theme_block" /}
 {block name="style"}
 <style>
-    .aw-mobile-cross-nav a {
-        display: block;
-        color: #6b7280;
-    }
-    .aw-mobile-cross-nav a.text-primary {
-        color: #1d4ed8 !important;
-    }
     .aw-mobile-type-tabs {
         border-top: 1px solid #eef2f7;
     }
@@ -116,17 +109,6 @@
         }
     </style>
     <div class="bg-white">
-        <div class="d-flex p-3 border-bottom aw-mobile-cross-nav">
-            <div class="flex-fill text-right">
-                <a href="{:url('question/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:frelink_nav_label('问题')}</a>
-            </div>
-            <div class="flex-fill text-center">
-                <a href="{:url('article/index')}" data-pjax="pageMain" class="font-weight-bold font-11 text-primary">{:frelink_nav_label('文章')}</a>
-            </div>
-            <div class="flex-fill text-left">
-                <a href="{:url('topic/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:L('主题')}</a>
-            </div>
-        </div>
         <div class="aw-mobile-article-hero px-3">
             <h1>{:frelink_article_type_label($article_type)}</h1>
             <p>{:frelink_content_description($article_type)}</p>
