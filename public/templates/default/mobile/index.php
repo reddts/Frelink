@@ -403,23 +403,6 @@
         </div>
     </section>
     {/if}
-    <section class="aw-mobile-section">
-        <div class="aw-mobile-section-title">{:L('内容结构')}</div>
-        <div class="aw-mobile-lane-list">
-            <a href="{:url('article/index',['type'=>'research'])}" data-pjax="pageMain">
-                <small>{:L('综述')}</small>
-                <strong>{:L('先看脉络、分歧和阶段结论')}</strong>
-            </a>
-            <a href="{:url('feature/index')}" data-pjax="pageMain">
-                <small>{:L('观察')}</small>
-                <strong>{:L('先看长期观察专题和阶段判断')}</strong>
-            </a>
-            <a href="{:url('question/index')}" data-pjax="pageMain">
-                <small>{:L('FAQ')}</small>
-                <strong>{:L('先看高频 FAQ 和明确答案')}</strong>
-            </a>
-        </div>
-    </section>
     {:widget('sidebar/announce')}
     <section class="aw-mobile-explore">
         <div class="aw-mobile-section-head">
