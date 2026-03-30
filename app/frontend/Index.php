@@ -79,6 +79,7 @@ class Index extends Frontend
             'homepage_fragment_cards' => ArticleModel::getHomepageFeaturedArticles('fragment', 3),
             'archive_chapters'=>HelpModel::getHomepageArchiveHighlights(4, 3),
             'knowledge_map_summary' => HelpModel::getKnowledgeMapSummary(),
+            'knowledge_map_connections' => HelpModel::getKnowledgeMapTopicConnections(3, 2),
         ]);
         $this->TDK(get_setting('site_name'));
         $html = $this->fetch();

@@ -2412,4 +2412,7 @@ return[
     '这部分属于低频信息，放在首页底部，方便集中查看站点公告、规则调整和阶段更新。' => 'This section is for low-frequency information and stays at the bottom of the homepage for site notices, rule changes, and milestone updates.'
     ,'公开知识系统' => 'Open knowledge system'
     ,'内容不是越多越好' => 'More content is not always better'
+    ,'个章节' => 'chapters'
+    ,'条关联内容' => 'linked items'
+    ,'当前还没有可展示的主题连接，先把归档章节和主题关联起来后，这里会展示真实地图内容。' => 'There are no visible topic connections yet. Once chapters and topics are linked, real knowledge map content will appear here.'
 ];

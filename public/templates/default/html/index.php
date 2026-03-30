@@ -394,6 +394,32 @@
         margin-bottom: 4px;
         color: #2563eb;
     }
+    .aw-home-curated-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 6px;
+        color: #2563eb;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+    .aw-home-curated-meta small {
+        display: inline;
+        margin: 0;
+    }
+    .aw-home-curated-tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.4;
+    }
     .aw-home-curated-list p {
         margin: 4px 0 0;
         color: #64748b;
@@ -480,6 +506,64 @@
         flex-direction: column;
         justify-content: space-between;
         background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+    }
+    .aw-home-map-links {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .aw-home-map-link {
+        display: block;
+        padding: 14px;
+        border-radius: 16px;
+        border: 1px solid #e5edf6;
+        background: rgba(255, 255, 255, 0.92);
+        color: #0f172a;
+    }
+    .aw-home-map-link:hover {
+        text-decoration: none;
+        border-color: #cfe0f5;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.06);
+    }
+    .aw-home-map-link-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+    .aw-home-map-link-head strong {
+        display: block;
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+    }
+    .aw-home-map-link-count {
+        flex-shrink: 0;
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 700;
+    }
+    .aw-home-map-link-chapters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+    .aw-home-map-link-chapters span {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+    .aw-home-map-link-note {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
     }
     .aw-home-map-summary-desc {
         margin: 0 0 14px;
@@ -868,8 +952,10 @@
                                 {if !empty($archive_chapters)}
                                 {volist name="archive_chapters" id="chapter"}
                                 <a href="{$chapter.link_url}" target="_blank">
-                                    <small>{$chapter.source_label} · {$chapter.metric_value} {$chapter.metric_label}</small>
-                                    <strong>{$chapter.title}</strong>
+                                    <div class="aw-home-curated-meta">
+                                        <small>{$chapter.source_label} · {$chapter.metric_value} {$chapter.metric_label}</small>
+                                        <span class="aw-home-curated-tag">{$chapter.title}</span>
+                                    </div>
                                     <p>{$chapter.summary}</p>
                                 </a>
                                 {/volist}
@@ -883,7 +969,28 @@
                                 <h4>{:L('知识地图')}</h4>
                                 <a href="{:url('help/index')}">{:L('查看全部')}</a>
                             </div>
-                            <p class="aw-home-map-summary-desc">{:L('把章节、关联内容和主题连接起来，帮助首页保持持续聚合而不是留白。')}</p>
+                            {if !empty($knowledge_map_connections)}
+                            <div class="aw-home-map-links">
+                                {volist name="knowledge_map_connections" id="topic"}
+                                <a class="aw-home-map-link" href="{:url('topic/detail',['id'=>$topic['id']])}" target="_blank">
+                                    <div class="aw-home-map-link-head">
+                                        <strong>{$topic.title}</strong>
+                                        <span class="aw-home-map-link-count">{$topic.chapter_count|default=0} {:L('个章节')}</span>
+                                    </div>
+                                    {if !empty($topic['chapters'])}
+                                    <div class="aw-home-map-link-chapters">
+                                        {volist name="topic['chapters']" id="chapter"}
+                                        <span>{$chapter.title}</span>
+                                        {/volist}
+                                    </div>
+                                    {/if}
+                                    <div class="aw-home-map-link-note">{$topic.matched_count|default=0} {:L('条关联内容')} · {:L('讨论')} {$topic.discuss|default=0}</div>
+                                </a>
+                                {/volist}
+                            </div>
+                            {else/}
+                            <p class="aw-home-map-summary-desc">{:L('当前还没有可展示的主题连接，先把归档章节和主题关联起来后，这里会展示真实地图内容。')}</p>
+                            {/if}
                             <div class="aw-home-map-summary-grid">
                                 <div>
                                     <strong>{$knowledge_map_summary.chapter_count|default=0}</strong>
