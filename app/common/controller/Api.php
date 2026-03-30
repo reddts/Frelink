@@ -175,6 +175,10 @@ abstract class Api
      */
     public function publish_approval_valid($content = null,string $approval_type='publish_question_approval'): bool
     {
+        if ($this->shouldForceApiApproval($approval_type)) {
+            return true;
+        }
+
         //管理员不审核
         if ($this->user_info['group_id']==1 OR $this->user_info['group_id']==2)
         {
@@ -223,6 +227,18 @@ abstract class Api
         }
 
         return false;
+    }
+
+    protected function shouldForceApiApproval(string $approval_type): bool
+    {
+        if (!$this->api_token_info) {
+            return false;
+        }
+
+        return in_array($approval_type, [
+            'publish_article_approval',
+            'modify_article_approval',
+        ], true);
     }
 
     /**

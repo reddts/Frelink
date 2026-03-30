@@ -1,5 +1,21 @@
 # Frelink 项目更新日志
 
+## 2026-03-30
+
+### 里程碑：API 发文审核闸门补强
+
+- `ApiToken` 触发的文章发布与文章修改现在强制进入审核流，不再因为绑定管理员账号而直接绕过人工审核
+- `scripts/publish_chain.py` 现在会显式记录 `article_approval_id` 与 `article_visibility`，把“待审成功”与“正式发布”区分开
+- `docs/publish-test-template.md` 已补充 API 审核链路验收要求，明确管理员绑定 token 做文章发文测试时也必须返回待审结果
+
+### 验证
+
+- 本地已完成脚本语法检查：`python3 -m py_compile scripts/publish_chain.py`
+- 生产环境已执行 `bash scripts/deploy.sh deploy`，远端 `php -l app/function.inc.php`、`sudo php think clear`、API 文档重建与首页/列表 smoke 均通过
+- 生产站点已用真实 `ApiToken` 调用 `/api/Article/publish`，返回 `code=1`、`data.status=pending_review`、`approval_id=9`
+- 生产库已确认 `kn_approval.id=9` 为新增待审文章记录，`status=0`、`item_id=0`
+- 生产库已确认测试标题 `审核链路 API 验证 20260330 文章待审` 未写入 `kn_article`，计数结果为 `0`
+
 ## 2026-03-29
 
 ### 里程碑：API 文档自动生成接入部署

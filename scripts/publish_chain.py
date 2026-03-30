@@ -184,17 +184,24 @@ def post_article(
             return {
                 "status": "pending_review",
                 "id": int((payload.get("data") or {}).get("id", 0)),
+                "approval_id": int((payload.get("data") or {}).get("approval_id", 0)),
                 "payload": payload,
             }
         article_id = int((payload.get("data") or {}).get("id", 0))
         if not article_id:
             raise RuntimeError(f"article publish returned invalid id: {payload}")
-        return {"status": "published", "id": article_id, "payload": payload}
+        return {
+            "status": "published",
+            "id": article_id,
+            "approval_id": int((payload.get("data") or {}).get("approval_id", 0)),
+            "payload": payload,
+        }
 
     if "等待管理员审核" in str(payload.get("msg", "")):
         return {
             "status": "pending_review",
             "id": int((payload.get("data") or {}).get("id", 0)),
+            "approval_id": int((payload.get("data") or {}).get("approval_id", 0)),
             "payload": payload,
         }
 
@@ -272,10 +279,19 @@ def main() -> int:
         f"publish-chain-article-{slug}-{stamp}",
     )
     article_id = int(article_result["id"])
+    article_status = article_result["status"]
+    article_approval_id = int(article_result.get("approval_id", 0))
 
     question_detail = request_json(args.base_url, args.api_token, f"/api/Question/detail?id={question_id}")
     answer_list = request_json(args.base_url, args.api_token, f"/api/Question/answers?question_id={question_id}&page=1&per_page=3")
     article_detail = request_json(args.base_url, args.api_token, f"/api/Article/detail?id={article_id}") if article_id else {"data": {}}
+
+    if article_status == "published":
+        article_visibility = "public"
+    elif article_approval_id > 0:
+        article_visibility = "pending_review"
+    else:
+        article_visibility = "unknown"
 
     summary = {
         "hot_question": (hot_questions.get("data") or [{}])[0].get("id"),
@@ -286,7 +302,9 @@ def main() -> int:
         "answer_count": (question_detail.get("data") or {}).get("info", {}).get("answer_count"),
         "answer_preview": ((answer_list.get("data") or [{}])[0].get("content") if answer_list.get("data") else ""),
         "article_id": article_id,
-        "article_status": article_result["status"],
+        "article_status": article_status,
+        "article_approval_id": article_approval_id,
+        "article_visibility": article_visibility,
         "article_message": article_result["payload"].get("msg"),
         "article_title": article_detail.get("data", {}).get("title"),
         "article_cover": article_detail.get("data", {}).get("cover"),
