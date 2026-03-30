@@ -49,7 +49,6 @@
             <a href="{:url('question/detail',['id'=>$v['id']])}" target="_blank" class="js-analytics-click" data-analytics-type="question" data-analytics-id="{$v['id']}" data-analytics-list="desktop_home_feed" data-analytics-position="{$key + 1}" data-analytics-source="home_feed">{$v.title|raw}</a>
             {:hook('extend_title_label',['area'=>'widget_list','info'=>$v])}
         </div>
-        <div class="text-muted mb-2" style="font-size: 13px;">{:L('沉淀高频问题、明确答案和后续补充说明，作为知识系统的检索入口。')}</div>
         <div class="pcon {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}row{/if}">
             {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}
             <div class="col-md-12 t-imglist row">
@@ -121,17 +120,6 @@
             {/if}
             <a href="{:url('article/detail',['id'=>$v['id']])}" target="_blank" class="js-analytics-click" data-analytics-type="article" data-analytics-id="{$v['id']}" data-analytics-list="desktop_home_feed" data-analytics-position="{$key + 1}" data-analytics-source="home_feed">{$v['title']|raw}</a>
             {:hook('extend_title_label',['area'=>'widget_list','info'=>$v])}
-        </div>
-        <div class="text-muted mb-2" style="font-size: 13px;">
-            {if isset($v['article_type']) && $v['article_type']=='research'}
-            {:L('适合系统整理资料脉络、核心分歧和阶段性结论。')}
-            {elseif isset($v['article_type']) && $v['article_type']=='fragment'/}
-            {:L('适合保留观察、判断和仍在形成中的思考线索。')}
-            {elseif isset($v['article_type']) && $v['article_type']=='faq'/}
-            {:L('适合快速检索、复用和补齐高频问题答案。')}
-            {else/}
-            {:L('适合做热点解释、案例复盘和完整展开的主题内容。')}
-            {/if}
         </div>
         <div class="pcon {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}row{/if}">
             {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}

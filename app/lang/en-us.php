@@ -2415,4 +2415,5 @@ return[
     ,'个章节' => 'chapters'
     ,'条关联内容' => 'linked items'
     ,'当前还没有可展示的主题连接，先把归档章节和主题关联起来后，这里会展示真实地图内容。' => 'There are no visible topic connections yet. Once chapters and topics are linked, real knowledge map content will appear here.'
+    ,'当前章节下还没有公开归档内容' => 'There is no public archived content in this chapter yet.'
 ];

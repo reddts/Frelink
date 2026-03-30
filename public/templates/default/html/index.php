@@ -355,6 +355,7 @@
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 16px;
+        align-items: start;
     }
     .aw-home-curated-card {
         display: flex;
@@ -363,6 +364,7 @@
         border-radius: 16px;
         border: 1px solid #e5edf6;
         background: #fff;
+        align-self: start;
     }
     .aw-home-curated-head {
         display: flex;

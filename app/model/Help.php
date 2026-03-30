@@ -85,7 +85,7 @@ class Help extends BaseModel
             $chapters[$key]['metric_value'] = intval($chapter['relation_count'] ?? 0);
             $chapters[$key]['summary'] = !empty($chapter['chapters'][0]['info']['title'])
                 ? $chapter['chapters'][0]['info']['title']
-                : str_cut(strip_tags((string)($chapter['description'] ?? '')), 0, 70);
+                : L('当前章节下还没有公开归档内容');
             $chapters[$key]['link_url'] = get_url('help/detail', ['token' => $chapter['url_token']]);
         }
 

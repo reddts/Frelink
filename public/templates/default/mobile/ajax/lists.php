@@ -74,7 +74,6 @@
                     </div>
                 </div>
                 <div class="desc">
-                    <div class="text-muted font-9 mb-1">{:L('沉淀高频问题、明确答案和后续补充说明，作为知识系统的检索入口。')}</div>
                     {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}
                     {if count($v['img_list'])>1}
                     <div class="d-flex aw-list-img">
@@ -187,7 +186,6 @@
                     </div>
                 </div>
                 <div class="desc">
-                    <div class="text-muted font-9 mb-1">{:L('沉淀高频问题、明确答案和后续补充说明，作为知识系统的检索入口。')}</div>
                     {if $v['img_list'] && get_theme_setting('common.list_show_image')=='Y'}
                     {if count($v['img_list'])>1}
                     <div class="d-flex aw-list-img">
