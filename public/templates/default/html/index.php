@@ -1012,7 +1012,6 @@
                 <div class="aw-home-slow-updates-head">
                     <div>
                         <h4>{:L('公告与更新')}</h4>
-                        <p>{:L('这部分属于低频信息，放在首页底部，方便集中查看站点公告、规则调整和阶段更新。')}</p>
                     </div>
                 </div>
                 {:widget('sidebar/announce')}
