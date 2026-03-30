@@ -1,7 +1,7 @@
 {extend name="$theme_block" /}
 {block name="style"}
 <style>
-    .aw-article-subnav {
+    .aw-article-filterbar {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
@@ -10,7 +10,7 @@
         border-bottom: 1px solid #eef2f7;
         background: #fbfdff;
     }
-    .aw-article-subnav .nav-link {
+    .aw-article-filterbar .nav-link {
         padding: 6px 14px;
         border-radius: 999px;
         border: 1px solid #dbe7f3;
@@ -19,12 +19,18 @@
         line-height: 1.2;
         background: #fff;
     }
-    .aw-article-subnav .nav-link.active,
-    .aw-article-subnav .nav-link:hover {
+    .aw-article-filterbar .nav-link.active,
+    .aw-article-filterbar .nav-link:hover {
         color: #fff;
         background: #1d4ed8;
         border-color: #1d4ed8;
         text-decoration: none;
+    }
+    .aw-article-filterbar .nav-link.aw-article-filter-type.active,
+    .aw-article-filterbar .nav-link.aw-article-filter-type:hover {
+        color: #1d4ed8;
+        background: #eff6ff;
+        border-color: #bfdbfe;
     }
     .aw-knowledge-hero {
         padding: 20px 24px 10px;
@@ -57,21 +63,13 @@
         letter-spacing: 0.08em;
         text-transform: uppercase;
     }
-    .aw-page-chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 18px;
-    }
-    .aw-page-chips span {
+    .aw-article-filter-divider {
         display: inline-flex;
         align-items: center;
-        padding: 8px 12px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.14);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        color: rgba(255, 255, 255, 0.88);
-        font-size: 13px;
+        padding: 0 2px;
+        color: #94a3b8;
+        font-size: 12px;
+        font-weight: 700;
     }
     .aw-knowledge-lanes {
         display: grid;
@@ -191,11 +189,6 @@
                     <div class="aw-page-kicker">Knowledge Content Atlas</div>
                     <h1>{:frelink_article_type_label($article_type)}</h1>
                     <p>{:frelink_content_description($article_type)}</p>
-                    <div class="aw-page-chips">
-                        <span>{:L('精选')}</span>
-                        <span>{:L('更新')}</span>
-                        <span>{:L('高关注')}</span>
-                    </div>
                 </div>
                 {if $article_type=='all' && !empty($article_type_spotlights)}
                 <div class="aw-knowledge-spotlights">
@@ -232,14 +225,13 @@
                         <span>{:L('如果你想沿同一主题继续追踪变化，进入长期更新的观察专题。')}</span>
                     </a>
                 </div>
-                <nav class="nav nav-tabs aw-pjax-a px-4" aria-label="{:L('知识内容排序')}">
+                <nav class="aw-article-filterbar aw-pjax-a" aria-label="{:L('知识内容筛选')}">
                     <a class="nav-item nav-link {if $sort=='recommend'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'recommend','category_id'=>$category,'type'=>$article_type])}" {if $sort=='recommend'}aria-current="page"{/if}>{:L('精选')}</a>
                     <a class="nav-item nav-link {if $sort=='new'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" {if $sort=='new'}aria-current="page"{/if}>{:L('更新')}</a>
                     <a class="nav-item nav-link {if $sort=='hot'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'hot','category_id'=>$category,'type'=>$article_type])}" {if $sort=='hot'}aria-current="page"{/if}>{:L('高关注')}</a>
-                </nav>
-                <nav class="aw-article-subnav aw-pjax-a" aria-label="{:L('知识内容形态')}">
+                    <span class="aw-article-filter-divider">{:L('分类')}</span>
                     {foreach $article_type_options as $typeKey => $label}
-                    <a class="nav-link {if $article_type==$typeKey}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>$sort,'category_id'=>$category,'type'=>$typeKey])}" {if $article_type==$typeKey}aria-current="page"{/if}>{$label}</a>
+                    <a class="nav-link aw-article-filter-type {if $article_type==$typeKey}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>$sort,'category_id'=>$category,'type'=>$typeKey])}" {if $article_type==$typeKey}aria-current="page"{/if}>{$label}</a>
                     {/foreach}
                 </nav>
 
