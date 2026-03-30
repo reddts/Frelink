@@ -775,19 +775,15 @@
                 <div class="aw-home-content-map">
                     <a class="aw-home-map-card" href="{:url('article/index',['type'=>'research'])}">
                         <strong>{:frelink_content_label('research')}</strong>
-                        <span>{:L('适合沉淀资料脉络、核心分歧、阶段判断和后续观察点。')}</span>
                     </a>
                     <a class="aw-home-map-card" href="{:url('topic/index')}">
                         <strong>{:frelink_content_label('topic')}</strong>
-                        <span>{:L('按主题聚合资料、变化和后续观察点，形成持续追踪入口。')}</span>
                     </a>
                     <a class="aw-home-map-card" href="{:url('article/index',['type'=>'fragment'])}">
                         <strong>{:frelink_content_label('fragment')}</strong>
-                        <span>{:L('保留思考现场、快速判断和尚未定稿但值得记录的洞见。')}</span>
                     </a>
                     <a class="aw-home-map-card" href="{:url('question/index')}">
                         <strong>{:frelink_content_label('question')}</strong>
-                        <span>{:L('承接高频搜索、明确答案和持续补充说明，作为知识系统的检索入口。')}</span>
                     </a>
                 </div>
                 <div class="aw-home-curated">
@@ -910,7 +906,6 @@
             <div class="aw-home-feed-shell">
             <div class="aw-home-feed-head">
                 <h4>{:L('持续更新')}</h4>
-                <p>{:L('以下内容流用于持续补充综述、观察、FAQ 和帮助条目，作为首页四个主入口之外的更新面。')}</p>
             </div>
             <div class="nav nav-tabs px-4 aw-pjax-a" role="tablist">
                 {if $user_id}
@@ -931,21 +926,6 @@
                 <a class="{if $type=='article' && $article_type=='research'}active{/if}" data-pjax="tabMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'research'])}">{:frelink_content_label('research')}</a>
                 <a class="{if $type=='article' && $article_type=='fragment'}active{/if}" data-pjax="tabMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'fragment'])}">{:frelink_content_label('fragment')}</a>
                 <a class="{if $type=='article' && $article_type=='faq'}active{/if}" data-pjax="tabMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'faq'])}">{:frelink_content_label('faq')}</a>
-                {/if}
-            </div>
-            <div class="aw-home-feed-note">
-                {if $current_sort=='unresponsive'}
-                {:L('当前只看仍待补充的 FAQ 条目，不再混入其他内容类型。')}
-                {elseif $type=='question'}
-                {:L('当前只看 FAQ 条目，更适合承接检索、高频 FAQ 和明确答案。')}
-                {elseif $type=='article' && $article_type=='research'/}
-                {:L('当前只看综述，更适合系统理解、资料沉淀和长期追踪。')}
-                {elseif $type=='article' && $article_type=='fragment'/}
-                {:L('当前只看观察，更适合快速判断、灵感记录和现场洞见。')}
-                {elseif $type=='article' && $article_type=='faq'/}
-                {:L('当前只看帮助内容，更适合检索术语、规则和可复用方法。')}
-                {else/}
-                {:frelink_content_description('all')}
                 {/if}
             </div>
             <div class="tab-content" id="tabMain">

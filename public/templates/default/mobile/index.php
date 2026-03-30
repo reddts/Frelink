@@ -413,17 +413,14 @@
             <a href="{:url('article/index',['type'=>'research'])}" data-pjax="pageMain">
                 <small>{:L('综述')}</small>
                 <strong>{:L('先看脉络、分歧和阶段结论')}</strong>
-                <p>{:L('适合做长期沉淀和系统理解。')}</p>
             </a>
             <a href="{:url('feature/index')}" data-pjax="pageMain">
                 <small>{:L('观察')}</small>
                 <strong>{:L('先看长期观察专题和阶段判断')}</strong>
-                <p>{:L('适合围绕同一主题持续追踪变化、判断和后续沉淀。')}</p>
             </a>
             <a href="{:url('question/index')}" data-pjax="pageMain">
                 <small>{:L('FAQ')}</small>
                 <strong>{:L('先看高频 FAQ 和明确答案')}</strong>
-                <p>{:L('适合快速检索、复用和补齐站内知识缺口。')}</p>
             </a>
         </div>
     </section>
@@ -458,7 +455,6 @@
         <div class="aw-mobile-section-head">
             <div>
                 <h4>{:L('持续更新')}</h4>
-                <p>{:L('混排综述、观察、FAQ 和帮助条目，作为首页主入口之外的更新流。')}</p>
             </div>
         </div>
         <div class="aw-mobile-feed-filter">

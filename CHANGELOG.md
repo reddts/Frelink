@@ -2,6 +2,12 @@
 
 ## 2026-03-30
 
+### 里程碑：首页公开文案收口
+
+- 首页 `持续更新` 区块和首页顶部内容入口卡片，已移除面向内部分类/运营的解释性文案
+- 移动端首页同步移除 `持续更新` 和 `内容结构` 区块中的分类说明，只保留公开入口名称和必要标题
+- 这些分类语义仍保留在代码层、agent 流程和管理侧可读位置，不再在首页对访客直出
+
 ### 里程碑：首页文章残留缓存修复
 
 - 首页整页缓存、首页公共列表缓存和首页文章卡片缓存现在统一挂到文章内容版本号上
@@ -16,6 +22,9 @@
 
 ### 验证
 
+- 生产首页 `https://www.frelink.top/` 已查不到“以下内容流用于持续补充综述、观察、FAQ 和帮助条目”等解释性文案
+- 生产移动端首页 `https://www.frelink.top/m/` 已查不到“混排综述、观察、FAQ 和帮助条目，作为首页主入口之外的更新流”等分类说明
+- 生产模板文件 `public/templates/default/html/index.php` 与 `public/templates/default/mobile/index.php` 已确认不再包含上述首页公开文案
 - 本地已完成改动 diff 复核，当前环境仍无 `php`，语法检查放到远端执行
 - 本地已完成脚本语法检查：`python3 -m py_compile scripts/publish_chain.py`
 - 生产环境已执行 `bash scripts/deploy.sh deploy`，远端 `php -l app/function.inc.php`、`sudo php think clear`、API 文档重建与首页/列表 smoke 均通过
