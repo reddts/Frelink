@@ -92,21 +92,16 @@
         transform: translateY(-1px);
         transition: all .2s ease;
     }
-    .aw-knowledge-spotlight em {
+    .aw-knowledge-spotlight strong {
         display: inline-flex;
+        align-items: center;
         margin-bottom: 10px;
         padding: 5px 10px;
         border-radius: 999px;
         background: rgba(29, 78, 216, 0.08);
         color: #1d4ed8;
-        font-style: normal;
-        font-size: 12px;
-        font-weight: 700;
-    }
-    .aw-knowledge-spotlight strong {
-        display: block;
-        margin-bottom: 6px;
         font-size: 18px;
+        font-weight: 700;
     }
     .aw-knowledge-spotlight p {
         margin: 0 0 10px;
@@ -161,7 +156,6 @@
                 <div class="aw-knowledge-spotlights">
                     {foreach $article_type_spotlights as $spotlight}
                     <a class="aw-knowledge-spotlight" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$spotlight['type']])}" data-pjax="wrapMain">
-                        <em>{:L('主内容入口')}</em>
                         <strong>{$spotlight.label}</strong>
                         <p>{$spotlight.description}</p>
                         <div class="aw-knowledge-spotlight-meta">
