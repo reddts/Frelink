@@ -60,7 +60,6 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            min-height: 172px;
             padding: 12px;
             border-radius: 14px;
             background: #fff;
