@@ -35,13 +35,17 @@ class Article extends Frontend
     {
         $sort = $this->request->param('sort','new','sqlFilter');
         $category = $this->request->param('category_id',0,'intval');
-        $articleType = frelink_normalize_article_type($this->request->param('type', 'all', 'sqlFilter'), 'all');
+        $articleType = trim((string)$this->request->param('type', 'all', 'sqlFilter'));
+        $articleTypeOptions = frelink_public_article_type_options(true);
+        if (!isset($articleTypeOptions[$articleType])) {
+            $articleType = 'all';
+        }
         $this->assign(
             [
                 'sort'=> $sort,
                 'category'=>$category,
                 'article_type'=>$articleType,
-                'article_type_options'=>frelink_article_type_options(true),
+                'article_type_options'=>$articleTypeOptions,
                 'article_type_spotlights'=>frelink_article_type_spotlights($category),
             ]
         );

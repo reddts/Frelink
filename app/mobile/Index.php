@@ -44,7 +44,11 @@ class Index extends Frontend
     {
         $sort = $this->resolveSort();
         $type = $this->request->param('type', '');
-        $articleType = frelink_normalize_article_type($this->request->param('article_type', 'all', 'sqlFilter'), 'all');
+        $articleType = trim((string)$this->request->param('article_type', 'all', 'sqlFilter'));
+        $articleTypeOptions = frelink_public_article_type_options(true);
+        if (!isset($articleTypeOptions[$articleType])) {
+            $articleType = 'all';
+        }
         $feedQuery = [];
         if ($type) {
             $feedQuery['type'] = $type;
@@ -66,7 +70,7 @@ class Index extends Frontend
             'type'=> $type,
             'article_type' => $articleType,
             'feed_query' => $feedQuery,
-            'article_type_options' => frelink_article_type_options(true),
+            'article_type_options' => $articleTypeOptions,
             'search_keywords' => $searchKeywords,
             'featured_content' => $featuredContent,
             'archive_chapters' => HelpModel::getHomepageArchiveHighlights(3, 2),

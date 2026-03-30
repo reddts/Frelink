@@ -146,7 +146,7 @@
                 <a href="{:url('article/index')}" data-pjax="pageMain"><i class="iconfont icon-wenzhang1 aw-mobile-footer-icon"></i><p class="mt-1">{:frelink_nav_label('文章')}</p></a>
             </div>
             <div class="aui-footer-list {if $thisController=='feature'}active{/if}">
-                <a href="{:url('feature/index')}" data-pjax="pageMain"><i class="iconfont icon-zhuanlan1 aw-mobile-footer-icon"></i><p class="mt-1">{:frelink_nav_label('专题')}</p></a>
+                <a href="{:url('feature/index')}" data-pjax="pageMain"><i class="iconfont icon-zhuanlan1 aw-mobile-footer-icon"></i><p class="mt-1">{:L('观察专题')}</p></a>
             </div>
         </footer>
         {/block}

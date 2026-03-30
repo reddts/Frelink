@@ -147,7 +147,7 @@
                 <a href="{:url('article/index')}" data-pjax="pageMain" class="font-weight-bold font-11 text-primary">{:frelink_nav_label('文章')}</a>
             </div>
             <div class="flex-fill text-left">
-                <a href="{:url('topic/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:frelink_nav_label('主题')}</a>
+                <a href="{:url('feature/index')}" data-pjax="pageMain" class="font-weight-bold font-11">{:L('观察专题')}</a>
             </div>
         </div>
         <div class="aw-mobile-article-hero px-3">
@@ -176,21 +176,21 @@
             <a href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">{:L('最新更新')}</a>
             <a href="{:url('article/index',['sort'=>'recommend','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">{:L('精选')}</a>
             <a href="{:url('article/index',['sort'=>'hot','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">{:L('高关注')}</a>
-            <a href="{:url('topic/index')}" data-pjax="pageMain">{:L('转到主题')}</a>
+            <a href="{:url('feature/index')}" data-pjax="pageMain">{:L('观察专题')}</a>
         </div>
         <div class="px-3 pb-3">
             <div class="aw-mobile-lane-grid">
                 <a class="aw-mobile-lane-card" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">
                     <strong>{:L('最新更新')}</strong>
-                    <span>{:L('先看这一类最近补了什么。')}</span>
+                    <span>{:L('先看知识内容最近补了哪些综述和观察。')}</span>
                 </a>
                 <a class="aw-mobile-lane-card" href="{:url('article/index',['sort'=>'hot','category_id'=>$category,'type'=>$article_type])}" data-pjax="pageMain">
                     <strong>{:L('高关注')}</strong>
-                    <span>{:L('优先看被持续阅读的条目。')}</span>
+                    <span>{:L('优先看被持续阅读和反复引用的条目。')}</span>
                 </a>
-                <a class="aw-mobile-lane-card" href="{:url('topic/index')}" data-pjax="pageMain">
-                    <strong>{:L('转到主题')}</strong>
-                    <span>{:L('沿主题继续追踪资料脉络。')}</span>
+                <a class="aw-mobile-lane-card" href="{:url('feature/index')}" data-pjax="pageMain">
+                    <strong>{:L('观察专题')}</strong>
+                    <span>{:L('沿同一主题查看持续更新的观察专题。')}</span>
                 </a>
             </div>
         </div>

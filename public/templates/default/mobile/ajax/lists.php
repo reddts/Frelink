@@ -261,13 +261,11 @@
                 <div class="desc">
                     <div class="text-muted font-9 mb-1">
                         {if isset($v['article_type']) && $v['article_type']=='research'}
-                        {:L('系统整理资料脉络、核心分歧和阶段性结论。')}
+                        {:L('综述条目：系统整理背景、关键分歧和当前结论。')}
                         {elseif isset($v['article_type']) && $v['article_type']=='fragment'/}
-                        {:L('保留观察、判断和仍在形成中的思考线索。')}
-                        {elseif isset($v['article_type']) && $v['article_type']=='faq'/}
-                        {:L('适合快速检索和复用的高频问题答案。')}
+                        {:L('观察条目：记录判断、线索和仍在形成中的变化。')}
                         {else/}
-                        {:L('用完整展开的方式解释热点、案例和方法。')}
+                        {:L('知识内容条目：补充资料、判断和长期可复查的上下文。')}
                         {/if}
                     </div>
                     {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}

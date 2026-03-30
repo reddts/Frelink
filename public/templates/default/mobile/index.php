@@ -334,7 +334,7 @@
     </style>
     <section class="aw-mobile-hero">
         <div class="aw-mobile-hero-title">{:L('公开、开放、可检索的知识系统')}</div>
-        <div class="aw-mobile-hero-desc">{:L('用综述沉淀脉络，用主题追踪变化，用观察保留判断，用 FAQ 承接检索，不再依赖问答社区逻辑。')}</div>
+        <div class="aw-mobile-hero-desc">{:L('用综述整理脉络，用观察保留变化，用 FAQ 承接检索，再通过主题和观察专题把内容长期串起来。')}</div>
         <form class="aw-mobile-search-form" action="{:url('search/index')}" method="get">
             <input class="aw-mobile-search-input" type="search" name="q" placeholder="{:L('搜索综述、观察、FAQ、主题或知识章节')}">
             <button class="aw-mobile-search-btn" type="submit">{:L('搜索')}</button>
@@ -349,7 +349,7 @@
                 <span>{:L('按主题聚合变化、资料和后续追踪点')}</span>
             </a>
             <a class="aw-mobile-quick-card" href="{:url('feature/index')}" data-pjax="pageMain">
-                <strong>{:L('观察')}</strong>
+                <strong>{:L('观察专题')}</strong>
                 <span>{:L('进入长期观察专题，持续查看同一主题下的动态、判断和沉淀')}</span>
             </a>
             <a class="aw-mobile-quick-card" href="{:url('question/index')}">
@@ -442,7 +442,6 @@
             {if $current_sort!='unresponsive'}
             <a class="{if $type=='article' && $article_type=='research'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'research'])}">{:L('综述')}</a>
             <a class="{if $type=='article' && $article_type=='fragment'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'fragment'])}">{:L('观察')}</a>
-            <a class="{if $type=='article' && $article_type=='faq'}active{/if}" data-pjax="pageMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'article','article_type'=>'faq'])}">{:L('帮助')}</a>
             {/if}
         </div>
         <div class="aw-mobile-feed-list">

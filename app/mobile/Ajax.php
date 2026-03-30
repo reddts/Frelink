@@ -47,10 +47,31 @@ class Ajax extends Frontend
         if ($featureId > 0) {
             $data = FeatureModel::getRelationFeatureList($this->user_id, $featureId, $sort, $this->request->param('page',1), 0, 'pageMain', $contentType);
         } elseif ($item_type === 'article') {
-            $data = ArticleModel::getArticleList($this->user_id, $sort, $topic_ids, $category_id, $this->request->param('page',1), 0, 0, 'pageMain', $articleType);
+            $queryArticleType = $articleType === 'all' ? 'public' : $articleType;
+            $data = ArticleModel::getArticleList($this->user_id, $sort, $topic_ids, $category_id, $this->request->param('page',1), 0, 0, 'pageMain', $queryArticleType);
         } else {
             $data = PostRelation::getPostRelationList($this->user_id,$item_type,$sort,$topic_ids,$category_id,$this->request->param('page',1));
         }
+
+        if (!empty($data['list']) && is_array($data['list'])) {
+            $normalizeType = null;
+            if ($featureId > 0) {
+                $normalizeType = 'article';
+            } elseif ($item_type === 'article') {
+                $normalizeType = 'article';
+            } elseif ($item_type === 'question') {
+                $normalizeType = 'question';
+            }
+
+            if ($normalizeType) {
+                foreach ($data['list'] as $idx => $row) {
+                    if (is_array($row) && empty($row['item_type'])) {
+                        $data['list'][$idx]['item_type'] = $normalizeType;
+                    }
+                }
+            }
+        }
+
         $this->assign($data);
         if($sort=='focus')
         {

@@ -45,7 +45,11 @@ class Index extends Frontend
     {
         $sort = $this->resolveSort();
         $type = $this->request->param('type');
-        $articleType = frelink_normalize_article_type($this->request->param('article_type', 'all', 'sqlFilter'), 'all');
+        $articleType = trim((string)$this->request->param('article_type', 'all', 'sqlFilter'));
+        $articleTypeOptions = frelink_public_article_type_options(true);
+        if (!isset($articleTypeOptions[$articleType])) {
+            $articleType = 'all';
+        }
         $page = $this->request->param('page', 1, 'intval');
         $isAjax = $this->request->isAjax() || $this->request->isPjax() || intval($this->request->param('_ajax', 0)) === 1 || intval($this->request->param('_ajax_open', 0)) === 1;
         $canPageCache = !$this->user_id && !$isAjax && $page === 1;
@@ -74,7 +78,7 @@ class Index extends Frontend
             'type'=>$type,
             'article_type'=>$articleType,
             'feed_query' => $feedQuery,
-            'article_type_options'=>frelink_article_type_options(true),
+            'article_type_options'=>$articleTypeOptions,
             'homepage_research_cards' => ArticleModel::getHomepageFeaturedArticles('research', 3),
             'homepage_fragment_cards' => ArticleModel::getHomepageFeaturedArticles('fragment', 3),
             'archive_chapters'=>HelpModel::getHomepageArchiveHighlights(4, 3),

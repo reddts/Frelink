@@ -202,6 +202,29 @@ if (! function_exists('frelink_article_type_options')) {
     }
 }
 
+if (! function_exists('frelink_public_article_type_options')) {
+    function frelink_public_article_type_options(bool $includeAll = false): array
+    {
+        $options = [
+            'research' => frelink_content_label('research'),
+            'fragment' => frelink_content_label('fragment'),
+        ];
+
+        if ($includeAll) {
+            return ['all' => frelink_content_label('all')] + $options;
+        }
+
+        return $options;
+    }
+}
+
+if (! function_exists('frelink_public_article_type_keys')) {
+    function frelink_public_article_type_keys(): array
+    {
+        return array_keys(frelink_public_article_type_options(false));
+    }
+}
+
 if (! function_exists('frelink_content_label')) {
     function frelink_content_label(string $type): string
     {
@@ -228,13 +251,13 @@ if (! function_exists('frelink_content_description')) {
     {
         $map = [
             'question' => L('这里承接高频 FAQ、明确答案和可复用解释。它不再是社区问答流，而是公开知识系统里的 FAQ 入口。'),
-            'research' => L('这里沉淀的是系统化综述，用来整理脉络、分歧和阶段性结论。'),
-            'fragment' => L('这里沉淀的是观察记录，用来保留判断、线索和仍在形成中的洞见。'),
+            'research' => L('综述是知识内容里的稳定条目，用来系统整理背景、关键分歧和当前结论。'),
+            'fragment' => L('观察是知识内容里的动态条目，用来记录判断、线索和仍在形成中的变化。'),
             'track' => L('这里沉淀的是主题追踪，用来记录变化、修正旧判断和补充阶段更新。'),
             'faq' => L('这里沉淀的是帮助内容，用来复用明确答案、规则和术语解释。'),
             'tutorial' => L('这里沉淀的是方法内容，用来输出步骤、实践和可执行方案。'),
             'normal' => L('这里沉淀的是热点解释，用来回答“这件事为什么重要”。'),
-            'all' => L('首页会混排综述、观察、FAQ 和帮助条目，帮助用户先找到合适的知识形态。'),
+            'all' => L('这里汇总全部知识内容，目前公开展示综述和观察两类条目。'),
         ];
 
         return $map[$type] ?? ($map['normal'] ?? '');
@@ -316,6 +339,10 @@ if (! function_exists('frelink_normalize_article_type')) {
 if (! function_exists('frelink_article_type_label')) {
     function frelink_article_type_label($type): string
     {
+        if ((string)$type === 'all') {
+            return frelink_content_label('all');
+        }
+
         $type = frelink_normalize_article_type($type);
         $options = frelink_article_type_options();
         return $options[$type] ?? $options['normal'];
@@ -325,7 +352,7 @@ if (! function_exists('frelink_article_type_label')) {
 if (! function_exists('frelink_article_type_spotlights')) {
     function frelink_article_type_spotlights(int $categoryId = 0): array
     {
-        $types = ['research', 'fragment', 'track'];
+        $types = ['research', 'fragment'];
         $spotlights = [];
 
         foreach ($types as $type) {
