@@ -71,14 +71,6 @@
         font-size: 12px;
         font-weight: 700;
     }
-    .aw-knowledge-lanes {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
-        padding: 14px 24px 18px;
-        border-bottom: 1px solid #eef2f7;
-        background: #fff;
-    }
     .aw-knowledge-spotlights {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -142,33 +134,8 @@
         font-size: 13px;
         font-weight: 700;
     }
-    .aw-knowledge-lane {
-        display: block;
-        padding: 14px;
-        border: 1px solid #e5edf6;
-        border-radius: 14px;
-        background: #fbfdff;
-        color: #0f172a;
-    }
-    .aw-knowledge-lane:hover {
-        text-decoration: none;
-        transform: translateY(-1px);
-        transition: all .2s ease;
-    }
-    .aw-knowledge-lane strong {
-        display: block;
-        margin-bottom: 6px;
-        font-size: 15px;
-    }
-    .aw-knowledge-lane span {
-        display: block;
-        color: #64748b;
-        font-size: 13px;
-        line-height: 1.6;
-    }
     @media (max-width: 991.98px) {
-        .aw-knowledge-spotlights,
-        .aw-knowledge-lanes {
+        .aw-knowledge-spotlights {
             grid-template-columns: 1fr;
         }
     }
@@ -211,20 +178,6 @@
                     {/foreach}
                 </div>
                 {/if}
-                <div class="aw-knowledge-lanes">
-                    <a class="aw-knowledge-lane" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" data-pjax="wrapMain">
-                        <strong>{:L('最新更新')}</strong>
-                        <span>{:L('先看最近新增的内容，快速确认这一类知识最近补了什么。')}</span>
-                    </a>
-                    <a class="aw-knowledge-lane" href="{:url('article/index',['sort'=>'hot','category_id'=>$category,'type'=>$article_type])}" data-pjax="wrapMain">
-                        <strong>{:L('高关注内容')}</strong>
-                        <span>{:L('优先查看被持续阅读和讨论的条目，判断哪些主题最值得追踪。')}</span>
-                    </a>
-                    <a class="aw-knowledge-lane" href="{:url('feature/index')}" data-pjax="wrapMain">
-                        <strong>{:L('观察专题')}</strong>
-                        <span>{:L('如果你想沿同一主题继续追踪变化，进入长期更新的观察专题。')}</span>
-                    </a>
-                </div>
                 <nav class="aw-article-filterbar aw-pjax-a" aria-label="{:L('知识内容筛选')}">
                     <a class="nav-item nav-link {if $sort=='recommend'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'recommend','category_id'=>$category,'type'=>$article_type])}" {if $sort=='recommend'}aria-current="page"{/if}>{:L('精选')}</a>
                     <a class="nav-item nav-link {if $sort=='new'}active{/if}" data-pjax="wrapMain" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}" {if $sort=='new'}aria-current="page"{/if}>{:L('更新')}</a>
