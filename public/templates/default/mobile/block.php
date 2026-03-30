@@ -135,7 +135,7 @@
         <footer class="aui-footer row-before" aria-label="{:L('主导航')}">
             <div class="aui-footer-list {if $thisController=='index'}active{/if}">
                 <a href="{$baseUrl}">
-                    <i class="iconfont {if $thisController=='index'}icon-shouye1{else/}icon-shouye{/if} aw-mobile-footer-icon" aria-hidden="true"></i>
+                    <i class="iconfont icon-shouye1 aw-mobile-footer-icon" aria-hidden="true"></i>
                     <p class="mt-1">{:frelink_nav_label('首页')}</p>
                 </a>
             </div>
