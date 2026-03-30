@@ -68,7 +68,7 @@
             border: 1px solid #dbe7f3;
             color: #0f172a;
         }
-        .aw-mobile-spotlight-card em {
+        .aw-mobile-spotlight-label {
             display: inline-flex;
             margin-bottom: 8px;
             padding: 4px 8px;
@@ -117,8 +117,7 @@
         <div class="aw-mobile-spotlight-grid">
             {foreach $article_type_spotlights as $spotlight}
             <a class="aw-mobile-spotlight-card" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$spotlight['type']])}" data-pjax="pageMain">
-                <em>{:L('主内容入口')}</em>
-                <strong>{$spotlight.label}</strong>
+                <span class="aw-mobile-spotlight-label">{$spotlight.label}</span>
                 <p>{$spotlight.description}</p>
                 <div class="aw-mobile-spotlight-meta">
                     <div>{:L('已发布 %s 篇',$spotlight['count'])}</div>
