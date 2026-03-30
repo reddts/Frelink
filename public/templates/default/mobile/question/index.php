@@ -2,6 +2,23 @@
 {block name="main"}
 <div class="aui-content mescroll" id="ajaxPage">
     <style>
+        .aw-mobile-question-hero {
+            padding: 14px 12px 10px;
+            background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
+            border-bottom: 1px solid #eef2f7;
+        }
+        .aw-mobile-question-hero h1 {
+            margin-bottom: 4px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .aw-mobile-question-hero p {
+            margin-bottom: 0;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
         .aw-mobile-lane-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -28,9 +45,9 @@
         }
     </style>
     <div class="bg-white">
-        <div class="px-3 pb-3">
-            <div class="font-weight-bold font-12 mb-1">{:L('FAQ')}</div>
-            <div class="text-muted font-9">{:L('承接高频 FAQ、明确答案和后续补充，不再沿社区问答模式组织内容。')}</div>
+        <div class="aw-mobile-question-hero px-3">
+            <h1>{:L('FAQ')}</h1>
+            <p>{:L('承接高频 FAQ、明确答案和后续补充，不再沿社区问答模式组织内容。')}</p>
         </div>
         <div class="px-3 pb-3">
             <div class="aw-mobile-lane-grid">
@@ -68,7 +85,7 @@
         {:widget('common/category',['type'=>'question','category'=>$category,'show_type'=>'list'])}
         {/if}
 
-        <div class="swiper-container mt-1 bg-white">
+        <div class="swiper-container bg-white">
             <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block px-2 bg-white swiper-wrapper" style="flex-wrap: nowrap;">
                 <li class="nav-item swiper-slide" data-type="new">
                     <a class="nav-link {if $sort=='new'}active{/if}" data-pjax="pageMain" href="{:url('question/index',['sort'=>'new','category_id'=>$category])}">{:L('更新')}</a>
