@@ -461,7 +461,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        padding: 12px 24px 0;
+        padding: 18px 24px 0;
     }
     .aw-home-feed-filter a {
         padding: 6px 14px;
@@ -475,6 +475,12 @@
         background: #1d4ed8;
         border-color: #1d4ed8;
         color: #fff;
+    }
+    .aw-home-feed-divider {
+        width: 1px;
+        align-self: stretch;
+        background: #e5edf6;
+        margin: 2px 4px;
     }
     .aw-home-feed-note {
         padding: 10px 24px 0;
@@ -616,21 +622,6 @@
         margin-top: 18px;
         border-top: 1px solid #eef2f7;
         padding-top: 16px;
-    }
-    .aw-home-feed-head {
-        padding: 0 24px 10px;
-    }
-    .aw-home-feed-head h4 {
-        margin: 0 0 4px;
-        font-size: 16px;
-        font-weight: 700;
-        color: #0f172a;
-    }
-    .aw-home-feed-head p {
-        margin: 0;
-        color: #64748b;
-        font-size: 13px;
-        line-height: 1.7;
     }
     .aw-home-main-shell {
         position: relative;
@@ -1013,22 +1004,15 @@
             </div>
             {/if}
             <div class="aw-home-feed-shell">
-            <div class="aw-home-feed-head">
-                <h4>{:L('持续更新')}</h4>
-            </div>
-            <div class="nav nav-tabs px-4 aw-pjax-a" role="tablist">
-                {if $user_id}
-                <a class="nav-item nav-link {if $current_sort=='focus'}active{/if}" data-pjax="tabMain" href="{:url('index/index',['sort'=>'focus'])}">{:L('关注主题')}</a>
-                {/if}
-                <a class="nav-item nav-link {if $current_sort=='recommend'}active{/if}" data-pjax="tabMain" href="{:url('index/index',array_merge(['sort'=>'recommend'],$feed_query))}">{:L('精选')}</a>
-                <a class="nav-item nav-link {if $current_sort=='new'}active{/if}" data-pjax="tabMain" href="{:url('index/index',array_merge(['sort'=>'new'],$feed_query))}">{:L('更新')}</a>
-                <a class="nav-item nav-link {if $current_sort=='hot'}active{/if}" data-pjax="tabMain" href="{:url('index/index',array_merge(['sort'=>'hot'],$feed_query))}">{:L('高关注')}</a>
-                <a class="nav-item nav-link {if $current_sort=='unresponsive'}active{/if}" data-pjax="tabMain" href="{:url('index/index',array_merge(['sort'=>'unresponsive'],$feed_query))}" >{:L('待补充 FAQ')}</a>
-                {volist name=":config('aws.tabs')" id="v"}
-                <a class="nav-link nav-item {if $type==$key}active{/if}" href="{:url('index/index',['sort'=>'new','type'=>$key])}" data-pjax="tabMain">{$v.title}</a>
-                {/volist}
-            </div>
             <div class="aw-home-feed-filter aw-pjax-a">
+                {if $user_id}
+                <a class="{if $current_sort=='focus'}active{/if}" data-pjax="tabMain" href="{:url('index/index',array_merge(['sort'=>'focus'],$feed_query))}">{:L('关注主题')}</a>
+                {/if}
+                <a class="{if $current_sort=='recommend'}active{/if}" data-pjax="tabMain" href="{:url('index/index',array_merge(['sort'=>'recommend'],$feed_query))}">{:L('精选')}</a>
+                <a class="{if $current_sort=='new'}active{/if}" data-pjax="tabMain" href="{:url('index/index',array_merge(['sort'=>'new'],$feed_query))}">{:L('更新')}</a>
+                <a class="{if $current_sort=='hot'}active{/if}" data-pjax="tabMain" href="{:url('index/index',array_merge(['sort'=>'hot'],$feed_query))}">{:L('高关注')}</a>
+                <a class="{if $current_sort=='unresponsive'}active{/if}" data-pjax="tabMain" href="{:url('index/index',array_merge(['sort'=>'unresponsive'],$feed_query))}">{:L('待补充 FAQ')}</a>
+                <span class="aw-home-feed-divider" aria-hidden="true"></span>
                 <a class="{if !$type || $current_sort=='unresponsive'}active{/if}" data-pjax="tabMain" href="{:url('index/index',['sort'=>$current_sort])}">{:frelink_content_label('all')}</a>
                 <a class="{if $type=='question'}active{/if}" data-pjax="tabMain" href="{:url('index/index',['sort'=>$current_sort,'type'=>'question'])}">{:frelink_content_label('question')}</a>
                 {if $current_sort!='unresponsive'}
