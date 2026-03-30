@@ -132,26 +132,6 @@
         font-weight: 700;
         border-radius: 14px;
     }
-    .aw-home-quick-actions {
-        margin-top: 16px;
-        margin-bottom: 0;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        justify-content: flex-start !important;
-        position: relative;
-        z-index: 2;
-    }
-    .aw-home-quick-actions a {
-        border: 1px solid rgba(255,255,255,0.14);
-        background: rgba(255,255,255,0.1);
-        color: #fff !important;
-        border-radius: 999px;
-        padding: 7px 14px;
-    }
-    .aw-home-quick-actions a:hover {
-        background: rgba(255,255,255,0.18);
-    }
     .aw-home-hero-standards {
         margin-top: 14px;
         display: grid;
@@ -706,9 +686,6 @@
         .aw-home-search-shell .btn {
             min-width: 108px;
         }
-        .aw-home-quick-actions {
-            justify-content: center !important;
-        }
         .aw-home-hero-badges {
             justify-content: center;
         }
@@ -750,7 +727,6 @@
             height: 48px !important;
             line-height: 48px;
         }
-        .aw-home-quick-actions,
         .aw-home-hero-badges {
             display: none;
         }
@@ -783,13 +759,6 @@
                         <button type="button" class="btn gradientBtn px-4 ml-1" style="height: 42px;" onclick="$('#homeSearch').submit();">{:L('搜索')}</button>
                     </span>
                 </form>
-                <div class="aw-home-quick-actions">
-                    <a class="btn btn-sm m-0" href="{:url('article/index',['type'=>'research'])}">{:frelink_content_label('research')}</a>
-                    <a class="btn btn-sm m-0" href="{:url('topic/index')}">{:frelink_content_label('topic')}</a>
-                    <a class="btn btn-sm m-0" href="{:url('article/index',['type'=>'fragment'])}">{:frelink_content_label('fragment')}</a>
-                    <a class="btn btn-sm m-0" href="{:url('question/index')}">{:frelink_content_label('question')}</a>
-                    <a class="btn btn-sm m-0" href="{:url('article/index',['type'=>'faq'])}">{:frelink_content_label('faq')}</a>
-                </div>
                 <div class="aw-home-hero-standards">
                     <div class="aw-home-hero-standard">
                         <strong>{:L('3 秒知道和自己有关')}</strong>
