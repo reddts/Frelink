@@ -150,7 +150,7 @@ class Common extends Widget
 
         if ($item_type === 'article') {
             $queryArticleType = $article_type ?: 'all';
-            if (strtolower($this->request->controller()) === 'article' && $queryArticleType === 'all') {
+            if (in_array(strtolower($this->request->controller()), ['article', 'index'], true) && $queryArticleType === 'all') {
                 $queryArticleType = 'public';
             }
             $data = ArticleModel::getArticleList(

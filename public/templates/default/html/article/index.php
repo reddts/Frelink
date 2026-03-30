@@ -227,9 +227,9 @@
                         <strong>{:L('高关注内容')}</strong>
                         <span>{:L('优先查看被持续阅读和讨论的条目，判断哪些主题最值得追踪。')}</span>
                     </a>
-                    <a class="aw-knowledge-lane" href="{:url('topic/index')}">
-                        <strong>{:L('转到主题')}</strong>
-                        <span>{:L('如果你想看一组内容之间的关系和变化，继续沿主题入口展开。')}</span>
+                    <a class="aw-knowledge-lane" href="{:url('feature/index')}" data-pjax="wrapMain">
+                        <strong>{:L('观察专题')}</strong>
+                        <span>{:L('如果你想沿同一主题继续追踪变化，进入长期更新的观察专题。')}</span>
                     </a>
                 </div>
                 <nav class="nav nav-tabs aw-pjax-a px-4" aria-label="{:L('知识内容排序')}">

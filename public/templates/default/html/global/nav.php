@@ -17,11 +17,11 @@
                             <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="white-space: nowrap;">{:frelink_nav_label($v.title)}</a>
                             <div class="dropdown-menu text-center" aria-labelledby="navbarDropdownMenuLink">
                                 {volist name="$v['child_list']" id="v1"}
-                                <a class="dropdown-item" href="{$v1.url}" data-pjax="pageMain" title="{$v1.title}">{$v1.title}</a>
+                                <a class="dropdown-item" href="{$v1.url}" data-pjax="pageMain" title="{:frelink_nav_label($v1.title)}">{:frelink_nav_label($v1.title)}</a>
                                 {/volist}
                             </div>
                             {else/}
-                            <a class="nav-link" href="{$v.url}" data-pjax="pageMain" title="{$v.title}" style="white-space: nowrap;">{:frelink_nav_label($v.title)}</a>
+                            <a class="nav-link" href="{$v.url}" data-pjax="pageMain" title="{:frelink_nav_label($v.title)}" style="white-space: nowrap;">{:frelink_nav_label($v.title)}</a>
                             {/if}
                         </li>
                         {/if}

@@ -751,7 +751,7 @@
         <div class="aw-home-hero">
             <div class="aw-home-hero-copy">
                 <h2>{$theme_config['home']['search_title_text']|default=L('公开、开放、可检索的知识系统')}</h2>
-                <p>{$theme_config['home']['search_min_text']|default=L('用综述沉淀脉络，用主题追踪变化，用观察保留判断，用 FAQ 承接检索，不再依赖问答社区逻辑。')}</p>
+                <p>{:L('用综述整理脉络，用观察保留变化，用 FAQ 承接检索，再通过主题和观察专题把内容长期串起来。')}</p>
                 <form action="{:url('search/index')}" method="get" id="homeSearch" class="aw-home-search-shell">
                     <span>
                         <i class="iconfont">&#xe610;</i>
