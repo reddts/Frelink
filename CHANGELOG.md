@@ -20,6 +20,12 @@
 - `首页 / 主题 / FAQ / 知识内容 / 观察专题` 现在都不再依赖两层 iconfont 叠加，因此可以彻底避免某一项同时出现两个图标
 - 这次调整只影响移动端底部导航模板和对应公共样式，不改跳转地址、文案和 active 判定逻辑
 
+### 里程碑：移动端导航缺失图标修复
+
+- 移动端底部导航未选中态的 `主题` 和 `观察专题` 已切换到稳定可见的 `icon-huati1 / icon-zhuanlan1` 字形
+- 这两个入口现在通过颜色区分选中与未选中状态，不再依赖之前那两个在部分设备上会缺失的图标字形
+- 这次调整只影响移动端底部导航的两个图标类，不改其它入口的图标和交互
+
 ### 验证
 
 - 本地已复核 `public/templates/default/mobile/article/index.php` 与 `public/templates/default/static/mobile/css/app.css` diff，确认改动仅覆盖筛选条和底部导航图标显示逻辑
@@ -33,6 +39,7 @@
 - 生产知识内容页 HTML 已确认查不到“最新更新 / 高关注内容 / 如果你想沿同一主题继续追踪变化”这组三卡文案
 - 生产移动端首页 `https://www.frelink.top/m/` 已确认底部导航不再输出 `aw-mobile-footer-icon-wrap / aw-mobile-footer-icon-outline / aw-mobile-footer-icon-filled` 双层结构
 - 生产移动端首页底部导航 HTML 已确认每个导航项只保留一个 `aw-mobile-footer-icon` 图标节点
+- 生产移动端首页底部导航 HTML 已确认 `主题 / 观察专题` 未选中态分别输出 `icon-huati1 / icon-zhuanlan1`
 
 ## 2026-03-30
 

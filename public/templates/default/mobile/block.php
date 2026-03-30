@@ -141,7 +141,7 @@
             </div>
             <div class="aui-footer-list {if $thisController=='topic'}active{/if}">
                 <a href="{:url('topic/index')}" data-pjax="pageMain">
-                    <i class="iconfont {if $thisController=='topic'}icon-huati1{else/}icon-huati{/if} aw-mobile-footer-icon" aria-hidden="true"></i>
+                    <i class="iconfont icon-huati1 aw-mobile-footer-icon" aria-hidden="true"></i>
                     <p class="mt-1">{:frelink_nav_label('主题')}</p>
                 </a>
             </div>
@@ -159,7 +159,7 @@
             </div>
             <div class="aui-footer-list {if $thisController=='feature'}active{/if}">
                 <a href="{:url('feature/index')}" data-pjax="pageMain">
-                    <i class="iconfont {if $thisController=='feature'}icon-zhuanlan1{else/}icon-zhuanlan{/if} aw-mobile-footer-icon" aria-hidden="true"></i>
+                    <i class="iconfont icon-zhuanlan1 aw-mobile-footer-icon" aria-hidden="true"></i>
                     <p class="mt-1">{:L('观察专题')}</p>
                 </a>
             </div>
