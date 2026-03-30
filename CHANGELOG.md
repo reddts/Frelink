@@ -1,5 +1,23 @@
 # Frelink 项目更新日志
 
+## 2026-03-31
+
+### 里程碑：移动端知识内容筛选滚动与底部导航图标修复
+
+- 移动端知识内容页的筛选带已改为局部覆盖 `swiper` 容器宽度、wrapper 最小宽度和 tab 高度约束，`综述 / 观察` 子页中的 `更新 / 精选 / 高关注 / 分类` 现在可以正常横向滑动
+- 移动端底部导航的双态图标从“透明叠放切换”收口为“显隐切换”，避免个别导航项在移动端同时绘制 outline 和 filled 两个图标
+- 这轮调整只收口移动端公共样式和知识内容列表筛选结构，不改文章查询、分类参数和页面路由
+
+### 验证
+
+- 本地已复核 `public/templates/default/mobile/article/index.php` 与 `public/templates/default/static/mobile/css/app.css` diff，确认改动仅覆盖筛选条和底部导航图标显示逻辑
+- 本地环境无 `php`，未执行本地 `php -l`，语法检查已放到远端执行
+- 生产环境已执行 `bash scripts/deploy.sh deploy`
+- 远端已执行 `php -l app/function.inc.php`，结果为 `No syntax errors detected in app/function.inc.php`
+- 远端已执行 `sudo php think clear`
+- 远端已执行 `sudo php think api:doc --output docs/api-v1.md` 与 `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+- 生产环境已完成 `https://www.frelink.top/`、`https://www.frelink.top/questions/`、`https://www.frelink.top/articles/` 基础 smoke 检查
+
 ## 2026-03-30
 
 ### 里程碑：PC 知识内容筛选入口收口

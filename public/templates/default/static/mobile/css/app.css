@@ -196,24 +196,20 @@ label {
 
 .aw-mobile-footer-icon-outline {
     color: #64748b;
-    opacity: 1;
-    transform: scale(1);
+    display: inline-flex;
 }
 
 .aw-mobile-footer-icon-filled {
     color: #1d4ed8;
-    opacity: 0;
-    transform: scale(.82);
+    display: none;
 }
 
 .aui-footer-list.active .aw-mobile-footer-icon-outline {
-    opacity: 0;
-    transform: scale(.82);
+    display: none;
 }
 
 .aui-footer-list.active .aw-mobile-footer-icon-filled {
-    opacity: 1;
-    transform: scale(1);
+    display: inline-flex;
 }
 
 .aui-footer-list p {

@@ -3,8 +3,31 @@
 <style>
     .aw-mobile-filter-bar {
         border-top: 1px solid #eef2f7;
+        overflow: hidden;
+    }
+    .aw-mobile-filter-bar .articleFilterSwiper {
+        width: 100%;
+        overflow: hidden;
+    }
+    .aw-mobile-filter-bar .swiper-wrapper {
+        display: inline-flex;
+        align-items: center;
+        min-width: max-content;
+    }
+    .aw-mobile-filter-bar .swiper-slide,
+    .aw-mobile-filter-bar .nav-item {
+        flex: 0 0 auto;
+        height: auto;
+        line-height: normal;
+        margin-bottom: 0;
+    }
+    .aw-mobile-filter-bar .nav-tabs {
+        min-height: auto;
+        border-bottom: 0;
     }
     .aw-mobile-filter-bar .nav-link {
+        display: inline-flex;
+        align-items: center;
         padding: 0.45rem 0.85rem;
         border-radius: 999px;
         border: 1px solid #dbe7f3;
@@ -12,6 +35,7 @@
         background: #fff;
         margin-right: 0.5rem;
         font-size: 0.78rem;
+        white-space: nowrap;
     }
     .aw-mobile-filter-bar .nav-link.active {
         background: #1d4ed8;
