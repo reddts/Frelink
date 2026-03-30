@@ -154,8 +154,32 @@ label {
     margin-bottom: 0
 }
 
+.aui-footer-list a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+}
+
 .aui-footer-list i {
     font-size: 24px
+}
+
+.aw-mobile-footer-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    font-size: 22px !important;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+.aui-footer-list p {
+    margin-top: 4px !important;
+    line-height: 1.2;
 }
 
 .aui-tag {
