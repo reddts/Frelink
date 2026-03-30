@@ -40,20 +40,6 @@
             font-size: 12px;
             line-height: 1.6;
         }
-        .aw-mobile-article-note {
-            margin: 0 12px 12px;
-            padding: 10px 12px;
-            border-radius: 12px;
-            background: #f8fbff;
-            border: 1px solid #e5edf6;
-            color: #64748b;
-            font-size: 11px;
-            line-height: 1.6;
-        }
-        .aw-mobile-article-note a {
-            color: #1d4ed8;
-            font-weight: 700;
-        }
         .aw-mobile-spotlight-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -110,7 +96,7 @@
     </style>
     <div class="bg-white">
         <div class="aw-mobile-article-hero px-3">
-            <h1>{:frelink_article_type_label($article_type)}</h1>
+            <h1>{:L('知识内容')}</h1>
             <p>{:frelink_content_description($article_type)}</p>
         </div>
         {if $article_type=='all' && !empty($article_type_spotlights)}
@@ -130,15 +116,6 @@
             {/foreach}
         </div>
         {/if}
-        <div class="aw-mobile-article-note">
-            {if $article_type=='all'}
-            {:L('先从上面的主入口区分综述和观察；如果想沿同一主题继续追踪变化，再去')}
-            <a href="{:url('feature/index')}" data-pjax="pageMain">{:L('观察专题')}</a>。
-            {else/}
-            {:L('这一页先按当前内容形态继续阅读；如果你想沿同一主题看长期变化，可转到')}
-            <a href="{:url('feature/index')}" data-pjax="pageMain">{:L('观察专题')}</a>。
-            {/if}
-        </div>
         <!--热门用户、话题-->
         <!--<div class="hotUserTopic d-flex p-2">
             <div class="flex-fill mr-1">
@@ -159,7 +136,7 @@
         {:widget('common/category',['type'=>'article','category'=>$category,'show_type'=>'list'])}
         {/if}
 
-        <div class="swiper-container mt-1 bg-white">
+        <div class="swiper-container bg-white">
             <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block px-2 bg-white swiper-wrapper" style="flex-wrap: nowrap;">
                 <li class="nav-item swiper-slide" data-type="new">
                     <a class="nav-link {if $sort=='new'}active{/if}" data-pjax="pageMain" href="{:url('article/index',['sort'=>'new','category_id'=>$category,'type'=>$article_type])}">{:L('更新')}</a>
