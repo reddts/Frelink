@@ -317,44 +317,21 @@
         letter-spacing: 0.06em;
         text-transform: uppercase;
     }
-    .aw-home-content-map {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 16px;
-        margin: 18px 0 22px;
-    }
-    .aw-home-map-card {
-        display: block;
-        padding: 18px;
-        border-radius: 16px;
-        border: 1px solid #e5edf6;
-        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
-        color: #0f172a;
-    }
-    .aw-home-map-card:hover {
-        text-decoration: none;
-        transform: translateY(-2px);
-        transition: all 0.2s ease;
-    }
-    .aw-home-map-card strong {
-        display: block;
-        margin-bottom: 6px;
-        font-size: 16px;
-    }
-    .aw-home-map-card span {
-        display: block;
-        color: #64748b;
-        font-size: 13px;
-        line-height: 1.6;
-    }
     .aw-home-curated {
         margin-bottom: 20px;
     }
-    .aw-home-curated-grid {
+    .aw-home-curated-row {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 16px;
+    }
+    .aw-home-curated-row + .aw-home-curated-row {
+        margin-top: 16px;
+    }
+    .aw-home-curated-row-primary {
+        align-items: stretch;
+    }
+    .aw-home-curated-row-secondary {
         align-items: start;
     }
     .aw-home-curated-card {
@@ -365,6 +342,10 @@
         border: 1px solid #e5edf6;
         background: #fff;
         align-self: start;
+    }
+    .aw-home-curated-card--equal {
+        height: 100%;
+        align-self: stretch;
     }
     .aw-home-curated-head {
         display: flex;
@@ -395,6 +376,13 @@
         display: block;
         margin-bottom: 4px;
         color: #2563eb;
+    }
+    .aw-home-curated-list strong {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-height: 1.5;
     }
     .aw-home-curated-meta {
         display: flex;
@@ -427,6 +415,10 @@
         color: #64748b;
         font-size: 13px;
         line-height: 1.5;
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 4;
     }
     .aw-home-curated-list {
         flex: 1;
@@ -727,8 +719,7 @@
             left: 18px;
             top: 18px;
         }
-        .aw-home-content-map,
-        .aw-home-curated-grid,
+        .aw-home-curated-row,
         .aw-home-topic-grid {
             grid-template-columns: 1fr;
         }
@@ -849,23 +840,9 @@
         <div class="aw-left radius col-md-12 bg-white mb-2 aw-home-primary-column">
             {if !$type && in_array($sort,['new','recommend','hot'])}
             <div class="px-4 pt-4">
-                <div class="aw-home-content-map">
-                    <a class="aw-home-map-card" href="{:url('article/index',['type'=>'research'])}">
-                        <strong>{:frelink_content_label('research')}</strong>
-                    </a>
-                    <a class="aw-home-map-card" href="{:url('topic/index')}">
-                        <strong>{:frelink_content_label('topic')}</strong>
-                    </a>
-                    <a class="aw-home-map-card" href="{:url('article/index',['type'=>'fragment'])}">
-                        <strong>{:frelink_content_label('fragment')}</strong>
-                    </a>
-                    <a class="aw-home-map-card" href="{:url('question/index')}">
-                        <strong>{:frelink_content_label('question')}</strong>
-                    </a>
-                </div>
                 <div class="aw-home-curated">
-                    <div class="aw-home-curated-grid">
-                        <section class="aw-home-curated-card">
+                    <div class="aw-home-curated-row aw-home-curated-row-primary">
+                        <section class="aw-home-curated-card aw-home-curated-card--equal">
                             <div class="aw-home-curated-head">
                                 <h4>{:L('最新')}{:frelink_content_label('research')}</h4>
                                 <a href="{:url('article/index',['type'=>'research'])}">{:L('查看全部')}</a>
@@ -884,7 +861,7 @@
                                 {/if}
                             </div>
                         </section>
-                        <section class="aw-home-curated-card">
+                        <section class="aw-home-curated-card aw-home-curated-card--equal">
                             <div class="aw-home-curated-head">
                                 <h4>{:L('最新')}{:frelink_content_label('fragment')}</h4>
                                 <a href="{:url('article/index',['type'=>'fragment'])}">{:L('查看全部')}</a>
@@ -907,13 +884,13 @@
                                 {/if}
                             </div>
                         </section>
-                        <section class="aw-home-curated-card">
+                        <section class="aw-home-curated-card aw-home-curated-card--equal">
                             <div class="aw-home-curated-head">
                                 <h4>{:L('常见')}{:frelink_content_label('question')}</h4>
                                 <a href="{:url('question/index')}">{:L('查看全部')}</a>
                             </div>
                             <div class="aw-home-curated-list">
-                                {we:question limit="3" sort="new" empty="<p class='text-muted mb-0'>".L('暂无 FAQ 条目')."</p>"}
+                                {we:question limit="2" sort="new" empty="<p class='text-muted mb-0'>".L('暂无 FAQ 条目')."</p>"}
                                 <a href="{:url('question/detail',['id'=>$v['id']])}" target="_blank">
                                     <small>{:frelink_content_label('question')}</small>
                                     <strong>{$v['title']|raw}</strong>
@@ -922,6 +899,8 @@
                                 {/we:question}
                             </div>
                         </section>
+                    </div>
+                    <div class="aw-home-curated-row aw-home-curated-row-secondary">
                         <section class="aw-home-curated-card">
                             <div class="aw-home-section-title">
                                 <h4>{:L('核心主题')}</h4>
