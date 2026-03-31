@@ -2208,7 +2208,7 @@ em.tag:hover {
     margin: 0 0 12px;
     color: #0f172a;
     font-size: 24px;
-    line-height: 1.45;
+    line-height: 1.62;
     font-weight: 700;
     word-break: break-word;
 }
@@ -2282,11 +2282,29 @@ em.tag:hover {
     background: linear-gradient(180deg, #fbfdff 0%, #f8fbff 100%);
 }
 
+.aw-mobile-detail-panel-highlight {
+    border-color: rgba(29, 78, 216, 0.18);
+    border-left: 4px solid #1d4ed8;
+    background:
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.14), transparent 34%),
+        linear-gradient(180deg, #f5f9ff 0%, #eef6ff 100%);
+    box-shadow: 0 12px 28px rgba(29, 78, 216, 0.08);
+}
+
 .aw-mobile-detail-panel-title {
     margin-bottom: 10px;
     color: #0f172a;
     font-size: 15px;
     font-weight: 700;
+}
+
+.aw-mobile-detail-panel-highlight .aw-mobile-detail-panel-title {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 11px;
+    border-radius: 999px;
+    background: rgba(29, 78, 216, 0.1);
+    color: #1d4ed8;
 }
 
 .aw-mobile-detail-panel ul {
@@ -2309,10 +2327,18 @@ em.tag:hover {
     margin-top: 16px;
     font-size: 16px;
     color: #334155;
-    line-height: 1.85;
+    line-height: 1.82;
     overflow: visible;
     position: relative;
     word-break: break-word;
+}
+
+.aw-mobile-detail-card .aw-content > *:first-child {
+    margin-top: 0 !important;
+}
+
+.aw-mobile-detail-card .aw-content > *:last-child {
+    margin-bottom: 0 !important;
 }
 
 .aw-mobile-detail-card .aw-content img {
@@ -2328,9 +2354,15 @@ em.tag:hover {
 
 .aw-mobile-detail-card .aw-content p {
     margin: 0 0 16px;
-    line-height: 1.9;
+    line-height: 1.82;
     font-size: 16px;
     color: #334155;
+}
+
+.aw-mobile-detail-card .aw-content div,
+.aw-mobile-detail-card .aw-content section,
+.aw-mobile-detail-card .aw-content article {
+    line-height: 1.82;
 }
 
 .aw-mobile-detail-card .aw-content h1,
@@ -2340,7 +2372,7 @@ em.tag:hover {
     clear: left;
     margin: 22px 0 12px;
     color: #0f172a;
-    line-height: 1.5;
+    line-height: 1.62;
     font-weight: 700;
     font-synthesis: style;
 }
@@ -2366,7 +2398,7 @@ em.tag:hover {
 
 .aw-mobile-detail-card .aw-content li {
     margin-bottom: 8px;
-    line-height: 1.8;
+    line-height: 1.82;
 }
 
 .aw-mobile-detail-card .aw-content blockquote {
@@ -2376,6 +2408,11 @@ em.tag:hover {
     border-radius: 12px;
     background: #f8fbff;
     color: #475569;
+    line-height: 1.82;
+}
+
+.aw-mobile-detail-card .aw-content blockquote p {
+    color: inherit;
 }
 
 .aw-mobile-detail-card .aw-content pre {
@@ -2408,6 +2445,11 @@ em.tag:hover {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     border-collapse: collapse;
+}
+
+.aw-mobile-detail-card .aw-content th,
+.aw-mobile-detail-card .aw-content td {
+    line-height: 1.72;
 }
 
 .aw-mobile-detail-card .aw-content hr {

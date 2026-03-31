@@ -151,7 +151,7 @@
         </div>
         {:hook('pageDetailTop',['info'=>$article_info])}
         {if !empty($summary_points)}
-        <div class="aw-mobile-detail-panel mb-3">
+        <div class="aw-mobile-detail-panel aw-mobile-detail-panel-highlight mb-3">
             <div class="aw-mobile-detail-panel-title">30 秒看懂</div>
             <ul class="mb-0 pl-3 text-muted">
                 {volist name="summary_points" id="point"}
