@@ -33,19 +33,25 @@
         border-color: #bfdbfe;
     }
     .aw-knowledge-hero {
-        padding: 20px 24px 10px;
-        border-bottom: 1px solid #eef2f7;
-        background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
+        margin: 0 16px 18px;
+        padding: 22px 24px;
+        border-radius: 28px;
+        background:
+            radial-gradient(circle at 18% 20%, rgba(56, 189, 248, 0.24), transparent 24%),
+            radial-gradient(circle at 82% 18%, rgba(52, 211, 153, 0.22), transparent 26%),
+            linear-gradient(135deg, #0b1830 0%, #0f3d68 48%, #0e7a6f 100%);
+        box-shadow: 0 22px 48px rgba(15, 23, 42, 0.14);
     }
     .aw-knowledge-hero h1 {
         margin: 0 0 8px;
-        font-size: 24px;
+        font-size: 32px;
         font-weight: 700;
-        color: #0f172a;
+        color: #fff;
     }
     .aw-knowledge-hero p {
         margin: 0;
-        color: #64748b;
+        max-width: 760px;
+        color: rgba(226, 232, 240, 0.9);
         line-height: 1.7;
     }
     .aw-page-kicker {
@@ -55,13 +61,31 @@
         margin-bottom: 10px;
         padding: 6px 12px;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.14);
-        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.14);
         color: rgba(255, 255, 255, 0.92);
         font-size: 12px;
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
+    }
+    .aw-page-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+    }
+    .aw-page-chips span {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 0 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 12px;
+        font-weight: 700;
     }
     .aw-article-filter-divider {
         display: inline-flex;
@@ -73,7 +97,7 @@
     }
     .aw-knowledge-spotlights {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
         padding: 0 24px 18px;
         border-bottom: 1px solid #eef2f7;
@@ -149,8 +173,13 @@
             <div class="aw-left radius col-md-9 bg-white mb-2">
                 <div class="aw-knowledge-hero">
                     <div class="aw-page-kicker">Knowledge Content Atlas</div>
-                    <h1>{:frelink_article_type_label($article_type)}</h1>
+                    <h1>{if $article_type=='all'}{:L('知识内容')}{else/}{:frelink_article_type_label($article_type)}{/if}</h1>
                     <p>{:frelink_content_description($article_type)}</p>
+                    <div class="aw-page-chips">
+                        <span>{:L('综述优先沉淀')}</span>
+                        <span>{:L('观察持续更新')}</span>
+                        <span>{:L('沿主题继续延展')}</span>
+                    </div>
                 </div>
                 {if $article_type=='all' && !empty($article_type_spotlights)}
                 <div class="aw-knowledge-spotlights">

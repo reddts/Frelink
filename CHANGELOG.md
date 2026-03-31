@@ -14,6 +14,12 @@
 - 原来用于“主内容入口”的 badge 样式已转给 `综述 / 观察` 标题本身，减少冗余文字但保留入口强调层级
 - 这次调整只影响 PC 端知识内容页主入口卡的视觉表达，不改链接、说明文案和数据展示
 
+### 里程碑：PC 知识内容页头部版式对齐 FAQ / 主题
+
+- PC 端知识内容页的版头已切到和 FAQ、主题列表页一致的 atlas hero 语言，补齐深色渐变背景与 chips 结构
+- `全部内容` 作为公开页头标题已收口为 `知识内容`，避免首页、导航和内容页继续混用两套公开叫法
+- `综述 / 观察` 主入口卡已改为一行两列，直接贴合内容列表区域宽度，不再沿用三列栅格留下空位
+
 ### 里程碑：移动端知识内容筛选滚动与底部导航图标修复
 
 - 移动端知识内容页的筛选带已改为局部覆盖 `swiper` 容器宽度、wrapper 最小宽度和 tab 高度约束，`综述 / 观察` 子页中的 `更新 / 精选 / 高关注 / 分类` 现在可以正常横向滑动
@@ -62,6 +68,8 @@
 - 生产知识内容页 `https://www.frelink.top/articles/` 已确认查不到 `aw-knowledge-lanes` 结构
 - 生产知识内容页 HTML 已确认查不到“最新更新 / 高关注内容 / 如果你想沿同一主题继续追踪变化”这组三卡文案
 - 生产知识内容页 HTML 已确认查不到“主内容入口”文案，`综述 / 观察` 标题已直接使用 badge 样式
+- 生产知识内容页 HTML 已确认页头标题输出为 `知识内容`，且存在 `aw-page-chips` 结构
+- 生产知识内容页样式已确认 `aw-knowledge-spotlights` 使用 `grid-template-columns: repeat(2, minmax(0, 1fr))`
 - 生产移动端首页 `https://www.frelink.top/m/` 已确认底部导航不再输出 `aw-mobile-footer-icon-wrap / aw-mobile-footer-icon-outline / aw-mobile-footer-icon-filled` 双层结构
 - 生产移动端首页底部导航 HTML 已确认每个导航项只保留一个 `aw-mobile-footer-icon` 图标节点
 - 生产移动端首页底部导航 HTML 已确认 `主题 / 观察专题` 未选中态分别输出 `icon-huati1 / icon-zhuanlan1`
