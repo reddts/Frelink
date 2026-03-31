@@ -117,7 +117,7 @@
             <h1>{:L('主题')}</h1>
             <p>{:L('用主题把相关 FAQ、知识内容和长期讨论聚合在一起，先看变化，再沿着线索继续深入。')}</p>
         </div>
-        <div class="px-3 pb-3">
+        <div class="px-3 pt-3 pb-3">
             <div class="aw-mobile-lane-grid">
                 <a class="aw-mobile-lane-card" href="{:url('topic/index',['type'=>'new'])}" data-pjax="pageMain">
                     <strong>{:L('最新话题')}</strong>

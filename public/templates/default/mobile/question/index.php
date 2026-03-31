@@ -49,7 +49,7 @@
             <h1>{:L('FAQ')}</h1>
             <p>{:L('承接高频 FAQ、明确答案和后续补充，不再沿社区问答模式组织内容。')}</p>
         </div>
-        <div class="px-3 pb-3">
+        <div class="px-3 pt-3 pb-3">
             <div class="aw-mobile-lane-grid">
                 <a class="aw-mobile-lane-card" href="{:url('question/index',['sort'=>'new','category_id'=>$category])}" data-pjax="pageMain">
                     <strong>{:L('最新补充')}</strong>

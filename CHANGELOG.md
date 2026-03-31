@@ -2,6 +2,11 @@
 
 ## 2026-03-31
 
+### 里程碑：移动端主题页与 FAQ 页入口区补顶部留白
+
+- 移动端主题页与 FAQ 页中，`aw-mobile-lane-grid` 外层容器都已补上 `pt-3`
+- 这次调整只补两页入口区与 hero 之间的顶部间距，不改卡片样式、链接和内容结构
+
 ### 里程碑：移动端知识内容筛选激活态背景收口
 
 - 移动端知识内容页 `.aw-mobile-filter-bar .nav-link.aw-mobile-filter-type.active` 已去掉 `background: #eff6ff;`
@@ -138,6 +143,7 @@
 - 生产移动端公共样式文件 `https://www.frelink.top/templates/default/static/mobile/css/app.css?v=4.1` 已确认 `.aw-mobile-spotlight-grid` 输出 `padding: 10px 12px 12px;` 与 `margin: 0;`
 - 生产移动端知识内容页 `https://www.frelink.top/m/articles/` 已确认 spotlight 区块不再内联输出该组样式，改为直接引用公共 `app.css`
 - 生产移动端知识内容页 `https://www.frelink.top/m/articles/` 已确认 `.aw-mobile-filter-bar .nav-link.aw-mobile-filter-type.active` 只输出 `color: #1d4ed8;` 与 `border-color: #bfdbfe;`，不再输出 `background: #eff6ff;`
+- 生产移动端主题页 `https://www.frelink.top/m/topics/` 与 FAQ 页 `https://www.frelink.top/m/questions/` 已确认 `aw-mobile-lane-grid` 外层容器输出 `px-3 pt-3 pb-3`
 - 生产 FAQ 样式文件 `https://www.frelink.top/templates/default/static/css/question/index.css?v=4.1` 已确认输出 `aw-faq-lane::before`，且渐变参数为 `linear-gradient(90deg, #1d4ed8 0%, #0f766e 100%)`
 - 生产 FAQ 样式文件已确认 `aw-faq-lane` 使用 `min-height: 132px` 与 `background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%)`
 - 生产知识内容页 `https://www.frelink.top/articles/` 已确认输出 `aw-knowledge-spotlights`、`aw-knowledge-spotlight::before`、`min-height: 132px`、`background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%)` 和 `font-size: 16px`
