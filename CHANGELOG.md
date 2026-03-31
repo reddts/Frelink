@@ -2,6 +2,11 @@
 
 ## 2026-03-31
 
+### 里程碑：移动端公共链接颜色再次收口
+
+- 移动端公共 `aui.min.css` 中 `a, a:hover, a:active, a:visited` 的颜色已从上一轮的 `#d6d2d2` 继续收口为 `#6e6c6c`
+- 这次调整只细修移动端公共链接颜色，不改其它链接状态和交互规则
+
 ### 里程碑：移动端公共链接颜色调整
 
 - 移动端公共 `aui.min.css` 中 `a, a:hover, a:active, a:visited` 的颜色已统一调整为 `#d6d2d2`
@@ -150,6 +155,7 @@
 - 生产移动端知识内容页 `https://www.frelink.top/m/articles/` 已确认 `.aw-mobile-filter-bar .nav-link.aw-mobile-filter-type.active` 只输出 `color: #1d4ed8;` 与 `border-color: #bfdbfe;`，不再输出 `background: #eff6ff;`
 - 生产移动端主题页 `https://www.frelink.top/m/topics/` 与 FAQ 页 `https://www.frelink.top/m/questions/` 已确认 `aw-mobile-lane-grid` 外层容器输出 `px-3 pt-3 pb-3`
 - 生产移动端公共样式文件 `https://www.frelink.top/templates/default/static/mobile/css/aui.min.css?v=4.1` 已确认输出 `a,a:hover,a:active,a:visited{color:#d6d2d2;text-decoration:none;background-color:transparent}`
+- 生产移动端公共样式文件 `https://www.frelink.top/templates/default/static/mobile/css/aui.min.css?v=4.1` 已确认进一步输出 `a,a:hover,a:active,a:visited{color:#6e6c6c;text-decoration:none;background-color:transparent}`
 - 生产 FAQ 样式文件 `https://www.frelink.top/templates/default/static/css/question/index.css?v=4.1` 已确认输出 `aw-faq-lane::before`，且渐变参数为 `linear-gradient(90deg, #1d4ed8 0%, #0f766e 100%)`
 - 生产 FAQ 样式文件已确认 `aw-faq-lane` 使用 `min-height: 132px` 与 `background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%)`
 - 生产知识内容页 `https://www.frelink.top/articles/` 已确认输出 `aw-knowledge-spotlights`、`aw-knowledge-spotlight::before`、`min-height: 132px`、`background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%)` 和 `font-size: 16px`
