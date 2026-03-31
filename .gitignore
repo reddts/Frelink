@@ -2,6 +2,7 @@
 /.vscode
 *.log
 *.tar.gz
+.codex
 .env
 /runtime
 /config/app.php
