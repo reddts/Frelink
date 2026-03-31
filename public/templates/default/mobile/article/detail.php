@@ -92,7 +92,7 @@
 
 {block name="main"}
 <div class="aui-content mt-1 mescroll" id="ajaxPage">
-    <div class="bg-white p-3 mb-1">
+    <div class="aw-mobile-detail-card bg-white p-3 mb-1">
         <div class="clearfix">
             <div style="{if $user_id && ($user_info['group_id']==1 || $user_info['group_id']==2)}width: calc(100% - 20px){else/}width: 100%{/if}" class="float-left mb-2">
                 {if !empty($article_info['topics']) || ($user_id && ($user_info['group_id']==1 || $user_info['group_id']==2))}
@@ -112,23 +112,21 @@
             {/if}
         </div>
         
-        <div class="border-bottom pb-2">
-            <h2 class="mb-3 questionTitle title font-weight-bold font-11">
-                <h2 class="font-12 font-weight-bold mb-2">{if $article_info.set_top}
-                    <i class="iconfont icon-zhiding text-warning font-14"></i>{/if}{:htmlspecialchars_decode($article_info.title)}
-                </h2>
-            </h2>
-            <div class="mb-2">
+        <div class="aw-mobile-detail-head">
+            <h1 class="aw-mobile-detail-title">{if $article_info.set_top}
+                <i class="iconfont icon-zhiding text-warning font-14"></i>{/if}{:htmlspecialchars_decode($article_info.title)}
+            </h1>
+            <div class="aw-mobile-detail-type">
                 <span class="badge badge-primary">{$article_info['article_type_label']}</span>
             </div>
-            <div class="text-muted font-8">
-                <span class="mr-2">{:L('评论')} {$article_info.comment_count}</span>.
-                <span class="ml-2 mr-2">{:L('浏览')} {$article_info.view_count}</span>.
-                <span class="ml-2">{:L('最新')} {:date_friendly($article_info.update_time)}</span>
+            <div class="aw-mobile-detail-meta">
+                <span>{:L('评论')} {$article_info.comment_count}</span>
+                <span>{:L('浏览')} {$article_info.view_count}</span>
+                <span>{:L('最新')} {:date_friendly($article_info.update_time)}</span>
             </div>
         </div>
 
-        <div class="author-info pb-3 mt-3">
+        <div class="author-info aw-mobile-detail-author pb-3 mt-3">
             <dl class="overflow-hidden">
                 <dt class="float-left">
                     <a href="{$article_info['user_info']['url']}" data-pjax="pageMain" class="aw-username" data-id="{$article_info.uid}">
@@ -153,8 +151,8 @@
         </div>
         {:hook('pageDetailTop',['info'=>$article_info])}
         {if !empty($summary_points)}
-        <div class="bg-light border rounded p-3 mb-3">
-            <div class="font-weight-bold mb-2">30 秒看懂</div>
+        <div class="aw-mobile-detail-panel mb-3">
+            <div class="aw-mobile-detail-panel-title">30 秒看懂</div>
             <ul class="mb-0 pl-3 text-muted">
                 {volist name="summary_points" id="point"}
                 <li class="mb-1">{$point}</li>
@@ -167,8 +165,8 @@
         </div>
         {:hook('pageDetailBottom',['info'=>$article_info])}
         {if !empty($next_reads)}
-        <div class="bg-light border rounded p-3 mt-3">
-            <div class="font-weight-bold mb-2">下一步阅读</div>
+        <div class="aw-mobile-detail-panel aw-mobile-detail-links mt-3">
+            <div class="aw-mobile-detail-panel-title">下一步阅读</div>
             {volist name="next_reads" id="item"}
             <a class="d-block py-2 border-bottom text-body" href="{$item.url}" data-pjax="pageMain">
                 <div class="font-weight-bold mb-1"><i class="icon-book text-primary mr-1"></i>{$item.title}</div>
@@ -178,8 +176,8 @@
         </div>
         {/if}
         {if !empty($archive_chapters)}
-        <div class="bg-light border rounded p-3 mt-3">
-            <div class="font-weight-bold mb-2">{:L('已归档到知识章节')}</div>
+        <div class="aw-mobile-detail-panel aw-mobile-detail-links mt-3">
+            <div class="aw-mobile-detail-panel-title">{:L('已归档到知识章节')}</div>
             <div class="text-muted font-8 mb-2">{:L('这条内容已经进入知识归档，可从章节继续延展阅读。')}</div>
             {volist name="archive_chapters" id="chapter"}
             <a class="d-block py-2 border-bottom text-body" href="{:url('help/detail',['token'=>$chapter['url_token']])}" data-pjax="pageMain">

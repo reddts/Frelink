@@ -38,6 +38,12 @@
 - 首页现在和 `主题 / 知识内容 / 观察专题` 一样，主要通过颜色区分选中与未选中状态，不再因为 outline 字形本身过大导致视觉尺寸不一致
 - 这次调整只影响移动端底部导航首页的图标类，不改其它导航项
 
+### 里程碑：移动端内容详情页排版收口
+
+- 移动端文章详情和 FAQ 详情现在统一接入 `aw-mobile-detail-*` 这一套详情页样式类，页头信息、作者区、摘要卡、延展阅读和归档面板的间距与层级已统一
+- 正文区改为详情页作用域下的专用排版：统一字号、行高、标题层级、列表缩进、引用、代码块、表格横向滚动和图片圆角，减少旧样式在手机端的拥挤感
+- 底部评论输入框也同步收口成移动端更稳定的圆角输入样式，避免正文样式升级后底部交互区仍显得割裂
+
 ### 验证
 
 - 本地已复核 `public/templates/default/mobile/article/index.php` 与 `public/templates/default/static/mobile/css/app.css` diff，确认改动仅覆盖筛选条和底部导航图标显示逻辑
@@ -54,6 +60,7 @@
 - 生产移动端首页底部导航 HTML 已确认每个导航项只保留一个 `aw-mobile-footer-icon` 图标节点
 - 生产移动端首页底部导航 HTML 已确认 `主题 / 观察专题` 未选中态分别输出 `icon-huati1 / icon-zhuanlan1`
 - 生产移动端首页底部导航 HTML 已确认首页图标输出为 `icon-shouye1 aw-mobile-footer-icon`
+- 生产移动端样式文件 `https://www.frelink.top/templates/default/static/mobile/css/app.css?v=4.1` 已确认输出 `aw-mobile-detail-card / aw-mobile-detail-head / aw-mobile-detail-title / aw-mobile-detail-panel` 相关样式
 
 ## 2026-03-30
 

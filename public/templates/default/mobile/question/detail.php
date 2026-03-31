@@ -81,7 +81,7 @@
 {block name="main"}
 <div class="aui-content mt-1 mescroll" id="ajaxPage">
     <div class="aw-question-container">
-        <div class="bg-white p-3 mb-1">
+        <div class="aw-mobile-detail-card bg-white p-3 mb-1">
             <div class="pb-2">
                 <div class="clearfix">
                     {if !empty($question_info['topics']) || ($user_id && ($user_info['group_id']==1 || $user_info['group_id']==2))}
@@ -102,23 +102,23 @@
                     {/if}
                 </div>
 
-                <div class="border-bottom pb-2">
-                    <h2 class="mb-3 questionTitle title font-weight-bold font-11">
+                <div class="aw-mobile-detail-head">
+                    <h1 class="aw-mobile-detail-title">
                         {if $question_info.set_top}
                         <i class="iconfont icon-zhiding text-warning font-11"></i>
                         {/if}
                         {:htmlspecialchars_decode($question_info.title)}
-                    </h2>
-                    <div class="text-muted font-8">
-                        <span class="mr-2">{:L('补充')} {$question_info.answer_count}</span>.
-                        <span class="ml-2 mr-2">{:L('关注')} {$question_info.focus_count}</span>.
-                        <span class="ml-2">{:L('更新')} {:date_friendly($question_info.update_time)}</span>
+                    </h1>
+                    <div class="aw-mobile-detail-meta">
+                        <span>{:L('补充')} {$question_info.answer_count}</span>
+                        <span>{:L('关注')} {$question_info.focus_count}</span>
+                        <span>{:L('更新')} {:date_friendly($question_info.update_time)}</span>
                     </div>
                 </div>
             </div>
 
             {if !$question_info['is_anonymous']}
-            <div class="author-info pb-3 mt-3">
+            <div class="author-info aw-mobile-detail-author pb-3 mt-3">
                 <dl class="overflow-hidden">
                     <dt class="float-left">
                         <a href="{$question_info['user_info']['url']}" data-pjax="pageMain" class="aw-username" data-id="{$question_info.uid}">
@@ -143,8 +143,8 @@
 
             {:hook('pageDetailTop',['info'=>$question_info])}
             {if !empty($summary_points)}
-            <div class="bg-light border rounded p-3 mb-3">
-                <div class="font-weight-bold mb-2">30 秒看懂</div>
+            <div class="aw-mobile-detail-panel mb-3">
+                <div class="aw-mobile-detail-panel-title">30 秒看懂</div>
                 <ul class="mb-0 pl-3 text-muted">
                     {volist name="summary_points" id="point"}
                     <li class="mb-1">{$point}</li>
@@ -167,8 +167,8 @@
 
             {:hook('pageDetailBottom',['info'=>$question_info])}
             {if !empty($next_reads)}
-            <div class="question-next-read-panel mt-3">
-                <div class="question-next-read-heading">
+            <div class="question-next-read-panel aw-mobile-detail-panel mt-3">
+                <div class="question-next-read-heading aw-mobile-detail-panel-title">
                     <span>下一步阅读</span>
                     <em>自动延展阅读</em>
                 </div>
@@ -183,8 +183,8 @@
             </div>
             {/if}
             {if !empty($archive_chapters)}
-            <div class="bg-light border rounded p-3 mt-3">
-                <div class="font-weight-bold mb-2">{:L('已归档到知识章节')}</div>
+            <div class="aw-mobile-detail-panel aw-mobile-detail-links mt-3">
+                <div class="aw-mobile-detail-panel-title">{:L('已归档到知识章节')}</div>
                 <div class="text-muted font-8 mb-2">{:L('这条 FAQ 已经进入知识归档，可从章节继续查找背景和相关内容。')}</div>
                 {volist name="archive_chapters" id="chapter"}
                 <a class="d-block py-2 border-bottom text-body" href="{:url('help/detail',['token'=>$chapter['url_token']])}" data-pjax="pageMain">
