@@ -43,7 +43,6 @@
         border-color: #1d4ed8;
     }
     .aw-mobile-filter-bar .nav-link.aw-mobile-filter-type.active {
-        background: #eff6ff;
         color: #1d4ed8;
         border-color: #bfdbfe;
     }
