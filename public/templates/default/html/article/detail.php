@@ -125,13 +125,13 @@
 
             </div>
             <div class="col-md-8 px-0 col-sm-12 mb-1">
-                <div class="bg-white p-3 aw-article-wrap aw-content-shell rounded">
+                <div class="bg-white p-3 aw-article-wrap aw-content-shell aw-article-detail-shell rounded">
                     <!--文章内容主页面 详情顶部钩子-->
                     {:hook('article_detail_page_main_top',['article_info'=>$article_info])}
                     {:hook('pageDetailTop',['info'=>$article_info])}
                     {if !empty($summary_points)}
-                    <section class="bg-info-light rounded p-3 mb-3">
-                        <div class="font-weight-bold mb-2">30 秒看懂</div>
+                    <section class="aw-article-brief mb-4">
+                        <div class="aw-article-brief-eyebrow">30 秒看懂</div>
                         <ul class="mb-0 pl-3 text-muted">
                             {volist name="summary_points" id="point"}
                             <li class="mb-1">{$point}</li>
@@ -139,12 +139,13 @@
                         </ul>
                     </section>
                     {/if}
-                    <article class="aw-article">
+                    <article class="aw-article aw-article-detail">
+                        <header class="aw-article-head">
                         <h2 class="aw-content-title mb-3">{if $article_info.set_top}
                             <i class="iconfont icon-zhiding text-warning font-14"></i>{/if}{:htmlspecialchars_decode($article_info.title)}
                             {:hook('extend_title_label',['area'=>'article_detail','info'=>$article_info])}
                         </h2>
-                        <div class="mb-3">
+                        <div class="aw-article-head-tags mb-3">
                             <span class="badge badge-primary">{$article_info['article_type_label']}</span>
                         </div>
                         <div class="aw-author-info mb-3">
@@ -165,7 +166,8 @@
                                 <p class="float-right text-muted "><span>{$article_info.agree_count}</span>&nbsp;人认可了这条内容 · {:L('%s 浏览',$article_info.view_count)}</p>
                             </div>
                         </div>
-                        <div class="aw-content aw-content-body mt-3">
+                        </header>
+                        <div class="aw-content aw-content-body aw-article-content-body mt-3">
                             {$article_info.message|raw}
                         </div>
                     </article>

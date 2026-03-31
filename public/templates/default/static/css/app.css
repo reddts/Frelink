@@ -3987,6 +3987,223 @@ em.tag:hover {
     margin-bottom: 0;
 }
 
+.aw-article-detail-shell {
+    padding: 1.6rem 1.75rem 1.4rem !important;
+}
+
+.aw-article-detail .aw-article-head {
+    position: relative;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.4rem;
+    border-bottom: 1px solid #e7eef5;
+}
+
+.aw-article-detail .aw-content-title {
+    margin-top: 0 !important;
+    margin-bottom: 1rem !important;
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1.38;
+    letter-spacing: 0.01em;
+}
+
+.aw-article-detail .aw-article-head-tags {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.aw-article-detail .aw-article-head-tags .badge {
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.aw-article-detail .aw-author-info {
+    margin-bottom: 0 !important;
+    padding: 1rem 1.1rem;
+    border-radius: 1rem;
+    background: linear-gradient(180deg, #f9fbff 0%, #f3f7fb 100%);
+    border: 1px solid #e3ebf3;
+}
+
+.aw-article-detail .aw-author-info .aw-user {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.aw-article-detail .aw-author-info .aw-user dl {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-width: 0;
+}
+
+.aw-article-detail .aw-author-info .aw-user dt {
+    margin-right: 0 !important;
+}
+
+.aw-article-detail .aw-author-info .aw-user dd {
+    float: none !important;
+}
+
+.aw-article-detail .aw-author-info .aw-user h6 {
+    font-size: 1rem;
+    color: #17324d;
+}
+
+.aw-article-detail .aw-author-info .aw-user small {
+    margin-top: 0.4rem !important;
+    line-height: 1.7;
+}
+
+.aw-article-detail .aw-author-info .aw-user p {
+    margin: 0;
+    flex-shrink: 0;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #698096 !important;
+}
+
+.aw-article-brief {
+    position: relative;
+    margin-top: 0.15rem;
+    padding: 1.25rem 1.4rem 1.2rem 1.55rem;
+    border-radius: 1.1rem;
+    background:
+        radial-gradient(circle at top right, rgba(27, 119, 201, 0.12), transparent 36%),
+        linear-gradient(135deg, #eef7ff 0%, #f6fbff 46%, #f9fcff 100%);
+    border: 1px solid #cfe3f8;
+    box-shadow: 0 20px 44px rgba(31, 84, 131, 0.1);
+}
+
+.aw-article-brief::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 1.1rem;
+    bottom: 1.1rem;
+    width: 5px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #1e8fd2 0%, #5db1ff 100%);
+}
+
+.aw-article-brief-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.9rem;
+    margin-bottom: 0.9rem;
+    border-radius: 999px;
+    background: rgba(24, 106, 191, 0.1);
+    color: #0b63c7;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+}
+
+.aw-article-brief ul {
+    margin-bottom: 0;
+    padding-left: 1.15rem !important;
+}
+
+.aw-article-brief li {
+    margin-bottom: 0.7rem !important;
+    color: #21435f !important;
+    font-size: 1rem;
+    line-height: 1.78;
+}
+
+.aw-article-brief li:last-child {
+    margin-bottom: 0 !important;
+}
+
+.aw-article-detail-shell .aw-article-content-body {
+    padding: 0.15rem 0 0.35rem;
+    color: #2f4558;
+    font-size: 1.02rem;
+    line-height: 1.82;
+}
+
+.aw-article-detail-shell .aw-article-content-body > :first-child {
+    margin-top: 0;
+}
+
+.aw-article-detail-shell .aw-article-content-body > :last-child {
+    margin-bottom: 0;
+}
+
+.aw-article-detail-shell .aw-article-content-body p,
+.aw-article-detail-shell .aw-article-content-body li,
+.aw-article-detail-shell .aw-article-content-body blockquote,
+.aw-article-detail-shell .aw-article-content-body td,
+.aw-article-detail-shell .aw-article-content-body th {
+    font-size: 1.02rem;
+    line-height: 1.82;
+}
+
+.aw-article-detail-shell .aw-article-content-body p {
+    margin-bottom: 1.15rem;
+    color: #31485b;
+}
+
+.aw-article-detail-shell .aw-article-content-body h1,
+.aw-article-detail-shell .aw-article-content-body h2,
+.aw-article-detail-shell .aw-article-content-body h3,
+.aw-article-detail-shell .aw-article-content-body h4 {
+    line-height: 1.56;
+}
+
+.aw-article-detail-shell .aw-article-content-body h1 {
+    font-size: 1.52rem;
+}
+
+.aw-article-detail-shell .aw-article-content-body h2 {
+    padding-left: 0.9rem;
+    font-size: 1.28rem;
+}
+
+.aw-article-detail-shell .aw-article-content-body h3 {
+    font-size: 1.13rem;
+}
+
+.aw-article-detail-shell .aw-article-content-body h4 {
+    font-size: 1.02rem;
+}
+
+.aw-article-detail-shell .aw-article-content-body ul,
+.aw-article-detail-shell .aw-article-content-body ol {
+    margin: 0 0 1.2rem 1.45rem;
+    padding-left: 0.2rem;
+}
+
+.aw-article-detail-shell .aw-article-content-body li {
+    margin-bottom: 0.6rem;
+}
+
+.aw-article-detail-shell .aw-article-content-body li p {
+    margin-bottom: 0.35rem;
+}
+
+.aw-article-detail-shell .aw-article-content-body blockquote {
+    padding: 1rem 1.15rem;
+    background: #f7fbfe;
+    border-left-color: #5ca8df;
+    color: #38526a;
+}
+
+.aw-article-detail-shell .aw-article-content-body pre {
+    padding: 1.05rem 1.15rem;
+}
+
+.aw-article-detail-shell .aw-article-content-body table td,
+.aw-article-detail-shell .aw-article-content-body table th {
+    min-width: 7rem;
+}
+
 .help-shell {
     overflow: hidden;
 }
@@ -4376,6 +4593,45 @@ em.tag:hover {
 
     .aw-answer-item.aw-content-shell {
         padding: 1rem !important;
+    }
+
+    .aw-article-detail-shell {
+        padding: 1.1rem 1rem 1rem !important;
+    }
+
+    .aw-article-detail .aw-content-title {
+        font-size: 1.46rem;
+        line-height: 1.44;
+    }
+
+    .aw-article-detail .aw-author-info {
+        padding: 0.9rem 0.95rem;
+    }
+
+    .aw-article-detail .aw-author-info .aw-user {
+        display: block;
+    }
+
+    .aw-article-detail .aw-author-info .aw-user p {
+        margin-top: 0.7rem;
+    }
+
+    .aw-article-brief {
+        padding: 1rem 1rem 0.95rem 1.2rem;
+    }
+
+    .aw-article-brief::before {
+        top: 0.95rem;
+        bottom: 0.95rem;
+    }
+
+    .aw-article-detail-shell .aw-article-content-body,
+    .aw-article-detail-shell .aw-article-content-body p,
+    .aw-article-detail-shell .aw-article-content-body li,
+    .aw-article-detail-shell .aw-article-content-body blockquote,
+    .aw-article-detail-shell .aw-article-content-body td,
+    .aw-article-detail-shell .aw-article-content-body th {
+        font-size: 1rem;
     }
 
     .article-actions-handle {
