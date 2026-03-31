@@ -2,6 +2,11 @@
 
 ## 2026-03-31
 
+### 里程碑：移动端 Swiper 容器内边距微调
+
+- 移动端公共 `swiper.min.css` 中的 `.swiper-container` 已把 `padding` 从 `0` 调整为 `0.3rem`
+- 这次调整只细修移动端滑动容器的基础内边距，不改 `Swiper` 初始化逻辑、分页器样式和业务页结构
+
 ### 里程碑：主题 / FAQ / 知识内容入口区 padding 再对齐
 
 - `aw-topic-lanes`、`aw-faq-lanes` 与 `aw-knowledge-spotlights` 的外层 padding 已统一收口为 `18px 16px 18px`
@@ -118,6 +123,7 @@
 - 生产公共压缩样式文件 `https://www.frelink.top/templates/default/static/css/app.min.css?v=4.1` 已确认 `aw-article-brief-eyebrow{margin-bottom:.3rem;color:#1d4ed8;font-size:13px;font-weight:700;letter-spacing:.02em}`
 - 生产文章详情样式文件 `https://www.frelink.top/templates/default/static/css/article/detail.css?v=4.1` 已确认输出 `aw-article-brief li`，且包含 `margin-bottom: 0 !important;`、`line-height: unset;`、`font-size: 0.9rem;`
 - 生产知识内容页 `https://www.frelink.top/articles/` 已确认 `aw-knowledge-spotlights` 输出 `padding: 0 10px 18px;`
+- 生产移动端公共样式文件 `https://www.frelink.top/static/libs/swiper/swiper.min.css?v=4.1` 已确认文件长度恢复到 `19789` 字节，且 `.swiper-container` 输出 `padding:.3rem`
 - 生产 FAQ 样式文件 `https://www.frelink.top/templates/default/static/css/question/index.css?v=4.1` 已确认输出 `aw-faq-lane::before`，且渐变参数为 `linear-gradient(90deg, #1d4ed8 0%, #0f766e 100%)`
 - 生产 FAQ 样式文件已确认 `aw-faq-lane` 使用 `min-height: 132px` 与 `background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%)`
 - 生产知识内容页 `https://www.frelink.top/articles/` 已确认输出 `aw-knowledge-spotlights`、`aw-knowledge-spotlight::before`、`min-height: 132px`、`background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%)` 和 `font-size: 16px`
