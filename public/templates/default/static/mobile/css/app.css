@@ -2700,3 +2700,74 @@ em.tag:hover {
     background: #fff;
     padding-bottom: 20px;
 }
+.aw-mobile-article-hero {
+    padding: 14px 12px 10px;
+    background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
+    border-bottom: 1px solid #eef2f7;
+}
+.aw-mobile-article-hero h1 {
+    margin-bottom: 4px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+}
+.aw-mobile-article-hero p {
+    margin-bottom: 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+}
+.aw-mobile-spotlight-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 10px 12px 12px;
+    margin: 0;
+}
+.aw-mobile-spotlight-card {
+    display: block;
+    padding: 11px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
+    border: 1px solid #dbe7f3;
+    color: #0f172a;
+}
+.aw-mobile-spotlight-label {
+    display: inline-flex;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(29, 78, 216, 0.08);
+    color: #1d4ed8;
+    font-style: normal;
+    font-size: 10px;
+    font-weight: 700;
+}
+.aw-mobile-spotlight-card strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+.aw-mobile-spotlight-card p {
+    margin: 0 0 6px;
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.55;
+}
+.aw-mobile-spotlight-meta {
+    color: #334155;
+    font-size: 10px;
+    line-height: 1.5;
+}
+.aw-mobile-spotlight-action {
+    display: inline-block;
+    margin-top: 6px;
+    color: #1d4ed8;
+    font-size: 11px;
+    font-weight: 700;
+}
+@media (max-width: 360px) {
+    .aw-mobile-spotlight-grid {
+        grid-template-columns: 1fr;
+    }
+}

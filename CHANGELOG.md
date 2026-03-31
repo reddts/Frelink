@@ -2,6 +2,12 @@
 
 ## 2026-03-31
 
+### 里程碑：移动端知识内容入口区样式并入公共 CSS
+
+- 移动端知识内容页的 `.aw-mobile-spotlight-grid` 已收口为 `padding: 10px 12px 12px`，并移除外层 `margin`
+- 原先写在移动端知识内容页模板里的 spotlight 内联样式已并入移动端公共 `app.css`
+- 这次调整只处理移动端知识内容入口区的容器间距和样式归属，不改卡片文案、链接和两列布局
+
 ### 里程碑：移动端 Swiper 容器内边距微调
 
 - 移动端公共 `swiper.min.css` 中的 `.swiper-container` 已把 `padding` 从 `0` 调整为 `0.3rem`
@@ -124,6 +130,8 @@
 - 生产文章详情样式文件 `https://www.frelink.top/templates/default/static/css/article/detail.css?v=4.1` 已确认输出 `aw-article-brief li`，且包含 `margin-bottom: 0 !important;`、`line-height: unset;`、`font-size: 0.9rem;`
 - 生产知识内容页 `https://www.frelink.top/articles/` 已确认 `aw-knowledge-spotlights` 输出 `padding: 0 10px 18px;`
 - 生产移动端公共样式文件 `https://www.frelink.top/static/libs/swiper/swiper.min.css?v=4.1` 已确认文件长度恢复到 `19789` 字节，且 `.swiper-container` 输出 `padding:.3rem`
+- 生产移动端公共样式文件 `https://www.frelink.top/templates/default/static/mobile/css/app.css?v=4.1` 已确认 `.aw-mobile-spotlight-grid` 输出 `padding: 10px 12px 12px;` 与 `margin: 0;`
+- 生产移动端知识内容页 `https://www.frelink.top/m/articles/` 已确认 spotlight 区块不再内联输出该组样式，改为直接引用公共 `app.css`
 - 生产 FAQ 样式文件 `https://www.frelink.top/templates/default/static/css/question/index.css?v=4.1` 已确认输出 `aw-faq-lane::before`，且渐变参数为 `linear-gradient(90deg, #1d4ed8 0%, #0f766e 100%)`
 - 生产 FAQ 样式文件已确认 `aw-faq-lane` 使用 `min-height: 132px` 与 `background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%)`
 - 生产知识内容页 `https://www.frelink.top/articles/` 已确认输出 `aw-knowledge-spotlights`、`aw-knowledge-spotlight::before`、`min-height: 132px`、`background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%)` 和 `font-size: 16px`
