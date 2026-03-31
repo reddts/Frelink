@@ -2,6 +2,12 @@
 
 ## 2026-03-31
 
+### 里程碑：PC 知识内容页视觉层级再收口
+
+- PC 端知识内容聚合页的 hero 已收口为和 FAQ / 主题页一致的直角版式，不再保留独立圆角矩形造成跨页割裂
+- 知识内容详情页已继续降低头部 `30 秒看懂` 与文章标题的视觉权重，避免首屏注意力被头部摘要区抢走
+- `下一步阅读` 已改为与正文明显分隔的独立区块，增加上边距，并把区块标题与条目标题字号压回到低于文章主标题的层级
+
 ### 里程碑：PC 知识内容页头部冗余卡片收口
 
 - PC 端知识内容页已移除 hero 下方那组三张说明卡，不再连续叠加 `最新更新 / 高关注内容 / 观察专题` 第二层入口
@@ -65,6 +71,10 @@
 - 远端已执行 `sudo php think clear`
 - 远端已执行 `sudo php think api:doc --output docs/api-v1.md` 与 `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
 - 生产环境已完成 `https://www.frelink.top/`、`https://www.frelink.top/questions/`、`https://www.frelink.top/articles/` 基础 smoke 检查
+- 生产知识内容页 `https://www.frelink.top/articles/` 已确认输出 `.aw-knowledge-hero { border-radius: 0; }`，聚合页 hero 已切到直角版式
+- 生产知识内容页 HTML 已确认保留 `aw-knowledge-hero / aw-page-chips / aw-knowledge-spotlights` 结构，且继续输出 `综述优先沉淀`
+- 生产文章详情页 HTML 已确认输出 `aw-article-brief-eyebrow` 与 `aw-article-next-read*` 结构，`30 秒看懂 / 下一步阅读` 新样式类已上线
+- 生产文章详情样式文件 `https://www.frelink.top/templates/default/static/css/article/detail.css?v=4.1` 已确认输出 `font-size: 2rem`、`aw-article-next-read`、`margin-top: 32px`
 - 生产知识内容页 `https://www.frelink.top/articles/` 已确认查不到 `aw-knowledge-lanes` 结构
 - 生产知识内容页 HTML 已确认查不到“最新更新 / 高关注内容 / 如果你想沿同一主题继续追踪变化”这组三卡文案
 - 生产知识内容页 HTML 已确认查不到“主内容入口”文案，`综述 / 观察` 标题已直接使用 badge 样式

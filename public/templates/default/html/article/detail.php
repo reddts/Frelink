@@ -172,12 +172,12 @@
                         </div>
                     </article>
                     {if !empty($next_reads)}
-                    <section class="bg-light rounded p-3 mb-3">
-                        <div class="font-weight-bold mb-2">下一步阅读</div>
+                    <section class="aw-article-next-read bg-light rounded p-3 mb-3">
+                        <div class="aw-article-next-read-heading mb-2">下一步阅读</div>
                         {volist name="next_reads" id="item"}
-                        <a class="d-block py-2 border-bottom text-dark" href="{$item.url}">
-                            <div class="font-weight-bold mb-1"><i class="icon-book text-primary mr-1"></i>{$item.title}</div>
-                            {if $item.desc}<div class="text-muted font-12">{$item.desc}</div>{/if}
+                        <a class="aw-article-next-read-item d-block py-2 border-bottom text-dark" href="{$item.url}">
+                            <div class="aw-article-next-read-title mb-1"><i class="icon-book text-primary mr-1"></i>{$item.title}</div>
+                            {if $item.desc}<div class="aw-article-next-read-desc text-muted font-12">{$item.desc}</div>{/if}
                         </a>
                         {/volist}
                     </section>

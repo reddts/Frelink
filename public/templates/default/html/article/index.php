@@ -33,25 +33,42 @@
         border-color: #bfdbfe;
     }
     .aw-knowledge-hero {
-        margin: 0 16px 18px;
-        padding: 22px 24px;
-        border-radius: 28px;
+        position: relative;
+        overflow: hidden;
+        margin: 0;
+        padding: 30px 28px 26px;
+        border-radius: 0;
         background:
             radial-gradient(circle at 18% 20%, rgba(56, 189, 248, 0.24), transparent 24%),
             radial-gradient(circle at 82% 18%, rgba(52, 211, 153, 0.22), transparent 26%),
             linear-gradient(135deg, #0b1830 0%, #0f3d68 48%, #0e7a6f 100%);
-        box-shadow: 0 22px 48px rgba(15, 23, 42, 0.14);
+    }
+    .aw-knowledge-hero::after {
+        content: "";
+        position: absolute;
+        right: -90px;
+        bottom: -120px;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.02) 48%, transparent 72%);
+        pointer-events: none;
     }
     .aw-knowledge-hero h1 {
+        position: relative;
+        z-index: 1;
         margin: 0 0 8px;
-        font-size: 32px;
-        font-weight: 700;
+        font-size: 34px;
+        font-weight: 800;
         color: #fff;
     }
     .aw-knowledge-hero p {
+        position: relative;
+        z-index: 1;
         margin: 0;
-        max-width: 760px;
+        max-width: 64ch;
         color: rgba(226, 232, 240, 0.9);
+        font-size: 15px;
         line-height: 1.7;
     }
     .aw-page-kicker {
@@ -73,18 +90,18 @@
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        margin-top: 14px;
+        margin-top: 18px;
     }
     .aw-page-chips span {
         display: inline-flex;
         align-items: center;
-        min-height: 36px;
-        padding: 0 14px;
+        min-height: 34px;
+        padding: 0 12px;
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.12);
         border: 1px solid rgba(255, 255, 255, 0.14);
         color: rgba(255, 255, 255, 0.92);
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 700;
     }
     .aw-article-filter-divider {
