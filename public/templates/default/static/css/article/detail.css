@@ -85,6 +85,12 @@
     line-height: 1.75;
 }
 
+.aw-article-brief li {
+    margin-bottom: 0 !important;
+    line-height: unset;
+    font-size: 0.9rem;
+}
+
 .aw-article-content-body {
     color: #334155;
     line-height: 1.9;

@@ -2,6 +2,11 @@
 
 ## 2026-03-31
 
+### 里程碑：知识内容摘要列表字号微调
+
+- 知识内容详情页 `aw-article-brief li` 已去掉单项 `margin-bottom` 与 `line-height`，并把字号收口为 `0.9rem`
+- 这次调整只细修 `30 秒看懂` 摘要列表的文字密度，不改摘要卡本身的结构、颜色和容器间距
+
 ### 里程碑：知识内容入口卡片外边距微调
 
 - 知识内容页 `aw-knowledge-spotlights` 的外层 padding 已从上一轮较宽的容器留白收口为 `0 10px 18px`
@@ -88,6 +93,7 @@
 - 远端已执行 `sudo php think clear`
 - 远端已执行 `sudo php think api:doc --output docs/api-v1.md` 与 `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
 - 生产环境已完成 `https://www.frelink.top/`、`https://www.frelink.top/questions/`、`https://www.frelink.top/articles/` 基础 smoke 检查
+- 生产文章详情样式文件 `https://www.frelink.top/templates/default/static/css/article/detail.css?v=4.1` 已确认输出 `aw-article-brief li`，且包含 `margin-bottom: 0 !important;`、`line-height: unset;`、`font-size: 0.9rem;`
 - 生产知识内容页 `https://www.frelink.top/articles/` 已确认 `aw-knowledge-spotlights` 输出 `padding: 0 10px 18px;`
 - 生产 FAQ 样式文件 `https://www.frelink.top/templates/default/static/css/question/index.css?v=4.1` 已确认输出 `aw-faq-lane::before`，且渐变参数为 `linear-gradient(90deg, #1d4ed8 0%, #0f766e 100%)`
 - 生产 FAQ 样式文件已确认 `aw-faq-lane` 使用 `min-height: 132px` 与 `background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%)`
