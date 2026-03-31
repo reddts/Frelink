@@ -2,6 +2,21 @@
 
 ## 2026-03-31
 
+### 里程碑：API 新增用户与绑定访问 token 接口上线
+
+- `/api/Account/create_user` 已上线，支持由已登录的 `ApiToken` / `AccessToken` 调用方在具备 `create_api_user` 权限时创建普通新用户，并同步绑定一条 `type=3` API 访问 token
+- 新增 `create_api_user` 权限位，并补充存量站点升级脚本 `docs/api-create-user-upgrade.sql`；安装 SQL 也已同步写入默认权限定义
+- 远端已通过标准部署脚本完成同步与验证：`bash scripts/deploy.sh deploy`
+- 远端验证结果：
+  - `php -l app/function.inc.php`
+  - `php -l app/frontend/Article.php`
+  - `sudo php think clear`
+  - `sudo php think api:doc --output docs/api-v1.md`
+  - `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+- 生产最小可用性检查已通过：
+  - `POST https://www.frelink.top/api/Account/create_user` 在未登录条件下返回 `code=99`、`error_code=AUTH_REQUIRED`，说明新接口已接入鉴权链
+  - 生产 `https://www.frelink.top/docs/api-v1.openapi.json` 已确认输出 `/Account/create_user`
+
 ### 里程碑：移动端公共链接颜色再次收口
 
 - 移动端公共 `aui.min.css` 中 `a, a:hover, a:active, a:visited` 的颜色已从上一轮的 `#d6d2d2` 继续收口为 `#6e6c6c`

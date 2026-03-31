@@ -318,6 +318,70 @@ class Users extends BaseModel
     }
 
     /**
+     * 受控创建普通用户
+     * @param string $account
+     * @param string $password
+     * @param array $extend
+     * @param string $client
+     * @return false|int
+     */
+    public static function createManagedUser(string $account, string $password, array $extend = [], string $client = 'api')
+    {
+        if (!$account || !$password) {
+            self::setError('账号或密码必填');
+            return false;
+        }
+
+        if (self::checkUserExist($account) || (isset($extend['nick_name']) && self::checkUserExist($extend['nick_name']))) {
+            self::setError('用户已存在');
+            return false;
+        }
+
+        $data = [];
+        $salt = RandomHelper::alnum();
+        $data['create_time'] = time();
+        $data['update_time'] = time();
+        $data = $extend ? array_merge($data, $extend) : $data;
+        $data['user_name'] = $account;
+        $data['password'] = compile_password($password, $salt);
+        $data['salt'] = $salt;
+        $data['reg_ip'] = request()->ip();
+        $data['is_first_login'] = 1;
+        $data['nick_name'] = trim((string) ($data['nick_name'] ?? '')) ?: $account;
+        $data['group_id'] = 4;
+        $data['integral_group_id'] = intval($extend['integral_group_id'] ?? ($data['integral_group_id'] ?? 1));
+        $data['reputation_group_id'] = intval($extend['reputation_group_id'] ?? ($data['reputation_group_id'] ?? 1));
+        $data['status'] = intval($extend['status'] ?? 1);
+        $data['client'] = $client;
+
+        $pinyin = new Pinyin();
+        $url_token = $pinyin->permalink($account, '');
+        $token = db('users')->where('url_token', $url_token)->value('url_token');
+        $url_token = $token ? $url_token . '-' . time() : $url_token;
+        if (!$url_token) {
+            $url_token = StringHelper::uuid('uniqid');
+        }
+
+        $data['url_token'] = $url_token;
+
+        try {
+            $uid = db('users')->strict(false)->insertGetId($data);
+            db('users_extends')->insert([
+                'uid' => $uid,
+                'inbox_setting' => 'all',
+                'notify_setting' => json_encode(NotifyHelper::getDefaultNotifyConfig(), JSON_UNESCAPED_UNICODE),
+            ]);
+
+            LogHelper::addIntegralLog('REGISTER', $uid, 'users', $uid);
+            ElasticSearch::instance()->create('users', db('users')->find($uid));
+            return $uid;
+        } catch (Exception $e) {
+            self::setError($e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * 获取用户信息
      * @param $uid
      * @param bool $extend

@@ -2,6 +2,7 @@
 
 namespace app\api\v1;
 
+use app\common\library\helper\ApiTokenHelper;
 use app\common\library\helper\ImageHelper;
 use think\facade\Log;
 use app\model\Users;
@@ -15,7 +16,7 @@ use app\common\controller\Api;
 class Account extends Api
 {
     protected string $wxPlatform = 'wxMiniApp';
-    protected $needLogin = ['my'];
+    protected $needLogin = ['my', 'create_user'];
 
     public function login()
     {
@@ -116,6 +117,134 @@ class Account extends Api
         }
 
         $this->apiSuccess('注册成功', $this->getUserInfo($uid));
+    }
+
+    // 受控创建普通用户并绑定 API 访问 token
+    public function create_user()
+    {
+        if (!$this->request->isPost()) {
+            $this->apiError('错误的请求');
+        }
+
+        if (!$this->canCreateManagedUser()) {
+            $this->apiError('您没有新增用户权限');
+        }
+
+        $data = $this->request->post();
+        $data['username'] = trim((string) ($data['username'] ?? ''));
+        $data['password'] = trim((string) ($data['password'] ?? ''));
+        $data['email'] = trim((string) ($data['email'] ?? ''));
+        $data['mobile'] = trim((string) ($data['mobile'] ?? ''));
+        $data['nick_name'] = trim((string) ($data['nick_name'] ?? ''));
+        $data['signature'] = trim((string) ($data['signature'] ?? ''));
+
+        try {
+            validate(UserValidate::class)->scene('register')->check($data);
+        } catch (ValidateException $e) {
+            $this->apiError($e->getError());
+        }
+
+        $checkPassword = wcCheckPassword($data['password']);
+        if ($checkPassword !== true) {
+            $this->apiError($checkPassword);
+        }
+
+        if ($data['email'] !== '') {
+            if (!MailHelper::isEmail($data['email'])) {
+                $this->apiError('请填写正确的邮箱地址');
+            }
+            if (Users::checkUserExist($data['email'])) {
+                $this->apiError('该邮箱已被使用请更换邮箱');
+            }
+        }
+
+        if ($data['mobile'] !== '') {
+            if (!preg_match('/^1[3-9]\d{9}$/', $data['mobile'])) {
+                $this->apiError('错误的手机号');
+            }
+            if (Users::checkUserExist($data['mobile'])) {
+                $this->apiError('该手机号已被使用请更换手机号');
+            }
+        }
+
+        $tokenValue = trim((string) ($data['access_token'] ?? ''));
+        if ($tokenValue === '') {
+            $tokenValue = $this->buildUniqueApiToken();
+        } elseif (db('app_token')->where('token', $tokenValue)->find()) {
+            $this->apiError('访问 token 已存在，请更换后重试');
+        }
+
+        $tokenTitle = trim((string) ($data['token_title'] ?? ''));
+        if ($tokenTitle === '') {
+            $tokenTitle = $data['username'] . ' API Token';
+        }
+
+        $tokenRemark = trim((string) ($data['token_remark'] ?? ''));
+        if ($tokenRemark === '') {
+            $tokenRemark = '由 UID ' . $this->user_id . ' 通过 API 创建并绑定';
+        }
+
+        $expireTime = $this->normalizeTokenExpireTime($data['expire_time'] ?? '');
+        if ($expireTime === null) {
+            $this->apiError('访问 token 过期时间格式不正确');
+        }
+
+        $extend = array_filter([
+            'email' => $data['email'],
+            'mobile' => $data['mobile'],
+            'nick_name' => $data['nick_name'],
+            'signature' => $data['signature'],
+            'status' => 1,
+        ], static function ($value) {
+            return $value !== '';
+        });
+
+        db()->startTrans();
+        try {
+            $uid = Users::createManagedUser($data['username'], $data['password'], $extend, 'api');
+            if (!$uid) {
+                throw new \RuntimeException(Users::getError() ?: '新增用户失败');
+            }
+
+            $inserted = db('app_token')->insert([
+                'title' => $tokenTitle,
+                'token' => $tokenValue,
+                'version' => '',
+                'plugin' => '',
+                'type' => 3,
+                'uid' => $uid,
+                'status' => 1,
+                'expire_time' => $expireTime,
+                'last_use_time' => 0,
+                'last_use_ip' => '',
+                'remark' => $tokenRemark,
+                'create_time' => time(),
+            ]);
+
+            if (!$inserted) {
+                throw new \RuntimeException('绑定访问 token 失败');
+            }
+
+            db()->commit();
+        } catch (\Throwable $e) {
+            db()->rollback();
+            $this->apiError($e->getMessage());
+        }
+
+        $userData = $this->getUserInfo($uid);
+        unset($userData['token']);
+
+        $this->apiSuccess('新增用户成功', [
+            'user' => $userData,
+            'access_token' => $tokenValue,
+            'token_type' => 'ApiToken',
+            'headers' => [
+                'ApiToken' => $tokenValue,
+                'AccessToken' => $tokenValue,
+                'version' => 'v1',
+            ],
+            'expire_time' => $expireTime,
+        ]);
     }
 
 
@@ -309,5 +438,49 @@ class Account extends Api
                 'platform' => $this->wxPlatform
             ]);
         }
+    }
+
+    protected function canCreateManagedUser(): bool
+    {
+        if (isSuperAdmin() || isNormalAdmin()) {
+            return true;
+        }
+
+        return (($this->user_info['permission']['create_api_user'] ?? 'N') === 'Y');
+    }
+
+    protected function buildUniqueApiToken(): string
+    {
+        do {
+            $token = ApiTokenHelper::buildToken();
+        } while (db('app_token')->where('token', $token)->find());
+
+        return $token;
+    }
+
+    protected function normalizeTokenExpireTime($value): ?int
+    {
+        if ($value === null) {
+            return 0;
+        }
+
+        if (is_string($value)) {
+            $value = trim($value);
+            if ($value === '') {
+                return 0;
+            }
+        }
+
+        if (is_numeric($value)) {
+            $timestamp = intval($value);
+            return $timestamp > 0 ? $timestamp : 0;
+        }
+
+        $timestamp = strtotime((string) $value);
+        if ($timestamp === false) {
+            return null;
+        }
+
+        return $timestamp > 0 ? $timestamp : 0;
     }
 }
