@@ -37,17 +37,20 @@
     </div>
 </div>
 <script type="text/javascript">
-    $(function () {
+    window.__whenSwiperReady(function () {
         let $widget = $('.container').has('#category-children-box').first(),
             $activeLink = $widget.find('.c-active').first(),
             k = parseInt($activeLink.data('k')) || 0
-        new Swiper($widget.find('.swiper-container')[0], {
-            speed: 600,
-            grabCursor: true,
-            slidesPerView: "auto",
-            initialSlide: k,
-            slidesPerGroup: 3
-        })
+
+        if ($widget.length && $widget.find('.swiper-container').length) {
+            new Swiper($widget.find('.swiper-container')[0], {
+                speed: 600,
+                grabCursor: true,
+                slidesPerView: "auto",
+                initialSlide: k,
+                slidesPerGroup: 3
+            })
+        }
 
         let $childBox = $widget.find('#category-children-box'),
             expandedKey = null
@@ -104,6 +107,6 @@
                 setChildren($item)
             }
         })
-    })
+    });
 </script>
 {/if}

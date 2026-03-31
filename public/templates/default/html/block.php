@@ -72,6 +72,26 @@
             }
         };
 
+        window.__whenSwiperReady = function (callback, attempts) {
+            var remaining = typeof attempts === 'number' ? attempts : 80;
+
+            function run() {
+                if (window.Swiper) {
+                    callback(window.Swiper);
+                    return;
+                }
+
+                if (remaining <= 0) {
+                    return;
+                }
+
+                remaining -= 1;
+                window.setTimeout(run, 50);
+            }
+
+            window.__onDomReady(run);
+        };
+
         window.userId = parseInt("{$user_id|default='0'}");
         window.userName = "{$user_info['nick_name']|default=''}";
         window.baseUrl = '{$baseUrl}';

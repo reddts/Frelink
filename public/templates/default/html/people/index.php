@@ -118,15 +118,20 @@
     </div>
 </div>
 <script type="text/javascript">
-    $(function () {
-        let k = parseInt($('.i-active').index())
-        let navSwiper = new Swiper('.swiper-container', {
+    window.__whenSwiperReady(function () {
+        let k = parseInt($('.i-active').index(), 10);
+
+        if (isNaN(k)) {
+            k = 0;
+        }
+
+        new Swiper('.swiper-container', {
             speed: 600,
             grabCursor: true,
             slidesPerView: "auto",
             initialSlide: k,
             slidesPerGroup: 3
-        })
-    })
+        });
+    });
 </script>
 {/block}

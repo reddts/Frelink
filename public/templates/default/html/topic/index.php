@@ -82,14 +82,21 @@
     </div>
 </div>
 <script>
-    let c_a = $('.c-active'),
-        k = parseInt(c_a.data('k'))
-    let navSwiper = new Swiper('.swiper-container', {
-        speed: 600,
-        grabCursor: true,
-        slidesPerView: "auto",
-        initialSlide: k,
-        slidesPerGroup: 3
-    })
+    window.__whenSwiperReady(function () {
+        let c_a = $('.c-active'),
+            k = parseInt(c_a.data('k'), 10);
+
+        if (isNaN(k)) {
+            k = 0;
+        }
+
+        new Swiper('.swiper-container', {
+            speed: 600,
+            grabCursor: true,
+            slidesPerView: "auto",
+            initialSlide: k,
+            slidesPerGroup: 3
+        });
+    });
 </script>
 {/block}

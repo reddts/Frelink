@@ -2,6 +2,12 @@
 
 ## 2026-03-31
 
+### 里程碑：桌面端主题页 Swiper 初始化报错修复
+
+- 桌面端公共模板新增 `__whenSwiperReady`，统一等待 `Swiper` 依赖真正就绪后再执行页面内联初始化
+- 主题页、个人页和桌面分类组件已改为走同一套延迟初始化逻辑，不再在 `swiper.min.js` 仍处于 `defer` 加载阶段时直接调用 `new Swiper(...)`
+- 这次调整只修复桌面端 `Swiper is not defined` 报错链路，不改导航结构、筛选逻辑和滑动参数
+
 ### 里程碑：PC 知识内容页视觉层级再收口
 
 - PC 端知识内容聚合页的 hero 已收口为和 FAQ / 主题页一致的直角版式，不再保留独立圆角矩形造成跨页割裂
@@ -71,6 +77,8 @@
 - 远端已执行 `sudo php think clear`
 - 远端已执行 `sudo php think api:doc --output docs/api-v1.md` 与 `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
 - 生产环境已完成 `https://www.frelink.top/`、`https://www.frelink.top/questions/`、`https://www.frelink.top/articles/` 基础 smoke 检查
+- 生产主题页 `https://www.frelink.top/topics/` 已确认同时输出 `swiper.min.js`、`window.__whenSwiperReady = function` 和 `window.__whenSwiperReady(function () { new Swiper(...) })`
+- 生产主题页 HTML 已确认不再直接在页尾裸跑 `new Swiper(...)`，桌面端 `Swiper is not defined` 的时序问题已切断
 - 生产知识内容页 `https://www.frelink.top/articles/` 已确认输出 `.aw-knowledge-hero { border-radius: 0; }`，聚合页 hero 已切到直角版式
 - 生产知识内容页 HTML 已确认保留 `aw-knowledge-hero / aw-page-chips / aw-knowledge-spotlights` 结构，且继续输出 `综述优先沉淀`
 - 生产文章详情页 HTML 已确认输出 `aw-article-brief-eyebrow` 与 `aw-article-next-read*` 结构，`30 秒看懂 / 下一步阅读` 新样式类已上线
