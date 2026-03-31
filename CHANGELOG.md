@@ -2,6 +2,11 @@
 
 ## 2026-03-31
 
+### 里程碑：知识内容详情页标题字号对齐 FAQ
+
+- 知识内容详情页 `.aw-article-detail-shell .aw-content-title` 的 `font-size` 已收口为 `1.6rem`
+- 这次调整只对齐知识内容详情页与 FAQ 详情页的标题字号，不改标题字重、间距和正文排版
+
 ### 里程碑：知识内容摘要标题样式冲突收口
 
 - 知识内容详情页 `aw-article-brief-eyebrow` 在 `detail.css` 与 `app.min.css` 的双份定义已统一，不再继续一边输出轻量标题、一边输出胶囊样式
@@ -99,6 +104,7 @@
 - 远端已执行 `sudo php think clear`
 - 远端已执行 `sudo php think api:doc --output docs/api-v1.md` 与 `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
 - 生产环境已完成 `https://www.frelink.top/`、`https://www.frelink.top/questions/`、`https://www.frelink.top/articles/` 基础 smoke 检查
+- 生产文章详情样式文件 `https://www.frelink.top/templates/default/static/css/article/detail.css?v=4.1` 已确认 `.aw-article-detail-shell .aw-content-title` 输出 `font-size: 1.6rem;`
 - 生产文章详情样式文件 `https://www.frelink.top/templates/default/static/css/article/detail.css?v=4.1` 已确认 `aw-article-brief-eyebrow` 输出 `margin-bottom: 0.3rem; color: #1d4ed8; letter-spacing: 0.02em;`
 - 生产公共压缩样式文件 `https://www.frelink.top/templates/default/static/css/app.min.css?v=4.1` 已确认 `aw-article-brief-eyebrow{margin-bottom:.3rem;color:#1d4ed8;font-size:13px;font-weight:700;letter-spacing:.02em}`
 - 生产文章详情样式文件 `https://www.frelink.top/templates/default/static/css/article/detail.css?v=4.1` 已确认输出 `aw-article-brief li`，且包含 `margin-bottom: 0 !important;`、`line-height: unset;`、`font-size: 0.9rem;`
