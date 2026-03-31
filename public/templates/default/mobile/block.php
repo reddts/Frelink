@@ -31,7 +31,9 @@
     <script src="{$cdnUrl}/static/libs/layer/layer.js?v={$version}" type="text/javascript"></script>
     <script src="{$cdnUrl}/static/libs/webuploader/webuploader.js?v={$version}"></script>
     <script src="{$cdnUrl}/static/common/js/module/module.min.js?v={$version}"></script>
-    <script type="text/javascript" charset="utf-8" src="http://res2.wx.qq.com/open/js/jweixin-1.6.0.js?v={$version|default='1.0.0'}"></script>
+    {if $jsSdkConfig}
+    <script type="text/javascript" charset="utf-8" src="https://res2.wx.qq.com/open/js/jweixin-1.6.0.js?v={$version|default='1.0.0'}"></script>
+    {/if}
     <script type="text/javascript" src="{$cdnUrl}/static/libs/swiper/swiper.min.js?v={$version|default='1.0.0'}"></script>
     <script type="text/javascript" src="{$static_url}mobile/js/aui.js?v={$version|default='1.0.0'}"></script>
     <script src="{$cdnUrl}/static/common/js/tools.js?v={$version}" type="text/javascript"></script>

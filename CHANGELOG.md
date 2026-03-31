@@ -2,6 +2,23 @@
 
 ## 2026-03-31
 
+### 里程碑：移动端微信 JSSDK 改为按需加载
+
+- 移动端公共模板不再无条件加载 `https://res2.wx.qq.com/open/js/jweixin-1.6.0.js`，只有微信内打开且服务端已生成 `jsSdkConfig` 时才会注入
+- 前台控制器对移动端 `jsSdkConfig` 的分配也已收口到 `isWx()` 条件，普通移动浏览器不再提前准备微信分享配置
+- 这次调整主要收掉 Safari/Edge 等浏览器中的 `Tracking Prevention blocked access to storage` 提示，同时减少一条非必要第三方脚本请求
+- 远端已通过标准部署脚本完成同步与验证：`bash scripts/deploy.sh deploy`
+- 远端验证结果：
+  - `php -l app/function.inc.php`
+  - `php -l app/frontend/Article.php`
+  - `sudo php think clear`
+  - `sudo php think api:doc --output docs/api-v1.md`
+  - `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+- 生产最小可用性检查已通过：
+  - `https://www.frelink.top/m/articles/?force_mobile=1`
+  - `https://www.frelink.top/m/questions/?force_mobile=1`
+  - 上述页面源码已确认不再输出 `jweixin-1.6.0.js`、`res2.wx.qq.com` 和 `wxConfig`
+
 ### 里程碑：API 新增用户与绑定访问 token 接口上线
 
 - `/api/Account/create_user` 已上线，支持由已登录的 `ApiToken` / `AccessToken` 调用方在具备 `create_api_user` 权限时创建普通新用户，并同步绑定一条 `type=3` API 访问 token

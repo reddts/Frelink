@@ -273,7 +273,7 @@ class Frontend extends Base
         $this->returnUrl = $return_url;
         $this->assign('return_url',$return_url);
         $this->assign('jsSdkConfig', null);
-        if ($this->isMobile || ENTRANCE == 'mobile') {
+        if (($this->isMobile || ENTRANCE == 'mobile') && isWx()) {
             $this->assign('jsSdkConfig', WeChatHelper::instance()->getJsSdkConfig());
         }
     }
