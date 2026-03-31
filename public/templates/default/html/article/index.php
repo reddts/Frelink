@@ -116,37 +116,50 @@
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
-        padding: 0 24px 18px;
-        border-bottom: 1px solid #eef2f7;
+        padding: 18px 24px 22px;
+        border-bottom: 1px solid #dbe5ed;
         background: #fff;
     }
     .aw-knowledge-spotlight {
+        position: relative;
         display: block;
-        padding: 16px;
-        border-radius: 16px;
-        background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
-        border: 1px solid #dbe7f3;
+        min-height: 132px;
+        padding: 18px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%);
+        border: 1px solid #d9e4ec;
         color: #0f172a;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .aw-knowledge-spotlight::before {
+        content: "";
+        width: 44px;
+        height: 4px;
+        border-radius: 999px;
+        margin-bottom: 10px;
+        background: linear-gradient(90deg, #1d4ed8 0%, #0f766e 100%);
+        display: block;
     }
     .aw-knowledge-spotlight:hover {
         text-decoration: none;
-        transform: translateY(-1px);
-        transition: all .2s ease;
+        transform: translateY(-2px);
+        border-color: #bcd6e3;
+        box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
     }
     .aw-knowledge-spotlight strong {
-        display: inline-flex;
-        align-items: center;
+        display: block;
         margin-bottom: 10px;
-        padding: 5px 10px;
-        border-radius: 999px;
-        background: rgba(29, 78, 216, 0.08);
-        color: #1d4ed8;
-        font-size: 18px;
-        font-weight: 700;
+        padding: 0;
+        border-radius: 0;
+        background: none;
+        color: #0f172a;
+        font-size: 16px;
+        font-weight: 800;
     }
     .aw-knowledge-spotlight p {
         margin: 0 0 10px;
-        color: #60758b;
+        color: #5b6b7f;
         font-size: 13px;
         line-height: 1.7;
     }
@@ -155,18 +168,19 @@
         flex-wrap: wrap;
         gap: 10px;
         margin-bottom: 10px;
-        color: #1e3a5f;
+        color: #5b6b7f;
         font-size: 12px;
+        line-height: 1.7;
     }
     .aw-knowledge-spotlight-latest {
-        color: #334155;
+        color: #5b6b7f;
         font-size: 13px;
-        line-height: 1.6;
+        line-height: 1.7;
     }
     .aw-knowledge-spotlight-action {
         display: inline-flex;
         margin-top: 12px;
-        color: #1d4ed8;
+        color: #0f172a;
         font-size: 13px;
         font-weight: 700;
     }

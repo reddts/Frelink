@@ -2,6 +2,12 @@
 
 ## 2026-03-31
 
+### 里程碑：FAQ / 知识内容入口卡片对齐主题页
+
+- FAQ 页的 `aw-faq-lanes` 已收口到和 `aw-topic-lanes` 一致的强调条渐变，入口卡片不再保留单独一套配色语言
+- 知识内容页的 `aw-knowledge-spotlights` 已改成和 `aw-topic-lane` 同一套卡片节奏：统一最小高度、内边距、圆角、背景渐变、阴影和顶部强调条
+- `aw-knowledge-spotlight` 标题已从 badge 式强调收回到和主题卡片一致的标题层级，避免 FAQ / 主题 / 知识内容三页入口卡继续各说各话
+
 ### 里程碑：桌面端主题页 Swiper 初始化报错修复
 
 - 桌面端公共模板新增 `__whenSwiperReady`，统一等待 `Swiper` 依赖真正就绪后再执行页面内联初始化
@@ -77,6 +83,10 @@
 - 远端已执行 `sudo php think clear`
 - 远端已执行 `sudo php think api:doc --output docs/api-v1.md` 与 `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
 - 生产环境已完成 `https://www.frelink.top/`、`https://www.frelink.top/questions/`、`https://www.frelink.top/articles/` 基础 smoke 检查
+- 生产 FAQ 样式文件 `https://www.frelink.top/templates/default/static/css/question/index.css?v=4.1` 已确认输出 `aw-faq-lane::before`，且渐变参数为 `linear-gradient(90deg, #1d4ed8 0%, #0f766e 100%)`
+- 生产 FAQ 样式文件已确认 `aw-faq-lane` 使用 `min-height: 132px` 与 `background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%)`
+- 生产知识内容页 `https://www.frelink.top/articles/` 已确认输出 `aw-knowledge-spotlights`、`aw-knowledge-spotlight::before`、`min-height: 132px`、`background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%)` 和 `font-size: 16px`
+- 生产知识内容页 HTML 已确认继续输出 `aw-knowledge-spotlights / aw-knowledge-spotlight` 结构，说明入口卡只是样式收口，没有影响链接结构
 - 生产主题页 `https://www.frelink.top/topics/` 已确认同时输出 `swiper.min.js`、`window.__whenSwiperReady = function` 和 `window.__whenSwiperReady(function () { new Swiper(...) })`
 - 生产主题页 HTML 已确认不再直接在页尾裸跑 `new Swiper(...)`，桌面端 `Swiper is not defined` 的时序问题已切断
 - 生产知识内容页 `https://www.frelink.top/articles/` 已确认输出 `.aw-knowledge-hero { border-radius: 0; }`，聚合页 hero 已切到直角版式
