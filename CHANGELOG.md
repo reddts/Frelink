@@ -2,6 +2,12 @@
 
 ## 2026-03-31
 
+### 里程碑：知识内容摘要标题样式冲突收口
+
+- 知识内容详情页 `aw-article-brief-eyebrow` 在 `detail.css` 与 `app.min.css` 的双份定义已统一，不再继续一边输出轻量标题、一边输出胶囊样式
+- 统一后的 `aw-article-brief-eyebrow` 已把 `margin-bottom` 收口为 `0.3rem`
+- 这次调整只处理摘要标题的重复样式来源，不改摘要卡容器、列表内容和正文结构
+
 ### 里程碑：知识内容摘要列表字号微调
 
 - 知识内容详情页 `aw-article-brief li` 已去掉单项 `margin-bottom` 与 `line-height`，并把字号收口为 `0.9rem`
@@ -93,6 +99,8 @@
 - 远端已执行 `sudo php think clear`
 - 远端已执行 `sudo php think api:doc --output docs/api-v1.md` 与 `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
 - 生产环境已完成 `https://www.frelink.top/`、`https://www.frelink.top/questions/`、`https://www.frelink.top/articles/` 基础 smoke 检查
+- 生产文章详情样式文件 `https://www.frelink.top/templates/default/static/css/article/detail.css?v=4.1` 已确认 `aw-article-brief-eyebrow` 输出 `margin-bottom: 0.3rem; color: #1d4ed8; letter-spacing: 0.02em;`
+- 生产公共压缩样式文件 `https://www.frelink.top/templates/default/static/css/app.min.css?v=4.1` 已确认 `aw-article-brief-eyebrow{margin-bottom:.3rem;color:#1d4ed8;font-size:13px;font-weight:700;letter-spacing:.02em}`
 - 生产文章详情样式文件 `https://www.frelink.top/templates/default/static/css/article/detail.css?v=4.1` 已确认输出 `aw-article-brief li`，且包含 `margin-bottom: 0 !important;`、`line-height: unset;`、`font-size: 0.9rem;`
 - 生产知识内容页 `https://www.frelink.top/articles/` 已确认 `aw-knowledge-spotlights` 输出 `padding: 0 10px 18px;`
 - 生产 FAQ 样式文件 `https://www.frelink.top/templates/default/static/css/question/index.css?v=4.1` 已确认输出 `aw-faq-lane::before`，且渐变参数为 `linear-gradient(90deg, #1d4ed8 0%, #0f766e 100%)`
