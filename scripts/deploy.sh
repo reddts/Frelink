@@ -59,16 +59,117 @@ if [[ "$SYNC_DELETE" == "1" ]]; then
   RSYNC_DELETE_ARGS+=(--delete)
 fi
 
+timestamp() {
+  date '+%F %T %Z'
+}
+
+log() {
+  printf '[local %s] %s\n' "$(timestamp)" "$*"
+}
+
+timer_start() {
+  date +%s
+}
+
+timer_finish() {
+  local label="$1"
+  local started_at="$2"
+  local finished_at
+  finished_at=$(date +%s)
+  log "done: $label ($((finished_at-started_at))s)"
+}
+
 run_remote() {
   "${SSH_BASE[@]}" "cd '$PROJECT_PATH' && $1"
 }
 
-generate_remote_api_docs() {
-  echo "run: sudo php think api:doc --output docs/api-v1.md"
-  run_remote "sudo php think api:doc --output docs/api-v1.md"
-  echo "run: sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json"
-  run_remote "sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json"
-  run_remote "sudo chown '$SSH_USER:$SSH_USER' docs/api-v1.md public/docs/api-v1.openapi.json"
+run_remote_batch() {
+  local run_fix_runtime="${1:-0}"
+  local run_verify_steps="${2:-0}"
+  local remote_script
+  local started_at
+  started_at=$(timer_start)
+  log "start: remote batch (fix_runtime=${run_fix_runtime}, verify=${run_verify_steps})"
+
+  remote_script="$(mktemp)"
+  cat >"$remote_script" <<EOF
+set -euo pipefail
+
+cd $(printf '%q' "$PROJECT_PATH")
+SSH_USER=$(printf '%q' "$SSH_USER")
+RUN_FIX_RUNTIME=$(printf '%q' "$run_fix_runtime")
+RUN_VERIFY_STEPS=$(printf '%q' "$run_verify_steps")
+
+run_step() {
+  local label="\$1"
+  shift
+  local started_at
+  local finished_at
+  started_at=\$(date +%s)
+  echo "[remote \$(date '+%F %T %Z')] run: \$label"
+  "\$@" </dev/null
+  finished_at=\$(date +%s)
+  echo "[remote \$(date '+%F %T %Z')] done: \$label (\$((finished_at-started_at))s)"
+}
+
+normalize_command() {
+  local command="\$1"
+  case "\$command" in
+    sudo\\ -n\\ *)
+      printf '%s\n' "\$command"
+      ;;
+    sudo\\ *)
+      printf 'sudo -n %s\n' "\${command#sudo }"
+      ;;
+    *)
+      printf '%s\n' "\$command"
+      ;;
+  esac
+}
+
+mapfile -t PHP_LINT_FILES <<'PHP_LINT_EOF'
+$PHP_LINT_FILES
+PHP_LINT_EOF
+
+mapfile -t CLEAR_COMMANDS <<'CLEAR_COMMANDS_EOF'
+$CLEAR_COMMANDS
+CLEAR_COMMANDS_EOF
+
+if [[ "\$RUN_FIX_RUNTIME" == "1" ]]; then
+  run_step "sudo -n chown -R www:www runtime" sudo -n chown -R www:www runtime
+  run_step "sudo -n find runtime -type d -exec chmod 775 {} +" sudo -n find runtime -type d -exec chmod 775 {} +
+  run_step "sudo -n find runtime -type f -exec chmod 664 {} +" sudo -n find runtime -type f -exec chmod 664 {} +
+fi
+
+if [[ "\$RUN_VERIFY_STEPS" == "1" ]]; then
+  lint_failed=0
+  for file in "\${PHP_LINT_FILES[@]}"; do
+    [[ -z "\$file" ]] && continue
+    echo "php -l \$file"
+    if ! php -l "\$file"; then
+      lint_failed=1
+    fi
+  done
+
+  for cmd in "\${CLEAR_COMMANDS[@]}"; do
+    [[ -z "\$cmd" ]] && continue
+    normalized_cmd=\$(normalize_command "\$cmd")
+    run_step "\$normalized_cmd" bash -lc "\$normalized_cmd"
+  done
+
+  run_step "sudo -n php think api:doc --output docs/api-v1.md" sudo -n php think api:doc --output docs/api-v1.md
+  run_step "sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json" sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json
+  run_step "sudo -n chown \$SSH_USER:\$SSH_USER docs/api-v1.md public/docs/api-v1.openapi.json" sudo -n chown "\$SSH_USER:\$SSH_USER" docs/api-v1.md public/docs/api-v1.openapi.json
+
+  if [[ "\$lint_failed" == "1" ]]; then
+    exit 1
+  fi
+fi
+EOF
+
+  "${SSH_BASE[@]}" 'bash -s' <"$remote_script"
+  rm -f "$remote_script"
+  timer_finish "remote batch" "$started_at"
 }
 
 show_config() {
@@ -84,6 +185,7 @@ EOF
 }
 
 sync_code() {
+  local started_at
   if [[ "$SYNC_MODE" != "rsync" ]]; then
     echo "Unsupported sync mode: $SYNC_MODE" >&2
     exit 1
@@ -100,6 +202,8 @@ sync_code() {
     exit 1
   fi
 
+  started_at=$(timer_start)
+  log "start: rsync sync"
   mkdir -p "$ROOT_DIR/runtime"
   rsync -az "${RSYNC_DELETE_ARGS[@]}" \
     --inplace \
@@ -110,45 +214,25 @@ sync_code() {
     --exclude-from="$exclude_path" \
     -e "ssh -i '$SSH_KEY' -p '$SSH_PORT' -o StrictHostKeyChecking=accept-new" \
     "$ROOT_DIR/" "$SSH_USER@$SSH_HOST:$PROJECT_PATH/"
-
-  fix_runtime_permissions
-}
-
-fix_runtime_permissions() {
-  run_remote "sudo chown -R www:www runtime && sudo find runtime -type d -exec chmod 775 {} + && sudo find runtime -type f -exec chmod 664 {} +"
+  timer_finish "rsync sync" "$started_at"
 }
 
 verify_remote() {
-  local lint_failed=0
-  while IFS= read -r file; do
-    [[ -z "$file" ]] && continue
-    echo "php -l $file"
-    if ! run_remote "php -l '$file'"; then
-      lint_failed=1
-    fi
-  done <<< "$PHP_LINT_FILES"
-
-  while IFS= read -r cmd; do
-    [[ -z "$cmd" ]] && continue
-    echo "run: $cmd"
-    run_remote "$cmd"
-  done <<< "$CLEAR_COMMANDS"
-
-  generate_remote_api_docs
+  local started_at
+  started_at=$(timer_start)
+  run_remote_batch 0 1
 
   if command -v curl >/dev/null 2>&1 && [[ -n "$SITE_URL" ]]; then
     while IFS= read -r path; do
       [[ -z "$path" ]] && continue
-      echo "smoke: $SITE_URL$path"
-      curl -I -L --max-time 20 "$SITE_URL$path" >/dev/null
+      log "smoke: $SITE_URL$path"
+      curl -fsSIL --max-time 20 "$SITE_URL$path" >/dev/null
     done <<< "$SMOKE_URLS"
   else
     echo "skip smoke test: curl or site_url unavailable"
   fi
 
-  if [[ "$lint_failed" == "1" ]]; then
-    exit 1
-  fi
+  timer_finish "verify remote" "$started_at"
 }
 
 open_shell() {
@@ -161,13 +245,27 @@ case "$COMMAND" in
     ;;
   sync)
     sync_code
+    run_remote_batch 1 0
     ;;
   verify)
     verify_remote
     ;;
   deploy)
+    log "start: deploy"
     sync_code
-    verify_remote
+    run_remote_batch 1 1
+    if command -v curl >/dev/null 2>&1 && [[ -n "$SITE_URL" ]]; then
+      deploy_started_at=$(timer_start)
+      while IFS= read -r path; do
+        [[ -z "$path" ]] && continue
+        log "smoke: $SITE_URL$path"
+        curl -fsSIL --max-time 20 "$SITE_URL$path" >/dev/null
+      done <<< "$SMOKE_URLS"
+      timer_finish "smoke checks" "$deploy_started_at"
+    else
+      echo "skip smoke test: curl or site_url unavailable"
+    fi
+    log "done: deploy"
     ;;
   shell)
     open_shell
