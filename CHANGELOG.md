@@ -2,6 +2,12 @@
 
 ## 2026-03-31
 
+### 里程碑：主题 / FAQ / 知识内容入口区 padding 再对齐
+
+- `aw-topic-lanes`、`aw-faq-lanes` 与 `aw-knowledge-spotlights` 的外层 padding 已统一收口为 `18px 16px 18px`
+- FAQ 页 `aw-faq-lanes` 的双份定义已同步改成同一个值，不再出现静态样式与页面内联样式互相覆盖
+- 这次调整只细修三类公开入口区的容器内边距，不改卡片数量、布局列数和链接逻辑
+
 ### 里程碑：知识内容详情页标题字号对齐 FAQ
 
 - 知识内容详情页 `.aw-article-detail-shell .aw-content-title` 的 `font-size` 已收口为 `1.6rem`
@@ -104,6 +110,9 @@
 - 远端已执行 `sudo php think clear`
 - 远端已执行 `sudo php think api:doc --output docs/api-v1.md` 与 `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
 - 生产环境已完成 `https://www.frelink.top/`、`https://www.frelink.top/questions/`、`https://www.frelink.top/articles/` 基础 smoke 检查
+- 生产主题样式文件 `https://www.frelink.top/templates/default/static/css/topic/index.css?v=4.1` 已确认 `aw-topic-lanes` 输出 `padding: 18px 16px 18px;`
+- 生产 FAQ 页 `https://www.frelink.top/questions/` 已确认 `aw-faq-lanes` 输出 `padding: 18px 16px 18px;`，且不再出现旧值 `padding: 0 12px 18px;`
+- 生产知识内容页 `https://www.frelink.top/articles/` 已确认 `aw-knowledge-spotlights` 输出 `padding: 18px 16px 18px;`
 - 生产文章详情样式文件 `https://www.frelink.top/templates/default/static/css/article/detail.css?v=4.1` 已确认 `.aw-article-detail-shell .aw-content-title` 输出 `font-size: 1.6rem;`
 - 生产文章详情样式文件 `https://www.frelink.top/templates/default/static/css/article/detail.css?v=4.1` 已确认 `aw-article-brief-eyebrow` 输出 `margin-bottom: 0.3rem; color: #1d4ed8; letter-spacing: 0.02em;`
 - 生产公共压缩样式文件 `https://www.frelink.top/templates/default/static/css/app.min.css?v=4.1` 已确认 `aw-article-brief-eyebrow{margin-bottom:.3rem;color:#1d4ed8;font-size:13px;font-weight:700;letter-spacing:.02em}`

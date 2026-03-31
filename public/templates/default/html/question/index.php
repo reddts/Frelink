@@ -50,7 +50,7 @@
     }
 
     .aw-faq-lanes {
-        padding: 0 12px 18px;
+        padding: 18px 16px 18px;
     }
 
     .aw-question-feed .aw-question-card {
