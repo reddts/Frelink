@@ -116,7 +116,7 @@
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
-        padding: 18px 24px 22px;
+        padding: 0 10px 18px;
         border-bottom: 1px solid #dbe5ed;
         background: #fff;
     }

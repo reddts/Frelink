@@ -2,6 +2,11 @@
 
 ## 2026-03-31
 
+### 里程碑：知识内容入口卡片外边距微调
+
+- 知识内容页 `aw-knowledge-spotlights` 的外层 padding 已从上一轮较宽的容器留白收口为 `0 10px 18px`
+- 这次调整只细修知识内容页入口卡片区与容器边界的贴合关系，不改卡片本身的结构、层级和链接逻辑
+
 ### 里程碑：FAQ / 知识内容入口卡片对齐主题页
 
 - FAQ 页的 `aw-faq-lanes` 已收口到和 `aw-topic-lanes` 一致的强调条渐变，入口卡片不再保留单独一套配色语言
@@ -83,6 +88,7 @@
 - 远端已执行 `sudo php think clear`
 - 远端已执行 `sudo php think api:doc --output docs/api-v1.md` 与 `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
 - 生产环境已完成 `https://www.frelink.top/`、`https://www.frelink.top/questions/`、`https://www.frelink.top/articles/` 基础 smoke 检查
+- 生产知识内容页 `https://www.frelink.top/articles/` 已确认 `aw-knowledge-spotlights` 输出 `padding: 0 10px 18px;`
 - 生产 FAQ 样式文件 `https://www.frelink.top/templates/default/static/css/question/index.css?v=4.1` 已确认输出 `aw-faq-lane::before`，且渐变参数为 `linear-gradient(90deg, #1d4ed8 0%, #0f766e 100%)`
 - 生产 FAQ 样式文件已确认 `aw-faq-lane` 使用 `min-height: 132px` 与 `background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%)`
 - 生产知识内容页 `https://www.frelink.top/articles/` 已确认输出 `aw-knowledge-spotlights`、`aw-knowledge-spotlight::before`、`min-height: 132px`、`background: linear-gradient(180deg, #f8fbfd 0%, #eef6fb 100%)` 和 `font-size: 16px`
