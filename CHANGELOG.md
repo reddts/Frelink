@@ -2,6 +2,114 @@
 
 ## 2026-04-01
 
+### 里程碑：后台 Challenge 日志新增 TTL 档位与超时率聚合视图
+
+- `AgentChallengeLog::getOverview()` 已新增 `ttl_timeout_stats`
+- 聚合字段包含：
+  - `difficulty`
+  - `ttl_seconds`
+  - `target_response_ms`
+  - `issued_count`
+  - `resolved_count`
+  - `timeout_count`
+  - `timeout_rate`
+- 后台 `Agent挑战日志` 页顶部摘要现已追加 `TTL档位观察`
+- 管理员现在可以直接按 `easy / normal / hard` 看到：
+  - 当前 TTL 配置
+  - 已判定数量
+  - 超时数量
+  - 超时率
+- 这一步的目的，是让新分档限时可以被持续观察，而不是只靠明细手工判断
+
+### 里程碑：Agent Challenge TTL 改为按难度分档
+
+- challenge TTL 已从统一 `120s` 改为按难度分档：
+  - `easy`：`12s`
+  - `normal`：`20s`
+  - `hard`：`35s`
+- challenge 返回的 `target_response_ms` 也已同步改为分档：
+  - `easy`：`8000`
+  - `normal`：`15000`
+  - `hard`：`25000`
+- 分档 TTL 与目标响应时间已统一收口到：
+  - `app/common/library/agent/ChallengeGenerator.php`
+- `app/api/v1/Agent.php` 已改为按难度动态生成 `expires_in / deadline / target_response_ms`
+- 测试链路文档已同步更新到 `docs/agent-challenge-test-chain.md`
+
+### 里程碑：Agent 挑战题型升级为二次方程与二阶导数
+
+- challenge 出题算法已切换为新的三档题型：
+  - `easy`：一元二次方程，要求返回较小整数根
+  - `normal`：二元二次方程组，要求返回较小整数解 `x`
+  - `hard`：二阶导数代值
+- 后台 `Agent挑战日志` 的难度筛选与测试文档已同步更新：
+  - 中档正式名恢复为 `normal`
+- 已重新部署生产并完成远端实测：
+  - `GET /api/Agent/challenge?difficulty=easy` 返回一元二次方程题干
+  - `GET /api/Agent/challenge?difficulty=normal` 返回二元二次方程组题干
+  - `GET /api/Agent/challenge?difficulty=hard` 返回二阶导数题干
+  - 三条链路均已在生产上完成真实验题，`verify` 返回 `code=1`
+
+### 里程碑：Agent 算法挑战远端实测与超时链路修正
+
+- 已直接对生产 `https://www.frelink.top/api/Agent/challenge` 与 `https://www.frelink.top/api/Agent/verify` 执行真实算法链路测试，未使用用户登录 token 参与答题
+- 正向挑战测试已通过：
+  - `easy`：两位数加法，可正常出题与验题
+  - `normal`：`a × b + c`，可正常出题与验题
+  - `hard`：当前为二次函数导数代值题，可正常出题与验题
+  - 三档题目在 `elapsed_ms=800` 条件下均返回 `code=1`
+- 难度实测结论：
+  - 当前 `easy / normal / hard` 都是规则非常明确的可计算题
+  - `hard` 虽然是导数题，但仍属于固定模板题，算法代理可以稳定求解
+  - 现阶段更适合作为“基础能力门槛”，还不足以作为强对抗型“防破解”挑战
+- 防重放与拦截链路实测：
+  - 故意答错后，接口会返回 `requires_new_challenge=1` 与新的 `next_challenge`
+  - 对同一个旧 `challenge_id` 再次提交正确答案时，生产接口会拒绝旧题并返回新的 challenge
+- 本轮远端实测发现并修复两处问题：
+  - challenge 缓存 TTL 与答题有效期完全一致，导致超时后缓存已删除，接口返回 `missing` 而非 `timeout`
+  - `agent_challenge_log.challenge_id` 有唯一约束，重复写入同一 challenge 的终态会触发 `500`
+- 已完成修复并重新部署生产：
+  - challenge 缓存保留窗口已延长，保证超时后仍能根据 `deadline` 判定为 `timeout`
+  - challenge 日志保留首个终态结果，不再因旧题重复提交触发唯一键冲突
+- 修复后远端复测结果：
+  - 超时提交正确答案时，生产 `verify` 已明确返回 `failure_reason=timeout`
+  - `kn_agent_challenge_log` 已确认记录 `status=timeout / failure_reason=timeout`
+  - 答错场景已确认记录 `status=wrong_answer / failure_reason=wrong_answer`
+  - 旧题重放仍会被拒绝，但当前不会单独新增第二条“重放攻击”日志；如后续需要更细粒度风控审计，应追加独立 attempt 日志表
+
+### 里程碑：Agent 日志接口远端部署与 Token 管理员识别修正
+
+- 已按优化计划再次执行生产部署：`bash scripts/deploy.sh deploy`
+- 远端服务器 `/www/wwwroot/knoledge` 已完成：
+  - `php -l app/function.inc.php`
+  - `php -l app/frontend/Article.php`
+  - `sudo -n php think clear`
+  - `sudo -n php think api:doc --output docs/api-v1.md`
+  - `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+- 本次远端 API 文档重建结果：
+  - `Controllers: 22`
+  - `Endpoints: 149`
+- 生产站点 smoke 检查通过：
+  - `https://www.frelink.top/`
+  - `https://www.frelink.top/questions/`
+  - `https://www.frelink.top/articles/`
+- 远端实测发现并修复一处鉴权缺口：
+  - `GET /api/Agent/challenge_logs`
+  - `POST /api/Account/create_user`
+  - 上述接口原先仅用 `isSuperAdmin() / isNormalAdmin()` 识别管理员，导致 `ApiToken` 登录的前台管理员无法走管理员豁免
+  - 现已改为优先使用当前已认证 API 用户的 `group_id` 判断 `1/2` 组管理员，再回退到原有会话函数
+- 生产接口已用真实前台管理员 `ApiToken` 复测通过：
+  - `GET https://www.frelink.top/api/Agent/challenge_logs` 默认空时间参数时返回最近 `7` 天窗口，`code=1`
+  - `GET https://www.frelink.top/api/Agent/challenge_logs?start_date=2026-03-25&end_date=2026-04-01&limit=5` 返回 `code=1`
+  - 返回体已确认包含纯 JSON 结构：
+    - `filters`
+    - `status_options`
+    - `failure_reason_options`
+    - `overview`
+    - `logs`
+  - 当前生产库尚无 challenge 明细，因此本次验证结果中的 `overview` 与 `logs` 为空结构，这是符合预期的
+- 已使用临时前台管理员测试 token 完成接口验证，并在验证后立即从生产 `kn_app_token` 删除，避免遗留额外凭据
+
 ### 里程碑：远端补跑 Agent API 文档并修复 Topic 列表接口
 
 - 已通过标准部署脚本重新同步生产：`bash scripts/deploy.sh deploy`

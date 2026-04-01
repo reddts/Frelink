@@ -487,6 +487,11 @@ class Account extends Api
 
     protected function canCreateManagedUser(): bool
     {
+        $groupId = intval($this->user_info['group_id'] ?? 0);
+        if (in_array($groupId, [1, 2], true)) {
+            return true;
+        }
+
         if (isSuperAdmin() || isNormalAdmin()) {
             return true;
         }

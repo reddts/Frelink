@@ -420,13 +420,16 @@ class Agent extends Api
         return 'agent:challenge:' . $challengeId;
     }
 
-    protected function issueChallenge(string $difficulty, int $ttl = 120): array
+    protected function issueChallenge(string $difficulty, ?int $ttl = null): array
     {
         $difficulty = ChallengeGenerator::normalizeDifficulty($difficulty);
+        $ttl = $ttl === null ? ChallengeGenerator::getTtlByDifficulty($difficulty) : max(1, intval($ttl));
+        $targetResponseMs = ChallengeGenerator::getTargetResponseMsByDifficulty($difficulty);
         $challenge = ChallengeGenerator::generate($difficulty);
         $challengeId = RandomHelper::alnum(24);
         $issuedAt = time();
         $deadline = $issuedAt + $ttl;
+        $cacheTtl = $ttl + 300;
         $nonce = RandomHelper::alnum(16);
 
         $payload = [
@@ -441,7 +444,7 @@ class Agent extends Api
             'ttl' => $ttl,
         ];
 
-        Cache::set($this->challengeCacheKey($challengeId), $payload, $ttl);
+        Cache::set($this->challengeCacheKey($challengeId), $payload, $cacheTtl);
         AgentChallengeLog::recordIssued($payload);
 
         return [
@@ -453,7 +456,7 @@ class Agent extends Api
             'issued_at' => $issuedAt,
             'deadline' => $deadline,
             'expires_in' => $ttl,
-            'target_response_ms' => 3000,
+            'target_response_ms' => $targetResponseMs,
             'protocol_version' => AgentHelper::PROTOCOL_VERSION,
             'supported_difficulties' => ChallengeGenerator::supportedDifficulties(),
         ];
@@ -572,6 +575,11 @@ class Agent extends Api
 
     protected function canViewChallengeLogs(): bool
     {
+        $groupId = intval($this->user_info['group_id'] ?? 0);
+        if (in_array($groupId, [1, 2], true)) {
+            return true;
+        }
+
         if (isSuperAdmin() || isNormalAdmin()) {
             return true;
         }

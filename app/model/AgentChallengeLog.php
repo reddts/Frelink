@@ -2,6 +2,8 @@
 
 namespace app\model;
 
+use app\common\library\agent\ChallengeGenerator;
+
 class AgentChallengeLog extends BaseModel
 {
     protected $name = 'agent_challenge_log';
@@ -114,6 +116,11 @@ class AgentChallengeLog extends BaseModel
 
         $existing = db('agent_challenge_log')->where('challenge_id', $challengeId)->find();
         if ($existing) {
+            $existingStatus = trim((string) ($existing['status'] ?? ''));
+            if ($existingStatus !== '' && $existingStatus !== 'issued') {
+                return;
+            }
+
             unset($data['challenge_id'], $data['create_time']);
             foreach (['difficulty', 'category', 'question', 'issued_at', 'deadline'] as $field) {
                 if ($data[$field] === '' || $data[$field] === 0) {
@@ -266,6 +273,7 @@ class AgentChallengeLog extends BaseModel
             'top_categories' => [],
             'top_usernames' => [],
             'daily_stats' => [],
+            'ttl_timeout_stats' => [],
         ];
 
         if (!self::isAvailable()) {
@@ -299,6 +307,7 @@ class AgentChallengeLog extends BaseModel
         $categoryCounts = [];
         $usernameCounts = [];
         $dailyStats = [];
+        $ttlTimeoutStats = [];
 
         for ($i = 6; $i >= 0; $i--) {
             $day = date('Y-m-d', strtotime('-' . $i . ' day'));
@@ -337,6 +346,16 @@ class AgentChallengeLog extends BaseModel
             }
             if ($difficulty !== '') {
                 $difficultyCounts[$difficulty] = intval($difficultyCounts[$difficulty] ?? 0) + 1;
+                if (!isset($ttlTimeoutStats[$difficulty])) {
+                    $ttlTimeoutStats[$difficulty] = [
+                        'difficulty' => $difficulty,
+                        'ttl_seconds' => ChallengeGenerator::getTtlByDifficulty($difficulty),
+                        'target_response_ms' => ChallengeGenerator::getTargetResponseMsByDifficulty($difficulty),
+                        'issued_count' => 0,
+                        'resolved_count' => 0,
+                        'timeout_count' => 0,
+                    ];
+                }
             }
             if ($category !== '') {
                 $categoryCounts[$category] = intval($categoryCounts[$category] ?? 0) + 1;
@@ -344,12 +363,24 @@ class AgentChallengeLog extends BaseModel
 
             if ($status === 'issued') {
                 $issuedCount++;
+                if ($difficulty !== '' && isset($ttlTimeoutStats[$difficulty])) {
+                    $ttlTimeoutStats[$difficulty]['issued_count']++;
+                }
             } elseif ($status === 'success') {
                 $successCount++;
+                if ($difficulty !== '' && isset($ttlTimeoutStats[$difficulty])) {
+                    $ttlTimeoutStats[$difficulty]['resolved_count']++;
+                }
             } elseif (in_array($status, ['timeout', 'wrong_answer', 'missing'], true)) {
                 $failureCount++;
                 $reason = trim((string) ($row['failure_reason'] ?? $status));
                 $failureReasonCounts[$reason] = intval($failureReasonCounts[$reason] ?? 0) + 1;
+                if ($difficulty !== '' && isset($ttlTimeoutStats[$difficulty])) {
+                    $ttlTimeoutStats[$difficulty]['resolved_count']++;
+                    if ($status === 'timeout' || $reason === 'timeout') {
+                        $ttlTimeoutStats[$difficulty]['timeout_count']++;
+                    }
+                }
             }
 
             $dailyKey = $recentCandidate > 0 ? date('Y-m-d', $recentCandidate) : '';
@@ -417,6 +448,29 @@ class AgentChallengeLog extends BaseModel
                 'count' => intval($count),
             ];
         }
+        $ttlTimeoutRows = [];
+        foreach (ChallengeGenerator::supportedDifficulties() as $difficulty) {
+            $stat = $ttlTimeoutStats[$difficulty] ?? [
+                'difficulty' => $difficulty,
+                'ttl_seconds' => ChallengeGenerator::getTtlByDifficulty($difficulty),
+                'target_response_ms' => ChallengeGenerator::getTargetResponseMsByDifficulty($difficulty),
+                'issued_count' => 0,
+                'resolved_count' => 0,
+                'timeout_count' => 0,
+            ];
+            $resolvedCount = intval($stat['resolved_count'] ?? 0);
+            $timeoutCount = intval($stat['timeout_count'] ?? 0);
+            $ttlTimeoutRows[] = [
+                'difficulty' => (string) $difficulty,
+                'label' => (string) $difficulty,
+                'ttl_seconds' => intval($stat['ttl_seconds'] ?? 0),
+                'target_response_ms' => intval($stat['target_response_ms'] ?? 0),
+                'issued_count' => intval($stat['issued_count'] ?? 0),
+                'resolved_count' => $resolvedCount,
+                'timeout_count' => $timeoutCount,
+                'timeout_rate' => $resolvedCount > 0 ? round(($timeoutCount / $resolvedCount) * 100, 2) : 0,
+            ];
+        }
 
         $dailyStats = array_map(static function ($item) {
             $finishedCount = intval($item['success_count'] ?? 0) + intval($item['failure_count'] ?? 0);
@@ -453,6 +507,7 @@ class AgentChallengeLog extends BaseModel
             'top_categories' => $topCategories,
             'top_usernames' => $topUsernames,
             'daily_stats' => $dailyStats,
+            'ttl_timeout_stats' => $ttlTimeoutRows,
         ];
     }
 

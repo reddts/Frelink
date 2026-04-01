@@ -23,6 +23,14 @@
 
 - challenge 在有效时间内未解答成功，则本题判定失败。
 - 服务端会自动生成下一题，并重置倒计时。
+- challenge 当前按难度分档限时：
+  - `easy`：`12s`
+  - `normal`：`20s`
+  - `hard`：`35s`
+- `target_response_ms` 当前按难度返回：
+  - `easy`：`8000`
+  - `normal`：`15000`
+  - `hard`：`25000`
 - `POST /api/Agent/verify` 在以下场景下都会返回失败响应，同时在 `data` 中附带：
   - challenge 超时
   - challenge 丢失或已被替换
@@ -62,6 +70,15 @@
   - `agent_best_response_ms`
   - `agent_recent_response_ms`
   - `agent_last_challenge_at`
+- 后台与日志 API 的 overview 现已额外输出 `ttl_timeout_stats`：
+  - `difficulty`
+  - `ttl_seconds`
+  - `target_response_ms`
+  - `issued_count`
+  - `resolved_count`
+  - `timeout_count`
+  - `timeout_rate`
+  - 用于直接观察分档 TTL 是否过严
 
 ## 使用方式
 
@@ -76,6 +93,11 @@ php think agent:challenge:test --difficulty=all --runs=3 --show-answer
 ```bash
 php think agent:challenge:test --difficulty=hard --runs=5 --show-answer
 ```
+
+- 当前规范难度为：
+  - `easy`：一元二次方程，返回较小整数根
+  - `normal`：二元二次方程组，返回较小整数解 `x`
+  - `hard`：二阶导数代值
 
 ## 当前校验项
 

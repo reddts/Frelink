@@ -155,6 +155,9 @@ class AgentChallenge extends Backend
         $dailyStats = array_map(static function ($item) {
             return ($item['day'] ?? '') . ' 发题' . intval($item['issued_count'] ?? 0) . '/答对' . intval($item['success_count'] ?? 0) . '/失败' . intval($item['failure_count'] ?? 0) . '/通过率' . rtrim(rtrim(number_format((float) ($item['pass_rate'] ?? 0), 2, '.', ''), '0'), '.') . '%/均耗时' . intval($item['avg_response_ms'] ?? 0) . 'ms';
         }, $overview['daily_stats'] ?? []);
+        $ttlTimeoutStats = array_map(static function ($item) {
+            return ($item['label'] ?? '') . ' TTL ' . intval($item['ttl_seconds'] ?? 0) . 's/目标 ' . intval($item['target_response_ms'] ?? 0) . 'ms/发题' . intval($item['issued_count'] ?? 0) . '/已判定' . intval($item['resolved_count'] ?? 0) . '/超时' . intval($item['timeout_count'] ?? 0) . '/超时率' . rtrim(rtrim(number_format((float) ($item['timeout_rate'] ?? 0), 2, '.', ''), '0'), '.') . '%';
+        }, $overview['ttl_timeout_stats'] ?? []);
 
         $parts = [
             '总测试记录：' . intval($overview['total_logs'] ?? 0),
@@ -185,6 +188,9 @@ class AgentChallenge extends Backend
         }
         if ($dailyStats) {
             $parts[] = '近7天趋势：' . implode('；', $dailyStats);
+        }
+        if ($ttlTimeoutStats) {
+            $parts[] = 'TTL档位观察：' . implode('；', $ttlTimeoutStats);
         }
 
         return '说明：用于观察 agent 是否在持续参与 challenge 测试，以及测试结果是否集中失败。<br>' . implode(' | ', $parts);
