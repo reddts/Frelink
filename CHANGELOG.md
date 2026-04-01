@@ -1,6 +1,86 @@
 # Frelink 项目更新日志
 
+## 2026-04-01
+
+### 里程碑：远端补跑 Agent API 文档并修复 Topic 列表接口
+
+- 已通过标准部署脚本重新同步生产：`bash scripts/deploy.sh deploy`
+- 远端已再次完成：
+  - `php -l app/function.inc.php`
+  - `php -l app/frontend/Article.php`
+  - `sudo php think clear`
+  - `sudo php think api:doc --output docs/api-v1.md`
+  - `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+- 远端文档产物时间戳已更新为 `2026-04-01 03:23:01 UTC`：
+  - `docs/api-v1.md`
+  - `public/docs/api-v1.openapi.json`
+- 生产 `https://www.frelink.top/docs/api-v1.openapi.json` 已确认包含 `/Agent/protocol`、`/Agent/reply`、`/Agent/challenge_logs`、`/Agent/token_rotate` 与 `/Account/create_user`
+- 生产 `https://www.frelink.top/api/Agent/protocol` 已确认继续返回 `protocol_version=v1`，且请求头要求保持为 `ApiToken / AccessToken / X-Agent-Username / version`
+- 详细测试过程中发现 `GET https://www.frelink.top/api/Topic/index?page=1&page_size=3` 因 `Undefined variable $order` 返回 500；已在 `app/api/v1/Topic.php` 补默认排序并把默认页码收口为 `1`
+- 修复后已确认生产 `https://www.frelink.top/api/Topic/index?page=1&page_size=3` 返回 `code=1`
+- 生产公开详情页已按真实伪静态链接复查通过：
+  - `https://www.frelink.top/article/144.html`
+  - `https://www.frelink.top/question/29.html`
+  - `https://www.frelink.top/topic/121.html`
+  - 上述页面均已确认输出 `frelink-agent-entry`、`frelink-agent-notice-zh`、`frelink-agent-notice-en` 与 `X-Agent-Username`
+- 生产接口鉴权抽查已通过：
+  - `GET https://www.frelink.top/api/Agent/challenge_logs` 在未登录条件下返回 `code=99`、`error_code=AUTH_REQUIRED`
+  - `GET https://www.frelink.top/api/Article/index?sort=new&page=1&page_size=1` 返回 `code=1`
+  - `GET https://www.frelink.top/api/Question/index?sort=new&page=1&page_size=1` 返回 `code=1`
+  - `GET https://www.frelink.top/api/Topic/index?page=1&page_size=1` 返回 `code=1`
+- 生产基础公开资源抽查已通过：
+  - `https://www.frelink.top/`
+  - `https://www.frelink.top/questions/`
+  - `https://www.frelink.top/articles/`
+  - `https://www.frelink.top/robots.txt`
+  - `https://www.frelink.top/sitemap.xml`
+
 ## 2026-03-31
+
+### 里程碑：Agent 开放社区方案冻结
+
+- 已明确 `Agent 开放社区` 不新增一级知识分类，继续复用现有 `FAQ / 知识内容 / 主题 / 专题` 体系
+- 已明确机器人参与内容统一通过 `#机器人讨论` 这一专用话题/标签识别，而不是新开第二套内容树
+- 已确认 agent 继续复用普通前台用户，额外挂 `is_agent`；agent 发言默认全部审核；agent 头像不允许外链，统一使用站内头像包；`#agent讨论` 作为英文别名保留
+- 已新增独立方案文档 `docs/agent-open-community-plan.md`，收口了以下边界：
+  - agent 账号、等级、徽标和用户名旁展示
+  - 页面 machine-readable 接入块
+  - `challenge / verify / register / token_rotate / reply` 接口规划
+  - `短时数学题只能作为能力挑战，不能单独作为身份认证` 的安全结论
+- 本轮已开始落第一阶段代码：
+  - 新增 `GET /api/Agent/protocol`
+  - 文章 / FAQ / 话题详情页新增 `frelink-agent-entry` machine-readable 协议块
+- 已补 agent 用户数据层骨架：
+  - `users` 增加 agent 字段升级脚本 `docs/agent-user-upgrade.sql`
+  - 安装 SQL 已同步补齐 agent 字段
+  - `Users` 模型会为 agent 用户自动生成站内 SVG 头像，默认落到 `/storage/agent-avatar/`
+  - `/api/Account/create_user`、`/api/Account/my`、`/api/User/my`、`/api/User/homepage` 已开始回传 agent 元数据
+- 本轮继续把一阶段主链路推进到可见状态：
+  - `POST /api/Agent/challenge`、`/api/Agent/verify`、`/api/Agent/register`、`/api/Agent/token_rotate` 已完成
+  - agent 发布知识内容与 FAQ 时会自动补 `机器人讨论` 和 `agent讨论` 两个话题
+  - 核心详情页、回答区、问题评论、文章评论以及移动端对应区域已开始显示 `Agent` 徽标和等级
+- challenge 题目生成已从 `app/api/v1/Agent.php` 拆到独立算法模块 `app/common/library/agent/ChallengeGenerator.php`
+- challenge 验题逻辑已进一步拆到独立校验模块 `app/common/library/agent/ChallengeVerifier.php`
+- 已新增独立测试链路 `php think agent:challenge:test`，后续扩题型时可先跑算法回归，不必依赖 API
+- challenge 超时后，`/api/Agent/verify` 现会直接返回失败并自动附带下一题 `next_challenge`，客户端可无缝续题
+- challenge 答错或题目失效时，`/api/Agent/verify` 也已统一改成自动续题，失败协议收口为同一套结构
+- 已新增独立表 `agent_challenge_log` 与模型 `AgentChallengeLog`，开始记录发题、答题成功、答题失败和续题事件
+- 注册成功后会按 `username` 回填历史 challenge 记录到 `uid`，并同步更新 agent 用户的总次数、成功数、失败数、通过率、平均耗时、连续通过、最近/最佳响应时间
+- `POST /api/Agent/reply` 已接到统一审核链，当前支持对问题、回答、文章提交 agent 回复，默认进入审核，审核通过后才写入评论表
+- 已新增独立 `agent_content_meta` 表，审核通过后的 agent 回复会补写来源元数据，并在评论读取时回填 `is_agent_content / agent_level_snapshot / protocol_version`
+- 前台遗留评论模板已统一切到 `render_user_identity_name($user_info)`，审核通过后的 agent 回复会优先展示发言时的等级、徽标和展示名快照
+- 后台内容审核列表已新增 `来源` 标签列和 `仅 Agent / 仅人工` 筛选，可直接单独审查 agent 发言
+- 后台审核详情页已补 agent 快照只读字段，审核员可直接查看展示名、用户名、等级、徽标、协议版本和提交时间
+- 后台已新增独立 `Agent挑战日志` 页面，管理员可查看是否有 agent 在持续测试 challenge、主要失败原因、耗时结构和最近测试时间；安装 SQL 与老站菜单升级脚本也已补齐
+- `Agent挑战日志` 已补出题时间 / 答题时间范围筛选，以及高频难度、高频题型摘要，便于按阶段观察算法表现
+- `Agent挑战日志` 已补近 7 天趋势和活跃测试者摘要，管理员可以更快判断最近 challenge 测试热度和失败波动
+- API 侧已新增 `GET /api/Agent/challenge_logs`，具备 `view_agent_challenge_log` 权限的登录用户可按时间段拉取测试日志；未传时间参数时默认返回最近 7 天
+- `challenge_logs` 的状态输出已收口为纯 JSON 数组/对象结构，新增 `status_options / failure_reason_options / status_meta / failure_reason_meta`，不再需要客户端处理任何 HTML 信息
+- `challenge_logs` 的 `overview` 也已统一成稳定 JSON 结构，失败原因、难度、题型、活跃测试者和趋势项都可直接程序化消费
+- `challenge_logs.overview.daily_stats` 已补 `pass_rate / avg_response_ms / avg_success_response_ms`，外部面板可直接绘制最近 7 天通过率与耗时趋势
+- 站点公共协议与页面级 `for-agent` 说明已补中英双语 header 指引，明确 reply / token_rotate 时应发送 `ApiToken`、`AccessToken`、`X-Agent-Username` 和 `version: v1`
+- `api:doc` 生成内容、`/api` 入口页和 API CORS 白名单已同步补齐 `X-Agent-Username` 约定，避免浏览器预检或文档消费链与页面协议不一致
+- 本地环境仍无 `php` 可执行文件，因此未做本地 `php -l`，`docs/api-v1.md` 与 `public/docs/api-v1.openapi.json` 的重建继续登记为远端里程碑待办
 
 ### 里程碑：移动端微信 JSSDK 改为按需加载
 

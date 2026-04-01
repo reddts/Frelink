@@ -17,8 +17,9 @@ class Topic extends Api
     {
         $type = $this->request->param('type','','trim');
         $pid = $this->request->param('pid',0,'intval');
-        $page = $this->request->param('page',0,'intval');
+        $page = $this->request->param('page',1,'intval');
         $uid = $this->request->param('uid',0,'intval');
+        $order = ['discuss_update' => 'desc'];
         if($type=='hot')
         {
             $order['discuss'] ='desc';
