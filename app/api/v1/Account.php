@@ -137,6 +137,21 @@ class Account extends Api
         $data['mobile'] = trim((string) ($data['mobile'] ?? ''));
         $data['nick_name'] = trim((string) ($data['nick_name'] ?? ''));
         $data['signature'] = trim((string) ($data['signature'] ?? ''));
+        $data['is_agent'] = intval($data['is_agent'] ?? 0) ? 1 : 0;
+        $data['agent_level'] = max(0, intval($data['agent_level'] ?? 0));
+        $data['agent_badge'] = trim((string) ($data['agent_badge'] ?? ''));
+        $data['agent_display_name'] = trim((string) ($data['agent_display_name'] ?? ''));
+        $data['agent_model_name'] = trim((string) ($data['agent_model_name'] ?? ''));
+        $data['agent_verified_at'] = intval($data['agent_verified_at'] ?? 0);
+        $data['agent_last_challenge_at'] = intval($data['agent_last_challenge_at'] ?? 0);
+        $data['agent_challenge_total'] = max(0, intval($data['agent_challenge_total'] ?? 0));
+        $data['agent_challenge_success'] = max(0, intval($data['agent_challenge_success'] ?? 0));
+        $data['agent_challenge_failure'] = max(0, intval($data['agent_challenge_failure'] ?? 0));
+        $data['agent_pass_rate'] = max(0, min(100, floatval($data['agent_pass_rate'] ?? 0)));
+        $data['agent_avg_response_ms'] = max(0, intval($data['agent_avg_response_ms'] ?? 0));
+        $data['agent_success_streak'] = max(0, intval($data['agent_success_streak'] ?? 0));
+        $data['agent_best_response_ms'] = max(0, intval($data['agent_best_response_ms'] ?? 0));
+        $data['agent_recent_response_ms'] = max(0, intval($data['agent_recent_response_ms'] ?? 0));
 
         try {
             validate(UserValidate::class)->scene('register')->check($data);
@@ -195,8 +210,23 @@ class Account extends Api
             'nick_name' => $data['nick_name'],
             'signature' => $data['signature'],
             'status' => 1,
+            'is_agent' => $data['is_agent'],
+            'agent_level' => $data['agent_level'],
+            'agent_badge' => $data['agent_badge'],
+            'agent_display_name' => $data['agent_display_name'],
+            'agent_model_name' => $data['agent_model_name'],
+            'agent_verified_at' => $data['agent_verified_at'],
+            'agent_last_challenge_at' => $data['agent_last_challenge_at'],
+            'agent_challenge_total' => $data['agent_challenge_total'],
+            'agent_challenge_success' => $data['agent_challenge_success'],
+            'agent_challenge_failure' => $data['agent_challenge_failure'],
+            'agent_pass_rate' => $data['agent_pass_rate'],
+            'agent_avg_response_ms' => $data['agent_avg_response_ms'],
+            'agent_success_streak' => $data['agent_success_streak'],
+            'agent_best_response_ms' => $data['agent_best_response_ms'],
+            'agent_recent_response_ms' => $data['agent_recent_response_ms'],
         ], static function ($value) {
-            return $value !== '';
+            return $value !== '' && $value !== null;
         });
 
         db()->startTrans();
@@ -416,6 +446,21 @@ class Account extends Api
             'inbox_unread' => $userInfo['inbox_unread'],
             'notify_unread' => $userInfo['notify_unread'],
             'is_valid_email' => $userInfo['is_valid_email'],
+            'is_agent' => intval($userInfo['is_agent'] ?? 0),
+            'agent_level' => intval($userInfo['agent_level'] ?? 0),
+            'agent_badge' => $userInfo['agent_badge'] ?? '',
+            'agent_display_name' => $userInfo['agent_display_name'] ?? '',
+            'agent_model_name' => $userInfo['agent_model_name'] ?? '',
+            'agent_verified_at' => intval($userInfo['agent_verified_at'] ?? 0),
+            'agent_last_challenge_at' => intval($userInfo['agent_last_challenge_at'] ?? 0),
+            'agent_challenge_total' => intval($userInfo['agent_challenge_total'] ?? 0),
+            'agent_challenge_success' => intval($userInfo['agent_challenge_success'] ?? 0),
+            'agent_challenge_failure' => intval($userInfo['agent_challenge_failure'] ?? 0),
+            'agent_pass_rate' => floatval($userInfo['agent_pass_rate'] ?? 0),
+            'agent_avg_response_ms' => intval($userInfo['agent_avg_response_ms'] ?? 0),
+            'agent_success_streak' => intval($userInfo['agent_success_streak'] ?? 0),
+            'agent_best_response_ms' => intval($userInfo['agent_best_response_ms'] ?? 0),
+            'agent_recent_response_ms' => intval($userInfo['agent_recent_response_ms'] ?? 0),
             'birthday' => $userInfo['birthday'] ? date('Y-m-d', $userInfo['birthday']) : '',
             'avatar' => $userInfo['avatar'] ? ImageHelper::replaceImageUrl($userInfo['avatar']) : $this->request->domain().'/static/common/image/default-avatar.svg'
         ];

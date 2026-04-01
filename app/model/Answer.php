@@ -384,6 +384,7 @@ class Answer extends BaseModel
             $list['data'][$key]['user_info'] = Users::getUserInfo($value['uid']);
             $list['data'][$key]['message'] = htmlspecialchars_decode($value['message']);
 		}
+        $list['data'] = AgentContentMeta::decorateRows('answer_comment', $list['data']);
         return $list;
 	}
 

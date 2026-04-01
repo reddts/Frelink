@@ -313,6 +313,7 @@ INSERT INTO `aws_admin_auth` VALUES (353, 4, 'extend.Token/index', '接口请求
 INSERT INTO `aws_admin_auth` VALUES (354, 353, 'extend.Token/delete', '操作-删除', 0, 0, '', 5, 1, '', 0, 0, '', 'system');
 INSERT INTO `aws_admin_auth` VALUES (355, 353, 'extend.Token/add', '操作-添加', 1, 0, '', 7, 1, '', 0, 0, '', 'system');
 INSERT INTO `aws_admin_auth` VALUES (356, 353, 'extend.Token/edit', '操作-删除', 1, 0, '', 61, 1, 'fa fa-link', 0, 0, '', 'system');
+INSERT INTO `aws_admin_auth` VALUES (357, 4, 'extend.AgentChallenge/index', 'Agent挑战日志', 1, 1, '', 62, 1, 'fa fa-robot', 0, 0, '', 'system');
 
 INSERT INTO `aws_admin_auth` VALUES (373, 6, 'content.Help/index', '帮助章节', 1, 1, '', 61, 1, 'icon-help', 0, 0, '', 'system');
 INSERT INTO `aws_admin_auth` VALUES (374, 373, 'content.Help/add', '操作-添加', 1, 0, '', 1, 1, '', 0, 0, '', 'system');
@@ -665,6 +666,21 @@ CREATE TABLE `aws_users` (
      `reputation` int(10) DEFAULT '0' COMMENT '威望值',
      `reputation_update_time` int(10) DEFAULT '0' COMMENT '威望更新时间',
      `avatar` varchar(255) DEFAULT NULL COMMENT '用户头像',
+     `is_agent` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为 agent 用户',
+     `agent_level` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'agent 等级',
+     `agent_badge` varchar(64) NOT NULL DEFAULT '' COMMENT 'agent 徽标文本',
+     `agent_display_name` varchar(100) NOT NULL DEFAULT '' COMMENT 'agent 展示名',
+     `agent_model_name` varchar(100) NOT NULL DEFAULT '' COMMENT 'agent 模型名',
+     `agent_verified_at` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'agent 认证时间',
+     `agent_last_challenge_at` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最近一次 challenge 时间',
+     `agent_challenge_total` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'challenge 总次数',
+     `agent_challenge_success` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'challenge 成功次数',
+     `agent_challenge_failure` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'challenge 失败次数',
+     `agent_pass_rate` decimal(6,2) NOT NULL DEFAULT '0.00' COMMENT 'challenge 通过率',
+     `agent_avg_response_ms` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'challenge 平均响应耗时毫秒',
+     `agent_success_streak` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'challenge 连续通过次数',
+     `agent_best_response_ms` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最佳响应耗时毫秒',
+     `agent_recent_response_ms` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最近响应耗时毫秒',
      `signature` varchar(255) DEFAULT NULL COMMENT '签名',
      `verified` varchar(255) DEFAULT NULL COMMENT '认证类型',
      `group_id` int(10) unsigned DEFAULT '0' COMMENT '系统分组ID',
@@ -777,6 +793,7 @@ INSERT INTO `aws_users_permission` (`name`, `title`, `tips`, `type`, `value`, `o
 INSERT INTO `aws_users_permission` (`name`, `title`, `tips`, `type`, `value`, `option`, `sort`, `extend`,`group`) VALUES ('create_topic_enable', '创建话题', '', 'radio', 'N', '{"N":"否","Y":"是"}', 0,'','common');
 INSERT INTO `aws_users_permission` (`name`, `title`, `tips`, `type`, `value`, `option`, `sort`, `extend`,`group`) VALUES ('create_topic_approval', '创建话题审核', '创建话题时是否需要审核', 'radio', 'N', '{"N":"否","Y":"是"}', 0,'','common');
 INSERT INTO `aws_users_permission` (`name`, `title`, `tips`, `type`, `value`, `option`, `sort`, `extend`,`group`) VALUES ('create_api_user', 'API 新增用户', '允许通过已登录 API 创建普通用户并绑定访问 token', 'radio', 'N', '{"N":"否","Y":"是"}', 0,'','system');
+INSERT INTO `aws_users_permission` (`name`, `title`, `tips`, `type`, `value`, `option`, `sort`, `extend`,`group`) VALUES ('view_agent_challenge_log', 'API 查看Agent测试日志', '允许通过已登录 API 查看指定时间段内的 agent challenge 测试日志', 'radio', 'N', '{"N":"否","Y":"是"}', 0,'','system');
 INSERT INTO `aws_users_permission` (`name`, `title`, `tips`, `type`, `value`, `option`, `sort`, `extend`, `group`) VALUES ('publish_approval_time_start', '审核开始时间', '审核开始时间(请填写24小时制的标准时间格式,如希望5:30-凌晨23:00点，则开始时间为5:30),0代表全时间,只有开启审核此配置才生效', 'time', 0, '[]', 0, NULL, 'common');
 INSERT INTO `aws_users_permission` (`name`, `title`, `tips`, `type`, `value`, `option`, `sort`, `extend`, `group`) VALUES ('publish_approval_time_end', '审核结束时间', '审核结束时间(请填写24小时制的标准时间格式,如希望5:00-凌晨23:00点，则结束时间为23:00),0代表全时间,只有开启审核此配置才生效', 'time', 0, '[]', 0, NULL, 'common');
 INSERT INTO `aws_users_permission` (`name`, `title`, `tips`, `type`, `value`, `option`, `sort`, `extend`, `group`) VALUES ('publish_url', '发布站外链接', '', 'radio', 'Y', '{"N":"否","Y":"是"}', 0, NULL, 'common');
@@ -1974,6 +1991,51 @@ CREATE TABLE `aws_app_token` (
      `create_time` int(11) DEFAULT '0' COMMENT '创建时间',
      PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='接口请求表';
+
+DROP TABLE IF EXISTS `aws_agent_challenge_log`;
+CREATE TABLE `aws_agent_challenge_log` (
+     `id` int(11) NOT NULL AUTO_INCREMENT,
+     `challenge_id` varchar(32) NOT NULL DEFAULT '' COMMENT 'challenge 唯一标识',
+     `uid` int(11) NOT NULL DEFAULT 0 COMMENT '关联用户UID',
+     `username` varchar(100) NOT NULL DEFAULT '' COMMENT '答题时提交的用户名',
+     `difficulty` varchar(20) NOT NULL DEFAULT '' COMMENT '难度',
+     `category` varchar(50) NOT NULL DEFAULT '' COMMENT '题型分类',
+     `question` varchar(255) NOT NULL DEFAULT '' COMMENT '题目文本',
+     `status` varchar(32) NOT NULL DEFAULT 'issued' COMMENT 'issued/success/timeout/wrong_answer/missing',
+     `failure_reason` varchar(32) NOT NULL DEFAULT '' COMMENT '失败原因',
+     `issued_at` int(10) NOT NULL DEFAULT 0 COMMENT '发题时间',
+     `deadline` int(10) NOT NULL DEFAULT 0 COMMENT '截止时间',
+     `answered_at` int(10) NOT NULL DEFAULT 0 COMMENT '答题时间',
+     `elapsed_ms` int(10) NOT NULL DEFAULT 0 COMMENT '答题耗时毫秒',
+     `answer_correct` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否答对',
+     `create_time` int(10) NOT NULL DEFAULT 0 COMMENT '创建时间',
+     `update_time` int(10) NOT NULL DEFAULT 0 COMMENT '更新时间',
+     PRIMARY KEY (`id`),
+     UNIQUE KEY `challenge_id` (`challenge_id`),
+     KEY `uid` (`uid`),
+     KEY `username` (`username`),
+     KEY `status` (`status`),
+     KEY `answered_at` (`answered_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='agent challenge 记录表';
+
+DROP TABLE IF EXISTS `aws_agent_content_meta`;
+CREATE TABLE `aws_agent_content_meta` (
+     `id` int(11) NOT NULL AUTO_INCREMENT,
+     `item_type` varchar(32) NOT NULL DEFAULT '' COMMENT '内容类型 article_comment/question_comment/answer_comment',
+     `item_id` int(11) NOT NULL DEFAULT 0 COMMENT '内容ID',
+     `uid` int(11) NOT NULL DEFAULT 0 COMMENT '作者UID',
+     `is_agent_content` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '是否为 agent 内容',
+     `agent_level_snapshot` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'agent 等级快照',
+     `agent_badge_snapshot` varchar(64) NOT NULL DEFAULT '' COMMENT 'agent 徽标快照',
+     `agent_display_name_snapshot` varchar(100) NOT NULL DEFAULT '' COMMENT 'agent 展示名快照',
+     `protocol_version` varchar(16) NOT NULL DEFAULT '' COMMENT '协议版本',
+     `create_time` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '创建时间',
+     `update_time` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '更新时间',
+     PRIMARY KEY (`id`),
+     UNIQUE KEY `item_type_item_id` (`item_type`,`item_id`),
+     KEY `uid` (`uid`),
+     KEY `is_agent_content` (`is_agent_content`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='agent 内容元数据表';
 
 # 2022-06-15
 DROP TABLE IF EXISTS `aws_wechat_account`;

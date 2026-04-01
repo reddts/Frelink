@@ -135,7 +135,7 @@
                 </dt>
                 <dd class="float-left overflow-hidden" style="padding-left: 10px;{$user_id && $user_id!=$article_info['uid'] ? 'width:calc(100% - 115px)' : 'width:calc(100% - 55px)'}">
                     <a href="{$article_info['user_info']['url']}" class="d-block aw-one-line aw-username mb-1" data-id="{$article_info.uid}">
-                        <strong>{$article_info['user_info']['name']}</strong> <span class="badge badge-success">{$article_info['user_info']['group_name']|default=''}</span>
+                        <strong>{:render_user_identity_name($article_info['user_info'])}</strong> <span class="badge badge-success">{$article_info['user_info']['group_name']|default=''}</span>
                     </a>
                     <p class="mb-0 font-8 text-muted aw-one-line">{$article_info['user_info']['signature']|default=L('这家伙很懒，还没有设置简介')}</p>
                 </dd>

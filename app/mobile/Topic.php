@@ -1,6 +1,7 @@
 <?php
 namespace app\mobile;
 use app\common\controller\Frontend;
+use app\common\library\helper\AgentHelper;
 use app\logic\common\FocusLogic;
 use app\model\Help as HelpModel;
 use app\model\Topic as TopicModel;
@@ -55,11 +56,25 @@ class Topic extends Frontend
         $topic_info['has_focus'] = FocusLogic::checkUserIsFocus($this->user_id, 'topic', $topic_info['id']) ? 1 : 0;
         $topic_info['relation_topics'] = TopicModel::getRelatedTopicBySourceId($topic_info['id']);
         $archiveChapters = HelpModel::getTopicRelatedChapters($topic_info, 3);
+        $agentEntryJson = AgentHelper::encode(AgentHelper::buildPageEntry(
+            'topic_detail_mobile',
+            'topic',
+            intval($topic_info['id']),
+            array_merge(
+                [trim((string) ($topic_info['title'] ?? ''))],
+                array_column($topic_info['relation_topics'] ?: [], 'title')
+            ),
+            [
+                'item_title' => trim(strip_tags((string) $topic_info['title'])),
+                'item_url' => (string) url('topic/detail', ['id' => $topic_info['id']], true, true),
+            ]
+        ));
         $this->assign('focus_user',$focus_user);
         $this->assign('type',$type);
         $this->assign('sort',$sort);
         $this->assign('topic_info', $topic_info);
         $this->assign('archive_chapters', $archiveChapters);
+        $this->assign('agent_page_entry_json', $agentEntryJson);
 
         $default_topic_title = trim(strip_tags($topic_info['title'])) . '话题讨论、相关问题与文章聚合';
         $custom_seo_title = trim(strip_tags((string)$topic_info['seo_title']));

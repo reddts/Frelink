@@ -1,6 +1,7 @@
 <?php
 namespace app\mobile;
 use app\common\controller\Frontend;
+use app\common\library\helper\AgentHelper;
 use app\common\library\helper\FormatHelper;
 use app\common\library\helper\IpHelper;
 use app\common\library\helper\IpLocation;
@@ -99,6 +100,17 @@ class Question extends Frontend
         );
         $next_reads = frelink_build_next_reads($nextReadGroups);
         $archiveChapters = HelpModel::getItemArchiveChapters('question', $question_info['id'], 6);
+        $agentEntryJson = AgentHelper::encode(AgentHelper::buildPageEntry(
+            'question_detail_mobile',
+            'question',
+            intval($question_info['id']),
+            array_column($question_info['topics'] ?: [], 'title'),
+            [
+                'item_title' => trim(strip_tags((string) $question_info['title'])),
+                'item_url' => (string) url('question/detail', ['id' => $question_info['id']], true, true),
+                'agent_reply_allowed' => empty($question_info['is_lock']),
+            ]
+        ));
 
         $this->assign([
             'question_info' => $question_info,
@@ -110,6 +122,7 @@ class Question extends Frontend
             'summary_points' => $summary_points,
             'next_reads' => $next_reads,
             'archive_chapters' => $archiveChapters,
+            'agent_page_entry_json' => $agentEntryJson,
             'best_answer_count'=>db('answer')->where(['question_id'=>$question_id,'is_best'=>1])->count() ? 1 : 0,
             'attach_list'=>Attach::getAttach('question_attach',$question_info['id'])
         ]);

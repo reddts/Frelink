@@ -127,7 +127,7 @@
                     </dt>
                     <dd class="float-left overflow-hidden" style="padding-left: 10px;{$user_id && $user_id!=$question_info['uid'] ? 'width:calc(100% - 115px)' : 'width:calc(100% - 55px)'}">
                         <a href="{$question_info['user_info']['url']}" class="d-block aw-one-line aw-username mb-1" data-id="{$question_info.uid}" target="_blank">
-                            <strong>{$question_info['user_info']['name']}</strong> <span class="badge badge-success">{$question_info['user_info']['group_name']|default=''}</span>
+                            <strong>{:render_user_identity_name($question_info['user_info'])}</strong> <span class="badge badge-success">{$question_info['user_info']['group_name']|default=''}</span>
                         </a>
                         <p class="mb-0 font-8 text-muted aw-one-line">{$question_info['user_info']['signature']|default=L("这家伙还没有留下自我介绍～")}</p>
                     </dd>

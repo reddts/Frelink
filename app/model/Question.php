@@ -10,6 +10,7 @@
 // +----------------------------------------------------------------------
 namespace app\model;
 
+use app\common\library\helper\AgentHelper;
 use app\common\library\helper\HtmlHelper;
 use app\common\library\helper\ImageHelper;
 use app\common\library\helper\IpHelper;
@@ -170,6 +171,7 @@ class Question extends BaseModel
      */
 	public static function saveQuestion($uid, array $postData,string $access_key='')
     {
+        $postData['topics'] = AgentHelper::appendAgentTopics((int) $uid, $postData['topics'] ?? []);
 		$insertData = array(
 			'title' => strip_tags($postData['title']),
 			'detail' =>HtmlHelper::fetchContentImagesToLocal($postData['detail'],'question',$uid,true),
@@ -381,6 +383,7 @@ class Question extends BaseModel
             $list['data'][$key]['vote_count'] = $voteCounts[$commentId] ?? 0;
             $list['data'][$key]['create_time_label'] = date_friendly($value['create_time']);
 		}
+        $list['data'] = AgentContentMeta::decorateRows('question_comment', $list['data']);
 
 		return $list;
 	}

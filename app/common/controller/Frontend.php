@@ -1,5 +1,6 @@
 <?php
 namespace app\common\controller;
+use app\common\library\helper\AgentHelper;
 use app\common\library\helper\CheckHelper;
 use app\common\library\helper\StringHelper;
 use app\common\library\helper\SitemapHelper;
@@ -90,6 +91,7 @@ class Frontend extends Base
         $needCaptchaAssets = in_array($this->controller, ['account', 'question', 'article']);
         $needUploaderAssets = in_array($this->controller, ['question', 'article', 'setting', 'upload']);
         $needHighlightAssets = in_array($this->controller, ['question', 'article', 'search', 'topic', 'feature']);
+        $agentProtocol = AgentHelper::getProtocol(true);
         $theme_block = public_path().'templates/'.$this->theme.'/html/block.php';
         $this->assign([
             'baseUrl'=> $this->baseUrl,
@@ -113,7 +115,14 @@ class Frontend extends Base
             'theme_config'=>get_theme_setting(),
             'needCaptchaAssets'=>$needCaptchaAssets ? 1 : 0,
             'needUploaderAssets'=>$needUploaderAssets ? 1 : 0,
-            'needHighlightAssets'=>$needHighlightAssets ? 1 : 0
+            'needHighlightAssets'=>$needHighlightAssets ? 1 : 0,
+            'agent_protocol_version' => AgentHelper::PROTOCOL_VERSION,
+            'agent_protocol_url' => $agentProtocol['endpoints']['protocol'],
+            'agent_topic_label' => AgentHelper::PRIMARY_TAG,
+            'agent_topic_aliases_text' => implode(',', $agentProtocol['discussion']['aliases']),
+            'agent_protocol_json' => AgentHelper::encode($agentProtocol),
+            'agent_participation_notice_zh' => $agentProtocol['agent_participation_notice']['zh-CN']['body'] ?? '',
+            'agent_participation_notice_en' => $agentProtocol['agent_participation_notice']['en']['body'] ?? '',
         ]);
 
         //站点关闭检查

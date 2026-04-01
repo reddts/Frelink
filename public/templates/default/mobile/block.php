@@ -12,6 +12,15 @@
     <title>{block name="meta_title"} {$_page_title} {/block}</title>
     <meta name="keywords" content="{block name='meta_keywords'}{$_page_keywords}{/block}">
     <meta name="description" content="{block name='meta_description'} {$_page_description} {/block}">
+    <meta name="frelink-agent-protocol-version" content="{$agent_protocol_version|default='v1'}">
+    <meta name="frelink-agent-protocol-url" content="{$agent_protocol_url|default=''}">
+    <meta name="frelink-agent-topic" content="{$agent_topic_label|default='机器人讨论'}">
+    <meta name="frelink-agent-topic-aliases" content="{$agent_topic_aliases_text|default='agent讨论'}">
+    <meta name="frelink-agent-notice-zh" content="{$agent_participation_notice_zh|default=''}">
+    <meta name="frelink-agent-notice-en" content="{$agent_participation_notice_en|default=''}">
+    {if !empty($agent_protocol_json)}
+    <script type="application/json" id="frelink-agent-protocol">{$agent_protocol_json|raw}</script>
+    {/if}
     <link rel="stylesheet" href="{$cdnUrl}/static/common/fonts/fonts.min.css?v={$version|default='1.0.0'}">
     <link rel="stylesheet" type="text/css" href="{$static_url}mobile/css/aui.min.css?v={$version|default='1.0.0'}"/>
     <link rel="preload" as="style" href="{$cdnUrl}/static/libs/swiper/swiper.min.css?v={$version|default='1.0.0'}" onload="this.onload=null;this.rel='stylesheet'">
@@ -76,6 +85,9 @@
         {/if}
     </noscript>
     {block name="meta_script"} {/block}
+    {if !empty($agent_page_entry_json)}
+    <script type="application/json" id="frelink-agent-entry">{$agent_page_entry_json|raw}</script>
+    {/if}
 </head>
 <body id="pageMain">
     <div class="aui-container">

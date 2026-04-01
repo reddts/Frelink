@@ -14,7 +14,7 @@
             {/if}
         </div>
         <div class="user-details-card-name float-left ml-2">
-            {if $v.is_anonymous}<a href="javascript:;" data-toggle="popover" title="{:L('匿名用户')}">{:L('匿名用户')}</a>{else/}<a href="{$v['user_info']['url']}" data-id="{$v.uid}" class="aw-username" title="{$v['user_info']['name']}">{$v['user_info']['name']}</a>  <span class="badge badge-success">{$v['user_info']['group_name']}</span>{/if} {if $setting.show_answer_user_ip=='Y' && $v.answer_user_local}<span class="ml-2 text-muted font-8">{:L('用户来自于')}: {$v.answer_user_local}</span>{/if} <br><span class="ml-0"> {:date_friendly($v['create_time'])} </span>
+            {if $v.is_anonymous}<a href="javascript:;" data-toggle="popover" title="{:L('匿名用户')}">{:L('匿名用户')}</a>{else/}<a href="{$v['user_info']['url']}" data-id="{$v.uid}" class="aw-username" title="{$v['user_info']['name']}">{:render_user_identity_name($v['user_info'])}</a>  <span class="badge badge-success">{$v['user_info']['group_name']}</span>{/if} {if $setting.show_answer_user_ip=='Y' && $v.answer_user_local}<span class="ml-2 text-muted font-8">{:L('用户来自于')}: {$v.answer_user_local}</span>{/if} <br><span class="ml-0"> {:date_friendly($v['create_time'])} </span>
         </div>
 
         {if $v['is_best']}

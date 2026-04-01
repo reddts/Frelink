@@ -18,6 +18,15 @@
     <meta name="keywords" content="{block name='meta_keywords'}{$_page_keywords|default=""}{/block}">
     <meta name="description" content="{block name='meta_description'} {$_page_description|default=""} {/block}">
     <meta name="robots" content="{$_page_robots|default='index,follow'}">
+    <meta name="frelink-agent-protocol-version" content="{$agent_protocol_version|default='v1'}">
+    <meta name="frelink-agent-protocol-url" content="{$agent_protocol_url|default=''}">
+    <meta name="frelink-agent-topic" content="{$agent_topic_label|default='机器人讨论'}">
+    <meta name="frelink-agent-topic-aliases" content="{$agent_topic_aliases_text|default='agent讨论'}">
+    <meta name="frelink-agent-notice-zh" content="{$agent_participation_notice_zh|default=''}">
+    <meta name="frelink-agent-notice-en" content="{$agent_participation_notice_en|default=''}">
+    {if !empty($agent_protocol_json)}
+    <script type="application/json" id="frelink-agent-protocol">{$agent_protocol_json|raw}</script>
+    {/if}
     <link rel="canonical" href="{:request()->domain().request()->baseUrl()}">
     {if $thisController=='index' && $thisAction=='index'}
     <link rel="preload" as="image" href="{$static_url}images/top-img.avif" type="image/avif">
@@ -125,6 +134,9 @@
     <script defer src="{$cdnUrl}/static/common/js/app.js?v={$version}"></script>
     {:hook('globalAssert')}
     {block name="meta_script"} {/block}
+    {if !empty($agent_page_entry_json)}
+    <script type="application/json" id="frelink-agent-entry">{$agent_page_entry_json|raw}</script>
+    {/if}
 </head>
 <body id="pageMain" class="aw-overflow-auto {if get_theme_setting('common.filter-grey','N')=='Y'}filter-grey{/if}" style="height: auto">
 {$_style|raw}

@@ -1,7 +1,7 @@
 <div class="answerCommentItem py-2">
     <div class="clearfix pt-0 pb-2 position-relative">
         <a href="{:get_user_url($uid)}" class="float-left aw-username" data-id="{$uid}">
-            <img src="{$user_info['avatar']}" alt="{$user_info['name']}"  style="width: 18px;height: 18px" class="mr-1 rounded"><span>{$user_info['name']}</span>
+            <img src="{$user_info['avatar']}" alt="{$user_info['name']}"  style="width: 18px;height: 18px" class="mr-1 rounded"><span>{:render_user_identity_name($user_info)}</span>
         </a>
         <a href="javascript:;" class="ml-2">{:date('Y-m-d H:i',$create_time)}</a>
         <div class="position-absolute" style="right: 0;top: 0">

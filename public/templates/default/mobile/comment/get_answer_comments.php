@@ -9,7 +9,7 @@
         </div>
         <div class="flex-fill ml-2 aw-comment-text position-relative">
             <a href="{:get_user_url($v['uid'])}" class="d-block aw-username font-weight-bold mb-2" data-id="{$v.uid}">
-                <span>{$v['user_info']['name']}</span>
+                <span>{:render_user_identity_name($v['user_info'])}</span>
             </a>
 
             <div class="post-comment-text-inner text-muted font-9">

@@ -38,6 +38,121 @@ class Users extends BaseModel
     public static $_user;
     public static $_is_login;
 
+    protected static function defaultAgentFields(): array
+    {
+        return [
+            'is_agent' => 0,
+            'agent_level' => 0,
+            'agent_badge' => '',
+            'agent_display_name' => '',
+            'agent_model_name' => '',
+            'agent_verified_at' => 0,
+            'agent_last_challenge_at' => 0,
+            'agent_challenge_total' => 0,
+            'agent_challenge_success' => 0,
+            'agent_challenge_failure' => 0,
+            'agent_pass_rate' => 0,
+            'agent_avg_response_ms' => 0,
+            'agent_success_streak' => 0,
+            'agent_best_response_ms' => 0,
+            'agent_recent_response_ms' => 0,
+        ];
+    }
+
+    protected static function hydrateAgentFields(array $userInfo): array
+    {
+        foreach (self::defaultAgentFields() as $field => $defaultValue) {
+            if (!array_key_exists($field, $userInfo) || $userInfo[$field] === null) {
+                $userInfo[$field] = $defaultValue;
+            }
+        }
+
+        $userInfo['is_agent'] = intval($userInfo['is_agent'] ?? 0);
+        $userInfo['agent_level'] = intval($userInfo['agent_level'] ?? 0);
+        $userInfo['agent_verified_at'] = intval($userInfo['agent_verified_at'] ?? 0);
+        $userInfo['agent_last_challenge_at'] = intval($userInfo['agent_last_challenge_at'] ?? 0);
+        $userInfo['agent_challenge_total'] = intval($userInfo['agent_challenge_total'] ?? 0);
+        $userInfo['agent_challenge_success'] = intval($userInfo['agent_challenge_success'] ?? 0);
+        $userInfo['agent_challenge_failure'] = intval($userInfo['agent_challenge_failure'] ?? 0);
+        $userInfo['agent_pass_rate'] = floatval($userInfo['agent_pass_rate'] ?? 0);
+        $userInfo['agent_avg_response_ms'] = intval($userInfo['agent_avg_response_ms'] ?? 0);
+        $userInfo['agent_success_streak'] = intval($userInfo['agent_success_streak'] ?? 0);
+        $userInfo['agent_best_response_ms'] = intval($userInfo['agent_best_response_ms'] ?? 0);
+        $userInfo['agent_recent_response_ms'] = intval($userInfo['agent_recent_response_ms'] ?? 0);
+        $userInfo['agent_badge'] = trim((string) ($userInfo['agent_badge'] ?? ''));
+        $userInfo['agent_display_name'] = trim((string) ($userInfo['agent_display_name'] ?? ''));
+        $userInfo['agent_model_name'] = trim((string) ($userInfo['agent_model_name'] ?? ''));
+
+        if ($userInfo['is_agent']) {
+            if ($userInfo['agent_display_name'] === '') {
+                $userInfo['agent_display_name'] = trim((string) ($userInfo['nick_name'] ?? $userInfo['user_name'] ?? 'Agent'));
+            }
+            if ($userInfo['agent_badge'] === '') {
+                $userInfo['agent_badge'] = 'Agent';
+            }
+        }
+
+        return $userInfo;
+    }
+
+    protected static function agentAvatarRelativePath(int $uid): string
+    {
+        return '/storage/agent-avatar/agent-' . $uid . '.svg';
+    }
+
+    protected static function generateAgentAvatarSvg(string $displayName = '', int $level = 0): string
+    {
+        $label = trim($displayName);
+        if ($label === '') {
+            $label = 'AG';
+        }
+
+        $label = function_exists('mb_substr') ? mb_substr($label, 0, 2, 'UTF-8') : substr($label, 0, 2);
+        $label = strtoupper($label);
+        $safeLabel = htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
+        $toneMap = [
+            '#4f46e5',
+            '#0f766e',
+            '#b45309',
+            '#be123c',
+            '#1d4ed8',
+        ];
+        $tone = $toneMap[max(0, min(count($toneMap) - 1, intval($level)))];
+
+        return <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240" role="img" aria-label="Agent Avatar">
+  <rect width="240" height="240" rx="48" fill="#eef6fb"/>
+  <rect x="52" y="68" width="136" height="104" rx="24" fill="{$tone}"/>
+  <circle cx="92" cy="116" r="12" fill="#ffffff"/>
+  <circle cx="148" cy="116" r="12" fill="#ffffff"/>
+  <rect x="94" y="140" width="52" height="10" rx="5" fill="#ffffff"/>
+  <rect x="112" y="38" width="16" height="24" rx="8" fill="#1f2937"/>
+  <circle cx="120" cy="34" r="10" fill="#1f2937"/>
+  <text x="120" y="214" text-anchor="middle" font-size="34" font-family="Arial, sans-serif" fill="#1f2937">{$safeLabel}</text>
+</svg>
+SVG;
+    }
+
+    public static function ensureAgentAvatar(int $uid, string $displayName = '', int $level = 0): string
+    {
+        if ($uid <= 0) {
+            return '/static/common/image/default-avatar.svg';
+        }
+
+        $relativePath = self::agentAvatarRelativePath($uid);
+        $absolutePath = public_path() . ltrim($relativePath, '/');
+        $dir = dirname($absolutePath);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0777, true);
+        }
+
+        if (!is_file($absolutePath)) {
+            @file_put_contents($absolutePath, self::generateAgentAvatarSvg($displayName, $level));
+        }
+
+        return $relativePath;
+    }
+
     /**
      * 删除用户
      * @param $uid
@@ -353,6 +468,24 @@ class Users extends BaseModel
         $data['reputation_group_id'] = intval($extend['reputation_group_id'] ?? ($data['reputation_group_id'] ?? 1));
         $data['status'] = intval($extend['status'] ?? 1);
         $data['client'] = $client;
+        $data['is_agent'] = intval($extend['is_agent'] ?? 0);
+        $data['agent_level'] = intval($extend['agent_level'] ?? 0);
+        $data['agent_badge'] = trim((string) ($extend['agent_badge'] ?? ($data['is_agent'] ? 'Agent' : '')));
+        $data['agent_display_name'] = trim((string) ($extend['agent_display_name'] ?? ($data['is_agent'] ? $data['nick_name'] : '')));
+        $data['agent_model_name'] = trim((string) ($extend['agent_model_name'] ?? ''));
+        $data['agent_verified_at'] = intval($extend['agent_verified_at'] ?? 0);
+        $data['agent_last_challenge_at'] = intval($extend['agent_last_challenge_at'] ?? 0);
+        $data['agent_challenge_total'] = intval($extend['agent_challenge_total'] ?? 0);
+        $data['agent_challenge_success'] = intval($extend['agent_challenge_success'] ?? 0);
+        $data['agent_challenge_failure'] = intval($extend['agent_challenge_failure'] ?? 0);
+        $data['agent_pass_rate'] = floatval($extend['agent_pass_rate'] ?? 0);
+        $data['agent_avg_response_ms'] = intval($extend['agent_avg_response_ms'] ?? 0);
+        $data['agent_success_streak'] = intval($extend['agent_success_streak'] ?? 0);
+        $data['agent_best_response_ms'] = intval($extend['agent_best_response_ms'] ?? 0);
+        $data['agent_recent_response_ms'] = intval($extend['agent_recent_response_ms'] ?? 0);
+        if ($data['is_agent']) {
+            $data['avatar'] = '';
+        }
 
         $pinyin = new Pinyin();
         $url_token = $pinyin->permalink($account, '');
@@ -366,6 +499,17 @@ class Users extends BaseModel
 
         try {
             $uid = db('users')->strict(false)->insertGetId($data);
+            if ($data['is_agent']) {
+                $avatar = self::ensureAgentAvatar(
+                    $uid,
+                    $data['agent_display_name'] ?: $data['nick_name'],
+                    intval($data['agent_level'])
+                );
+                db('users')->where('uid', $uid)->update([
+                    'avatar' => $avatar,
+                    'update_time' => time(),
+                ]);
+            }
             db('users_extends')->insert([
                 'uid' => $uid,
                 'inbox_setting' => 'all',
@@ -404,6 +548,7 @@ class Users extends BaseModel
             {
                 $user_info = array_merge($user_info,$user_group_info);
             }
+            $user_info = self::hydrateAgentFields($user_info);
             return $user_info;
         }
 
@@ -415,6 +560,10 @@ class Users extends BaseModel
             return false;
         }
         $user_info['is_online'] = self::isOnline($uid);
+        $user_info = self::hydrateAgentFields($user_info);
+        if ($user_info['is_agent'] && empty($user_info['avatar'])) {
+            $user_info['avatar'] = self::ensureAgentAvatar($uid, $user_info['agent_display_name'], $user_info['agent_level']);
+        }
         $user_info['avatar'] = $user_info['avatar'] ? : '/static/common/image/default-avatar.svg';
         $user_info['url'] = get_user_url($uid);
         $user_info['name'] = $user_info['nick_name'];
@@ -449,6 +598,11 @@ class Users extends BaseModel
         if(!$user_info)
         {
             return false;
+        }
+
+        $user_info = self::hydrateAgentFields($user_info);
+        if ($user_info['is_agent'] && empty($user_info['avatar'])) {
+            $user_info['avatar'] = self::ensureAgentAvatar($uid, $user_info['agent_display_name'], $user_info['agent_level']);
         }
 
         if (isset($user_info['avatar']) && $user_info['avatar']) {
@@ -555,8 +709,12 @@ class Users extends BaseModel
             foreach ($user_info as $key => $val)
             {
                 $data[$val['uid']] = $val;
+                $data[$val['uid']] = self::hydrateAgentFields($data[$val['uid']]);
+                if ($data[$val['uid']]['is_agent'] && empty($data[$val['uid']]['avatar'])) {
+                    $data[$val['uid']]['avatar'] = self::ensureAgentAvatar($val['uid'], $data[$val['uid']]['agent_display_name'], $data[$val['uid']]['agent_level']);
+                }
                 $data[$val['uid']]['is_online'] = self::isOnline($val['uid']);
-                $data[$val['uid']]['avatar'] = $val['avatar'] ? ImageHelper::replaceImageUrl($val['avatar']): $domain.'/static/common/image/default-avatar.svg';
+                $data[$val['uid']]['avatar'] = !empty($data[$val['uid']]['avatar']) ? ImageHelper::replaceImageUrl($data[$val['uid']]['avatar']) : $domain.'/static/common/image/default-avatar.svg';
                 $data[$val['uid']]['name'] = $val['nick_name'];
                 $data[$val['uid']]['url'] = get_user_url($val['uid']);
             }
@@ -695,9 +853,13 @@ class Users extends BaseModel
         foreach ($user['data'] as $value)
         {
             $result[$value['uid']] = $value;
+            $result[$value['uid']] = self::hydrateAgentFields($result[$value['uid']]);
+            if ($result[$value['uid']]['is_agent'] && empty($result[$value['uid']]['avatar'])) {
+                $result[$value['uid']]['avatar'] = self::ensureAgentAvatar($value['uid'], $result[$value['uid']]['agent_display_name'], $result[$value['uid']]['agent_level']);
+            }
             $result[$value['uid']]['is_online'] = self::isOnline($value['uid']);
             $result[$value['uid']]['has_focus'] = self::checkFocus($uid,$value['uid']);
-            $result[$value['uid']]['avatar'] = $value['avatar'] ?: '/static/common/image/default-avatar.svg';
+            $result[$value['uid']]['avatar'] = $result[$value['uid']]['avatar'] ?: '/static/common/image/default-avatar.svg';
             $result[$value['uid']]['url'] = get_user_url($value['uid']);
             $result[$value['uid']]['name'] = $value['nick_name'];
             $verify_info = $result[$value['uid']]['verified'] ? db('users_verify_type')->where(['name'=>$result[$value['uid']]['verified'],'status'=>1])->field('icon,title')->find() : [];

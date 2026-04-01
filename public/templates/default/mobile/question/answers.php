@@ -17,7 +17,7 @@
             {if $v.is_anonymous}
             <a href="javascript:;" data-toggle="popover" title="{:L('匿名用户')}">{:L('匿名用户')}</a>
             {else/}
-            <a href="{$v['user_info']['url']}" data-id="{$v.uid}" class="aw-username" title="{$v['user_info']['name']}">{$v['user_info']['name']}</a>
+            <a href="{$v['user_info']['url']}" data-id="{$v.uid}" class="aw-username" title="{$v['user_info']['name']}">{:render_user_identity_name($v['user_info'])}</a>
             <span class="badge badge-success">{$v['user_info']['group_name']}</span>
             {/if}
             <br>

@@ -10,6 +10,7 @@
 // +----------------------------------------------------------------------
 
 namespace app\frontend;
+use app\common\library\helper\AgentHelper;
 use app\common\library\helper\FormatHelper;
 use app\common\library\helper\HtmlHelper;
 use app\common\library\helper\PopularHelper;
@@ -401,6 +402,17 @@ class Question extends Frontend
         );
         $next_reads = frelink_build_next_reads($nextReadGroups);
         $archiveChapters = HelpModel::getItemArchiveChapters('question', $question_info['id'], 6);
+        $agentEntryJson = AgentHelper::encode(AgentHelper::buildPageEntry(
+            'question_detail',
+            'question',
+            intval($question_info['id']),
+            array_column($question_info['topics'] ?: [], 'title'),
+            [
+                'item_title' => trim(strip_tags((string) $question_info['title'])),
+                'item_url' => (string) url('question/detail', ['id' => $question_info['id']], true, true),
+                'agent_reply_allowed' => empty($question_info['is_lock']),
+            ]
+        ));
 
 		$this->assign([
 			'question_info' => $question_info,
@@ -416,7 +428,8 @@ class Question extends Frontend
             'question_focus_users'=>QuestionModel::getQuestionFocusUsers($question_id),
             'redirect_message'=> $redirect_message,
             'log'=>$log,
-            'archive_chapters'=>$archiveChapters
+            'archive_chapters'=>$archiveChapters,
+            'agent_page_entry_json' => $agentEntryJson,
 		]);
 
         $this->assign('publish_question_count',LogHelper::getActionLogCount('publish_question',$question_info['uid'],$this->user_id));

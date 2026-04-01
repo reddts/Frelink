@@ -6,6 +6,7 @@ use app\common\library\helper\ImageHelper;
 use app\common\library\helper\IpLocation;
 use app\common\library\helper\LogHelper;
 use app\logic\common\FocusLogic;
+use app\model\AgentContentMeta;
 use app\model\Answer;
 use app\model\Attach;
 use app\model\BaseModel;
@@ -156,6 +157,7 @@ class Question extends BaseModel
             $list[$key]['at_user_info'] =$value['at_uid']? Users::getUserInfoByUid($value['at_uid'],'nick_name,uid'):[];
             $list[$key]['create_time'] = date_friendly($value['create_time']);
         }
+        $list = AgentContentMeta::decorateRows('answer_comment', $list);
         Tree::config([
             'child' => 'comments',
         ]);
@@ -288,7 +290,7 @@ class Question extends BaseModel
             ->select()
             ->toArray();
 
-        foreach ($list as $key => $value) {
+		foreach ($list as $key => $value) {
             $list[$key]['user_info'] = Users::getUserInfoByUid($value['uid'],'nick_name,avatar,uid');
             $list[$key]['check'] = Common::checkVote([
                 'uid'=>intval(session('login_uid')),
@@ -303,6 +305,7 @@ class Question extends BaseModel
             $list[$key]['create_time'] = date_friendly($value['create_time']);
             $list[$key]['at_user_info'] =$value['at_uid']? Users::getUserInfoByUid($value['at_uid'],'nick_name,uid'):[];
         }
+        $list = AgentContentMeta::decorateRows('question_comment', $list);
 
         Tree::config([
             'child' => 'comments',

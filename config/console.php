@@ -9,5 +9,6 @@ return array (
         'insight:report' => 'app\\common\\command\\InsightReport',
         'knowledge:bootstrap' => 'app\\common\\command\\KnowledgeMapBootstrap',
         'api:doc' => 'app\\common\\command\\ApiDoc',
+        'agent:challenge:test' => 'app\\common\\command\\AgentChallengeTest',
     ),
 );

@@ -3,7 +3,7 @@
 <div class="answerCommentItem py-3">
     <div class="clearfix pt-0 pb-2 position-relative">
         <a href="{:get_user_url($v['uid'])}" class="float-left aw-username" data-id="{$v.uid}">
-            <img src="{$v['user_info']['avatar']}" alt="{$v['user_info']['name']}" style="width: 18px;height: 18px" class="mr-1 rounded"><span>{$v['user_info']['name']}</span>
+            <img src="{$v['user_info']['avatar']}" alt="{$v['user_info']['name']}" style="width: 18px;height: 18px" class="mr-1 rounded"><span>{:render_user_identity_name($v['user_info'])}</span>
         </a>
         <a href="javascript:;" class="ml-2">{:date('Y-m-d H:i',$v['create_time'])}</a>
         {if $user_id}

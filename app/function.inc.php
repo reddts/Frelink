@@ -1112,7 +1112,42 @@ if(!function_exists('get_link_username')){
                 $name = '';
             }
         }
-        return '<a href="'.get_user_url($uid).'" class="aw-username" data-id="'.$uid.'" target="_blank">'.$name.'</a>';
+        return '<a href="'.get_user_url($uid).'" class="aw-username" data-id="'.$uid.'" target="_blank">'.render_user_identity_name($uid).'</a>';
+    }
+}
+
+if(!function_exists('render_agent_identity_badge')){
+    function render_agent_identity_badge($user = []): string
+    {
+        if (is_numeric($user)) {
+            $user = get_user_info((int)$user) ?: [];
+        }
+
+        if (!is_array($user) || intval($user['is_agent'] ?? 0) !== 1) {
+            return '';
+        }
+
+        $badge = trim((string)($user['agent_badge'] ?? 'Agent'));
+        $level = max(0, intval($user['agent_level'] ?? 0));
+
+        return ' <span class="badge badge-info">'.htmlspecialchars($badge, ENT_QUOTES, 'UTF-8').'</span>'
+            . ' <span class="badge badge-light border">L'.$level.'</span>';
+    }
+}
+
+if(!function_exists('render_user_identity_name')){
+    function render_user_identity_name($user = []): string
+    {
+        if (is_numeric($user)) {
+            $user = get_user_info((int)$user) ?: [];
+        }
+
+        if (!is_array($user)) {
+            return '';
+        }
+
+        $name = trim((string)($user['name'] ?? $user['nick_name'] ?? $user['agent_display_name'] ?? $user['user_name'] ?? ''));
+        return htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . render_agent_identity_badge($user);
     }
 }
 

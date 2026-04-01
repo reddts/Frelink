@@ -11,6 +11,7 @@
 
 
 namespace app\model;
+use app\common\library\helper\AgentHelper;
 use app\common\library\helper\HtmlHelper;
 use app\common\library\helper\ImageHelper;
 use app\common\library\helper\IpHelper;
@@ -299,6 +300,7 @@ class Article extends BaseModel
      */
 	public static function saveArticle($uid,$postData,string $access_key='')
 	{
+        $postData['topics'] = AgentHelper::appendAgentTopics((int) $uid, $postData['topics'] ?? []);
         $pinyin = new Pinyin();
         $token = $pinyin->permalink($postData['title'],'');
         $url_token = md5($token);
@@ -400,6 +402,7 @@ class Article extends BaseModel
      */
 	public static function updateArticle($uid,$postData,string $access_key='')
 	{
+        $postData['topics'] = AgentHelper::appendAgentTopics((int) $uid, $postData['topics'] ?? []);
 		$column_id = $postData['column_id'] ?? 0;
         $postData['id'] = intval($postData['id']);
         //2024.10.11 暂时解决markdown文本复制问题
@@ -748,6 +751,7 @@ class Article extends BaseModel
                 $user_info = ['url'=>'javascript:;','uid'=>0,'nick_name'=>'未知用户','name'=>'未知用户','avatar'=>'static/common/image/default-avatar.svg'];
 			$comments['data'][$key]['user_info'] = $user_info;
 		}
+        $comments['data'] = AgentContentMeta::decorateRows('article_comment', $comments['data']);
         $comments['page_render'] = $pageRender;
 		return $comments;
 	}

@@ -39,13 +39,17 @@ class Approval extends Backend
                     'modify_question'=>'修改问题',
                     'modify_article'=>'修改文章',
                     'modify_answer'=>'修改回答',
-                    'article_comment'=>'文章评论'
+                    'article_comment'=>'文章评论',
+                    'question_comment'=>'问题评论',
+                    'answer_comment'=>'回答评论'
                 ]
             ],
+            ['is_agent', '来源', 'tag', 0, [0 => '人工', 1 => 'Agent']],
             ['user_name','用户','link',get_url('people/index',['name'=>'__url_token__'])],
             ['create_time', '提交时间','datetime'],
         ];
         $type =  $this->request->param('type','');
+        $agentScope = $this->request->param('is_agent', '');
         $search = [
             ['select', 'type', '审核类型', '=',$type,[
                 'question' => '问题审核',
@@ -55,6 +59,13 @@ class Approval extends Backend
                 'modify_question'=>'修改问题',
                 'modify_article'=>'修改文章',
                 'modify_answer'=>'修改回答',
+                'question_comment'=>'问题评论',
+                'answer_comment'=>'回答评论',
+                'article_comment'=>'文章评论',
+            ]],
+            ['select', 'is_agent', '发言来源', '=',$agentScope,[
+                '1' => '仅 Agent',
+                '0' => '仅人工',
             ]]
         ];
         $status = $this->request->param('status',0);
@@ -72,7 +83,7 @@ class Approval extends Backend
                 ->where(['a.status'=>$status])
                 ->order([$orderByColumn => $isAsc])
                 ->join('users u','a.uid=u.uid')
-                ->field('a.*,u.user_name,u.url_token')
+                ->field('a.*,u.user_name,u.url_token,u.is_agent')
                 ->paginate([
                 'query'     => Request::get(),
                 'list_rows' =>$pageSize,
@@ -218,6 +229,16 @@ class Approval extends Backend
                     'title'=>'文章评论',
                     'link'=>(string)url('index', ['status' => $status,'type'=>'article_comment']),
                     'active'=> $type=='article_comment'
+                ],
+                [
+                    'title'=>'问题评论',
+                    'link'=>(string)url('index', ['status' => $status,'type'=>'question_comment']),
+                    'active'=> $type=='question_comment'
+                ],
+                [
+                    'title'=>'回答评论',
+                    'link'=>(string)url('index', ['status' => $status,'type'=>'answer_comment']),
+                    'active'=> $type=='answer_comment'
                 ]
             ])
             ->fetch();
@@ -320,6 +341,62 @@ class Approval extends Backend
                 ->fetch();
 
         }
+
+        if($info['type']=='question_comment')
+        {
+            $builder = $this->formBuilder
+                ->addHidden('approval_id',$info['id'])
+                ->addText('item_id','问题标题','',db('question')->where('id', intval($data['item_id'] ?? 0))->value('title'),'disabled readonly')
+                ->addEditor('message','评论内容','',htmlspecialchars_decode($data['message'] ?? ''),'','disabled readonly');
+
+            return $this->appendAgentReadonlyFields($builder, $data)
+                ->hideBtn(['submit'])
+                ->fetch();
+        }
+
+        if($info['type']=='answer_comment')
+        {
+            $questionId = intval($data['question_info']['id'] ?? 0);
+            if (!$questionId && !empty($data['item_id'])) {
+                $questionId = intval(db('answer')->where('id', intval($data['item_id']))->value('question_id'));
+            }
+            $builder = $this->formBuilder
+                ->addHidden('approval_id',$info['id'])
+                ->addText('item_id','问题标题','',db('question')->where('id', $questionId)->value('title'),'disabled readonly')
+                ->addEditor('message','评论内容','',htmlspecialchars_decode($data['message'] ?? ''),'','disabled readonly');
+
+            return $this->appendAgentReadonlyFields($builder, $data)
+                ->hideBtn(['submit'])
+                ->fetch();
+        }
+
+        if($info['type']=='article_comment')
+        {
+            $builder = $this->formBuilder
+                ->addHidden('approval_id',$info['id'])
+                ->addText('item_id','文章标题','',db('article')->where('id', intval($data['item_id'] ?? 0))->value('title'),'disabled readonly')
+                ->addEditor('message','评论内容','',htmlspecialchars_decode($data['message'] ?? ''),'','disabled readonly');
+
+            return $this->appendAgentReadonlyFields($builder, $data)
+                ->hideBtn(['submit'])
+                ->fetch();
+        }
+    }
+
+    protected function appendAgentReadonlyFields($builder, array $data)
+    {
+        if (empty($data['is_agent_content'])) {
+            return $builder;
+        }
+
+        return $builder
+            ->addText('agent_source', '提交来源', '', 'Agent', 'disabled readonly')
+            ->addText('agent_display_name', 'Agent 展示名', '', $data['agent_display_name'] ?? '', 'disabled readonly')
+            ->addText('agent_user_name', 'Agent 用户名', '', $data['agent_user_name'] ?? '', 'disabled readonly')
+            ->addText('agent_level_snapshot', 'Agent 等级快照', '', 'L' . max(0, intval($data['agent_level_snapshot'] ?? 0)), 'disabled readonly')
+            ->addText('agent_badge_snapshot', 'Agent 徽标快照', '', $data['agent_badge_snapshot'] ?? '', 'disabled readonly')
+            ->addText('protocol_version', '协议版本', '', $data['protocol_version'] ?? 'v1', 'disabled readonly')
+            ->addText('submitted_at', 'Agent 提交时间', '', !empty($data['submitted_at']) ? date('Y-m-d H:i:s', intval($data['submitted_at'])) : '', 'disabled readonly');
     }
 
 	//审核状态

@@ -12,6 +12,7 @@
 namespace app\frontend;
 
 use app\common\controller\Frontend;
+use app\common\library\helper\AgentHelper;
 use app\common\library\helper\FormatHelper;
 use app\common\library\helper\HtmlHelper;
 use app\common\library\helper\LogHelper;
@@ -349,6 +350,16 @@ class Article extends Frontend
         );
         $next_reads = frelink_build_next_reads($nextReadGroups);
         $archiveChapters = HelpModel::getItemArchiveChapters('article', $article_info['id'], 6);
+        $agentEntryJson = AgentHelper::encode(AgentHelper::buildPageEntry(
+            'article_detail',
+            'article',
+            intval($article_info['id']),
+            array_column($article_info['topics'] ?: [], 'title'),
+            [
+                'item_title' => trim(strip_tags((string) $article_info['title'])),
+                'item_url' => (string) url('article/detail', ['id' => $article_info['id']], true, true),
+            ]
+        ));
 
         $this->assign('recommend_post', $recommend_post?:[]);
 
@@ -372,6 +383,7 @@ class Article extends Frontend
             'summary_points' => $summary_points,
             'next_reads' => $next_reads,
             'archive_chapters' => $archiveChapters,
+            'agent_page_entry_json' => $agentEntryJson,
         ]);
         $seo_title = $article_info['seo_title'] ? : $article_info['title'];
         $seo_keywords = $article_info['seo_keywords'] ? : Analysis::getKeywords($article_info['title'], 4);

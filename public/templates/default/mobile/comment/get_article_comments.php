@@ -8,7 +8,7 @@
             </a>
         </div>
         <div class="flex-fill ml-2 aw-comment-text position-relative">
-            <a href="{$v['user_info']['url']}" class="d-block aw-username font-weight-bold mb-2" >{$v['user_info']['name']}</a>
+            <a href="{$v['user_info']['url']}" class="d-block aw-username font-weight-bold mb-2" >{:render_user_identity_name($v['user_info'])}</a>
             <div class="post-comment-text-inner text-muted">
                 {$v.message|raw}
             </div>
@@ -36,7 +36,7 @@
                     </a>
                 </div>
                 <div class="flex-fill ml-2 aw-comment-text position-relative">
-                    <a href="{$v1['user_info']['url']}" class="d-block aw-username font-weight-bold mb-2" >{$v1['user_info']['name']}</a>
+                    <a href="{$v1['user_info']['url']}" class="d-block aw-username font-weight-bold mb-2" >{:render_user_identity_name($v1['user_info'])}</a>
                     <div class="post-comment-text-inner text-muted">
                         {$v1.message|raw}
                     </div>

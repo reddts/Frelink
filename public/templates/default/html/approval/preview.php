@@ -84,6 +84,39 @@
         </dl>
         {/if}
 
+        {if $info['type']=='question_comment'}
+        <dl>
+            <dt class="mb-2">{:L('问题标题')}</dt>
+            <dd><a href="{:url('question/detail',['id'=>$data['item_id']])}" target="_blank">{$data.target_title|default=''}</a></dd>
+        </dl>
+        <dl>
+            <dt class="mb-2">{:L('评论内容')}</dt>
+            <dd class="aw-content">{$data['message']|htmlspecialchars_decode|raw}</dd>
+        </dl>
+        {/if}
+
+        {if $info['type']=='answer_comment'}
+        <dl>
+            <dt class="mb-2">{:L('问题标题')}</dt>
+            <dd>{$data.target_title|default=''}</dd>
+        </dl>
+        <dl>
+            <dt class="mb-2">{:L('评论内容')}</dt>
+            <dd class="aw-content">{$data['message']|htmlspecialchars_decode|raw}</dd>
+        </dl>
+        {/if}
+
+        {if $info['type']=='article_comment'}
+        <dl>
+            <dt class="mb-2">{:L('文章标题')}</dt>
+            <dd><a href="{:url('article/detail',['id'=>$data['item_id']])}" target="_blank">{$data.target_title|default=''}</a></dd>
+        </dl>
+        <dl>
+            <dt class="mb-2">{:L('评论内容')}</dt>
+            <dd class="aw-content">{$data['message']|htmlspecialchars_decode|raw}</dd>
+        </dl>
+        {/if}
+
         {if $info['status']==2}
 
         {if $info['reason']}

@@ -415,7 +415,7 @@
                                     {/if}
                                 </div>
                                 <div class="user-details-card-name float-left ml-2">
-                                    {if $v.is_anonymous}<a href="javascript:;" data-toggle="popover" title="{:L('匿名用户')}">{:L('匿名用户')}</a>{else/}<a href="{$v['user_info']['url']}" data-id="{$v.uid}" class="aw-username" title="{$v['user_info']['name']}">{$v['user_info']['name']}</a> <span class="badge badge-success">{$v['user_info']['group_name']|default=''}</span> {/if} {if $setting.show_answer_user_ip=='Y' && $v.answer_user_local}<span class="ml-2 text-muted font-8">{:L('用户来自于')}: {$v.answer_user_local}</span>{/if} <br><span class="ml-0"> {:date_friendly($v['create_time'])} </span>
+                                    {if $v.is_anonymous}<a href="javascript:;" data-toggle="popover" title="{:L('匿名用户')}">{:L('匿名用户')}</a>{else/}<a href="{$v['user_info']['url']}" data-id="{$v.uid}" class="aw-username" title="{$v['user_info']['name']}">{:render_user_identity_name($v['user_info'])}</a> <span class="badge badge-success">{$v['user_info']['group_name']|default=''}</span> {/if} {if $setting.show_answer_user_ip=='Y' && $v.answer_user_local}<span class="ml-2 text-muted font-8">{:L('用户来自于')}: {$v.answer_user_local}</span>{/if} <br><span class="ml-0"> {:date_friendly($v['create_time'])} </span>
                                 </div>
 
                                 {if $v['is_best']}
@@ -614,7 +614,7 @@
                             </dt>
                             <dd class="float-right" style="width:calc(100% - 55px)">
                                 <a href="{$question_info['user_info']['url']}" class="d-block aw-one-line aw-username" data-id="{$question_info.uid}" target="_blank">
-                                    <strong>{$question_info['user_info']['name']}</strong> <span class="badge badge-success">{$question_info['user_info']['group_name']|default=''}</span>
+                                    <strong>{:render_user_identity_name($question_info['user_info'])}</strong> <span class="badge badge-success">{$question_info['user_info']['group_name']|default=''}</span>
                                 </a>
                                 <p class="mb-0 font-8 text-muted aw-one-line">{$question_info['user_info']['signature']|default=L('这家伙很懒，还没有设置简介')}</p>
                             </dd>

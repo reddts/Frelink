@@ -2,6 +2,7 @@
 
 namespace app\mobile;
 use app\common\controller\Frontend;
+use app\common\library\helper\AgentHelper;
 use app\common\library\helper\FormatHelper;
 use app\common\library\helper\LogHelper;
 use app\common\library\helper\PopularHelper;
@@ -114,6 +115,16 @@ class Article extends Frontend
         );
         $next_reads = frelink_build_next_reads($nextReadGroups);
         $archiveChapters = HelpModel::getItemArchiveChapters('article', $article_info['id'], 6);
+        $agentEntryJson = AgentHelper::encode(AgentHelper::buildPageEntry(
+            'article_detail_mobile',
+            'article',
+            intval($article_info['id']),
+            array_column($article_info['topics'] ?: [], 'title'),
+            [
+                'item_title' => trim(strip_tags((string) $article_info['title'])),
+                'item_url' => (string) url('article/detail', ['id' => $article_info['id']], true, true),
+            ]
+        ));
 
         $this->assign([
             'article_info' => $article_info,
@@ -122,6 +133,7 @@ class Article extends Frontend
             'summary_points' => $summary_points,
             'next_reads' => $next_reads,
             'archive_chapters' => $archiveChapters,
+            'agent_page_entry_json' => $agentEntryJson,
             'attach_list'=>Attach::getAttach('article_attach',$article_info['id'])
         ]);
 

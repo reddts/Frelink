@@ -27,7 +27,9 @@ class Approval extends Frontend
             'modify_question'=>'修改问题',
             'modify_article'=>'修改文章',
             'modify_answer'=>'修改回答',
-            'article_comment'=>'文章评论'
+            'article_comment'=>'文章评论',
+            'question_comment'=>'问题评论',
+            'answer_comment'=>'回答评论'
         ];
         $status = $this->request->param('status',0);
         $page = $this->request->param('page',1,'intval');

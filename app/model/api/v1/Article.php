@@ -3,6 +3,7 @@ namespace app\model\api\v1;
 
 use app\common\library\helper\ImageHelper;
 use app\logic\common\FocusLogic;
+use app\model\AgentContentMeta;
 use app\model\BaseModel;
 use app\model\Category;
 use app\model\Topic;
@@ -189,6 +190,7 @@ class Article extends BaseModel
             $comments[$key]['create_time'] = date_friendly($val['create_time']);
             $comments[$key]['message'] = strip_tags($val['message']);
         }
+        $comments = AgentContentMeta::decorateRows('article_comment', $comments);
 
         Tree::config([
             'child' => 'comments',

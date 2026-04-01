@@ -7,7 +7,7 @@
             </a>
         </div>
         <div class="user-details-card-name float-left ml-2">
-            <a href="{$v['user_info']['url']}">{$v['user_info']['name']}</a><br><span class="ml-0"> {:date('Y-m-d H:i',$v['create_time'])} </span>
+            <a href="{$v['user_info']['url']}">{:render_user_identity_name($v['user_info'])}</a><br><span class="ml-0"> {:date('Y-m-d H:i',$v['create_time'])} </span>
         </div>
     </div>
     <p>{$v.message|raw}</p>

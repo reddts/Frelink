@@ -112,6 +112,64 @@ class Approval extends BaseModel
                 }else{
                     self::setError(Article::getError());
                 }
+            }elseif($val['type']=='question_comment'){
+                $dataId = Question::saveComments($val['uid'], intval($val['data']['item_id'] ?? 0), $val['data']['message'] ?? '');
+                if($dataId) {
+                    $commentId = intval($dataId['id'] ?? 0);
+                    AgentContentMeta::recordFromApproval('question_comment', $commentId, intval($val['uid']), $val['data']);
+                    db('approval')->where(['id'=>$val['id']])->update(['status'=>1,'item_id'=>$commentId]);
+                    send_notify(0, $val['uid'], 'TYPE_SYSTEM_NOTIFY', 'question', intval($val['data']['item_id'] ?? 0), [
+                        'subject' => '问题评论审核通过',
+                        'message' => '亲爱的用户您好，您的问题评论已审核通过。',
+                    ]);
+                }else{
+                    self::setError(Question::getError());
+                }
+            }elseif($val['type']=='answer_comment'){
+                $answerInfo = Answer::getAnswerInfoById(intval($val['data']['item_id'] ?? 0));
+                if (!$answerInfo) {
+                    self::setError('回答不存在');
+                    return false;
+                }
+                $val['data']['answer_id'] = intval($val['data']['item_id'] ?? 0);
+                $val['data']['uid'] = $val['uid'];
+                $val['data']['question_info'] = Question::getQuestionInfo(intval($answerInfo['question_id'] ?? 0), 'id,uid,title');
+                $dataId = Answer::saveComments($val['data']);
+                if($dataId) {
+                    $commentId = intval($dataId['id'] ?? 0);
+                    AgentContentMeta::recordFromApproval('answer_comment', $commentId, intval($val['uid']), $val['data']);
+                    db('approval')->where(['id'=>$val['id']])->update(['status'=>1,'item_id'=>$commentId]);
+                    send_notify(0, $val['uid'], 'TYPE_SYSTEM_NOTIFY', 'question', intval($answerInfo['question_id'] ?? 0), [
+                        'subject' => '回答评论审核通过',
+                        'message' => '亲爱的用户您好，您的回答评论已审核通过。',
+                    ]);
+                }else{
+                    self::setError(Answer::getError());
+                }
+            }elseif($val['type']=='article_comment'){
+                $articleInfo = Article::getArticleInfoField(intval($val['data']['item_id'] ?? 0), 'id,title,uid,status');
+                if (!$articleInfo || intval($articleInfo['status'] ?? 0) === 0) {
+                    self::setError('文章不存在');
+                    return false;
+                }
+                $dataId = Article::saveArticleComment(
+                    $articleInfo,
+                    $val['data']['message'] ?? '',
+                    ['uid' => $val['uid']],
+                    intval($val['data']['at_uid'] ?? 0),
+                    intval($val['data']['pid'] ?? 0)
+                );
+                if($dataId) {
+                    $commentId = intval($dataId['id'] ?? $dataId['comment_id'] ?? 0);
+                    AgentContentMeta::recordFromApproval('article_comment', $commentId, intval($val['uid']), $val['data']);
+                    db('approval')->where(['id'=>$val['id']])->update(['status'=>1,'item_id'=>$commentId]);
+                    send_notify(0, $val['uid'], 'TYPE_SYSTEM_NOTIFY', 'article', intval($articleInfo['id'] ?? 0), [
+                        'subject' => '文章评论审核通过',
+                        'message' => '亲爱的用户您好，您的文章评论已审核通过。',
+                    ]);
+                }else{
+                    self::setError(Article::getError() ?: '文章评论保存失败');
+                }
             }elseif($val['type']=='topic'){
                 $dataId = Topic::saveTopic($val['data']['title'] ?? '', $val['uid']);
                 if($dataId) {
@@ -183,6 +241,22 @@ class Approval extends BaseModel
                 $message = '亲爱的用户您好,您修改的文章 ['.$val['data']['title'].'] 未审核通过！';
                 if($reason) $message = '亲爱的用户您好,您修改的文章 ['.$val['data']['title'].'] 未审核通过！拒绝原因：【'.$reason.'】';
                 send_notify(0,$val['uid'],'TYPE_ARTICLE_MODIFY_DECLINE','article',$val['data']['id'],['message'=>$message]);
+            }elseif($val['type']=='question_comment'){
+                $message = '亲爱的用户您好，您的问题评论未审核通过！';
+                if($reason) $message = '亲爱的用户您好，您的问题评论未审核通过！拒绝原因：【'.$reason.'】';
+                send_notify(0,$val['uid'],'TYPE_SYSTEM_NOTIFY','question',intval($val['data']['item_id'] ?? 0),['subject'=>'问题评论审核未通过','message'=>$message]);
+            }elseif($val['type']=='answer_comment'){
+                $questionId = intval($val['data']['question_info']['id'] ?? 0);
+                if (!$questionId && !empty($val['data']['item_id'])) {
+                    $questionId = intval(db('answer')->where('id', intval($val['data']['item_id']))->value('question_id'));
+                }
+                $message = '亲爱的用户您好，您的回答评论未审核通过！';
+                if($reason) $message = '亲爱的用户您好，您的回答评论未审核通过！拒绝原因：【'.$reason.'】';
+                send_notify(0,$val['uid'],'TYPE_SYSTEM_NOTIFY','question',$questionId,['subject'=>'回答评论审核未通过','message'=>$message]);
+            }elseif($val['type']=='article_comment'){
+                $message = '亲爱的用户您好，您的文章评论未审核通过！';
+                if($reason) $message = '亲爱的用户您好，您的文章评论未审核通过！拒绝原因：【'.$reason.'】';
+                send_notify(0,$val['uid'],'TYPE_SYSTEM_NOTIFY','article',intval($val['data']['item_id'] ?? 0),['subject'=>'文章评论审核未通过','message'=>$message]);
             }elseif($val['type']=='topic'){
                 $message = '亲爱的用户您好,您创建的话题 [' . ($val['data']['title'] ?? '') . '] 未审核通过！';
                 if($reason) $message = '亲爱的用户您好,您创建的话题 [' . ($val['data']['title'] ?? '') . '] 未审核通过！拒绝原因：【'.$reason.'】';

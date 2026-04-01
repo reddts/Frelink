@@ -11,6 +11,7 @@
 
 namespace app\frontend;
 use app\common\controller\Frontend;
+use app\common\library\helper\AgentHelper;
 use app\logic\common\FocusLogic;
 use app\model\BrowseRecords;
 use app\model\Help as HelpModel;
@@ -172,6 +173,19 @@ class Topic extends Frontend
             'recommend'=>'推荐内容',
             'unresponsive'=>'等待回答'
         ];
+        $agentEntryJson = AgentHelper::encode(AgentHelper::buildPageEntry(
+            'topic_detail',
+            'topic',
+            intval($topic_info['id']),
+            array_merge(
+                [trim((string) ($topic_info['title'] ?? ''))],
+                array_column($topic_info['relation_topics'] ?: [], 'title')
+            ),
+            [
+                'item_title' => trim(strip_tags((string) $topic_info['title'])),
+                'item_url' => (string) url('topic/detail', ['id' => $topic_info['id']], true, true),
+            ]
+        ));
         $this->assign([
             'topic_info'=>$topic_info,
             'sort'=>$sort,
@@ -180,6 +194,7 @@ class Topic extends Frontend
             'focus_user'=>$focus_user,
             'redirect_message'=>$redirect_message,
             'archive_chapters' => $archiveChapters,
+            'agent_page_entry_json' => $agentEntryJson,
             'top_parent_topic'=>TopicModel::getParentTopic($topic_id),//根话题
             'parent_topic'=>$topic_info['pid'] ? db('topic')->where(['status'=>1,'id'=>$topic_info['pid']])->find() : [],//父话题
             'child_topics'=>TopicModel::getTopicByIds(TopicModel::getTopicWithChildIds($topic_info['id']))

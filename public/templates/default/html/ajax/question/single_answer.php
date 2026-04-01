@@ -12,7 +12,7 @@
         {/if}
     </div>
     <div class="user-details-card-name float-left ml-2">
-        {if $info.is_anonymous}<a href="javascript:;" title="{:L('匿名用户')}">{:L('匿名用户')}</a>{else/}<a href="{$info['user_info']['url']}" data-id="{$info.uid}" class="aw-username" title="{$info['user_info']['name']}">{$info['user_info']['name']}</a>  <span class="badge badge-success">{$info['user_info']['group_name']}</span>{/if} {if $setting.show_answer_user_ip=='Y' && $info.answer_user_local}<span class="ml-2 text-muted font-8">{:L('用户来自于')}: {$info.answer_user_local}</span>{/if}<br><span class="ml-0"> {:date_friendly($info['create_time'])} </span>
+        {if $info.is_anonymous}<a href="javascript:;" title="{:L('匿名用户')}">{:L('匿名用户')}</a>{else/}<a href="{$info['user_info']['url']}" data-id="{$info.uid}" class="aw-username" title="{$info['user_info']['name']}">{:render_user_identity_name($info['user_info'])}</a>  <span class="badge badge-success">{$info['user_info']['group_name']}</span>{/if} {if $setting.show_answer_user_ip=='Y' && $info.answer_user_local}<span class="ml-2 text-muted font-8">{:L('用户来自于')}: {$info.answer_user_local}</span>{/if}<br><span class="ml-0"> {:date_friendly($info['create_time'])} </span>
     </div>
 
     {if $info['is_best']}
@@ -134,7 +134,7 @@
             {/if}
         </div>
         <div class="user-details-card-name float-left ml-2">
-            {if $info.is_anonymous}<a href="javascript:;" title="{:L('匿名用户')}">{:L('匿名用户')}</a>{else/}<a href="{$info['user_info']['url']}" data-id="{$info.uid}" class="aw-username" title="{$info['user_info']['name']}">{$info['user_info']['name']}</a>{/if}<br><span class="ml-0"> {:date_friendly($info['create_time'])} </span>
+        {if $info.is_anonymous}<a href="javascript:;" title="{:L('匿名用户')}">{:L('匿名用户')}</a>{else/}<a href="{$info['user_info']['url']}" data-id="{$info.uid}" class="aw-username" title="{$info['user_info']['name']}">{:render_user_identity_name($info['user_info'])}</a>{/if}<br><span class="ml-0"> {:date_friendly($info['create_time'])} </span>
         </div>
         {if $info['is_best']}
         <div class="aw-answer-best">

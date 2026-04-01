@@ -6,7 +6,7 @@
             </a>
         </div>
         <div class="user-details-card-name float-left ml-2">
-            <a href="{$comment_info['user_info']['url']}">{$comment_info['user_info']['name']}</a><br> <span class="ml-0"> {:date_friendly($comment_info['create_time'])} </span>
+            <a href="{$comment_info['user_info']['url']}">{:render_user_identity_name($comment_info['user_info'])}</a><br> <span class="ml-0"> {:date_friendly($comment_info['create_time'])} </span>
         </div>
     </div>
     <div class="articleCommentContent" style="padding-left: 45px;">

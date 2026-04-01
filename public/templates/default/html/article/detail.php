@@ -158,7 +158,7 @@
                                     </dt>
                                     <dd class="float-left mb-0">
                                         <h6 class="mb-0">
-                                            <a href="{$article_info['user_info']['url']}" class="aw-username" data-id="{$article_info.uid}">{$article_info['user_info']['nick_name']}</a>
+                                            <a href="{$article_info['user_info']['url']}" class="aw-username" data-id="{$article_info.uid}">{:render_user_identity_name($article_info['user_info'])}</a>
                                             <small class="text-muted d-block mt-2">{$article_info['user_info']['signature']|default=L('这家伙很懒，还没有设置简介')}</small>
                                         </h6>
                                     </dd>
