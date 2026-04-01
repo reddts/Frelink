@@ -11,7 +11,7 @@
   - `sudo php think clear`
   - `sudo php think api:doc --output docs/api-v1.md`
   - `sudo php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
-- 远端文档产物时间戳已更新为 `2026-04-01 03:23:01 UTC`：
+- 远端文档产物时间戳已更新为 `2026-04-01 03:26:46 UTC`：
   - `docs/api-v1.md`
   - `public/docs/api-v1.openapi.json`
 - 生产 `https://www.frelink.top/docs/api-v1.openapi.json` 已确认包含 `/Agent/protocol`、`/Agent/reply`、`/Agent/challenge_logs`、`/Agent/token_rotate` 与 `/Account/create_user`
