@@ -142,3 +142,45 @@ export async function saveSystemUser(payload: Record<string, unknown>) {
   const response = await client.post<ApiEnvelope<{ uid: number }>>('/SystemUser/save', payload);
   return response.data.data;
 }
+
+export async function createSystemUser(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ uid: number }>>('/SystemUser/create', payload);
+  return response.data.data;
+}
+
+export async function approveSystemUser(id: number) {
+  const response = await client.get<ApiEnvelope<null>>('/SystemUser/approve', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function declineSystemUser(id: number) {
+  const response = await client.get<ApiEnvelope<null>>('/SystemUser/decline', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function forbidSystemUser(id: number, forbiddenTime: string, forbiddenReason: string) {
+  const response = await client.post<ApiEnvelope<null>>('/SystemUser/forbid', {
+    id,
+    forbidden_time: forbiddenTime,
+    forbidden_reason: forbiddenReason,
+  });
+  return response.data.data;
+}
+
+export async function unForbidSystemUser(id: number) {
+  const response = await client.get<ApiEnvelope<null>>('/SystemUser/unForbid', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function toggleSystemUserIp(id: number, relieve = false) {
+  const response = await client.get<ApiEnvelope<null>>('/SystemUser/forbiddenIp', {
+    params: { id, action: relieve ? 'relieve' : 'forbidden' },
+  });
+  return response.data.data;
+}

@@ -227,6 +227,7 @@ export interface SystemUserItem {
   create_time_text: string;
   last_login_time_text: string;
   last_login_ip: string;
+  actions: string[];
 }
 
 export interface SystemUserOverviewPayload {

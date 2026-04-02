@@ -10,6 +10,7 @@
         <span>搜索</span>
         <input v-model.trim="keyword" placeholder="用户名 / 昵称 / 邮箱 / 手机" @keydown.enter="reload" />
       </label>
+      <button class="primary-button" type="button" @click="resetCreateForm">新增用户</button>
     </section>
 
     <article class="panel-card">
@@ -63,10 +64,104 @@
               <small>注册：{{ item.create_time_text }}</small>
             </span>
             <span>
-              <button class="text-button" type="button" @click="editUser(item.uid)">编辑</button>
+              <div class="config-actions">
+                <button class="text-button" type="button" @click="editUser(item.uid)">编辑</button>
+                <button v-if="item.actions.includes('approve')" class="text-button" type="button" @click="approveUser(item.uid)">通过</button>
+                <button v-if="item.actions.includes('decline')" class="text-button danger-button" type="button" @click="declineUser(item.uid)">拒绝</button>
+                <button v-if="item.actions.includes('forbid')" class="text-button danger-button" type="button" @click="forbidUser(item.uid)">封禁</button>
+                <button v-if="item.actions.includes('unforbid')" class="text-button" type="button" @click="unForbidUser(item.uid)">解封</button>
+                <button
+                  v-if="item.actions.includes('forbid_ip')"
+                  class="text-button danger-button"
+                  type="button"
+                  @click="toggleIp(item.uid, false)"
+                >
+                  封禁IP
+                </button>
+                <button
+                  v-if="item.actions.includes('lift_ip')"
+                  class="text-button"
+                  type="button"
+                  @click="toggleIp(item.uid, true)"
+                >
+                  解封IP
+                </button>
+              </div>
             </span>
           </div>
         </div>
+      </article>
+
+      <article class="panel-card">
+        <span class="eyebrow">新增用户</span>
+        <form class="editor-form" @submit.prevent="submitCreate">
+          <label>
+            <span>用户名</span>
+            <input v-model.trim="createForm.user_name" placeholder="请输入用户名" />
+          </label>
+          <label>
+            <span>用户昵称</span>
+            <input v-model.trim="createForm.nick_name" placeholder="请输入用户昵称" />
+          </label>
+          <label>
+            <span>登录密码</span>
+            <input v-model="createForm.password" type="password" placeholder="请输入登录密码" />
+          </label>
+          <label>
+            <span>邮箱</span>
+            <input v-model.trim="createForm.email" placeholder="请输入邮箱" />
+          </label>
+          <label>
+            <span>手机</span>
+            <input v-model.trim="createForm.mobile" placeholder="请输入手机号" />
+          </label>
+          <label>
+            <span>头像地址</span>
+            <input v-model.trim="createForm.avatar" placeholder="请输入头像地址" />
+          </label>
+          <label>
+            <span>个人签名</span>
+            <textarea v-model="createForm.signature" rows="3" />
+          </label>
+          <label>
+            <span>系统组</span>
+            <select v-model.number="createForm.group_id">
+              <option v-for="item in meta?.group_options || []" :key="item.value" :value="Number(item.value)">
+                {{ item.label }}
+              </option>
+            </select>
+          </label>
+          <label>
+            <span>威望组</span>
+            <select v-model.number="createForm.reputation_group_id">
+              <option v-for="item in meta?.reputation_group_options || []" :key="item.value" :value="Number(item.value)">
+                {{ item.label }}
+              </option>
+            </select>
+          </label>
+          <label>
+            <span>积分组</span>
+            <select v-model.number="createForm.integral_group_id">
+              <option v-for="item in meta?.integral_group_options || []" :key="item.value" :value="Number(item.value)">
+                {{ item.label }}
+              </option>
+            </select>
+          </label>
+          <label>
+            <span>状态</span>
+            <select v-model.number="createForm.status">
+              <option v-for="item in meta?.status_options || []" :key="item.value" :value="Number(item.value)">
+                {{ item.label }}
+              </option>
+            </select>
+          </label>
+          <div class="form-actions">
+            <button class="primary-button" type="submit" :disabled="creating">
+              {{ creating ? '创建中...' : '创建用户' }}
+            </button>
+            <button class="ghost-button" type="button" @click="resetCreateForm">重置</button>
+          </div>
+        </form>
       </article>
 
       <article class="panel-card">
@@ -165,7 +260,17 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { fetchSystemUserDetail, fetchSystemUsers, saveSystemUser } from '@/api/admin';
+import {
+  approveSystemUser,
+  createSystemUser,
+  declineSystemUser,
+  fetchSystemUserDetail,
+  fetchSystemUsers,
+  forbidSystemUser,
+  saveSystemUser,
+  toggleSystemUserIp,
+  unForbidSystemUser,
+} from '@/api/admin';
 import type { SystemUserOverviewPayload } from '@/types';
 
 const payload = ref<SystemUserOverviewPayload | null>(null);
@@ -174,6 +279,7 @@ const currentStatus = ref(1);
 const currentForbiddenIp = ref(0);
 const selectedUid = ref(0);
 const saving = ref(false);
+const creating = ref(false);
 
 const userForm = ref({
   uid: 0,
@@ -191,6 +297,20 @@ const userForm = ref({
   status: 1,
   password: '',
   deal_password: '',
+});
+
+const createForm = ref({
+  user_name: '',
+  nick_name: '',
+  password: '',
+  email: '',
+  mobile: '',
+  avatar: '',
+  signature: '',
+  group_id: 4,
+  reputation_group_id: 1,
+  integral_group_id: 1,
+  status: 1,
 });
 
 const meta = computed(() => payload.value?.meta ?? null);
@@ -235,6 +355,36 @@ async function editUser(uid: number) {
   };
 }
 
+function resetCreateForm() {
+  createForm.value = {
+    user_name: '',
+    nick_name: '',
+    password: '',
+    email: '',
+    mobile: '',
+    avatar: '',
+    signature: '',
+    group_id: 4,
+    reputation_group_id: 1,
+    integral_group_id: 1,
+    status: 1,
+  };
+}
+
+async function submitCreate() {
+  creating.value = true;
+  try {
+    const result = await createSystemUser(createForm.value);
+    resetCreateForm();
+    await reload();
+    await editUser(Number(result.uid || 0));
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  } finally {
+    creating.value = false;
+  }
+}
+
 async function submitUser() {
   if (!selectedUid.value) {
     return;
@@ -252,7 +402,68 @@ async function submitUser() {
   }
 }
 
+async function approveUser(uid: number) {
+  try {
+    await approveSystemUser(uid);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function declineUser(uid: number) {
+  if (!window.confirm('确认拒绝审核该用户？')) {
+    return;
+  }
+  try {
+    await declineSystemUser(uid);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function forbidUser(uid: number) {
+  const forbiddenReason = window.prompt('请输入封禁原因');
+  if (!forbiddenReason) {
+    return;
+  }
+  const forbiddenTime = window.prompt('请输入解封时间，格式：2026-04-30 23:59', '');
+  if (!forbiddenTime) {
+    return;
+  }
+  try {
+    await forbidSystemUser(uid, forbiddenTime, forbiddenReason);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function unForbidUser(uid: number) {
+  try {
+    await unForbidSystemUser(uid);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function toggleIp(uid: number, relieve: boolean) {
+  const message = relieve ? '确认解封该用户的登录 IP？' : '确认封禁该用户的登录 IP？';
+  if (!window.confirm(message)) {
+    return;
+  }
+  try {
+    await toggleSystemUserIp(uid, relieve);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
 onMounted(async () => {
   await reload();
+  resetCreateForm();
 });
 </script>

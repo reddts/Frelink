@@ -105,6 +105,12 @@ abstract class AdminApi extends Base
             'systemuser/index' => 'member/Users/index',
             'systemuser/detail' => 'member/Users/edit',
             'systemuser/save' => 'member/Users/edit',
+            'systemuser/create' => 'member/Users/add',
+            'systemuser/approve' => 'member/Users/approval',
+            'systemuser/decline' => 'member/Users/decline',
+            'systemuser/forbid' => 'member/Users/forbidden',
+            'systemuser/unforbid' => 'member/Users/un_forbidden',
+            'systemuser/forbiddenip' => 'member/Users/forbidden_ip',
         ];
 
         $key = $controller . '/' . $action;

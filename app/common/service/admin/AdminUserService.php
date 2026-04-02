@@ -3,6 +3,7 @@
 namespace app\common\service\admin;
 
 use app\common\library\helper\RandomHelper;
+use app\model\Users as UserModel;
 
 class AdminUserService
 {
@@ -94,6 +95,125 @@ class AdminUserService
         return ['code' => 1, 'msg' => '保存成功', 'data' => ['uid' => $uid]];
     }
 
+    public function create(array $data): array
+    {
+        $userName = trim((string) ($data['user_name'] ?? ''));
+        $password = trim((string) ($data['password'] ?? ''));
+        $payload = [
+            'nick_name' => trim((string) ($data['nick_name'] ?? '')),
+            'email' => trim((string) ($data['email'] ?? '')),
+            'mobile' => trim((string) ($data['mobile'] ?? '')),
+            'avatar' => trim((string) ($data['avatar'] ?? '')),
+            'signature' => (string) ($data['signature'] ?? ''),
+            'group_id' => intval($data['group_id'] ?? 4),
+            'reputation_group_id' => intval($data['reputation_group_id'] ?? 1),
+            'integral_group_id' => intval($data['integral_group_id'] ?? 1),
+            'status' => intval($data['status'] ?? 1),
+        ];
+
+        $uid = UserModel::registerUser($userName, $password, $payload, false, true);
+        if (!$uid) {
+            return ['code' => 0, 'msg' => UserModel::getError() ?: '添加失败'];
+        }
+
+        return ['code' => 1, 'msg' => '添加成功', 'data' => ['uid' => intval($uid)]];
+    }
+
+    public function approve($ids): array
+    {
+        $ids = $this->normalizeIds($ids);
+        if (!$ids) {
+            return ['code' => 0, 'msg' => '请选择要操作的数据'];
+        }
+
+        db('users')->whereIn('uid', $ids)->update(['status' => 1]);
+        return ['code' => 1, 'msg' => '操作成功'];
+    }
+
+    public function decline($ids): array
+    {
+        $ids = $this->normalizeIds($ids);
+        if (!$ids) {
+            return ['code' => 0, 'msg' => '请选择要操作的数据'];
+        }
+
+        db('users')->whereIn('uid', $ids)->update(['status' => 4]);
+        return ['code' => 1, 'msg' => '操作成功'];
+    }
+
+    public function forbid($ids, string $forbiddenTime, string $reason): array
+    {
+        $ids = $this->normalizeIds($ids);
+        if (!$ids) {
+            return ['code' => 0, 'msg' => '请选择要操作的数据'];
+        }
+        if ($forbiddenTime === '') {
+            return ['code' => 0, 'msg' => '请选择封禁时长'];
+        }
+        if ($reason === '') {
+            return ['code' => 0, 'msg' => '请填写封禁原因'];
+        }
+
+        foreach ($ids as $uid) {
+            if (!db('users_forbidden')->where(['uid' => $uid])->find()) {
+                db('users_forbidden')->insert([
+                    'uid' => $uid,
+                    'forbidden_time' => strtotime($forbiddenTime),
+                    'forbidden_reason' => $reason,
+                    'create_time' => time(),
+                    'status' => 1,
+                ]);
+            } else {
+                db('users_forbidden')->where(['uid' => $uid])->update([
+                    'forbidden_time' => strtotime($forbiddenTime),
+                    'forbidden_reason' => $reason,
+                    'status' => 1,
+                ]);
+            }
+        }
+        db('users')->whereIn('uid', $ids)->update(['status' => 3]);
+        return ['code' => 1, 'msg' => '操作成功'];
+    }
+
+    public function unForbid($ids): array
+    {
+        $ids = $this->normalizeIds($ids);
+        if (!$ids) {
+            return ['code' => 0, 'msg' => '请选择要操作的数据'];
+        }
+
+        db('users_forbidden')->whereIn('uid', $ids)->update(['status' => 0]);
+        db('users')->whereIn('uid', $ids)->update(['status' => 1]);
+        return ['code' => 1, 'msg' => '操作成功'];
+    }
+
+    public function forbiddenIp($ids, bool $relieve = false): array
+    {
+        $ids = $this->normalizeIds($ids);
+        if (!$ids) {
+            return ['code' => 0, 'msg' => '请选择要操作的数据'];
+        }
+
+        if ($relieve) {
+            $result = count($ids) === 1 ? UserModel::liftIp($ids[0]) : UserModel::batchLiftIp($ids);
+            return ['code' => $result ? 1 : 0, 'msg' => $result ? '操作成功' : '操作失败'];
+        }
+
+        if (count($ids) === 1) {
+            $uid = $ids[0];
+            $user = UserModel::find($uid);
+            $result = $user ? UserModel::forbiddenIp([
+                'uid' => $uid,
+                'ip' => $user->last_login_ip,
+                'time' => time(),
+            ]) : false;
+            return ['code' => $result ? 1 : 0, 'msg' => $result ? '操作成功' : '操作失败'];
+        }
+
+        $result = UserModel::batchForbiddenIp($ids);
+        return ['code' => $result ? 1 : 0, 'msg' => $result ? '操作成功' : '操作失败'];
+    }
+
     public function getEditorMeta(): array
     {
         return [
@@ -148,6 +268,7 @@ class AdminUserService
 
         foreach ($list as &$item) {
             $item = $this->formatUserRow($item, $groupMap, $integralMap, $reputationMap);
+            $item['actions'] = $this->resolveActions($item['status'], intval($item['forbidden_ip'] ?? 0));
         }
         unset($item);
 
@@ -184,6 +305,26 @@ class AdminUserService
         $item['birthday_text'] = !empty($item['birthday']) ? date('Y-m-d', intval($item['birthday'])) : '';
         $item['meta'] = $meta;
         return $item;
+    }
+
+    protected function resolveActions(int $status, int $forbiddenIp): array
+    {
+        $actions = ['edit'];
+        if ($status === 2) {
+            $actions[] = 'approve';
+            $actions[] = 'decline';
+        }
+        if ($status === 3) {
+            $actions[] = 'unforbid';
+        } else {
+            $actions[] = 'forbid';
+        }
+        if ($forbiddenIp === 1) {
+            $actions[] = 'lift_ip';
+        } else {
+            $actions[] = 'forbid_ip';
+        }
+        return $actions;
     }
 
     protected function getStatusTabs(): array
@@ -253,5 +394,14 @@ class AdminUserService
     {
         $timestamp = intval($timestamp);
         return $timestamp > 0 ? date('Y-m-d H:i:s', $timestamp) : '-';
+    }
+
+    protected function normalizeIds($ids): array
+    {
+        if (!is_array($ids)) {
+            $ids = explode(',', (string) $ids);
+        }
+
+        return array_values(array_filter(array_map('intval', $ids)));
     }
 }
