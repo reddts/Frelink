@@ -567,7 +567,8 @@ SVG;
         $user_info['avatar'] = $user_info['avatar'] ? : '/static/common/image/default-avatar.svg';
         $user_info['url'] = get_user_url($uid);
         $user_info['name'] = $user_info['nick_name'];
-        $verify_info = $user_info['verified'] ? db('users_verify_type')->where(['name'=>$user_info['verified'],'status'=>1])->field('icon,title')->find() : [];
+        $verified = (string)($user_info['verified'] ?? '');
+        $verify_info = $verified ? db('users_verify_type')->where(['name'=>$verified,'status'=>1])->field('icon,title')->find() : [];
         $user_info['verified_icon'] = $verify_info ? $verify_info['icon'] : '';
         $user_info['verified_name'] = $verify_info ? $verify_info['title'] : '';
 
@@ -615,7 +616,8 @@ SVG;
 
         $user_info['url'] = get_user_url($uid);
         $user_info['name'] = $user_info['nick_name'] ??'';
-        $verify_info = $user_info['verified'] ? db('users_verify_type')->where(['name'=>$user_info['verified'],'status'=>1])->field('icon,title')->find() : [];
+        $verified = (string)($user_info['verified'] ?? '');
+        $verify_info = $verified ? db('users_verify_type')->where(['name'=>$verified,'status'=>1])->field('icon,title')->find() : [];
         $user_info['verified_icon'] = $verify_info ? $verify_info['icon'] : '';
         $user_info['verified_name'] = $verify_info ? $verify_info['title'] : '';
         $user_extend_info = $extend ? db('users_extends')->withoutField('id')->where('uid',$uid)->field($extend_field)->find() : [];
@@ -862,7 +864,8 @@ SVG;
             $result[$value['uid']]['avatar'] = $result[$value['uid']]['avatar'] ?: '/static/common/image/default-avatar.svg';
             $result[$value['uid']]['url'] = get_user_url($value['uid']);
             $result[$value['uid']]['name'] = $value['nick_name'];
-            $verify_info = $result[$value['uid']]['verified'] ? db('users_verify_type')->where(['name'=>$result[$value['uid']]['verified'],'status'=>1])->field('icon,title')->find() : [];
+            $verified = (string)($result[$value['uid']]['verified'] ?? '');
+            $verify_info = $verified ? db('users_verify_type')->where(['name'=>$verified,'status'=>1])->field('icon,title')->find() : [];
             $result[$value['uid']]['verified_icon'] = $verify_info ? $verify_info['icon'] : '';
             $result[$value['uid']]['verified_name'] = $verify_info ? $verify_info['title'] : '';
             //判断前台使用的分组类型

@@ -9,6 +9,7 @@
   - 批量拒绝审核不再因为把逗号串 `id` 当作单值查询而直接失败
   - `app/backend/content/Approval.php` 已补单条“通过”按钮，旧审核列表不再只能依赖批量通过
   - `app/backend/content/Approval.php` 的 `state()` 已支持单条直接通过审核，单条与批量操作链路重新闭环
+  - `app/model/Users.php` 已补 `verified` 字段缺失时的兜底读取，避免审核动作触发通知或用户信息拼装时把响应污染为 warning
 - 本轮完成本地验证：
   - 当前机器无 `php` 命令，未执行本地 PHP lint
 - 本轮完成生产同步：
@@ -19,11 +20,13 @@
   - `bash scripts/deploy.sh verify`
   - 远端 `php -l app/backend/content/Approval.php`
   - 远端 `php -l app/model/Approval.php`
+  - 远端 `php -l app/model/Users.php`
   - 远端 `sudo -n php think clear`
   - 远端 `sudo -n php think api:doc --output docs/api-v1.md`
   - 远端 `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
   - `HEAD https://www.frelink.top/admin.php/content.approval/index.html` 返回 `HTTP/2 302`，已实际跳转到 `/admin.php/index/login.html`
   - `GET https://www.frelink.top/adminapi.php/ContentApproval/index?version=v1` 未登录返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+  - 线上 `runtime/log/202604/03.log` 中 `Undefined array key "verified"` 告警停留在 01:09 CST，此次修复同步和远端清理后未再新增
 - 当前结论：
   - 旧后台审核页的单条通过、单条拒绝、批量通过、批量拒绝链路已重新打通
   - 本轮已完成服务器同步与远端验证，可作为真实修复结果记录
