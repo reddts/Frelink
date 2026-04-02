@@ -90,18 +90,19 @@ class Backend extends Base
             if (!$allowAutoLogin) {
                 $allowAutoLogin = intval($this->request->param('from_nav', 0)) === 1;
             }
-            if ($allowAutoLogin) {
-            $frontendUid = (int) getLoginUid();
-            if ($frontendUid) {
-                $frontendUser = Users::getUserInfo($frontendUid);
-                if ($frontendUser && in_array((int) ($frontendUser['group_id'] ?? 0), [1, 2], true)) {
-                    session('admin_user_info', $frontendUser);
-                    session('admin_login_user_info', $frontendUser);
-                    session('admin_login_uid', $frontendUid);
-                    $this->user_info = $frontendUser;
-                    $adminUid = $frontendUid;
+            $logoutLocked = intval(session('admin_logout_locked', 0)) === 1;
+            if ($allowAutoLogin && !$logoutLocked) {
+                $frontendUid = (int) getLoginUid();
+                if ($frontendUid) {
+                    $frontendUser = Users::getUserInfo($frontendUid);
+                    if ($frontendUser && in_array((int) ($frontendUser['group_id'] ?? 0), [1, 2], true)) {
+                        session('admin_user_info', $frontendUser);
+                        session('admin_login_user_info', $frontendUser);
+                        session('admin_login_uid', $frontendUid);
+                        $this->user_info = $frontendUser;
+                        $adminUid = $frontendUid;
+                    }
                 }
-            }
             }
         }
 

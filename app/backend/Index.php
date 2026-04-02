@@ -611,6 +611,7 @@ class Index extends Backend
             {
                 $this->error('账号或密码错误');
             }
+            session('admin_logout_locked', null);
             $this->success('登录成功',url('index/index'));
         }
 
@@ -625,10 +626,11 @@ class Index extends Backend
     //退出登录
     public function logout()
     {
+        session('admin_logout_locked', 1);
         session('admin_user_info',null);
         session('admin_login_user_info',null);
         session('admin_login_uid',null);
-        $this->success('退出成功','login');
+        $this->success('退出成功', url('index/login'));
     }
 
     //清除缓存
