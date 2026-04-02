@@ -10,6 +10,8 @@
   - `app/backend/content/Approval.php` 已补单条“通过”按钮，旧审核列表不再只能依赖批量通过
   - `app/backend/content/Approval.php` 的 `state()` 已支持单条直接通过审核，单条与批量操作链路重新闭环
   - `app/model/Users.php` 已补 `verified` 字段缺失时的兜底读取，避免审核动作触发通知或用户信息拼装时把响应污染为 warning
+  - `public/static/admin/js/aws-admin.js` 已修正旧后台全局 PJAX 点击劫持，审核按钮不再被 `a[target!=_blank]` 误拦截
+  - 已明确排除 `aw-ajax-get / aw-ajax-open / ajax-post / aw-ajax-form` 等操作按钮，单条审核按钮与批量审核按钮恢复真实点击响应
 - 本轮完成本地验证：
   - 当前机器无 `php` 命令，未执行本地 PHP lint
 - 本轮完成生产同步：
@@ -21,6 +23,7 @@
   - 远端 `php -l app/backend/content/Approval.php`
   - 远端 `php -l app/model/Approval.php`
   - 远端 `php -l app/model/Users.php`
+  - 远端已确认 `public/static/admin/js/aws-admin.js` 包含新的 PJAX 排除选择器
   - 远端 `sudo -n php think clear`
   - 远端 `sudo -n php think api:doc --output docs/api-v1.md`
   - 远端 `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
