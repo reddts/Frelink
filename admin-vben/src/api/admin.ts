@@ -5,6 +5,7 @@ import type {
   AdminMenuItem,
   AdminProfile,
   ApiEnvelope,
+  SystemMenuListPayload,
 } from '@/types';
 
 export async function loginAdmin(payload: { username: string; password: string }) {
@@ -29,5 +30,12 @@ export async function fetchAdminMenu() {
 
 export async function fetchAdminDashboard() {
   const response = await client.get<ApiEnvelope<AdminDashboardPayload>>('/Admin/dashboard');
+  return response.data.data;
+}
+
+export async function fetchSystemMenus(group = 'nav') {
+  const response = await client.get<ApiEnvelope<SystemMenuListPayload>>('/SystemMenu/index', {
+    params: { group },
+  });
   return response.data.data;
 }

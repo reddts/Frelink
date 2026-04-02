@@ -3,6 +3,7 @@
 namespace app\common\controller;
 
 use app\common\library\helper\AuthHelper;
+use app\common\service\admin\AdminConsoleService;
 use app\model\Users;
 use think\App;
 use think\helper\Str;
@@ -12,6 +13,7 @@ abstract class AdminApi extends Base
     protected $auth;
     protected $user_id = 0;
     protected $user_info = [];
+    protected $consoleService;
     protected $noNeedLogin = ['login'];
     protected $noNeedRight = ['login', 'logout', 'me', 'menu', 'dashboard'];
 
@@ -21,6 +23,7 @@ abstract class AdminApi extends Base
 
         $this->checkIpAllowed();
         $this->auth = AuthHelper::instance();
+        $this->consoleService = new AdminConsoleService($this->auth);
         $this->bootstrapAdminSession();
         $this->guardLogin();
         $this->guardPermission();
@@ -75,7 +78,23 @@ abstract class AdminApi extends Base
 
     protected function buildPermissionPath(): string
     {
-        return $this->request->controller() . '/' . strtolower(Str::snake($this->request->action()));
+        $controller = strtolower((string) $this->request->controller());
+        $action = strtolower(Str::snake($this->request->action()));
+
+        $mapped = [
+            'systemmenu/index' => 'admin/Menu/index',
+            'systemmenu/detail' => 'admin/Menu/edit',
+            'systemmenu/save' => 'admin/Menu/edit',
+            'systemmenu/delete' => 'admin/Menu/delete',
+            'systemmenu/state' => 'admin/Menu/state',
+        ];
+
+        $key = $controller . '/' . $action;
+        if (isset($mapped[$key])) {
+            return $mapped[$key];
+        }
+
+        return $this->request->controller() . '/' . $action;
     }
 
     protected function matchAction($actions): bool
@@ -103,18 +122,7 @@ abstract class AdminApi extends Base
             return [];
         }
 
-        return [
-            'uid' => intval($this->user_info['uid'] ?? 0),
-            'user_name' => (string) ($this->user_info['user_name'] ?? ''),
-            'nick_name' => (string) ($this->user_info['nick_name'] ?? ''),
-            'email' => (string) ($this->user_info['email'] ?? ''),
-            'mobile' => (string) ($this->user_info['mobile'] ?? ''),
-            'avatar' => (string) ($this->user_info['avatar'] ?? '/static/common/image/default-avatar.svg'),
-            'group_id' => intval($this->user_info['group_id'] ?? 0),
-            'group_name' => (string) ($this->user_info['group_name'] ?? ''),
-            'is_super_admin' => $this->auth->isSuperAdmin(),
-            'permission' => $this->user_info['permission'] ?? [],
-        ];
+        return $this->consoleService->formatAdminProfile($this->user_info);
     }
 
     protected function getAdminPermissionNames(): array
@@ -123,14 +131,7 @@ abstract class AdminApi extends Base
             return [];
         }
 
-        $ruleIds = $this->auth->getRuleIds($this->user_id);
-        if (!$ruleIds) {
-            return [];
-        }
-
-        return array_values(array_unique(db('admin_auth')
-            ->whereIn('id', $ruleIds)
-            ->column('name')));
+        return $this->consoleService->getAdminPermissionNames($this->user_id);
     }
 
     protected function getAdminMenuTree(): array
@@ -215,6 +216,15 @@ abstract class AdminApi extends Base
     {
         if ($name === '' || strcasecmp($name, 'Index/index') === 0) {
             return '/dashboard';
+        }
+
+        $mapped = [
+            'admin/menu/index' => '/system/menus',
+        ];
+
+        $normalized = strtolower($name);
+        if (isset($mapped[$normalized])) {
+            return $mapped[$normalized];
         }
 
         return '/legacy/' . ltrim(strtolower($name), '/');

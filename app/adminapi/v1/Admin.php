@@ -76,62 +76,7 @@ class Admin extends AdminApi
 
     public function dashboard()
     {
-        $stats = [
-            [
-                'key' => 'users',
-                'label' => '有效用户',
-                'value' => intval(db('users')->where('status', 1)->count()),
-            ],
-            [
-                'key' => 'articles',
-                'label' => '文章',
-                'value' => intval(db('article')->where('status', 1)->count()),
-            ],
-            [
-                'key' => 'questions',
-                'label' => '问题',
-                'value' => intval(db('question')->where('status', 1)->count()),
-            ],
-            [
-                'key' => 'answers',
-                'label' => '回答',
-                'value' => intval(db('answer')->where('status', 1)->count()),
-            ],
-            [
-                'key' => 'approval_question',
-                'label' => '待审问题',
-                'value' => intval(db('approval')->where(['status' => 0, 'type' => 'question'])->count()),
-            ],
-            [
-                'key' => 'approval_answer',
-                'label' => '待审回答',
-                'value' => intval(db('approval')->where(['status' => 0, 'type' => 'answer'])->count()),
-            ],
-        ];
-
-        $this->apiResult([
-            'title' => 'Frelink 管理端',
-            'subtitle' => '新管理端以独立 adminapi 体系推进后台重构，不再挂靠前台开放 API。',
-            'stats' => $stats,
-            'quick_links' => [
-                [
-                    'title' => '旧后台首页',
-                    'path' => backend_url('Index/index'),
-                ],
-                [
-                    'title' => '内容审核',
-                    'path' => backend_url('content/Approval/index'),
-                ],
-                [
-                    'title' => '文章管理',
-                    'path' => backend_url('content/Article/index'),
-                ],
-                [
-                    'title' => '用户管理',
-                    'path' => backend_url('member/Users/index'),
-                ],
-            ],
-        ]);
+        $this->apiResult($this->consoleService->getDashboardPayload());
     }
 
     protected function buildBootstrapPayload(): array

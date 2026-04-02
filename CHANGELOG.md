@@ -2,6 +2,38 @@
 
 ## 2026-04-02
 
+### 里程碑：菜单管理开始脱离 app/backend，迁入 adminapi + Vue
+
+- 已新增后台公共服务层：
+  - `app/common/service/admin/AdminConsoleService.php`
+  - `app/common/service/admin/AdminMenuService.php`
+- 管理员资料、权限名和仪表盘数据已开始从控制器内联逻辑抽到公共服务层，作为后续删除 `app/backend` 的依赖拆离基础
+- 已新增独立菜单管理接口：
+  - `GET /adminapi.php/SystemMenu/index`
+  - `GET /adminapi.php/SystemMenu/detail`
+  - `POST /adminapi.php/SystemMenu/save`
+  - `POST /adminapi.php/SystemMenu/delete`
+  - `POST /adminapi.php/SystemMenu/state`
+- `SystemMenu` 已把新控制器权限校验映射回旧的 `admin/Menu/*` 权限节点，迁移期间不重造一套权限语义
+- 新管理端已新增首个真实迁移页面：
+  - `/admin-vben/#/system/menus`
+- 动态菜单映射已补：
+  - 旧权限 `admin/Menu/index` 进入新壳层后将跳转到 `/system/menus`
+- 本轮再次完成真实构建：
+  - `pnpm build`
+- 本轮再次完成生产同步：
+  - `bash scripts/deploy.sh sync`
+- 本轮远端验证结果：
+  - `php -l app/common/service/admin/AdminConsoleService.php` 通过
+  - `php -l app/common/service/admin/AdminMenuService.php` 通过
+  - `php -l app/adminapi/v1/SystemMenu.php` 通过
+  - `php -l app/common/controller/AdminApi.php` 通过
+  - `GET https://www.frelink.top/adminapi.php/SystemMenu/index` 在未登录条件下返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+  - `GET https://www.frelink.top/admin-vben/index.html` 已确认引用新的前端构建产物
+- 当前结论：
+  - 菜单管理已不再只是旧页占位，而是开始进入真实模块迁移阶段
+  - 后续可按同样方式继续迁移 `管理员 / 管理组 / 配置`，逐步把 `app/backend/admin/*` 的能力迁出
+
 ### 里程碑：管理端后台接口已切到独立 adminapi 入口
 
 - 已将新管理端后台接口从临时 `/api/Admin/*` 调整为独立 `adminapi` 体系，当前实际入口为：

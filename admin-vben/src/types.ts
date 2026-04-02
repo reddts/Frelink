@@ -56,3 +56,34 @@ export interface AdminDashboardPayload {
     path: string;
   }>;
 }
+
+export interface MenuGroupTab {
+  label: string;
+  value: string;
+}
+
+export interface SystemMenuNode {
+  id: number;
+  pid: number;
+  group: string;
+  title: string;
+  icon: string;
+  name: string;
+  type: number;
+  is_home: number;
+  param: string;
+  auth_open: number;
+  status: number;
+  sort: number;
+  children: SystemMenuNode[];
+}
+
+export interface SystemMenuListPayload {
+  group: string;
+  groups: MenuGroupTab[];
+  list: SystemMenuNode[];
+  parent_options: Array<{
+    label: string;
+    value: number;
+  }>;
+}

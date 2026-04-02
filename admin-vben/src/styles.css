@@ -194,6 +194,11 @@ input {
   color: #16304b;
 }
 
+.ghost-button.is-current {
+  background: #183b63;
+  color: #fff;
+}
+
 .primary-button,
 .primary-link {
   background: linear-gradient(135deg, #1465ff, #1ca9a0);
@@ -272,6 +277,39 @@ input {
   margin-top: 12px;
 }
 
+.tab-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.menu-table {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menu-table-head,
+.menu-table-row {
+  display: grid;
+  grid-template-columns: 2fr 2fr 120px 120px 100px;
+  gap: 14px;
+  align-items: center;
+}
+
+.menu-table-head {
+  font-size: 13px;
+  color: #53708e;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(21, 33, 45, 0.08);
+}
+
+.menu-table-row {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(21, 33, 45, 0.06);
+}
+
 .quick-links a {
   padding: 10px 12px;
   border-radius: 12px;
@@ -347,5 +385,11 @@ input {
 
   .user-card {
     align-items: flex-start;
+  }
+
+  .menu-table-head,
+  .menu-table-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
   }
 }

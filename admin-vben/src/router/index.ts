@@ -23,6 +23,12 @@ const routes = [
         meta: { title: '仪表盘' },
       },
       {
+        path: 'system/menus',
+        name: 'system-menus',
+        component: () => import('@/views/SystemMenusView.vue'),
+        meta: { title: '菜单管理' },
+      },
+      {
         path: 'legacy/:segments(.*)*',
         name: 'legacy',
         component: () => import('@/views/LegacyPageView.vue'),
