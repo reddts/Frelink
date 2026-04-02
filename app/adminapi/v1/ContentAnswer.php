@@ -17,7 +17,10 @@ class ContentAnswer extends AdminApi
 
     public function index()
     {
-        $this->apiResult($this->service->getOverview(intval($this->request->param('status', 1))));
+        $this->apiResult($this->service->getOverview(
+            intval($this->request->param('status', 1)),
+            trim((string) $this->request->param('keyword', ''))
+        ));
     }
 
     public function detail()

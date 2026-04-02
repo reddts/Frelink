@@ -2,6 +2,40 @@
 
 ## 2026-04-02
 
+### 里程碑：内容模块第四轮补齐发布态标签与回答筛选
+
+- 已继续增强高频内容服务层，让新管理端不再只看到基础标题和正文：
+  - `ContentArticleService` 列表与详情已补 `agree_count`、`set_top`、`is_recommend`、`flags`，详情已补关联话题输出
+  - `ContentQuestionService` 列表与详情已补 `agree_count`、`set_top`、`is_recommend`、`flags`，详情已补关联话题输出
+  - `ContentAnswerService` 已补关键词筛选，列表与详情已补 `thanks_count`、`is_anonymous`、`flags`
+  - `ContentApprovalService` 结构化预览已继续吸收发布态细节，补齐推荐 / 置顶 / 匿名 / 最佳回答 / 关联话题等字段
+- 新管理端内容页已把这批字段真实接到界面上：
+  - 文章页列表与详情已显示发布态标签，不再只有标题和基础互动
+  - 问题页列表与详情已显示悬赏 / 匿名 / 推荐 / 置顶等标签，并补齐赞同数据
+  - 回答页已补关键词筛选，可按问题标题、作者昵称、回答内容筛选，并显示最佳回答 / 匿名 / 已删除标签与感谢数
+  - 三个高频内容页已复用统一的 `ContentFlags` 标签组件，开始向统一页面模型收口
+- 本轮完成本地验证：
+  - `'/mnt/c/Program Files/nodejs/node.exe' ./node_modules/vue-tsc/bin/vue-tsc.js --noEmit`
+  - `'/mnt/c/Program Files/nodejs/node.exe' ./node_modules/vite/bin/vite.js build`
+  - 构建产物已再次输出到 `public/admin-vben/`
+  - 本地无 `php` 命令，未执行本地 PHP lint
+- 本轮完成生产同步：
+  - `bash scripts/deploy.sh sync`
+- 本轮完成远端验证：
+  - `bash scripts/deploy.sh verify`
+  - 远端 `php -l app/function.inc.php`
+  - 远端 `php -l app/frontend/Article.php`
+  - 远端 `sudo -n php think clear`
+  - 远端 `sudo -n php think api:doc --output docs/api-v1.md`
+  - 远端 `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+  - `GET https://www.frelink.top/admin-vben/index.html` 在 `Cache-Control: no-cache` 条件下已确认引用本轮新资源：
+    - `/admin-vben/assets/index-Dki5TI8O.js`
+    - `/admin-vben/assets/index-Dsqjff7L.css`
+  - `GET https://www.frelink.top/admin-vben/assets/index-Dsqjff7L.css` 返回 `HTTP/2 200`
+  - `GET https://www.frelink.top/adminapi.php/ContentAnswer/index?version=v1` 未登录返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+- 当前结论：
+  - 高频内容页已从“结构化详情预览”继续推进到“发布态标签可见 + 回答筛选可用”
+  - 下一轮可继续补统一详情/表单模型，进一步减少内容模块页面重复实现
 ### 里程碑：内容模块第三轮补齐结构化详情预览
 
 - 已增强内容详情服务层，补足可读的结构化字段：

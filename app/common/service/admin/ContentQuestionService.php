@@ -50,10 +50,14 @@ class ContentQuestionService
             'edit_url' => get_url('question/publish', ['id' => intval($info['id'] ?? 0)], true, false),
             'answer_count' => intval($info['answer_count'] ?? 0),
             'comment_count' => intval($info['comment_count'] ?? 0),
+            'agree_count' => intval($info['agree_count'] ?? 0),
             'view_count' => intval($info['view_count'] ?? 0),
+            'set_top' => intval($info['set_top'] ?? 0),
+            'is_recommend' => intval($info['is_recommend'] ?? 0),
             'create_time_text' => !empty($info['create_time']) ? date('Y-m-d H:i:s', intval($info['create_time'])) : '-',
             'update_time_text' => !empty($info['update_time']) ? date('Y-m-d H:i:s', intval($info['update_time'])) : '-',
             'status_label' => intval($info['status'] ?? 0) === 1 ? '正常' : '已删除',
+            'flags' => $this->buildFlags($info),
             'detail_fields' => $this->buildDetailFields($info),
         ];
     }
@@ -118,7 +122,7 @@ class ContentQuestionService
             ->alias('q')
             ->leftJoin('users u', 'q.uid = u.uid')
             ->where('q.status', $status === 0 ? 0 : 1)
-            ->field('q.id,q.uid,q.title,q.answer_count,q.comment_count,q.view_count,q.create_time,q.update_time,u.user_name,u.url_token');
+            ->field('q.id,q.uid,q.title,q.answer_count,q.comment_count,q.agree_count,q.view_count,q.set_top,q.is_recommend,q.question_type,q.is_anonymous,q.create_time,q.update_time,u.user_name,u.url_token');
 
         if ($keyword !== '') {
             $query->whereLike('q.title', '%' . $keyword . '%');
@@ -130,11 +134,15 @@ class ContentQuestionService
             $item['uid'] = intval($item['uid'] ?? 0);
             $item['answer_count'] = intval($item['answer_count'] ?? 0);
             $item['comment_count'] = intval($item['comment_count'] ?? 0);
+            $item['agree_count'] = intval($item['agree_count'] ?? 0);
             $item['view_count'] = intval($item['view_count'] ?? 0);
+            $item['set_top'] = intval($item['set_top'] ?? 0);
+            $item['is_recommend'] = intval($item['is_recommend'] ?? 0);
             $item['preview_url'] = get_url('question/detail', ['id' => $item['id']], true, false);
             $item['edit_url'] = get_url('question/publish', ['id' => $item['id']], true, false);
             $item['create_time_text'] = !empty($item['create_time']) ? date('Y-m-d H:i:s', intval($item['create_time'])) : '-';
             $item['update_time_text'] = !empty($item['update_time']) ? date('Y-m-d H:i:s', intval($item['update_time'])) : '-';
+            $item['flags'] = $this->buildFlags($item);
         }
         unset($item);
 
@@ -158,7 +166,10 @@ class ContentQuestionService
             ['label' => '匿名状态', 'value' => intval($info['is_anonymous'] ?? 0) === 1 ? '匿名' : '公开'],
             ['label' => '回答数', 'value' => (string) intval($info['answer_count'] ?? 0)],
             ['label' => '评论数', 'value' => (string) intval($info['comment_count'] ?? 0)],
+            ['label' => '赞同数', 'value' => (string) intval($info['agree_count'] ?? 0)],
             ['label' => '浏览数', 'value' => (string) intval($info['view_count'] ?? 0)],
+            ['label' => '推荐状态', 'value' => intval($info['is_recommend'] ?? 0) === 1 ? '推荐' : '普通'],
+            ['label' => '置顶状态', 'value' => intval($info['set_top'] ?? 0) === 1 ? '已置顶' : '未置顶'],
             ['label' => '创建时间', 'value' => !empty($info['create_time']) ? date('Y-m-d H:i:s', intval($info['create_time'])) : '-'],
             ['label' => '更新时间', 'value' => !empty($info['update_time']) ? date('Y-m-d H:i:s', intval($info['update_time'])) : '-'],
         ];
@@ -170,6 +181,54 @@ class ContentQuestionService
             }
         }
 
+        $topicTitles = $this->getTopicTitles(intval($info['id'] ?? 0), 'question');
+        if ($topicTitles) {
+            $fields[] = ['label' => '关联话题', 'value' => implode(' / ', $topicTitles)];
+        }
+
         return $fields;
+    }
+
+    protected function buildFlags(array $info): array
+    {
+        $flags = [];
+        $questionType = (string) ($info['question_type'] ?? 'normal');
+        if ($questionType === 'reward') {
+            $flags[] = '悬赏';
+        }
+        if (intval($info['is_anonymous'] ?? 0) === 1) {
+            $flags[] = '匿名';
+        }
+        if (intval($info['is_recommend'] ?? 0) === 1) {
+            $flags[] = '推荐';
+        }
+        if (intval($info['set_top'] ?? 0) === 1) {
+            $flags[] = '置顶';
+        }
+        if (intval($info['status'] ?? 0) !== 1) {
+            $flags[] = '已删除';
+        }
+        return $flags;
+    }
+
+    protected function getTopicTitles(int $itemId, string $itemType): array
+    {
+        if ($itemId <= 0) {
+            return [];
+        }
+
+        $topicIds = db('topic_relation')
+            ->where([
+                'item_type' => $itemType,
+                'item_id' => $itemId,
+                'status' => 1,
+            ])
+            ->column('topic_id');
+
+        if (!$topicIds) {
+            return [];
+        }
+
+        return array_values(array_filter(db('topic')->whereIn('id', $topicIds)->column('title')));
     }
 }

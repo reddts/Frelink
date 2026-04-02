@@ -260,12 +260,17 @@ class ContentApprovalService
             $fields[] = ['label' => '问题详情', 'value' => strip_tags(htmlspecialchars_decode((string) ($payload['detail'] ?? '')))];
             $fields[] = ['label' => '问题类型', 'value' => (string) (($payload['question_type'] ?? 'normal') === 'reward' ? '悬赏问题' : '普通问题')];
             $fields[] = ['label' => '匿名状态', 'value' => intval($payload['is_anonymous'] ?? 0) === 1 ? '匿名' : '公开'];
+            $fields[] = ['label' => '推荐状态', 'value' => intval($payload['is_recommend'] ?? 0) === 1 ? '推荐' : '普通'];
+            $fields[] = ['label' => '置顶状态', 'value' => intval($payload['set_top'] ?? 0) === 1 ? '已置顶' : '未置顶'];
             if (!empty($payload['category_id'])) {
                 $fields[] = ['label' => '问题分类', 'value' => (string) (db('category')->where('id', intval($payload['category_id']))->value('title') ?: $payload['category_id'])];
             }
+            $fields = array_merge($fields, $this->appendTopicFields($payload, 'question', intval($payload['id'] ?? 0)));
         } elseif (in_array($type, ['article', 'modify_article'], true)) {
             $fields[] = ['label' => '文章标题', 'value' => (string) ($payload['title'] ?? '-')];
             $fields[] = ['label' => '文章详情', 'value' => strip_tags(htmlspecialchars_decode((string) ($payload['message'] ?? '')))];
+            $fields[] = ['label' => '推荐状态', 'value' => intval($payload['is_recommend'] ?? 0) === 1 ? '推荐' : '普通'];
+            $fields[] = ['label' => '置顶状态', 'value' => intval($payload['set_top'] ?? 0) === 1 ? '已置顶' : '未置顶'];
             if (!empty($payload['category_id'])) {
                 $fields[] = ['label' => '文章分类', 'value' => (string) (db('category')->where('id', intval($payload['category_id']))->value('title') ?: $payload['category_id'])];
             }
@@ -275,6 +280,7 @@ class ContentApprovalService
             if (!empty($payload['cover'])) {
                 $fields[] = ['label' => '文章封面', 'value' => (string) $payload['cover']];
             }
+            $fields = array_merge($fields, $this->appendTopicFields($payload, 'article', intval($payload['id'] ?? 0)));
         } elseif ($type === 'topic') {
             $fields[] = ['label' => '话题标题', 'value' => (string) ($payload['title'] ?? '-')];
         } elseif (in_array($type, ['answer', 'modify_answer'], true)) {
@@ -284,6 +290,8 @@ class ContentApprovalService
             }
             $fields[] = ['label' => '所属问题', 'value' => $questionTitle ?: '-'];
             $fields[] = ['label' => '回答详情', 'value' => strip_tags(htmlspecialchars_decode((string) ($payload['content'] ?? '')))];
+            $fields[] = ['label' => '匿名状态', 'value' => intval($payload['is_anonymous'] ?? 0) === 1 ? '匿名' : '公开'];
+            $fields[] = ['label' => '回答类型', 'value' => intval($payload['is_best'] ?? 0) === 1 ? '最佳回答' : '普通回答'];
         } elseif (str_contains($type, 'comment')) {
             $fields[] = ['label' => '关联标题', 'value' => $this->buildSubjectTitle($type, $payload, intval($payload['item_id'] ?? 0)) ?: '-'];
             $fields[] = ['label' => '评论内容', 'value' => strip_tags(htmlspecialchars_decode((string) ($payload['message'] ?? '')))];
@@ -312,6 +320,39 @@ class ContentApprovalService
         }
 
         return $result;
+    }
+
+    protected function appendTopicFields(array $payload, string $itemType, int $fallbackItemId = 0): array
+    {
+        $itemId = intval($payload['id'] ?? 0);
+        if ($itemId <= 0) {
+            $itemId = $fallbackItemId;
+        }
+
+        if ($itemId <= 0) {
+            return [];
+        }
+
+        $topicIds = db('topic_relation')
+            ->where([
+                'item_type' => $itemType,
+                'item_id' => $itemId,
+                'status' => 1,
+            ])
+            ->column('topic_id');
+
+        if (!$topicIds) {
+            return [];
+        }
+
+        $topicTitles = array_values(array_filter(db('topic')->whereIn('id', $topicIds)->column('title')));
+        if (!$topicTitles) {
+            return [];
+        }
+
+        return [
+            ['label' => '关联话题', 'value' => implode(' / ', $topicTitles)],
+        ];
     }
 
     protected function buildTargetUrl(string $type, array $payload, int $itemId): string

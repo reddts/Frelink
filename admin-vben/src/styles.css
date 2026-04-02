@@ -327,6 +327,24 @@ input {
   margin-bottom: -2px;
 }
 
+.content-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.content-flag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(20, 101, 255, 0.1);
+  color: #184777;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
 .table-check {
   gap: 8px;
 }

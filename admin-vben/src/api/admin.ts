@@ -369,9 +369,9 @@ export async function manageContentQuestion(id: IdInput, type: 'recover' | 'remo
   return response.data.data;
 }
 
-export async function fetchContentAnswers(status = 1) {
+export async function fetchContentAnswers(status = 1, keyword = '') {
   const response = await client.get<ApiEnvelope<ContentAnswerOverviewPayload>>('/ContentAnswer/index', {
-    params: { status },
+    params: { status, keyword },
   });
   return response.data.data;
 }

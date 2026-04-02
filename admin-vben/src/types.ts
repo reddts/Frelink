@@ -340,7 +340,11 @@ export interface ContentArticleItem {
   preview_url: string;
   edit_url: string;
   comment_count: number;
+  agree_count: number;
   view_count: number;
+  set_top: number;
+  is_recommend: number;
+  flags: string[];
   create_time_text: string;
   update_time_text: string;
 }
@@ -371,7 +375,11 @@ export interface ContentQuestionItem {
   edit_url: string;
   answer_count: number;
   comment_count: number;
+  agree_count: number;
   view_count: number;
+  set_top: number;
+  is_recommend: number;
+  flags: string[];
   create_time_text: string;
   update_time_text: string;
 }
@@ -404,7 +412,11 @@ export interface ContentAnswerItem {
   against_count: number;
   agree_count: number;
   comment_count: number;
+  thanks_count: number;
   is_best: number;
+  is_anonymous: number;
+  status: number;
+  flags: string[];
   create_time_text: string;
   update_time_text: string;
 }
@@ -420,18 +432,22 @@ export interface ContentAnswerDetail {
   against_count: number;
   agree_count: number;
   comment_count: number;
+  thanks_count: number;
   is_best: number;
+  is_anonymous: number;
   status: number;
   status_label: string;
   best_label: string;
   preview_url: string;
   create_time_text: string;
   update_time_text: string;
+  flags: string[];
   detail_fields: DetailFieldItem[];
 }
 
 export interface ContentAnswerOverviewPayload {
   status: number;
+  keyword: string;
   tabs: ContentStatusTab[];
   list: ContentAnswerItem[];
 }

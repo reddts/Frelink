@@ -86,6 +86,7 @@
             <span>
               <strong>{{ item.title }}</strong>
               <small>#{{ item.id }}</small>
+              <ContentFlags :flags="item.flags" />
             </span>
             <span>
               <strong>{{ item.user_name || '未知用户' }}</strong>
@@ -93,7 +94,7 @@
             </span>
             <span>
               <strong>回答 {{ item.answer_count }}</strong>
-              <small>评论 {{ item.comment_count }} / 浏览 {{ item.view_count }}</small>
+              <small>评论 {{ item.comment_count }} / 赞同 {{ item.agree_count }} / 浏览 {{ item.view_count }}</small>
             </span>
             <span>
               <strong>{{ item.create_time_text }}</strong>
@@ -150,6 +151,7 @@
           <div v-if="detail?.detail_fields?.length" class="detail-stack">
             <p v-for="field in detail.detail_fields" :key="field.label"><strong>{{ field.label }}：</strong>{{ field.value }}</p>
           </div>
+          <ContentFlags :flags="detail?.flags || []" />
           <label>
             <span>问题标题</span>
             <input :value="detail?.title || ''" disabled />
@@ -183,6 +185,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import ContentFlags from '@/components/ContentFlags.vue';
 import {
   deleteContentQuestion,
   fetchContentQuestionDetail,

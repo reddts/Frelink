@@ -51,8 +51,12 @@ class ContentArticleService
             'create_time_text' => !empty($info['create_time']) ? date('Y-m-d H:i:s', intval($info['create_time'])) : '-',
             'update_time_text' => !empty($info['update_time']) ? date('Y-m-d H:i:s', intval($info['update_time'])) : '-',
             'comment_count' => intval($info['comment_count'] ?? 0),
+            'agree_count' => intval($info['agree_count'] ?? 0),
             'view_count' => intval($info['view_count'] ?? 0),
+            'set_top' => intval($info['set_top'] ?? 0),
+            'is_recommend' => intval($info['is_recommend'] ?? 0),
             'status_label' => intval($info['status'] ?? 0) === 1 ? '正常' : '已删除',
+            'flags' => $this->buildFlags($info),
             'detail_fields' => $this->buildDetailFields($info),
         ];
     }
@@ -117,7 +121,7 @@ class ContentArticleService
             ->alias('a')
             ->leftJoin('users u', 'a.uid = u.uid')
             ->where('a.status', $status === 0 ? 0 : 1)
-            ->field('a.id,a.uid,a.title,a.comment_count,a.view_count,a.create_time,a.update_time,u.user_name,u.url_token');
+            ->field('a.id,a.uid,a.title,a.comment_count,a.agree_count,a.view_count,a.set_top,a.is_recommend,a.create_time,a.update_time,u.user_name,u.url_token');
 
         if ($keyword !== '') {
             $query->whereLike('a.title', '%' . $keyword . '%');
@@ -128,11 +132,15 @@ class ContentArticleService
             $item['id'] = intval($item['id'] ?? 0);
             $item['uid'] = intval($item['uid'] ?? 0);
             $item['comment_count'] = intval($item['comment_count'] ?? 0);
+            $item['agree_count'] = intval($item['agree_count'] ?? 0);
             $item['view_count'] = intval($item['view_count'] ?? 0);
+            $item['set_top'] = intval($item['set_top'] ?? 0);
+            $item['is_recommend'] = intval($item['is_recommend'] ?? 0);
             $item['preview_url'] = get_url('article/detail', ['id' => $item['id']], true, false);
             $item['edit_url'] = get_url('article/publish', ['id' => $item['id']], true, false);
             $item['create_time_text'] = !empty($item['create_time']) ? date('Y-m-d H:i:s', intval($item['create_time'])) : '-';
             $item['update_time_text'] = !empty($item['update_time']) ? date('Y-m-d H:i:s', intval($item['update_time'])) : '-';
+            $item['flags'] = $this->buildFlags($item);
         }
         unset($item);
 
@@ -151,7 +159,10 @@ class ContentArticleService
             ['label' => '作者', 'value' => (string) ($info['user_name'] ?? '未知用户')],
             ['label' => '状态', 'value' => intval($info['status'] ?? 0) === 1 ? '正常' : '已删除'],
             ['label' => '评论数', 'value' => (string) intval($info['comment_count'] ?? 0)],
+            ['label' => '赞同数', 'value' => (string) intval($info['agree_count'] ?? 0)],
             ['label' => '浏览数', 'value' => (string) intval($info['view_count'] ?? 0)],
+            ['label' => '推荐状态', 'value' => intval($info['is_recommend'] ?? 0) === 1 ? '推荐' : '普通'],
+            ['label' => '置顶状态', 'value' => intval($info['set_top'] ?? 0) === 1 ? '已置顶' : '未置顶'],
             ['label' => '创建时间', 'value' => !empty($info['create_time']) ? date('Y-m-d H:i:s', intval($info['create_time'])) : '-'],
             ['label' => '更新时间', 'value' => !empty($info['update_time']) ? date('Y-m-d H:i:s', intval($info['update_time'])) : '-'],
         ];
@@ -174,6 +185,47 @@ class ContentArticleService
             $fields[] = ['label' => '封面', 'value' => (string) $info['cover']];
         }
 
+        $topicTitles = $this->getTopicTitles(intval($info['id'] ?? 0), 'article');
+        if ($topicTitles) {
+            $fields[] = ['label' => '关联话题', 'value' => implode(' / ', $topicTitles)];
+        }
+
         return $fields;
+    }
+
+    protected function buildFlags(array $info): array
+    {
+        $flags = [];
+        if (intval($info['status'] ?? 0) !== 1) {
+            $flags[] = '已删除';
+        }
+        if (intval($info['is_recommend'] ?? 0) === 1) {
+            $flags[] = '推荐';
+        }
+        if (intval($info['set_top'] ?? 0) === 1) {
+            $flags[] = '置顶';
+        }
+        return $flags;
+    }
+
+    protected function getTopicTitles(int $itemId, string $itemType): array
+    {
+        if ($itemId <= 0) {
+            return [];
+        }
+
+        $topicIds = db('topic_relation')
+            ->where([
+                'item_type' => $itemType,
+                'item_id' => $itemId,
+                'status' => 1,
+            ])
+            ->column('topic_id');
+
+        if (!$topicIds) {
+            return [];
+        }
+
+        return array_values(array_filter(db('topic')->whereIn('id', $topicIds)->column('title')));
     }
 }

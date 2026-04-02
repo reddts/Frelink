@@ -4,19 +4,25 @@
       <div>
         <span class="eyebrow">Content / Answers</span>
         <h3>回答管理</h3>
-        <p>回答列表、正文编辑和删除链路已迁入新管理端，支持软删和彻底删除切换。</p>
+        <p>回答列表、正文编辑和删除链路已迁入新管理端，支持关键词筛选、状态标签和软删切换。</p>
       </div>
-      <div class="tab-row">
-        <button
-          v-for="item in payload?.tabs || []"
-          :key="item.value"
-          class="ghost-button"
-          :class="{ 'is-current': currentStatus === item.value }"
-          type="button"
-          @click="switchStatus(item.value)"
-        >
-          {{ item.label }}
-        </button>
+      <div class="toolbar-row">
+        <label class="search-inline">
+          <span>搜索</span>
+          <input v-model.trim="keyword" placeholder="按问题、作者或回答内容筛选" @keydown.enter="reload" />
+        </label>
+        <div class="tab-row">
+          <button
+            v-for="item in payload?.tabs || []"
+            :key="item.value"
+            class="ghost-button"
+            :class="{ 'is-current': currentStatus === item.value }"
+            type="button"
+            @click="switchStatus(item.value)"
+          >
+            {{ item.label }}
+          </button>
+        </div>
       </div>
       <div class="selection-toolbar">
         <span>已选 {{ selectedIds.length }} 条回答</span>
@@ -61,6 +67,7 @@
             <span>
               <strong>{{ item.title }}</strong>
               <small>#{{ item.id }}</small>
+              <ContentFlags :flags="item.flags" />
             </span>
             <span>
               <strong>{{ item.nick_name || '未知用户' }}</strong>
@@ -72,7 +79,7 @@
             </span>
             <span>
               <strong>赞同 {{ item.agree_count }}</strong>
-              <small>反对 {{ item.against_count }} / 评论 {{ item.comment_count }}</small>
+              <small>反对 {{ item.against_count }} / 评论 {{ item.comment_count }} / 感谢 {{ item.thanks_count }}</small>
             </span>
             <span class="config-actions">
               <button class="text-button" type="button" @click="editItem(item.id)">编辑</button>
@@ -109,6 +116,7 @@
           <div v-if="detail?.detail_fields?.length" class="detail-stack">
             <p v-for="field in detail.detail_fields" :key="field.label"><strong>{{ field.label }}：</strong>{{ field.value }}</p>
           </div>
+          <ContentFlags :flags="detail?.flags || []" />
           <label>
             <span>问题标题</span>
             <input :value="detail?.question_title || ''" disabled />
@@ -130,11 +138,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import ContentFlags from '@/components/ContentFlags.vue';
 import { deleteContentAnswer, fetchContentAnswerDetail, fetchContentAnswers, saveContentAnswer } from '@/api/admin';
 import type { ContentAnswerDetail, ContentAnswerOverviewPayload } from '@/types';
 
 const payload = ref<ContentAnswerOverviewPayload | null>(null);
 const detail = ref<ContentAnswerDetail | null>(null);
+const keyword = ref('');
 const currentStatus = ref(1);
 const selectedId = ref(0);
 const selectedIds = ref<number[]>([]);
@@ -174,7 +184,7 @@ function toggleSelectAll() {
 }
 
 async function reload() {
-  payload.value = await fetchContentAnswers(currentStatus.value);
+  payload.value = await fetchContentAnswers(currentStatus.value, keyword.value);
   const validIds = new Set((payload.value?.list || []).map((item) => item.id));
   selectedIds.value = selectedIds.value.filter((id) => validIds.has(id));
 }
