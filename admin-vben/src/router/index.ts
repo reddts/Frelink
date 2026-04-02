@@ -29,6 +29,18 @@ const routes = [
         meta: { title: '菜单管理' },
       },
       {
+        path: 'system/groups',
+        name: 'system-groups',
+        component: () => import('@/views/SystemGroupsView.vue'),
+        meta: { title: '管理组' },
+      },
+      {
+        path: 'system/configs',
+        name: 'system-configs',
+        component: () => import('@/views/SystemConfigsView.vue'),
+        meta: { title: '系统配置' },
+      },
+      {
         path: 'legacy/:segments(.*)*',
         name: 'legacy',
         component: () => import('@/views/LegacyPageView.vue'),

@@ -5,6 +5,9 @@ import type {
   AdminMenuItem,
   AdminProfile,
   ApiEnvelope,
+  SystemGroupDetail,
+  SystemGroupListPayload,
+  SystemConfigOverviewPayload,
   SystemMenuListPayload,
 } from '@/types';
 
@@ -36,6 +39,27 @@ export async function fetchAdminDashboard() {
 export async function fetchSystemMenus(group = 'nav') {
   const response = await client.get<ApiEnvelope<SystemMenuListPayload>>('/SystemMenu/index', {
     params: { group },
+  });
+  return response.data.data;
+}
+
+export async function fetchSystemGroups(keyword = '') {
+  const response = await client.get<ApiEnvelope<SystemGroupListPayload>>('/SystemGroup/index', {
+    params: { keyword },
+  });
+  return response.data.data;
+}
+
+export async function fetchSystemGroupDetail(id: number) {
+  const response = await client.get<ApiEnvelope<SystemGroupDetail>>('/SystemGroup/detail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function fetchSystemConfigs(groupId = 0, keyword = '') {
+  const response = await client.get<ApiEnvelope<SystemConfigOverviewPayload>>('/SystemConfig/index', {
+    params: { group_id: groupId, keyword },
   });
   return response.data.data;
 }

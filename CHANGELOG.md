@@ -2,6 +2,62 @@
 
 ## 2026-04-02
 
+### 里程碑：系统配置开始脱离 app/backend，迁入 adminapi + Vue
+
+- 已新增独立配置服务层：
+  - `app/common/service/admin/AdminConfigService.php`
+- 已新增独立配置接口：
+  - `GET /adminapi.php/SystemConfig/index`
+- `SystemConfig` 已把新控制器权限映射回旧的 `admin/Config/index` 节点，迁移期间继续沿用旧权限模型
+- 新管理端已新增第三个真实迁移页面：
+  - `/admin-vben/#/system/configs`
+- 动态菜单映射已补：
+  - 旧权限 `admin/Config/index`
+  - 旧权限 `admin/Config/group`
+  - 进入新壳层后统一跳转到 `/system/configs`
+- 新页面当前已具备：
+  - 配置项列表读取
+  - 按配置分组切换
+  - 按变量名或标题筛选
+  - 配置分组概览查看
+- 当前结论：
+  - `Config.php` 的列表读取和分组概览职责已开始向 `adminapi + Vue` 迁出
+  - 旧后台中最重的 `formBuilder` 动态配置表单暂未迁移，下一轮继续拆保存与编辑链路
+
+### 里程碑：管理组开始脱离 app/backend，迁入 adminapi + Vue
+
+- 已新增独立管理组服务层：
+  - `app/common/service/admin/AdminGroupService.php`
+- 已新增独立管理组接口：
+  - `GET /adminapi.php/SystemGroup/index`
+  - `GET /adminapi.php/SystemGroup/detail`
+  - `GET /adminapi.php/SystemGroup/createMeta`
+  - `POST /adminapi.php/SystemGroup/save`
+  - `POST /adminapi.php/SystemGroup/delete`
+- `SystemGroup` 已把新控制器权限映射回旧的 `admin/Group/*` 节点，迁移期间继续沿用旧权限模型
+- 新管理端已新增第二个真实迁移页面：
+  - `/admin-vben/#/system/groups`
+- 动态菜单映射已补：
+  - 旧权限 `admin/Group/index` 进入新壳层后将跳转到 `/system/groups`
+- 新页面当前已具备：
+  - 管理组列表读取
+  - 关键字筛选
+  - 单个系统组权限树详情查看
+- 本轮再次完成真实构建：
+  - `pnpm build`
+- 本轮再次完成生产同步：
+  - `bash scripts/deploy.sh sync`
+- 本轮远端验证结果：
+  - `php -l app/common/service/admin/AdminGroupService.php` 通过
+  - `php -l app/adminapi/v1/SystemGroup.php` 通过
+  - `php -l app/common/controller/AdminApi.php` 通过
+  - `GET https://www.frelink.top/adminapi.php/SystemGroup/index` 在未登录条件下返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+  - `GET https://www.frelink.top/admin-vben/index.html` 已确认引用本轮新的前端构建产物
+- 当前结论：
+  - `菜单管理` 与 `管理组` 已进入真实迁移阶段
+  - `app/backend/admin/Group.php` 的列表与权限树读取职责已开始向 `adminapi + Vue` 迁出
+  - 后续继续迁 `管理员 / 配置`，即可进一步压缩 `app/backend/admin/*` 的存活范围
+
 ### 里程碑：菜单管理开始脱离 app/backend，迁入 adminapi + Vue
 
 - 已新增后台公共服务层：

@@ -87,3 +87,67 @@ export interface SystemMenuListPayload {
     value: number;
   }>;
 }
+
+export interface GroupRuleTreeNode {
+  id: number;
+  pid: number;
+  text: string;
+  state?: {
+    opened?: boolean;
+    selected?: boolean;
+  };
+  children?: GroupRuleTreeNode[];
+}
+
+export interface SystemGroupItem {
+  id: number;
+  title: string;
+  status: number;
+  system: number;
+  rules: string;
+  rule_count: number;
+}
+
+export interface SystemGroupListPayload {
+  keyword: string;
+  list: SystemGroupItem[];
+}
+
+export interface SystemGroupDetail extends SystemGroupItem {
+  rule_ids: number[];
+  rule_tree: GroupRuleTreeNode[];
+}
+
+export interface ConfigGroupTab {
+  label: string;
+  value: number;
+}
+
+export interface SystemConfigItem {
+  id: number;
+  group: number;
+  group_name: string;
+  name: string;
+  title: string;
+  type: string;
+  type_label: string;
+  tips: string;
+  value_preview: string;
+  sort: number;
+}
+
+export interface SystemConfigGroupItem {
+  id: number;
+  name: string;
+  description: string;
+  status: number;
+  sort: number;
+  config_count: number;
+}
+
+export interface SystemConfigOverviewPayload {
+  group_id: number;
+  group_tabs: ConfigGroupTab[];
+  list: SystemConfigItem[];
+  groups: SystemConfigGroupItem[];
+}

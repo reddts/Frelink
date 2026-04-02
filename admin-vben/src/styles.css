@@ -283,11 +283,111 @@ input {
   gap: 10px;
 }
 
+.search-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-inline input {
+  min-width: 220px;
+  border: 1px solid rgba(21, 33, 45, 0.12);
+  background: #f8fbff;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
 .menu-table {
   margin-top: 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.group-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.group-card-button {
+  width: 100%;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.group-card-button strong,
+.group-card-button span {
+  display: block;
+}
+
+.group-card-button small {
+  display: block;
+  opacity: 0.72;
+}
+
+.rule-tree {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rule-node {
+  margin-left: 16px;
+}
+
+.rule-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.config-panel-grid {
+  align-items: start;
+}
+
+.config-table {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.config-table-head,
+.config-table-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1.6fr 0.8fr 0.8fr 0.4fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.config-table-head {
+  padding: 0 14px;
+  font-size: 13px;
+  color: #53708e;
+}
+
+.config-table-row {
+  padding: 14px;
+  border-radius: 16px;
+  background: #f7fbff;
+  border: 1px solid rgba(21, 33, 45, 0.06);
+}
+
+.config-table-row strong,
+.config-table-row small {
+  display: block;
+}
+
+.config-table-row small {
+  margin-top: 4px;
+  opacity: 0.7;
+  word-break: break-all;
+}
+
+.config-group-card {
+  cursor: default;
+  align-items: flex-start;
 }
 
 .menu-table-head,
@@ -388,7 +488,9 @@ input {
   }
 
   .menu-table-head,
-  .menu-table-row {
+  .menu-table-row,
+  .config-table-head,
+  .config-table-row {
     grid-template-columns: 1fr;
     gap: 6px;
   }

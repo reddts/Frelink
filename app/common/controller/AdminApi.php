@@ -87,6 +87,12 @@ abstract class AdminApi extends Base
             'systemmenu/save' => 'admin/Menu/edit',
             'systemmenu/delete' => 'admin/Menu/delete',
             'systemmenu/state' => 'admin/Menu/state',
+            'systemgroup/index' => 'admin/Group/index',
+            'systemgroup/detail' => 'admin/Group/edit',
+            'systemgroup/createmeta' => 'admin/Group/add',
+            'systemgroup/save' => 'admin/Group/edit',
+            'systemgroup/delete' => 'admin/Group/delete',
+            'systemconfig/index' => 'admin/Config/index',
         ];
 
         $key = $controller . '/' . $action;
@@ -220,6 +226,9 @@ abstract class AdminApi extends Base
 
         $mapped = [
             'admin/menu/index' => '/system/menus',
+            'admin/group/index' => '/system/groups',
+            'admin/config/index' => '/system/configs',
+            'admin/config/group' => '/system/configs',
         ];
 
         $normalized = strtolower($name);
