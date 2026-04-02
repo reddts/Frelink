@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { ApiEnvelope } from '@/types';
 
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/adminapi.php',
   withCredentials: true,
   headers: {
     version: 'v1',

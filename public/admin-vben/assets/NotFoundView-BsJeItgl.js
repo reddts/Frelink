@@ -1,0 +1,1 @@
+import{_ as t,o,c as n,a as e}from"./index-BIJZev_M.js";const a={},c={class:"empty-state"};function r(l,s){return o(),n("div",c,[...s[0]||(s[0]=[e("span",{class:"eyebrow"},"404",-1),e("h3",null,"页面不存在",-1),e("p",null,"当前路由未映射到迁移菜单，请检查菜单配置或直接返回仪表盘。",-1)])])}const d=t(a,[["render",r]]);export{d as default};

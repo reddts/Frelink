@@ -2,6 +2,38 @@
 
 ## 2026-04-02
 
+### 里程碑：管理端后台接口已切到独立 adminapi 入口
+
+- 已将新管理端后台接口从临时 `/api/Admin/*` 调整为独立 `adminapi` 体系，当前实际入口为：
+  - `public/adminapi.php`
+  - `GET/POST /adminapi.php/Admin/login`
+  - `POST /adminapi.php/Admin/logout`
+  - `GET /adminapi.php/Admin/me`
+  - `GET /adminapi.php/Admin/menu`
+  - `GET /adminapi.php/Admin/dashboard`
+- 已新增独立目录：
+  - `app/adminapi/v1/`
+- 已移除临时挂在前台开放接口体系下的：
+  - `app/api/v1/Admin.php`
+- 新管理端前端请求已切到独立后台接口入口，不再继续请求前台 `api`
+- `admin-vben` 构建配置已补齐：
+  - `base=/admin-vben/`
+  - 后台接口基地址改为 `/adminapi.php`
+- 本轮再次完成真实构建：
+  - `pnpm build`
+- 本轮再次完成生产同步：
+  - `bash scripts/deploy.sh sync`
+- 本轮远端验证结果：
+  - `php -l public/adminapi.php` 通过
+  - `php -l app/adminapi/v1/Admin.php` 通过
+  - `GET https://www.frelink.top/adminapi.php/Admin/login` 返回 `code=1`
+  - `GET https://www.frelink.top/adminapi.php/Admin/me` 在未登录条件下返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+  - `GET https://www.frelink.top/admin-vben/index.html` 已确认资源引用前缀为 `/admin-vben/assets/...`
+- 当前结论：
+  - 线上现有 rewrite 尚未把无扩展名 `/adminapi/...` 自动映射到新入口
+  - 因此当前先以 `adminapi.php` 作为稳定可运行入口
+  - 若后续要收口为 `/adminapi/...`，需要单独补服务器 rewrite，而不是继续在代码层绕行
+
 ### 里程碑：管理端 M1 基线接入已落地
 
 - 已新增独立新管理端子工程 `admin-vben/`，采用 `Vue 3 + TypeScript + Vite` 的业务子工程方式推进，不继续在旧 PHP 模板后台里做套皮改造

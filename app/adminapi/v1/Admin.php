@@ -1,6 +1,6 @@
 <?php
 
-namespace app\api\v1;
+namespace app\adminapi\v1;
 
 use app\common\controller\AdminApi;
 use app\common\library\helper\AuthHelper;
@@ -42,7 +42,7 @@ class Admin extends AdminApi
 
         $this->apiResult([
             'logged_in' => false,
-            'login_path' => '/api/Admin/login',
+            'login_path' => '/adminapi.php/Admin/login',
         ]);
     }
 
@@ -111,7 +111,7 @@ class Admin extends AdminApi
 
         $this->apiResult([
             'title' => 'Frelink 管理端',
-            'subtitle' => 'M1 已完成登录、菜单、权限壳层接入，业务模块迁移按计划继续推进。',
+            'subtitle' => '新管理端以独立 adminapi 体系推进后台重构，不再挂靠前台开放 API。',
             'stats' => $stats,
             'quick_links' => [
                 [

@@ -7,6 +7,7 @@ export default defineConfig(({ mode }) => {
   const proxyTarget = env.VITE_PROXY_TARGET || 'http://127.0.0.1';
 
   return {
+    base: '/admin-vben/',
     plugins: [vue()],
     resolve: {
       alias: {
@@ -17,7 +18,7 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       port: 5173,
       proxy: {
-        '/api': {
+        '/adminapi.php': {
           target: proxyTarget,
           changeOrigin: true,
         },
