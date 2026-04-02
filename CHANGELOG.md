@@ -1,5 +1,33 @@
 # Frelink 项目更新日志
 
+## 2026-04-03
+
+### 里程碑：旧后台审核链路修复
+
+- 已修复旧 `admin` 管理端审核页的失效问题：
+  - `app/model/Approval.php` 的 `decline()` 已改为先规范化并校验 `id` 列表，再执行批量拒绝
+  - 批量拒绝审核不再因为把逗号串 `id` 当作单值查询而直接失败
+  - `app/backend/content/Approval.php` 已补单条“通过”按钮，旧审核列表不再只能依赖批量通过
+  - `app/backend/content/Approval.php` 的 `state()` 已支持单条直接通过审核，单条与批量操作链路重新闭环
+- 本轮完成本地验证：
+  - 当前机器无 `php` 命令，未执行本地 PHP lint
+- 本轮完成生产同步：
+  - `bash scripts/deploy.sh sync`
+  - 同步时间：2026-04-03 00:55 CST
+  - 目标服务器：`azureuser@20.191.157.253:/www/wwwroot/knoledge`
+- 本轮完成远端验证：
+  - `bash scripts/deploy.sh verify`
+  - 远端 `php -l app/backend/content/Approval.php`
+  - 远端 `php -l app/model/Approval.php`
+  - 远端 `sudo -n php think clear`
+  - 远端 `sudo -n php think api:doc --output docs/api-v1.md`
+  - 远端 `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+  - `HEAD https://www.frelink.top/admin.php/content.approval/index.html` 返回 `HTTP/2 302`，已实际跳转到 `/admin.php/index/login.html`
+  - `GET https://www.frelink.top/adminapi.php/ContentApproval/index?version=v1` 未登录返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+- 当前结论：
+  - 旧后台审核页的单条通过、单条拒绝、批量通过、批量拒绝链路已重新打通
+  - 本轮已完成服务器同步与远端验证，可作为真实修复结果记录
+
 ## 2026-04-02
 
 ### 里程碑：内容模块第四轮补齐发布态标签与回答筛选
