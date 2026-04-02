@@ -159,11 +159,15 @@
             <p><strong>类型：</strong>{{ detail.type_label }}</p>
             <p><strong>用户：</strong>{{ detail.user_name || '未知用户' }}</p>
             <p><strong>摘要：</strong>{{ detail.summary }}</p>
+            <p v-if="detail.subject_title"><strong>关联标题：</strong>{{ detail.subject_title }}</p>
             <p><strong>状态：</strong>{{ statusLabel(detail.status) }}</p>
             <p><strong>拒绝理由：</strong>{{ detail.reason || '无' }}</p>
           </div>
           <div v-if="detail.target_url" class="inline-links">
             <a class="text-button" :href="detail.target_url" target="_blank" rel="noreferrer">打开前台预览</a>
+          </div>
+          <div v-if="detail.preview_fields?.length" class="detail-stack">
+            <p v-for="field in detail.preview_fields" :key="field.label"><strong>{{ field.label }}：</strong>{{ field.value }}</p>
           </div>
           <label class="editor-form-group">
             <span>原始内容</span>

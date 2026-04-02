@@ -52,6 +52,8 @@ class ContentArticleService
             'update_time_text' => !empty($info['update_time']) ? date('Y-m-d H:i:s', intval($info['update_time'])) : '-',
             'comment_count' => intval($info['comment_count'] ?? 0),
             'view_count' => intval($info['view_count'] ?? 0),
+            'status_label' => intval($info['status'] ?? 0) === 1 ? '正常' : '已删除',
+            'detail_fields' => $this->buildDetailFields($info),
         ];
     }
 
@@ -141,5 +143,37 @@ class ContentArticleService
     {
         $ids = is_array($ids) ? $ids : explode(',', (string) $ids);
         return array_values(array_filter(array_map('intval', $ids)));
+    }
+
+    protected function buildDetailFields(array $info): array
+    {
+        $fields = [
+            ['label' => '作者', 'value' => (string) ($info['user_name'] ?? '未知用户')],
+            ['label' => '状态', 'value' => intval($info['status'] ?? 0) === 1 ? '正常' : '已删除'],
+            ['label' => '评论数', 'value' => (string) intval($info['comment_count'] ?? 0)],
+            ['label' => '浏览数', 'value' => (string) intval($info['view_count'] ?? 0)],
+            ['label' => '创建时间', 'value' => !empty($info['create_time']) ? date('Y-m-d H:i:s', intval($info['create_time'])) : '-'],
+            ['label' => '更新时间', 'value' => !empty($info['update_time']) ? date('Y-m-d H:i:s', intval($info['update_time'])) : '-'],
+        ];
+
+        if (!empty($info['category_id'])) {
+            $categoryTitle = db('category')->where('id', intval($info['category_id']))->value('title');
+            if ($categoryTitle) {
+                $fields[] = ['label' => '文章分类', 'value' => (string) $categoryTitle];
+            }
+        }
+
+        if (!empty($info['column_id'])) {
+            $columnTitle = db('column')->where('id', intval($info['column_id']))->value('name');
+            if ($columnTitle) {
+                $fields[] = ['label' => '文章专栏', 'value' => (string) $columnTitle];
+            }
+        }
+
+        if (!empty($info['cover'])) {
+            $fields[] = ['label' => '封面', 'value' => (string) $info['cover']];
+        }
+
+        return $fields;
     }
 }

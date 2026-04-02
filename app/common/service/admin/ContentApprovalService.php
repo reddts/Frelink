@@ -64,6 +64,8 @@ class ContentApprovalService
             'create_time_text' => !empty($info['create_time']) ? date('Y-m-d H:i:s', intval($info['create_time'])) : '-',
             'summary' => $this->buildSummary((string) ($info['type'] ?? ''), $data),
             'target_url' => $this->buildTargetUrl((string) ($info['type'] ?? ''), $data, intval($info['item_id'] ?? 0)),
+            'subject_title' => $this->buildSubjectTitle((string) ($info['type'] ?? ''), $data, intval($info['item_id'] ?? 0)),
+            'preview_fields' => $this->buildPreviewFields((string) ($info['type'] ?? ''), $data, intval($info['uid'] ?? 0)),
             'payload' => $data,
             'payload_json' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
         ];
@@ -214,6 +216,102 @@ class ContentApprovalService
             return str_cut(strip_tags(htmlspecialchars_decode((string) ($payload['message'] ?? ''))), 0, 80);
         }
         return '待审内容 #' . (string) intval($payload['id'] ?? 0);
+    }
+
+    protected function buildSubjectTitle(string $type, array $payload, int $itemId): string
+    {
+        if (!empty($payload['title'])) {
+            return (string) $payload['title'];
+        }
+
+        if (in_array($type, ['question_comment', 'answer_comment'], true)) {
+            $questionId = intval($payload['question_info']['id'] ?? 0);
+            if (!$questionId && !empty($payload['item_id']) && $type === 'answer_comment') {
+                $questionId = intval(db('answer')->where('id', intval($payload['item_id']))->value('question_id'));
+            }
+            if ($questionId > 0) {
+                return (string) (db('question')->where('id', $questionId)->value('title') ?: '');
+            }
+        }
+
+        if ($type === 'article_comment') {
+            $articleId = intval($payload['item_id'] ?? $itemId);
+            if ($articleId > 0) {
+                return (string) (db('article')->where('id', $articleId)->value('title') ?: '');
+            }
+        }
+
+        if (in_array($type, ['answer', 'modify_answer'], true)) {
+            $questionId = intval($payload['question_id'] ?? 0);
+            if ($questionId > 0) {
+                return (string) (db('question')->where('id', $questionId)->value('title') ?: '');
+            }
+        }
+
+        return '';
+    }
+
+    protected function buildPreviewFields(string $type, array $payload, int $uid): array
+    {
+        $fields = [];
+
+        if (in_array($type, ['question', 'modify_question'], true)) {
+            $fields[] = ['label' => '问题标题', 'value' => (string) ($payload['title'] ?? '-')];
+            $fields[] = ['label' => '问题详情', 'value' => strip_tags(htmlspecialchars_decode((string) ($payload['detail'] ?? '')))];
+            $fields[] = ['label' => '问题类型', 'value' => (string) (($payload['question_type'] ?? 'normal') === 'reward' ? '悬赏问题' : '普通问题')];
+            $fields[] = ['label' => '匿名状态', 'value' => intval($payload['is_anonymous'] ?? 0) === 1 ? '匿名' : '公开'];
+            if (!empty($payload['category_id'])) {
+                $fields[] = ['label' => '问题分类', 'value' => (string) (db('category')->where('id', intval($payload['category_id']))->value('title') ?: $payload['category_id'])];
+            }
+        } elseif (in_array($type, ['article', 'modify_article'], true)) {
+            $fields[] = ['label' => '文章标题', 'value' => (string) ($payload['title'] ?? '-')];
+            $fields[] = ['label' => '文章详情', 'value' => strip_tags(htmlspecialchars_decode((string) ($payload['message'] ?? '')))];
+            if (!empty($payload['category_id'])) {
+                $fields[] = ['label' => '文章分类', 'value' => (string) (db('category')->where('id', intval($payload['category_id']))->value('title') ?: $payload['category_id'])];
+            }
+            if (!empty($payload['column_id'])) {
+                $fields[] = ['label' => '文章专栏', 'value' => (string) (db('column')->where('id', intval($payload['column_id']))->value('name') ?: $payload['column_id'])];
+            }
+            if (!empty($payload['cover'])) {
+                $fields[] = ['label' => '文章封面', 'value' => (string) $payload['cover']];
+            }
+        } elseif ($type === 'topic') {
+            $fields[] = ['label' => '话题标题', 'value' => (string) ($payload['title'] ?? '-')];
+        } elseif (in_array($type, ['answer', 'modify_answer'], true)) {
+            $questionTitle = '';
+            if (!empty($payload['question_id'])) {
+                $questionTitle = (string) (db('question')->where('id', intval($payload['question_id']))->value('title') ?: '');
+            }
+            $fields[] = ['label' => '所属问题', 'value' => $questionTitle ?: '-'];
+            $fields[] = ['label' => '回答详情', 'value' => strip_tags(htmlspecialchars_decode((string) ($payload['content'] ?? '')))];
+        } elseif (str_contains($type, 'comment')) {
+            $fields[] = ['label' => '关联标题', 'value' => $this->buildSubjectTitle($type, $payload, intval($payload['item_id'] ?? 0)) ?: '-'];
+            $fields[] = ['label' => '评论内容', 'value' => strip_tags(htmlspecialchars_decode((string) ($payload['message'] ?? '')))];
+        }
+
+        if (!empty($payload['is_agent_content'])) {
+            $fields[] = ['label' => '提交来源', 'value' => 'Agent'];
+            $fields[] = ['label' => 'Agent 展示名', 'value' => (string) ($payload['agent_display_name'] ?? '-')];
+            $fields[] = ['label' => 'Agent 用户名', 'value' => (string) ($payload['agent_user_name'] ?? '-')];
+            $fields[] = ['label' => 'Agent 等级', 'value' => 'L' . max(0, intval($payload['agent_level_snapshot'] ?? 0))];
+            $fields[] = ['label' => 'Agent 徽标', 'value' => (string) ($payload['agent_badge_snapshot'] ?? '-')];
+            $fields[] = ['label' => '协议版本', 'value' => (string) ($payload['protocol_version'] ?? 'v1')];
+            $fields[] = ['label' => '提交时间', 'value' => !empty($payload['submitted_at']) ? date('Y-m-d H:i:s', intval($payload['submitted_at'])) : '-'];
+        }
+
+        $result = [];
+        foreach ($fields as $field) {
+            $value = trim((string) ($field['value'] ?? ''));
+            if ($value === '') {
+                continue;
+            }
+            $result[] = [
+                'label' => (string) ($field['label'] ?? ''),
+                'value' => $value,
+            ];
+        }
+
+        return $result;
     }
 
     protected function buildTargetUrl(string $type, array $payload, int $itemId): string

@@ -106,6 +106,9 @@
           <div v-if="detail?.preview_url" class="inline-links">
             <a class="text-button" :href="detail.preview_url" target="_blank" rel="noreferrer">打开前台预览</a>
           </div>
+          <div v-if="detail?.detail_fields?.length" class="detail-stack">
+            <p v-for="field in detail.detail_fields" :key="field.label"><strong>{{ field.label }}：</strong>{{ field.value }}</p>
+          </div>
           <label>
             <span>问题标题</span>
             <input :value="detail?.question_title || ''" disabled />

@@ -147,6 +147,9 @@
               打开发布页
             </a>
           </div>
+          <div v-if="detail?.detail_fields?.length" class="detail-stack">
+            <p v-for="field in detail.detail_fields" :key="field.label"><strong>{{ field.label }}：</strong>{{ field.value }}</p>
+          </div>
           <label>
             <span>问题标题</span>
             <input :value="detail?.title || ''" disabled />

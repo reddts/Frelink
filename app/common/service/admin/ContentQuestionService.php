@@ -53,6 +53,8 @@ class ContentQuestionService
             'view_count' => intval($info['view_count'] ?? 0),
             'create_time_text' => !empty($info['create_time']) ? date('Y-m-d H:i:s', intval($info['create_time'])) : '-',
             'update_time_text' => !empty($info['update_time']) ? date('Y-m-d H:i:s', intval($info['update_time'])) : '-',
+            'status_label' => intval($info['status'] ?? 0) === 1 ? '正常' : '已删除',
+            'detail_fields' => $this->buildDetailFields($info),
         ];
     }
 
@@ -143,5 +145,31 @@ class ContentQuestionService
     {
         $ids = is_array($ids) ? $ids : explode(',', (string) $ids);
         return array_values(array_filter(array_map('intval', $ids)));
+    }
+
+    protected function buildDetailFields(array $info): array
+    {
+        $questionType = (string) ($info['question_type'] ?? 'normal');
+        $questionTypeLabel = $questionType === 'reward' ? '悬赏问题' : '普通问题';
+        $fields = [
+            ['label' => '作者', 'value' => (string) ($info['user_name'] ?? '未知用户')],
+            ['label' => '状态', 'value' => intval($info['status'] ?? 0) === 1 ? '正常' : '已删除'],
+            ['label' => '问题类型', 'value' => $questionTypeLabel],
+            ['label' => '匿名状态', 'value' => intval($info['is_anonymous'] ?? 0) === 1 ? '匿名' : '公开'],
+            ['label' => '回答数', 'value' => (string) intval($info['answer_count'] ?? 0)],
+            ['label' => '评论数', 'value' => (string) intval($info['comment_count'] ?? 0)],
+            ['label' => '浏览数', 'value' => (string) intval($info['view_count'] ?? 0)],
+            ['label' => '创建时间', 'value' => !empty($info['create_time']) ? date('Y-m-d H:i:s', intval($info['create_time'])) : '-'],
+            ['label' => '更新时间', 'value' => !empty($info['update_time']) ? date('Y-m-d H:i:s', intval($info['update_time'])) : '-'],
+        ];
+
+        if (!empty($info['category_id'])) {
+            $categoryTitle = db('category')->where('id', intval($info['category_id']))->value('title');
+            if ($categoryTitle) {
+                $fields[] = ['label' => '问题分类', 'value' => (string) $categoryTitle];
+            }
+        }
+
+        return $fields;
     }
 }

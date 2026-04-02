@@ -2,6 +2,42 @@
 
 ## 2026-04-02
 
+### 里程碑：内容模块第三轮补齐结构化详情预览
+
+- 已增强内容详情服务层，补足可读的结构化字段：
+  - `ContentArticleService` 详情已补 `status_label`、`detail_fields`
+  - `ContentQuestionService` 详情已补 `status_label`、`detail_fields`
+  - `ContentAnswerService` 详情已补 `status_label`、`best_label`、`detail_fields`
+  - `ContentApprovalService` 详情已补 `subject_title`、`preview_fields`
+- 审核详情已开始吸收旧后台 `Approval::edit()` 的类型判断结果，针对：
+  - 问题 / 修改问题
+  - 文章 / 修改文章
+  - 回答 / 修改回答
+  - 话题
+  - 问题评论 / 回答评论 / 文章评论
+  统一输出结构化预览字段，而不再只有原始 JSON
+- 新管理端内容页已补结构化详情面板：
+  - 文章页可查看作者、状态、分类、专栏、封面、互动数据、时间等
+  - 问题页可查看作者、状态、问题类型、匿名状态、分类、互动数据、时间等
+  - 回答页可查看所属问题、作者、状态、最佳回答状态、互动数据、时间等
+  - 审核页可查看关联标题、业务字段和 Agent 只读字段预览
+- 本轮完成本地验证：
+  - `corepack pnpm run typecheck`
+  - `corepack pnpm run build`
+- 本轮完成生产同步：
+  - 定向同步四个内容服务层 PHP 文件
+  - 定向同步 `public/admin-vben/`
+- 本轮完成远端验证：
+  - `bash scripts/deploy.sh verify`
+  - `GET https://www.frelink.top/admin-vben/index.html` 在 `Cache-Control: no-cache` 条件下已确认引用本轮新资源：
+    - `/admin-vben/assets/index-BGKUpYmO.js`
+    - `/admin-vben/assets/index-CpGMqINp.css`
+  - `GET https://www.frelink.top/admin-vben/assets/index-CpGMqINp.css` 返回 `HTTP/2 200`
+  - `GET https://www.frelink.top/adminapi.php/ContentApproval/detail?version=v1&id=1` 未登录返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+- 当前结论：
+  - 内容模块已从“列表 + 基础动作”推进到“批量操作 + 跳转 + 结构化详情”
+  - 下一轮可继续补内容发布态细节和更完整的编辑链路
+
 ### 里程碑：用户管理补齐批量动作与积分链路
 
 - 已完成上轮遗留的 `SystemUser` 迁移收口：

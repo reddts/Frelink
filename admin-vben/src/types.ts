@@ -321,6 +321,11 @@ export interface SystemUserIntegralLogPayload {
   page_html: string;
 }
 
+export interface DetailFieldItem {
+  label: string;
+  value: string;
+}
+
 export interface ContentStatusTab {
   label: string;
   value: number;
@@ -346,6 +351,8 @@ export interface ContentArticleDetail extends ContentArticleItem {
   seo_keywords: string;
   seo_description: string;
   status: number;
+  status_label: string;
+  detail_fields: DetailFieldItem[];
 }
 
 export interface ContentArticleOverviewPayload {
@@ -375,6 +382,8 @@ export interface ContentQuestionDetail extends ContentQuestionItem {
   seo_keywords: string;
   seo_description: string;
   status: number;
+  status_label: string;
+  detail_fields: DetailFieldItem[];
 }
 
 export interface ContentQuestionOverviewPayload {
@@ -413,9 +422,12 @@ export interface ContentAnswerDetail {
   comment_count: number;
   is_best: number;
   status: number;
+  status_label: string;
+  best_label: string;
   preview_url: string;
   create_time_text: string;
   update_time_text: string;
+  detail_fields: DetailFieldItem[];
 }
 
 export interface ContentAnswerOverviewPayload {
@@ -459,6 +471,8 @@ export interface ContentApprovalDetail {
   create_time_text: string;
   summary: string;
   target_url: string;
+  subject_title: string;
+  preview_fields: DetailFieldItem[];
   payload: Record<string, any>;
   payload_json: string;
 }

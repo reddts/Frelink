@@ -52,6 +52,9 @@ class ContentAnswerService
             'preview_url' => get_url('question/detail', ['id' => intval($info['question_id'] ?? 0), 'answer' => intval($info['id'] ?? 0)], true, false),
             'create_time_text' => !empty($info['create_time']) ? date('Y-m-d H:i:s', intval($info['create_time'])) : '-',
             'update_time_text' => !empty($info['update_time']) ? date('Y-m-d H:i:s', intval($info['update_time'])) : '-',
+            'status_label' => intval($info['status'] ?? 0) === 1 ? '正常' : '已删除',
+            'best_label' => intval($info['is_best'] ?? 0) === 1 ? '最佳回答' : '普通回答',
+            'detail_fields' => $this->buildDetailFields($info),
         ];
     }
 
@@ -117,5 +120,20 @@ class ContentAnswerService
     {
         $ids = is_array($ids) ? $ids : explode(',', (string) $ids);
         return array_values(array_filter(array_map('intval', $ids)));
+    }
+
+    protected function buildDetailFields(array $info): array
+    {
+        return [
+            ['label' => '问题标题', 'value' => (string) ($info['question_title'] ?? '-')],
+            ['label' => '作者', 'value' => (string) ($info['nick_name'] ?? '未知用户')],
+            ['label' => '状态', 'value' => intval($info['status'] ?? 0) === 1 ? '正常' : '已删除'],
+            ['label' => '回答类型', 'value' => intval($info['is_best'] ?? 0) === 1 ? '最佳回答' : '普通回答'],
+            ['label' => '赞同数', 'value' => (string) intval($info['agree_count'] ?? 0)],
+            ['label' => '反对数', 'value' => (string) intval($info['against_count'] ?? 0)],
+            ['label' => '评论数', 'value' => (string) intval($info['comment_count'] ?? 0)],
+            ['label' => '创建时间', 'value' => !empty($info['create_time']) ? date('Y-m-d H:i:s', intval($info['create_time'])) : '-'],
+            ['label' => '更新时间', 'value' => !empty($info['update_time']) ? date('Y-m-d H:i:s', intval($info['update_time'])) : '-'],
+        ];
     }
 }
