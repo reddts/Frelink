@@ -7,6 +7,9 @@ import type {
   ApiEnvelope,
   SystemGroupDetail,
   SystemGroupListPayload,
+  SystemConfigDetail,
+  SystemConfigGroupItem,
+  SystemConfigMetaPayload,
   SystemConfigOverviewPayload,
   SystemMenuListPayload,
 } from '@/types';
@@ -61,5 +64,44 @@ export async function fetchSystemConfigs(groupId = 0, keyword = '') {
   const response = await client.get<ApiEnvelope<SystemConfigOverviewPayload>>('/SystemConfig/index', {
     params: { group_id: groupId, keyword },
   });
+  return response.data.data;
+}
+
+export async function fetchSystemConfigDetail(id: number) {
+  const response = await client.get<ApiEnvelope<SystemConfigDetail>>('/SystemConfig/detail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function fetchSystemConfigMeta() {
+  const response = await client.get<ApiEnvelope<SystemConfigMetaPayload>>('/SystemConfig/meta');
+  return response.data.data;
+}
+
+export async function saveSystemConfig(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/SystemConfig/save', payload);
+  return response.data.data;
+}
+
+export async function deleteSystemConfig(id: number) {
+  const response = await client.post<ApiEnvelope<null>>('/SystemConfig/delete', { id });
+  return response.data.data;
+}
+
+export async function fetchSystemConfigGroupDetail(id: number) {
+  const response = await client.get<ApiEnvelope<SystemConfigGroupItem>>('/SystemConfig/groupDetail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function saveSystemConfigGroup(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/SystemConfig/groupSave', payload);
+  return response.data.data;
+}
+
+export async function deleteSystemConfigGroup(id: number) {
+  const response = await client.post<ApiEnvelope<null>>('/SystemConfig/groupDelete', { id });
   return response.data.data;
 }

@@ -151,3 +151,36 @@ export interface SystemConfigOverviewPayload {
   list: SystemConfigItem[];
   groups: SystemConfigGroupItem[];
 }
+
+export interface SelectOption {
+  label: string;
+  value: number | string;
+}
+
+export interface SystemConfigDetail extends SystemConfigItem {
+  value: string;
+  dict_code: number;
+  source: number;
+  option_text: string;
+  settings: Record<string, string>;
+}
+
+export interface SystemConfigMetaPayload {
+  group_options: SelectOption[];
+  type_options: SelectOption[];
+  dictionary_options: SelectOption[];
+  detail_template: {
+    id: number;
+    group: number;
+    type: string;
+    name: string;
+    title: string;
+    value: string;
+    tips: string;
+    sort: number;
+    dict_code: number;
+    source: number;
+    option_text: string;
+    settings: Record<string, string>;
+  };
+}
