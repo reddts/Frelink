@@ -23,6 +23,30 @@ const routes = [
         meta: { title: '仪表盘' },
       },
       {
+        path: 'content/articles',
+        name: 'content-articles',
+        component: () => import('@/views/ContentArticlesView.vue'),
+        meta: { title: '文章管理' },
+      },
+      {
+        path: 'content/questions',
+        name: 'content-questions',
+        component: () => import('@/views/ContentQuestionsView.vue'),
+        meta: { title: '问题管理' },
+      },
+      {
+        path: 'content/answers',
+        name: 'content-answers',
+        component: () => import('@/views/ContentAnswersView.vue'),
+        meta: { title: '回答管理' },
+      },
+      {
+        path: 'content/approvals',
+        name: 'content-approvals',
+        component: () => import('@/views/ContentApprovalsView.vue'),
+        meta: { title: '内容审核' },
+      },
+      {
         path: 'system/auths',
         name: 'system-auths',
         component: () => import('@/views/SystemAuthsView.vue'),

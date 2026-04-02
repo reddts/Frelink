@@ -541,9 +541,29 @@ input {
   grid-template-columns: 1.6fr 1.8fr 100px 100px 1.2fr;
 }
 
+.content-table-head,
+.content-table-row {
+  grid-template-columns: 1.6fr 1fr 1fr 1fr 1.1fr;
+}
+
+.answer-table-head,
+.answer-table-row {
+  grid-template-columns: 1.2fr 0.8fr 1.3fr 1fr 0.9fr;
+}
+
+.approval-table-head,
+.approval-table-row {
+  grid-template-columns: 1fr 1fr 1.4fr 1fr 0.9fr;
+}
+
 .is-current-row {
   background: rgba(20, 101, 255, 0.04);
   border-radius: 14px;
+}
+
+.detail-stack {
+  display: grid;
+  gap: 8px;
 }
 
 .quick-links a {

@@ -299,3 +299,146 @@ export interface SystemUserDetail extends SystemUserItem {
   birthday_text: string;
   meta: SystemUserOverviewPayload['meta'];
 }
+
+export interface ContentStatusTab {
+  label: string;
+  value: number;
+}
+
+export interface ContentArticleItem {
+  id: number;
+  uid: number;
+  title: string;
+  user_name: string;
+  url_token: string;
+  comment_count: number;
+  view_count: number;
+  create_time_text: string;
+  update_time_text: string;
+}
+
+export interface ContentArticleDetail extends ContentArticleItem {
+  message: string;
+  seo_title: string;
+  seo_keywords: string;
+  seo_description: string;
+  status: number;
+}
+
+export interface ContentArticleOverviewPayload {
+  status: number;
+  tabs: ContentStatusTab[];
+  list: ContentArticleItem[];
+}
+
+export interface ContentQuestionItem {
+  id: number;
+  uid: number;
+  title: string;
+  user_name: string;
+  url_token: string;
+  answer_count: number;
+  comment_count: number;
+  view_count: number;
+  create_time_text: string;
+  update_time_text: string;
+}
+
+export interface ContentQuestionDetail extends ContentQuestionItem {
+  detail: string;
+  seo_title: string;
+  seo_keywords: string;
+  seo_description: string;
+  status: number;
+}
+
+export interface ContentQuestionOverviewPayload {
+  status: number;
+  tabs: ContentStatusTab[];
+  list: ContentQuestionItem[];
+}
+
+export interface ContentAnswerItem {
+  id: number;
+  uid: number;
+  question_id: number;
+  title: string;
+  nick_name: string;
+  url_token: string;
+  content_preview: string;
+  against_count: number;
+  agree_count: number;
+  comment_count: number;
+  is_best: number;
+  create_time_text: string;
+  update_time_text: string;
+}
+
+export interface ContentAnswerDetail {
+  id: number;
+  uid: number;
+  question_id: number;
+  question_title: string;
+  nick_name: string;
+  url_token: string;
+  content: string;
+  against_count: number;
+  agree_count: number;
+  comment_count: number;
+  is_best: number;
+  status: number;
+  create_time_text: string;
+  update_time_text: string;
+}
+
+export interface ContentAnswerOverviewPayload {
+  status: number;
+  tabs: ContentStatusTab[];
+  list: ContentAnswerItem[];
+}
+
+export interface ContentApprovalTypeTab {
+  label: string;
+  value: string;
+}
+
+export interface ContentApprovalItem {
+  id: number;
+  uid: number;
+  user_name: string;
+  url_token: string;
+  type: string;
+  type_label: string;
+  status: number;
+  item_id: number;
+  reason: string;
+  is_agent: number;
+  summary: string;
+  create_time_text: string;
+}
+
+export interface ContentApprovalDetail {
+  id: number;
+  uid: number;
+  user_name: string;
+  url_token: string;
+  type: string;
+  type_label: string;
+  status: number;
+  reason: string;
+  item_id: number;
+  is_agent: number;
+  create_time_text: string;
+  summary: string;
+  payload: Record<string, any>;
+  payload_json: string;
+}
+
+export interface ContentApprovalOverviewPayload {
+  status: number;
+  type: string;
+  is_agent: string;
+  status_tabs: ContentStatusTab[];
+  type_tabs: ContentApprovalTypeTab[];
+  list: ContentApprovalItem[];
+}

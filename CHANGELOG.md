@@ -2,6 +2,67 @@
 
 ## 2026-04-02
 
+### 里程碑：内容审核、文章、问题、回答进入新管理端主链路
+
+- 已新增独立内容服务层：
+  - `app/common/service/admin/ContentArticleService.php`
+  - `app/common/service/admin/ContentQuestionService.php`
+  - `app/common/service/admin/ContentAnswerService.php`
+  - `app/common/service/admin/ContentApprovalService.php`
+- 已新增独立内容接口：
+  - `GET /adminapi.php/ContentArticle/index`
+  - `GET /adminapi.php/ContentArticle/detail`
+  - `POST /adminapi.php/ContentArticle/saveSeo`
+  - `GET /adminapi.php/ContentArticle/delete`
+  - `GET /adminapi.php/ContentArticle/manager`
+  - `GET /adminapi.php/ContentQuestion/index`
+  - `GET /adminapi.php/ContentQuestion/detail`
+  - `POST /adminapi.php/ContentQuestion/saveSeo`
+  - `GET /adminapi.php/ContentQuestion/delete`
+  - `GET /adminapi.php/ContentQuestion/manager`
+  - `GET /adminapi.php/ContentAnswer/index`
+  - `GET /adminapi.php/ContentAnswer/detail`
+  - `POST /adminapi.php/ContentAnswer/save`
+  - `GET /adminapi.php/ContentAnswer/delete`
+  - `GET /adminapi.php/ContentApproval/index`
+  - `GET /adminapi.php/ContentApproval/detail`
+  - `GET /adminapi.php/ContentApproval/approve`
+  - `POST /adminapi.php/ContentApproval/decline`
+  - `POST /adminapi.php/ContentApproval/forbid`
+  - `GET /adminapi.php/ContentApproval/forbiddenIp`
+- `AdminApi` 已补齐内容模块的新旧权限映射与前端路由映射：
+  - `content/Article/index` -> `/content/articles`
+  - `content/Question/index` -> `/content/questions`
+  - `content/Answer/index` -> `/content/answers`
+  - `content/Approval/index` -> `/content/approvals`
+- 新管理端已新增真实迁移页面：
+  - `/admin-vben/#/content/articles`
+  - `/admin-vben/#/content/questions`
+  - `/admin-vben/#/content/answers`
+  - `/admin-vben/#/content/approvals`
+- 新页面当前已具备：
+  - 文章列表读取、SEO 编辑、删除、恢复、彻底删除
+  - 问题列表读取、SEO 编辑、删除、恢复、彻底删除
+  - 回答列表读取、正文编辑、删除、彻底删除
+  - 审核列表读取、详情查看、通过、拒绝、封禁用户、封禁 IP
+- 本轮完成本地验证：
+  - `corepack pnpm run typecheck`
+  - `corepack pnpm run build`
+  - 构建产物已再次输出到 `public/admin-vben/`
+- 本轮完成生产同步：
+  - `bash scripts/deploy.sh sync`
+- 本轮完成远端验证：
+  - `bash scripts/deploy.sh verify`
+  - `GET https://www.frelink.top/admin-vben/index.html` 已确认引用本轮新的前端构建产物：
+    - `/admin-vben/assets/index-BctBQqHG.js`
+    - `/admin-vben/assets/index-ESqSorD3.css`
+  - `GET https://www.frelink.top/adminapi.php/ContentApproval/index?version=v1` 在未登录条件下返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+  - `GET https://www.frelink.top/adminapi.php/ContentArticle/index?version=v1` 在未登录条件下返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+- 当前结论：
+  - `content/Approval.php`、`content/Article.php`、`content/Question.php`、`content/Answer.php` 已开始从旧后台迁入 `adminapi + Vue`
+  - 高频内容后台主入口已经进入新管理端，不再只有系统管理页留在新壳层
+  - 下一轮应继续把内容模块从“列表 + 基础动作”推进到“完整编辑 / 发布 / 批量操作 / 细节预览”
+
 ### 里程碑：系统权限节点、管理组与菜单进入新管理端可编辑阶段
 
 - 已新增独立权限节点服务层：

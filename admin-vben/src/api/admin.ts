@@ -5,6 +5,14 @@ import type {
   AdminMenuItem,
   AdminProfile,
   ApiEnvelope,
+  ContentAnswerDetail,
+  ContentAnswerOverviewPayload,
+  ContentApprovalDetail,
+  ContentApprovalOverviewPayload,
+  ContentArticleDetail,
+  ContentArticleOverviewPayload,
+  ContentQuestionDetail,
+  ContentQuestionOverviewPayload,
   SystemAuthDetail,
   SystemAuthListPayload,
   SystemAuthMetaPayload,
@@ -255,6 +263,143 @@ export async function unForbidSystemUser(id: number) {
 export async function toggleSystemUserIp(id: number, relieve = false) {
   const response = await client.get<ApiEnvelope<null>>('/SystemUser/forbiddenIp', {
     params: { id, action: relieve ? 'relieve' : 'forbidden' },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentArticles(status = 1, keyword = '') {
+  const response = await client.get<ApiEnvelope<ContentArticleOverviewPayload>>('/ContentArticle/index', {
+    params: { status, keyword },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentArticleDetail(id: number) {
+  const response = await client.get<ApiEnvelope<ContentArticleDetail>>('/ContentArticle/detail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function saveContentArticleSeo(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/ContentArticle/saveSeo', payload);
+  return response.data.data;
+}
+
+export async function deleteContentArticle(id: number) {
+  const response = await client.get<ApiEnvelope<null>>('/ContentArticle/delete', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function manageContentArticle(id: number, type: 'recover' | 'remove') {
+  const response = await client.get<ApiEnvelope<null>>('/ContentArticle/manager', {
+    params: { id, type },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentQuestions(status = 1, keyword = '') {
+  const response = await client.get<ApiEnvelope<ContentQuestionOverviewPayload>>('/ContentQuestion/index', {
+    params: { status, keyword },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentQuestionDetail(id: number) {
+  const response = await client.get<ApiEnvelope<ContentQuestionDetail>>('/ContentQuestion/detail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function saveContentQuestionSeo(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/ContentQuestion/saveSeo', payload);
+  return response.data.data;
+}
+
+export async function deleteContentQuestion(id: number) {
+  const response = await client.get<ApiEnvelope<null>>('/ContentQuestion/delete', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function manageContentQuestion(id: number, type: 'recover' | 'remove') {
+  const response = await client.get<ApiEnvelope<null>>('/ContentQuestion/manager', {
+    params: { id, type },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentAnswers(status = 1) {
+  const response = await client.get<ApiEnvelope<ContentAnswerOverviewPayload>>('/ContentAnswer/index', {
+    params: { status },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentAnswerDetail(id: number) {
+  const response = await client.get<ApiEnvelope<ContentAnswerDetail>>('/ContentAnswer/detail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function saveContentAnswer(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/ContentAnswer/save', payload);
+  return response.data.data;
+}
+
+export async function deleteContentAnswer(id: number, real = false) {
+  const response = await client.get<ApiEnvelope<null>>('/ContentAnswer/delete', {
+    params: { id, real: real ? 1 : 0 },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentApprovals(status = 0, type = '', isAgent = '') {
+  const response = await client.get<ApiEnvelope<ContentApprovalOverviewPayload>>('/ContentApproval/index', {
+    params: { status, type, is_agent: isAgent },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentApprovalDetail(id: number) {
+  const response = await client.get<ApiEnvelope<ContentApprovalDetail>>('/ContentApproval/detail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function approveContentApproval(id: number) {
+  const response = await client.get<ApiEnvelope<null>>('/ContentApproval/approve', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function declineContentApproval(id: number, reason: string) {
+  const response = await client.post<ApiEnvelope<null>>('/ContentApproval/decline', {
+    id,
+    reason,
+  });
+  return response.data.data;
+}
+
+export async function forbidContentApprovalUser(uid: number, forbiddenTime: string, forbiddenReason: string) {
+  const response = await client.post<ApiEnvelope<null>>('/ContentApproval/forbid', {
+    uid,
+    forbidden_time: forbiddenTime,
+    forbidden_reason: forbiddenReason,
+  });
+  return response.data.data;
+}
+
+export async function forbidContentApprovalUserIp(uid: number) {
+  const response = await client.get<ApiEnvelope<null>>('/ContentApproval/forbiddenIp', {
+    params: { uid },
   });
   return response.data.data;
 }

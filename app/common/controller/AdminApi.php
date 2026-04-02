@@ -82,6 +82,26 @@ abstract class AdminApi extends Base
         $action = strtolower(Str::snake($this->request->action()));
 
         $mapped = [
+            'contentarticle/index' => 'content/Article/index',
+            'contentarticle/detail' => 'content/Article/seo',
+            'contentarticle/saveseo' => 'content/Article/seo',
+            'contentarticle/delete' => 'content/Article/delete',
+            'contentarticle/manager' => 'content/Article/manager',
+            'contentquestion/index' => 'content/Question/index',
+            'contentquestion/detail' => 'content/Question/seo',
+            'contentquestion/saveseo' => 'content/Question/seo',
+            'contentquestion/delete' => 'content/Question/delete',
+            'contentquestion/manager' => 'content/Question/manager',
+            'contentanswer/index' => 'content/Answer/index',
+            'contentanswer/detail' => 'content/Answer/edit',
+            'contentanswer/save' => 'content/Answer/edit',
+            'contentanswer/delete' => 'content/Answer/delete',
+            'contentapproval/index' => 'content/Approval/index',
+            'contentapproval/detail' => 'content/Approval/edit',
+            'contentapproval/approve' => 'content/Approval/state',
+            'contentapproval/decline' => 'content/Approval/state',
+            'contentapproval/forbid' => 'content/Approval/forbidden',
+            'contentapproval/forbiddenip' => 'content/Approval/forbidden_ip',
             'systemauth/index' => 'admin/Auth/index',
             'systemauth/detail' => 'admin/Auth/edit',
             'systemauth/meta' => 'admin/Auth/add',
@@ -258,6 +278,10 @@ abstract class AdminApi extends Base
             'admin/group/index' => '/system/groups',
             'admin/config/index' => '/system/configs',
             'admin/config/group' => '/system/configs',
+            'content/article/index' => '/content/articles',
+            'content/question/index' => '/content/questions',
+            'content/answer/index' => '/content/answers',
+            'content/approval/index' => '/content/approvals',
             'member/users/index' => '/system/users',
         ];
 
@@ -281,6 +305,10 @@ abstract class AdminApi extends Base
             'admin/group/index',
             'admin/config/index',
             'admin/config/group',
+            'content/article/index',
+            'content/question/index',
+            'content/answer/index',
+            'content/approval/index',
             'member/users/index',
         ], true)) {
             return 'vben-ready';
