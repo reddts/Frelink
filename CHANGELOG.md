@@ -15,6 +15,8 @@
   - `GET /adminapi.php/SystemConfig/groupDetail`
   - `POST /adminapi.php/SystemConfig/groupSave`
   - `POST /adminapi.php/SystemConfig/groupDelete`
+  - `GET /adminapi.php/SystemConfig/configPage`
+  - `POST /adminapi.php/SystemConfig/configPageSave`
 - `SystemConfig` 已把新控制器权限映射回旧的 `admin/Config/index` 节点，迁移期间继续沿用旧权限模型
 - 新管理端已新增第三个真实迁移页面：
   - `/admin-vben/#/system/configs`
@@ -29,9 +31,11 @@
   - 配置分组概览查看
   - 配置项创建、编辑、删除
   - 配置分组创建、编辑、删除
+  - 按分组动态配置表单读取
+  - 按分组动态配置表单保存
 - 当前结论：
   - `Config.php` 的列表、明细和基础保存职责已开始向 `adminapi + Vue` 迁出
-  - 旧后台中最重的 `config()` 分组动态表单仍未迁移，下一轮继续拆这一块
+  - `Config.php` 中最核心的 `config()` 主链路已经开始迁移，但富文本、上传和更细颗粒度控件行为仍需继续补齐
 
 ### 里程碑：管理组开始脱离 app/backend，迁入 adminapi + Vue
 

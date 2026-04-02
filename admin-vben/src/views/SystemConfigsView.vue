@@ -4,7 +4,7 @@
       <div>
         <span class="eyebrow">System / Configs</span>
         <h3>系统配置</h3>
-        <p>配置页现在不只是读取，已经开始接入配置项和配置分组的编辑保存链路。</p>
+        <p>配置页已经进入第二阶段，除了配置项和分组管理，也开始接管旧后台按分组动态配置表单。</p>
       </div>
       <div class="toolbar-row">
         <label class="search-inline">
@@ -36,41 +36,106 @@
 
     <section class="panel-grid config-panel-grid">
       <article class="panel-card">
-        <span class="eyebrow">配置项列表</span>
-        <div class="config-table">
-          <div class="config-table-head">
-            <span>变量名</span>
-            <span>标题</span>
-            <span>类型</span>
-            <span>分组</span>
-            <span>排序</span>
-          </div>
+        <span class="eyebrow">动态配置页</span>
+        <template v-if="configPage?.fields.length">
+          <form class="editor-form" @submit.prevent="submitConfigPage">
+            <template v-for="field in configPage.fields" :key="field.id">
+              <label v-if="field.widget === 'text'">
+                <span>{{ field.title }}</span>
+                <input :type="resolveInputType(field.type)" :value="getScalarValue(field.name)" @input="setScalarValue(field.name, $event)" />
+                <small>{{ field.tips }}</small>
+              </label>
 
-          <div
-            v-for="item in payload?.list || []"
-            :key="item.id"
-            class="config-table-row"
-            :class="{ 'is-current': selectedConfigId === item.id }"
-          >
-            <span>
-              <strong>{{ item.name }}</strong>
-              <small>{{ item.value_preview || '无预览值' }}</small>
-            </span>
-            <span>
-              <strong>{{ item.title }}</strong>
-              <small>{{ item.tips || '无说明' }}</small>
-            </span>
-            <span>{{ item.type_label }}</span>
-            <span>{{ item.group_name }}</span>
-            <span>
-              <strong>{{ item.sort }}</strong>
-              <small class="config-actions">
-                <button type="button" class="text-button" @click="editConfig(item.id)">编辑</button>
-                <button type="button" class="text-button danger-button" @click="removeConfig(item.id)">删除</button>
-              </small>
-            </span>
-          </div>
-        </div>
+              <label v-else-if="field.widget === 'number'">
+                <span>{{ field.title }}</span>
+                <input :value="getScalarValue(field.name)" type="number" @input="setScalarValue(field.name, $event)" />
+                <small>{{ field.tips }}</small>
+              </label>
+
+              <label v-else-if="field.widget === 'textarea'">
+                <span>{{ field.title }}</span>
+                <textarea :value="getScalarValue(field.name)" rows="5" @input="setScalarValue(field.name, $event)" />
+                <small>{{ field.tips }}</small>
+              </label>
+
+              <label v-else-if="field.widget === 'boolean'">
+                <span>{{ field.title }}</span>
+                <select :value="getScalarValue(field.name)" @change="setSelectValue(field.name, $event)">
+                  <option value="1">是</option>
+                  <option value="0">否</option>
+                </select>
+                <small>{{ field.tips }}</small>
+              </label>
+
+              <label v-else-if="field.widget === 'select'">
+                <span>{{ field.title }}</span>
+                <select :value="getScalarValue(field.name)" @change="setSelectValue(field.name, $event)">
+                  <option value="">请选择</option>
+                  <option v-for="option in field.options" :key="option.value" :value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+                <small>{{ field.tips }}</small>
+              </label>
+
+              <div v-else-if="field.widget === 'multi-select'" class="editor-form-group">
+                <span>{{ field.title }}</span>
+                <div class="check-grid">
+                  <label v-for="option in field.options" :key="option.value" class="check-item">
+                    <input
+                      :checked="includesArrayValue(configPageValues[field.name], option.value)"
+                      type="checkbox"
+                      @change="toggleConfigPageValue(field.name, option.value, $event)"
+                    />
+                    <span>{{ option.label }}</span>
+                  </label>
+                </div>
+                <small>{{ field.tips }}</small>
+              </div>
+
+              <div v-else-if="field.widget === 'list-text'" class="editor-form-group">
+                <span>{{ field.title }}</span>
+                <div class="kv-list">
+                  <div
+                    v-for="(item, index) in getStringList(field.name)"
+                    :key="`${field.name}-${index}`"
+                    class="kv-row"
+                  >
+                    <input v-model="getStringList(field.name)[index]" type="text" />
+                    <button class="ghost-button" type="button" @click="removeListItem(field.name, index)">移除</button>
+                  </div>
+                </div>
+                <button class="ghost-button" type="button" @click="appendListItem(field.name)">追加一项</button>
+                <small>{{ field.tips }}</small>
+              </div>
+
+              <div v-else-if="field.widget === 'key-value'" class="editor-form-group">
+                <span>{{ field.title }}</span>
+                <div class="kv-list">
+                  <div
+                    v-for="(item, index) in getPairList(field.name)"
+                    :key="`${field.name}-${index}`"
+                    class="kv-row kv-pair"
+                  >
+                    <input v-model="item.key" placeholder="键名" type="text" />
+                    <input v-model="item.value" placeholder="键值" type="text" />
+                    <button class="ghost-button" type="button" @click="removePairItem(field.name, index)">移除</button>
+                  </div>
+                </div>
+                <button class="ghost-button" type="button" @click="appendPairItem(field.name)">追加一项</button>
+                <small>{{ field.tips }}</small>
+              </div>
+            </template>
+
+            <div class="form-actions">
+              <button class="primary-button" type="submit" :disabled="savingConfigPage">
+                {{ savingConfigPage ? '保存中...' : '保存当前分组配置' }}
+              </button>
+              <button class="ghost-button" type="button" @click="handleReloadConfigPage">重载当前分组</button>
+            </div>
+          </form>
+        </template>
+        <p v-else>当前分组暂无动态配置项。</p>
       </article>
 
       <article class="panel-card">
@@ -143,23 +208,39 @@
 
     <section class="panel-grid config-panel-grid">
       <article class="panel-card">
-        <span class="eyebrow">配置分组概览</span>
-        <div class="quick-links group-list">
+        <span class="eyebrow">配置项列表</span>
+        <div class="config-table">
+          <div class="config-table-head">
+            <span>变量名</span>
+            <span>标题</span>
+            <span>类型</span>
+            <span>分组</span>
+            <span>排序</span>
+          </div>
+
           <div
-            v-for="item in payload?.groups || []"
+            v-for="item in payload?.list || []"
             :key="item.id"
-            class="ghost-button group-card-button config-group-card"
-            :class="{ 'is-current': selectedGroupId === item.id }"
+            class="config-table-row"
+            :class="{ 'is-current': selectedConfigId === item.id }"
           >
-            <div class="config-group-main">
+            <span>
               <strong>{{ item.name }}</strong>
-              <span>{{ item.status ? '正常' : '锁定' }} / {{ item.config_count }} 项配置</span>
-              <small>{{ item.description || '暂无备注' }}</small>
-            </div>
-            <div class="config-group-actions">
-              <button type="button" class="text-button" @click="editGroup(item.id)">编辑</button>
-              <button type="button" class="text-button danger-button" @click="removeGroup(item.id)">删除</button>
-            </div>
+              <small>{{ item.value_preview || '无预览值' }}</small>
+            </span>
+            <span>
+              <strong>{{ item.title }}</strong>
+              <small>{{ item.tips || '无说明' }}</small>
+            </span>
+            <span>{{ item.type_label }}</span>
+            <span>{{ item.group_name }}</span>
+            <span>
+              <strong>{{ item.sort }}</strong>
+              <small class="config-actions">
+                <button type="button" class="text-button" @click="editConfig(item.id)">编辑</button>
+                <button type="button" class="text-button danger-button" @click="removeConfig(item.id)">删除</button>
+              </small>
+            </span>
           </div>
         </div>
       </article>
@@ -193,6 +274,25 @@
             <button class="ghost-button" type="button" @click="startCreateGroup">重置</button>
           </div>
         </form>
+
+        <div class="quick-links group-list group-list-panel">
+          <div
+            v-for="item in payload?.groups || []"
+            :key="item.id"
+            class="ghost-button group-card-button config-group-card"
+            :class="{ 'is-current': selectedGroupId === item.id }"
+          >
+            <div class="config-group-main">
+              <strong>{{ item.name }}</strong>
+              <span>{{ item.status ? '正常' : '锁定' }} / {{ item.config_count }} 项配置</span>
+              <small>{{ item.description || '暂无备注' }}</small>
+            </div>
+            <div class="config-group-actions">
+              <button type="button" class="text-button" @click="editGroup(item.id)">编辑</button>
+              <button type="button" class="text-button danger-button" @click="removeGroup(item.id)">删除</button>
+            </div>
+          </div>
+        </div>
       </article>
     </section>
   </div>
@@ -206,20 +306,32 @@ import {
   fetchSystemConfigDetail,
   fetchSystemConfigGroupDetail,
   fetchSystemConfigMeta,
+  fetchSystemConfigPage,
   fetchSystemConfigs,
   saveSystemConfig,
   saveSystemConfigGroup,
+  saveSystemConfigPage,
 } from '@/api/admin';
-import type { SystemConfigMetaPayload, SystemConfigOverviewPayload } from '@/types';
+import type {
+  SystemConfigMetaPayload,
+  SystemConfigOverviewPayload,
+  SystemConfigPageField,
+  SystemConfigPagePayload,
+} from '@/types';
+
+type ConfigPageValue = string | string[] | Array<{ key: string; value: string }>;
 
 const payload = ref<SystemConfigOverviewPayload | null>(null);
 const configMeta = ref<SystemConfigMetaPayload | null>(null);
+const configPage = ref<SystemConfigPagePayload | null>(null);
+const configPageValues = ref<Record<string, ConfigPageValue>>({});
 const keyword = ref('');
 const currentGroupId = ref(0);
 const selectedConfigId = ref(0);
 const selectedGroupId = ref(0);
 const savingConfig = ref(false);
 const savingGroup = ref(false);
+const savingConfigPage = ref(false);
 
 const configForm = ref({
   id: 0,
@@ -248,20 +360,146 @@ function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : '请求失败';
 }
 
+function resolveInputType(type: string) {
+  if (type === 'password') {
+    return 'password';
+  }
+  if (type === 'color') {
+    return 'color';
+  }
+  if (type === 'date') {
+    return 'date';
+  }
+  if (type === 'time') {
+    return 'time';
+  }
+  if (type === 'datetime') {
+    return 'datetime-local';
+  }
+  return 'text';
+}
+
+function normalizePageFieldValue(field: SystemConfigPageField): ConfigPageValue {
+  if (field.widget === 'multi-select' || field.widget === 'list-text') {
+    return Array.isArray(field.value) ? field.value.filter((item): item is string => typeof item === 'string') : [];
+  }
+  if (field.widget === 'key-value') {
+    return Array.isArray(field.value)
+      ? field.value
+          .filter((item): item is { key: string; value: string } => typeof item === 'object' && item !== null && 'key' in item && 'value' in item)
+          .map((item) => ({ key: item.key, value: item.value }))
+      : [];
+  }
+  return typeof field.value === 'string' ? field.value : '';
+}
+
+function getScalarValue(name: string): string {
+  const value = configPageValues.value[name];
+  return typeof value === 'string' ? value : '';
+}
+
+function setScalarValue(name: string, event: Event) {
+  configPageValues.value[name] = (event.target as HTMLInputElement | HTMLTextAreaElement).value;
+}
+
+function setSelectValue(name: string, event: Event) {
+  configPageValues.value[name] = (event.target as HTMLSelectElement).value;
+}
+
 async function ensureConfigMeta() {
   if (!configMeta.value) {
     configMeta.value = await fetchSystemConfigMeta();
   }
 }
 
+async function reloadConfigPage(groupId = currentGroupId.value) {
+  configPage.value = await fetchSystemConfigPage(groupId);
+  const nextValues: Record<string, ConfigPageValue> = {};
+  for (const field of configPage.value.fields) {
+    nextValues[field.name] = normalizePageFieldValue(field);
+  }
+  configPageValues.value = nextValues;
+}
+
 async function reload() {
   payload.value = await fetchSystemConfigs(currentGroupId.value, keyword.value);
   currentGroupId.value = payload.value.group_id;
+  await reloadConfigPage(currentGroupId.value);
 }
 
 async function switchGroup(groupId: number) {
   currentGroupId.value = groupId;
   await reload();
+}
+
+function includesArrayValue(value: ConfigPageValue | undefined, target: string) {
+  return Array.isArray(value) && value.some((item) => typeof item === 'string' && item === target);
+}
+
+function toggleConfigPageValue(name: string, optionValue: string, event: Event) {
+  const checked = (event.target as HTMLInputElement).checked;
+  const current = Array.isArray(configPageValues.value[name]) ? [...(configPageValues.value[name] as string[])] : [];
+  if (checked) {
+    if (!current.includes(optionValue)) {
+      current.push(optionValue);
+    }
+  } else {
+    const index = current.indexOf(optionValue);
+    if (index >= 0) {
+      current.splice(index, 1);
+    }
+  }
+  configPageValues.value[name] = current;
+}
+
+function handleReloadConfigPage() {
+  return reloadConfigPage();
+}
+
+function getStringList(name: string): string[] {
+  if (!Array.isArray(configPageValues.value[name])) {
+    configPageValues.value[name] = [];
+  }
+  return configPageValues.value[name] as string[];
+}
+
+function appendListItem(name: string) {
+  getStringList(name).push('');
+}
+
+function removeListItem(name: string, index: number) {
+  getStringList(name).splice(index, 1);
+}
+
+function getPairList(name: string): Array<{ key: string; value: string }> {
+  if (!Array.isArray(configPageValues.value[name])) {
+    configPageValues.value[name] = [];
+  }
+  return configPageValues.value[name] as Array<{ key: string; value: string }>;
+}
+
+function appendPairItem(name: string) {
+  getPairList(name).push({ key: '', value: '' });
+}
+
+function removePairItem(name: string, index: number) {
+  getPairList(name).splice(index, 1);
+}
+
+async function submitConfigPage() {
+  if (!configPage.value?.group_id) {
+    return;
+  }
+
+  savingConfigPage.value = true;
+  try {
+    await saveSystemConfigPage(configPage.value.group_id, configPageValues.value);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  } finally {
+    savingConfigPage.value = false;
+  }
 }
 
 async function startCreateConfig() {

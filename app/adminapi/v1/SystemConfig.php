@@ -105,4 +105,26 @@ class SystemConfig extends AdminApi
 
         $this->apiSuccess((string) ($result['msg'] ?? '删除成功'));
     }
+
+    public function configPage()
+    {
+        $groupId = intval($this->request->param('group_id', 0));
+        $this->apiResult($this->configService->getConfigPage($groupId));
+    }
+
+    public function configPageSave()
+    {
+        if (!$this->request->isPost()) {
+            $this->apiError('请求参数错误');
+        }
+
+        $groupId = intval($this->request->post('group_id', 0));
+        $values = $this->request->post('values/a', []);
+        $result = $this->configService->saveConfigPage($groupId, $values);
+        if (intval($result['code'] ?? 0) !== 1) {
+            $this->apiError((string) ($result['msg'] ?? '保存失败'));
+        }
+
+        $this->apiSuccess((string) ($result['msg'] ?? '保存成功'));
+    }
 }

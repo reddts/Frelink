@@ -184,3 +184,26 @@ export interface SystemConfigMetaPayload {
     settings: Record<string, string>;
   };
 }
+
+export interface SystemConfigPageFieldOption {
+  label: string;
+  value: string;
+}
+
+export interface SystemConfigPageField {
+  id: number;
+  name: string;
+  title: string;
+  type: string;
+  widget: string;
+  multiple: boolean;
+  tips: string;
+  options: SystemConfigPageFieldOption[];
+  value: string | string[] | Array<{ key: string; value: string }>;
+}
+
+export interface SystemConfigPagePayload {
+  group_id: number;
+  group_tabs: ConfigGroupTab[];
+  fields: SystemConfigPageField[];
+}

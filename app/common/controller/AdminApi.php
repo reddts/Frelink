@@ -100,6 +100,8 @@ abstract class AdminApi extends Base
             'systemconfig/groupdetail' => 'admin/Config/group_edit',
             'systemconfig/groupsave' => 'admin/Config/group_edit',
             'systemconfig/groupdelete' => 'admin/Config/group_delete',
+            'systemconfig/configpage' => 'admin/Config/config',
+            'systemconfig/configpagesave' => 'admin/Config/config',
         ];
 
         $key = $controller . '/' . $action;

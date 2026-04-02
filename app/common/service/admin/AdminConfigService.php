@@ -19,6 +19,62 @@ class AdminConfigService
         ];
     }
 
+    public function getConfigPage(int $groupId = 0): array
+    {
+        $groups = $this->getGroups();
+        $selectedGroupId = $this->resolveSelectedGroupId($groupId, $groups);
+        if ($selectedGroupId <= 0 && !empty($groups)) {
+            $selectedGroupId = intval($groups[0]['id'] ?? 0);
+        }
+
+        return [
+            'group_id' => $selectedGroupId,
+            'group_tabs' => $this->buildGroupTabs($groups),
+            'fields' => $selectedGroupId > 0 ? $this->buildConfigPageFields($selectedGroupId) : [],
+        ];
+    }
+
+    public function saveConfigPage(int $groupId, array $payload): array
+    {
+        if ($groupId <= 0) {
+            return ['code' => 0, 'msg' => '配置分组错误'];
+        }
+
+        $configs = db('config')
+            ->where('group', $groupId)
+            ->order(['sort' => 'asc', 'id' => 'asc'])
+            ->select()
+            ->toArray();
+
+        if (!$configs) {
+            return ['code' => 0, 'msg' => '当前分组暂无配置项'];
+        }
+
+        $configList = [];
+        foreach ($configs as $config) {
+            $name = (string) ($config['name'] ?? '');
+            if ($name === '' || !array_key_exists($name, $payload)) {
+                continue;
+            }
+
+            $normalized = $this->normalizeConfigPageValue($config, $payload[$name]);
+            $config['value'] = $normalized['value'];
+            $config['option'] = $normalized['option'];
+            $configList[] = $config;
+        }
+
+        if (!$configList) {
+            return ['code' => 0, 'msg' => '没有可保存的配置项'];
+        }
+
+        $result = db('config')->saveAll($configList);
+        if (!$result) {
+            return ['code' => 0, 'msg' => '保存失败或数据无变化'];
+        }
+
+        return ['code' => 1, 'msg' => '修改成功'];
+    }
+
     public function getGroups(): array
     {
         $groups = db('config_group')
@@ -365,6 +421,186 @@ class AdminConfigService
             ];
         }
         return $options;
+    }
+
+    protected function buildConfigPageFields(int $groupId): array
+    {
+        $list = db('config')
+            ->where('group', $groupId)
+            ->order(['sort' => 'asc', 'id' => 'asc'])
+            ->select()
+            ->toArray();
+
+        $fields = [];
+        foreach ($list as $item) {
+            $fields[] = $this->formatConfigPageField($item);
+        }
+
+        return $fields;
+    }
+
+    protected function formatConfigPageField(array $item): array
+    {
+        $type = (string) ($item['type'] ?? 'text');
+        $name = (string) ($item['name'] ?? '');
+        $title = (string) ($item['title'] ?? $name);
+        $tips = trim((string) ($item['tips'] ?? ''));
+
+        if ($type !== 'html') {
+            $tips = ($tips ? $tips . '; ' : '') . "调用方式：get_setting('{$name}')";
+        }
+
+        $options = [];
+        if (!empty($item['dict_code'])) {
+            $options = $this->mapOptions(db('dict')->where(['dict_id' => intval($item['dict_code'])])->column('name', 'value'));
+        } else {
+            $decoded = json_decode((string) ($item['option'] ?? ''), true);
+            if (is_array($decoded) && in_array($type, ['radio', 'checkbox', 'select', 'select2'], true)) {
+                $options = $this->mapOptions($decoded);
+            }
+        }
+
+        return [
+            'id' => intval($item['id'] ?? 0),
+            'name' => $name,
+            'title' => $title,
+            'type' => $type,
+            'tips' => $tips,
+            'widget' => $this->resolveConfigWidget($type),
+            'multiple' => in_array($type, ['checkbox', 'select2', 'images', 'files'], true),
+            'options' => $options,
+            'value' => $this->normalizeConfigPageDisplayValue($item),
+        ];
+    }
+
+    protected function resolveConfigWidget(string $type): string
+    {
+        if (in_array($type, ['textarea', 'editor', 'code', 'html'], true)) {
+            return 'textarea';
+        }
+        if ($type === 'number') {
+            return 'number';
+        }
+        if (in_array($type, ['radio', 'select'], true)) {
+            return 'select';
+        }
+        if (in_array($type, ['checkbox', 'select2'], true)) {
+            return 'multi-select';
+        }
+        if ($type === 'array') {
+            return 'key-value';
+        }
+        if (in_array($type, ['images', 'files'], true)) {
+            return 'list-text';
+        }
+        if ($type === 'bool') {
+            return 'boolean';
+        }
+        return 'text';
+    }
+
+    protected function normalizeConfigPageDisplayValue(array $item)
+    {
+        $type = (string) ($item['type'] ?? '');
+        $value = $item['value'] ?? '';
+
+        if (in_array($type, ['editor', 'textarea', 'code', 'html', 'text'], true)) {
+            return htmlspecialchars_decode((string) $value);
+        }
+
+        if (in_array($type, ['checkbox', 'select2'], true)) {
+            if ($value === '' || $value === null) {
+                return [];
+            }
+            return array_values(array_filter(explode(',', (string) $value), static function ($part) {
+                return $part !== '';
+            }));
+        }
+
+        if (in_array($type, ['images', 'files'], true)) {
+            $decoded = json_decode((string) ($item['option'] ?? ''), true);
+            return is_array($decoded) ? array_values($decoded) : [];
+        }
+
+        if ($type === 'array') {
+            $decoded = json_decode((string) ($item['option'] ?? ''), true);
+            $pairs = [];
+            if (is_array($decoded)) {
+                foreach ($decoded as $key => $optionValue) {
+                    $pairs[] = [
+                        'key' => (string) $key,
+                        'value' => (string) $optionValue,
+                    ];
+                }
+            }
+            return $pairs;
+        }
+
+        if ($type === 'bool') {
+            return intval($value) ? '1' : '0';
+        }
+
+        return $value;
+    }
+
+    protected function normalizeConfigPageValue(array $config, $value): array
+    {
+        $type = (string) ($config['type'] ?? '');
+        $option = json_decode((string) ($config['option'] ?? ''), true);
+        if (!is_array($option)) {
+            $option = [];
+        }
+
+        if ($type === 'array') {
+            $pairs = is_array($value) ? $value : [];
+            $arrayValue = [];
+            foreach ($pairs as $pair) {
+                if (!is_array($pair)) {
+                    continue;
+                }
+                $key = trim((string) ($pair['key'] ?? ''));
+                if ($key === '') {
+                    continue;
+                }
+                $arrayValue[$key] = (string) ($pair['value'] ?? '');
+            }
+
+            return [
+                'value' => 0,
+                'option' => json_encode($arrayValue, JSON_UNESCAPED_UNICODE),
+            ];
+        }
+
+        if (in_array($type, ['images', 'files'], true)) {
+            $listValue = is_array($value) ? array_values(array_filter(array_map('strval', $value), static function ($item) {
+                return trim($item) !== '';
+            })) : [];
+            return [
+                'value' => 0,
+                'option' => json_encode($listValue, JSON_UNESCAPED_UNICODE),
+            ];
+        }
+
+        if (is_array($value)) {
+            $value = implode(',', array_map('strval', $value));
+        }
+
+        return [
+            'value' => (string) $value,
+            'option' => json_encode($option, JSON_UNESCAPED_UNICODE),
+        ];
+    }
+
+    protected function mapOptions(array $options): array
+    {
+        $result = [];
+        foreach ($options as $value => $label) {
+            $result[] = [
+                'label' => (string) $label,
+                'value' => (string) $value,
+            ];
+        }
+        return $result;
     }
 
     protected function buildDictionaryOptions(): array

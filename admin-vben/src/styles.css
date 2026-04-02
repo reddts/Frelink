@@ -304,6 +304,16 @@ input {
   align-items: flex-end;
 }
 
+.editor-form-group {
+  display: grid;
+  gap: 8px;
+}
+
+.editor-form-group > small,
+.editor-form label > small {
+  opacity: 0.72;
+}
+
 .menu-table {
   margin-top: 14px;
   display: flex;
@@ -409,6 +419,10 @@ input {
   flex: 1;
 }
 
+.group-list-panel {
+  margin-top: 18px;
+}
+
 .config-group-actions,
 .config-actions,
 .form-actions {
@@ -452,6 +466,38 @@ input {
   background: #f8fbff;
   border-radius: 14px;
   padding: 12px 14px;
+}
+
+.check-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.check-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(21, 33, 45, 0.08);
+  border-radius: 12px;
+  background: #f7fbff;
+}
+
+.kv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kv-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+.kv-pair {
+  grid-template-columns: 1fr 1fr auto;
 }
 
 .menu-table-head,
@@ -557,5 +603,10 @@ input {
   .config-table-row {
     grid-template-columns: 1fr;
     gap: 6px;
+  }
+
+  .kv-row,
+  .kv-pair {
+    grid-template-columns: 1fr;
   }
 }

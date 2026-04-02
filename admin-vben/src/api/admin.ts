@@ -10,6 +10,7 @@ import type {
   SystemConfigDetail,
   SystemConfigGroupItem,
   SystemConfigMetaPayload,
+  SystemConfigPagePayload,
   SystemConfigOverviewPayload,
   SystemMenuListPayload,
 } from '@/types';
@@ -103,5 +104,20 @@ export async function saveSystemConfigGroup(payload: Record<string, unknown>) {
 
 export async function deleteSystemConfigGroup(id: number) {
   const response = await client.post<ApiEnvelope<null>>('/SystemConfig/groupDelete', { id });
+  return response.data.data;
+}
+
+export async function fetchSystemConfigPage(groupId = 0) {
+  const response = await client.get<ApiEnvelope<SystemConfigPagePayload>>('/SystemConfig/configPage', {
+    params: { group_id: groupId },
+  });
+  return response.data.data;
+}
+
+export async function saveSystemConfigPage(groupId: number, values: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<null>>('/SystemConfig/configPageSave', {
+    group_id: groupId,
+    values,
+  });
   return response.data.data;
 }
