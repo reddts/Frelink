@@ -4,6 +4,7 @@ namespace app\mobile;
 use app\common\controller\Frontend;
 use app\common\library\helper\AgentHelper;
 use app\common\library\helper\FormatHelper;
+use app\common\library\helper\HtmlHelper;
 use app\common\library\helper\LogHelper;
 use app\common\library\helper\PopularHelper;
 use app\model\Approval;
@@ -78,6 +79,7 @@ class Article extends Frontend
         $article_info['title'] = htmlspecialchars_decode($article_info['title']);
         $article_info['article_type'] = frelink_normalize_article_type($article_info['article_type'] ?? 'normal');
         $article_info['article_type_label'] = frelink_article_type_label($article_info['article_type']);
+        $article_info['message'] = HtmlHelper::prepareMobileContentImages($article_info['message']);
 
         //举报状态
         $article_info['is_report'] = Report::getReportInfo($article_info['id'], 'article', $this->user_id);

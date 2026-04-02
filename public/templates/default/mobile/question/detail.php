@@ -396,6 +396,9 @@
                         }
 
                         $('#ajaxResult').append(result.data.html);
+                        if (window.initMobileContentImages) {
+                            window.initMobileContentImages($('#ajaxResult'));
+                        }
 
                         if(type=='answer')
                         {

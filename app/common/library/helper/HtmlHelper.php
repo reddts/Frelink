@@ -267,7 +267,7 @@ class HtmlHelper
 	 * @param string $content 内容原始html
 	 * @return string 返回替换后的内容
 	 */
-	public static function parseImgUrl(string $content,$url=''): string
+    public static function parseImgUrl(string $content,$url=''): string
     {
         $images = ImageHelper::srcList($content);
         $url = $url ?: request()->domain();
@@ -283,6 +283,66 @@ class HtmlHelper
 		}
 		return $content;
 	}
+
+    /**
+     * 为移动端正文图片补充缩略图占位与原图回源属性，降低无缓存时的首屏开销
+     * @param string|null $content
+     * @param int $thumbWidth
+     * @param int $thumbHeight
+     * @return string
+     */
+    public static function prepareMobileContentImages(?string $content, int $thumbWidth = 720, int $thumbHeight = 720): string
+    {
+        $content = (string)$content;
+        if ($content === '') {
+            return '';
+        }
+
+        return preg_replace_callback('/<img\b[^>]*>/i', function ($matches) use ($thumbWidth, $thumbHeight) {
+            $tag = $matches[0];
+            if (!preg_match('/\bsrc=(["\'])(.*?)\1/i', $tag, $srcMatch)) {
+                return $tag;
+            }
+
+            $rawSrc = trim(htmlspecialchars_decode($srcMatch[2], ENT_QUOTES));
+            if ($rawSrc === '' || stripos($rawSrc, 'data:') === 0) {
+                return $tag;
+            }
+
+            $originalSrc = ImageHelper::replaceImageUrl($rawSrc) ?: $rawSrc;
+            $thumbSrc = ImageHelper::buildThumbUrl((string)$originalSrc, $thumbWidth, $thumbHeight);
+            if (!$thumbSrc) {
+                $thumbSrc = $originalSrc;
+            }
+
+            $updated = preg_replace('/\bsrc=(["\'])(.*?)\1/i', 'src="'.htmlspecialchars($thumbSrc, ENT_QUOTES, 'UTF-8').'"', $tag, 1);
+            $attrs = [
+                'data-original' => $originalSrc,
+                'loading' => 'lazy',
+                'decoding' => 'async',
+            ];
+
+            foreach ($attrs as $name => $value) {
+                if (preg_match('/\b'.preg_quote($name, '/').'=/i', $updated)) {
+                    $updated = preg_replace('/\b'.preg_quote($name, '/').'=(["\'])(.*?)\1/i', $name.'="'.htmlspecialchars($value, ENT_QUOTES, 'UTF-8').'"', $updated, 1);
+                } else {
+                    $updated = preg_replace('/<img\b/i', '<img '.$name.'="'.htmlspecialchars($value, ENT_QUOTES, 'UTF-8').'"', $updated, 1);
+                }
+            }
+
+            if (preg_match('/\bclass=(["\'])(.*?)\1/i', $updated, $classMatch)) {
+                $classes = preg_split('/\s+/', trim($classMatch[2])) ?: [];
+                if (!in_array('aw-content-lazy-img', $classes, true)) {
+                    $classes[] = 'aw-content-lazy-img';
+                }
+                $updated = preg_replace('/\bclass=(["\'])(.*?)\1/i', 'class="'.htmlspecialchars(trim(implode(' ', array_filter($classes))), ENT_QUOTES, 'UTF-8').'"', $updated, 1);
+            } else {
+                $updated = preg_replace('/<img\b/i', '<img class="aw-content-lazy-img"', $updated, 1);
+            }
+
+            return $updated;
+        }, $content) ?: $content;
+    }
 
     public static function replaceVideo(string $content,string $url=''): mixed
     {

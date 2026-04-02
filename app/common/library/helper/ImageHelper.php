@@ -264,6 +264,16 @@ class ImageHelper
             return $image;
         }
 
+        $existingThumbAbs = self::findExistingThumbVariant($srcAbs, $ext);
+        if ($existingThumbAbs) {
+            $existingThumbPath = '/'.ltrim(str_replace('\\', '/', substr($existingThumbAbs, strlen(rtrim(public_path(), '/\\')))), '/');
+            if ($scheme && $host) {
+                $port = isset($parsed['port']) ? ':'.$parsed['port'] : '';
+                return $scheme.'://'.$host.$port.$existingThumbPath;
+            }
+            return strpos($path, '/') === 0 ? $existingThumbPath : ltrim($existingThumbPath, '/');
+        }
+
         if (!is_file($thumbAbs)) {
             self::createListThumb($srcAbs, $thumbAbs, $ext, $width, $height);
         }
@@ -279,6 +289,25 @@ class ImageHelper
 
         // 保持和原始风格一致：原始没有前导 / 时，返回相同风格
         return strpos($path, '/') === 0 ? $thumbPath : ltrim($thumbPath, '/');
+    }
+
+    /**
+     * 查找已存在的历史缩略图，避免在只读目录里请求期动态生成失败
+     */
+    private static function findExistingThumbVariant(string $srcAbs, string $ext): ?string
+    {
+        $dir = dirname($srcAbs);
+        $filename = basename($srcAbs);
+        $basename = pathinfo($filename, PATHINFO_FILENAME);
+        $pattern = $dir.DIRECTORY_SEPARATOR.$basename.'.thumb.*.'.$ext;
+        $matches = glob($pattern) ?: [];
+        if (!$matches) {
+            return null;
+        }
+
+        natsort($matches);
+        $matches = array_values($matches);
+        return $matches[0] ?? null;
     }
 
     /**

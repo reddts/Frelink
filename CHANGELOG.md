@@ -2531,3 +2531,36 @@
   - 避免凭据状态异常时静默等待交互输入
   - 减少部署过程“看起来卡住”的假死现象
 - `.deployignore` 新增 `.codex/`，避免本地辅助目录参与部署扫描
+
+### 里程碑补充：移动端知识内容详情页正文图缩略图回退
+
+- 本地修改：
+  - 移动端文章详情、FAQ 详情和回答正文图片新增 `data-original`、`loading="lazy"`、`decoding="async"`
+  - 移动端正文图片灯箱改为始终指向原图，进入视口后再回源高清图
+  - `ImageHelper` 新增正文图缩略图回退逻辑，优先复用已存在的 `*.thumb.*` 文件，避免线上只读目录导致请求期写盘失败
+- 真实部署批次：
+  - 2026-04-02 22:10 CST 首次同步到 `production`，完成远程批处理与 smoke
+  - 2026-04-02 22:14 CST 二次同步到 `production`，补正文图现有缩略图回退
+  - 2026-04-02 22:16 CST 三次同步到 `production`，修正历史缩略图命名识别，完成最终验证
+- 目标服务器 / 站点：
+  - `azureuser@20.191.157.253:/www/wwwroot/knoledge`
+  - `https://www.frelink.top`
+- 执行过的远程验证命令：
+  - `php -l app/function.inc.php`
+  - `php -l app/frontend/Article.php`
+  - `sudo -n php think clear`
+  - `sudo -n php think api:doc --output docs/api-v1.md`
+  - `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+  - smoke:
+    - `curl -fsSIL https://www.frelink.top/`
+    - `curl -fsSIL https://www.frelink.top/questions/`
+    - `curl -fsSIL https://www.frelink.top/articles/`
+- 实际抽查过的页面：
+  - `https://www.frelink.top/m.php/article/142.html`
+  - `https://www.frelink.top/m.php/article/134.html`
+  - `https://www.frelink.top/m.php/question/29.html`
+- 实际结果：
+  - 移动端文章详情页正文图片已输出 `src=*.thumb.480x320.*`
+  - 原图保留在 `data-original`
+  - 外链图片继续保留原图，避免错误改写
+  - 过程中发现线上 `public/storage` 为 `755 azureuser:azureuser`，请求期不适合动态生成新尺寸缩略图，因此最终方案改为优先复用现有历史缩略图文件
