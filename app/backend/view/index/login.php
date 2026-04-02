@@ -72,6 +72,7 @@
                 </div>
                 <div class="admin-login-actions">
                     <button type="button" class="btn btn-primary btn-lg btn-block login-button">登录</button>
+                    <a class="btn btn-outline-secondary btn-lg btn-block mt-3" href="/admin-vben/#/login">进入新版管理端</a>
                 </div>
             </form>
         </div>
