@@ -12,6 +12,8 @@ import type {
   SystemConfigMetaPayload,
   SystemConfigPagePayload,
   SystemConfigOverviewPayload,
+  SystemUserDetail,
+  SystemUserOverviewPayload,
   SystemMenuListPayload,
 } from '@/types';
 
@@ -119,5 +121,24 @@ export async function saveSystemConfigPage(groupId: number, values: Record<strin
     group_id: groupId,
     values,
   });
+  return response.data.data;
+}
+
+export async function fetchSystemUsers(status = 1, keyword = '', forbiddenIp = 0) {
+  const response = await client.get<ApiEnvelope<SystemUserOverviewPayload>>('/SystemUser/index', {
+    params: { status, keyword, forbidden_ip: forbiddenIp },
+  });
+  return response.data.data;
+}
+
+export async function fetchSystemUserDetail(uid: number) {
+  const response = await client.get<ApiEnvelope<SystemUserDetail>>('/SystemUser/detail', {
+    params: { uid },
+  });
+  return response.data.data;
+}
+
+export async function saveSystemUser(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ uid: number }>>('/SystemUser/save', payload);
   return response.data.data;
 }

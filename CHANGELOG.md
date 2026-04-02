@@ -2,6 +2,28 @@
 
 ## 2026-04-02
 
+### 里程碑：用户管理开始脱离 app/backend，迁入 adminapi + Vue
+
+- 已新增独立用户管理服务层：
+  - `app/common/service/admin/AdminUserService.php`
+- 已新增独立用户管理接口：
+  - `GET /adminapi.php/SystemUser/index`
+  - `GET /adminapi.php/SystemUser/detail`
+  - `POST /adminapi.php/SystemUser/save`
+- `SystemUser` 已把新控制器权限映射回旧的 `member/Users/edit` 与 `member/Users/index` 节点，迁移期间继续沿用旧权限模型
+- 新管理端已新增用户管理页面：
+  - `/admin-vben/#/system/users`
+- 动态菜单映射已补：
+  - 旧权限 `member/Users/index` 进入新壳层后将跳转到 `/system/users`
+- 新页面当前已具备：
+  - 用户列表读取
+  - 状态标签切换
+  - 用户关键字筛选
+  - 单用户详情编辑保存
+- 当前结论：
+  - `member/Users.php` 的核心列表与单用户编辑职责已开始向 `adminapi + Vue` 迁出
+  - 新增用户、封禁、审核、批量动作仍保留在下一轮继续迁移
+
 ### 里程碑：系统配置开始脱离 app/backend，迁入 adminapi + Vue
 
 - 已新增独立配置服务层：

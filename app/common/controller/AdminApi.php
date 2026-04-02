@@ -102,6 +102,9 @@ abstract class AdminApi extends Base
             'systemconfig/groupdelete' => 'admin/Config/group_delete',
             'systemconfig/configpage' => 'admin/Config/config',
             'systemconfig/configpagesave' => 'admin/Config/config',
+            'systemuser/index' => 'member/Users/index',
+            'systemuser/detail' => 'member/Users/edit',
+            'systemuser/save' => 'member/Users/edit',
         ];
 
         $key = $controller . '/' . $action;
@@ -238,6 +241,7 @@ abstract class AdminApi extends Base
             'admin/group/index' => '/system/groups',
             'admin/config/index' => '/system/configs',
             'admin/config/group' => '/system/configs',
+            'member/users/index' => '/system/users',
         ];
 
         $normalized = strtolower($name);

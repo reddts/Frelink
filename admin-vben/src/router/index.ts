@@ -41,6 +41,12 @@ const routes = [
         meta: { title: '系统配置' },
       },
       {
+        path: 'system/users',
+        name: 'system-users',
+        component: () => import('@/views/SystemUsersView.vue'),
+        meta: { title: '用户管理' },
+      },
+      {
         path: 'legacy/:segments(.*)*',
         name: 'legacy',
         component: () => import('@/views/LegacyPageView.vue'),

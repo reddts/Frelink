@@ -207,3 +207,51 @@ export interface SystemConfigPagePayload {
   group_tabs: ConfigGroupTab[];
   fields: SystemConfigPageField[];
 }
+
+export interface SystemUserItem {
+  uid: number;
+  user_name: string;
+  nick_name: string;
+  avatar: string;
+  email: string;
+  mobile: string;
+  group_id: number;
+  group_name: string;
+  reputation_group_id: number;
+  reputation_group_name: string;
+  integral_group_id: number;
+  integral_group_name: string;
+  status: number;
+  forbidden_ip: number;
+  status_label: string;
+  create_time_text: string;
+  last_login_time_text: string;
+  last_login_ip: string;
+}
+
+export interface SystemUserOverviewPayload {
+  status: number;
+  forbidden_ip: number;
+  tabs: Array<{
+    label: string;
+    value: number;
+    forbidden_ip: number;
+  }>;
+  list: SystemUserItem[];
+  meta: {
+    status_options: SelectOption[];
+    sex_options: SelectOption[];
+    verified_options: SelectOption[];
+    group_options: SelectOption[];
+    reputation_group_options: SelectOption[];
+    integral_group_options: SelectOption[];
+  };
+}
+
+export interface SystemUserDetail extends SystemUserItem {
+  signature: string;
+  verified: string;
+  sex: number;
+  birthday_text: string;
+  meta: SystemUserOverviewPayload['meta'];
+}
