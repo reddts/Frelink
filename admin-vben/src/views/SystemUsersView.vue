@@ -11,6 +11,83 @@
         <input v-model.trim="keyword" placeholder="用户名 / 昵称 / 邮箱 / 手机" @keydown.enter="reload" />
       </label>
       <button class="primary-button" type="button" @click="resetCreateForm">新增用户</button>
+      <div class="selection-toolbar">
+        <span>已选 {{ selectedIds.length }} 个用户</span>
+        <button class="ghost-button" type="button" @click="toggleSelectAll">
+          {{ isAllSelected ? '取消全选' : '全选当前列表' }}
+        </button>
+        <button
+          v-if="currentStatus === 0"
+          class="ghost-button"
+          type="button"
+          :disabled="!selectedIds.length"
+          @click="recoverSelected"
+        >
+          批量恢复
+        </button>
+        <button
+          class="ghost-button danger-button"
+          type="button"
+          :disabled="!selectedIds.length"
+          @click="removeSelected(currentStatus === 0)"
+        >
+          {{ currentStatus === 0 ? '批量彻底删除' : '批量删除' }}
+        </button>
+        <button
+          v-if="currentStatus === 2"
+          class="ghost-button"
+          type="button"
+          :disabled="!selectedIds.length"
+          @click="approveSelected"
+        >
+          批量通过
+        </button>
+        <button
+          v-if="currentStatus === 2"
+          class="ghost-button danger-button"
+          type="button"
+          :disabled="!selectedIds.length"
+          @click="declineSelected"
+        >
+          批量拒绝
+        </button>
+        <button
+          v-if="currentStatus !== 0 && currentStatus !== 3"
+          class="ghost-button danger-button"
+          type="button"
+          :disabled="!selectedIds.length"
+          @click="forbidSelected"
+        >
+          批量封禁
+        </button>
+        <button
+          v-if="currentStatus === 3"
+          class="ghost-button"
+          type="button"
+          :disabled="!selectedIds.length"
+          @click="unForbidSelected"
+        >
+          批量解封
+        </button>
+        <button
+          v-if="currentForbiddenIp === 0"
+          class="ghost-button danger-button"
+          type="button"
+          :disabled="!selectedIds.length"
+          @click="toggleSelectedIp(false)"
+        >
+          批量封禁IP
+        </button>
+        <button
+          v-if="currentForbiddenIp === 1"
+          class="ghost-button"
+          type="button"
+          :disabled="!selectedIds.length"
+          @click="toggleSelectedIp(true)"
+        >
+          批量解封IP
+        </button>
+      </div>
     </section>
 
     <article class="panel-card">
@@ -34,6 +111,7 @@
         <span class="eyebrow">用户列表</span>
         <div class="config-table user-table">
           <div class="config-table-head">
+            <span>选择</span>
             <span>用户</span>
             <span>系统组</span>
             <span>积分 / 威望</span>
@@ -47,6 +125,12 @@
             class="config-table-row"
             :class="{ 'is-current': selectedUid === item.uid }"
           >
+            <span>
+              <label class="table-check">
+                <input v-model="selectedIds" :value="item.uid" type="checkbox" />
+                <small>选中</small>
+              </label>
+            </span>
             <span>
               <strong>{{ item.nick_name || item.user_name }}</strong>
               <small>{{ item.user_name }} / {{ item.email || item.mobile || '无联系方式' }}</small>
@@ -66,6 +150,10 @@
             <span>
               <div class="config-actions">
                 <button class="text-button" type="button" @click="editUser(item.uid)">编辑</button>
+                <button v-if="item.actions.includes('integral')" class="text-button" type="button" @click="openIntegral(item.uid)">积分</button>
+                <button v-if="item.actions.includes('delete')" class="text-button danger-button" type="button" @click="removeUser(item.uid, false)">删除</button>
+                <button v-if="item.actions.includes('recover')" class="text-button" type="button" @click="recoverUser(item.uid)">恢复</button>
+                <button v-if="item.actions.includes('remove')" class="text-button danger-button" type="button" @click="removeUser(item.uid, true)">彻底删除</button>
                 <button v-if="item.actions.includes('approve')" class="text-button" type="button" @click="approveUser(item.uid)">通过</button>
                 <button v-if="item.actions.includes('decline')" class="text-button danger-button" type="button" @click="declineUser(item.uid)">拒绝</button>
                 <button v-if="item.actions.includes('forbid')" class="text-button danger-button" type="button" @click="forbidUser(item.uid)">封禁</button>
@@ -167,6 +255,9 @@
       <article class="panel-card">
         <span class="eyebrow">用户编辑器</span>
         <form class="editor-form" @submit.prevent="submitUser">
+          <div v-if="selectedUid" class="inline-links">
+            <button class="text-button" type="button" @click="openIntegral(selectedUid)">查看积分记录</button>
+          </div>
           <label>
             <span>用户昵称</span>
             <input v-model.trim="userForm.nick_name" placeholder="请输入用户昵称" />
@@ -254,6 +345,54 @@
           </div>
         </form>
       </article>
+
+      <article class="panel-card">
+        <span class="eyebrow">积分记录</span>
+        <template v-if="integralUid">
+          <div class="toolbar-row">
+            <label class="search-inline">
+              <span>当前用户</span>
+              <input :value="integralUid" disabled />
+            </label>
+            <label class="search-inline">
+              <span>积分增减</span>
+              <input v-model.number="integralAmount" type="number" placeholder="正数增加，负数扣减" />
+            </label>
+            <button class="primary-button" type="button" :disabled="awarding || integralAmount === 0" @click="submitIntegralAward">
+              {{ awarding ? '提交中...' : '发放积分' }}
+            </button>
+          </div>
+          <div class="config-table content-table integral-table">
+            <div class="config-table-head integral-table-head">
+              <span>时间</span>
+              <span>动作</span>
+              <span>变动</span>
+              <span>余额</span>
+              <span>备注</span>
+            </div>
+            <div
+              v-for="(item, index) in integralLogs.list"
+              :key="`${item.action_type}-${item.record_id}-${index}`"
+              class="config-table-row integral-table-row"
+            >
+              <span><strong>{{ item.create_time_text }}</strong></span>
+              <span><strong>{{ item.action_type }}</strong><small>{{ item.record_db || '-' }} / #{{ item.record_id }}</small></span>
+              <span><strong>{{ item.integral }}</strong></span>
+              <span><strong>{{ item.balance }}</strong></span>
+              <span><small>{{ item.remark || '-' }}</small></span>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="ghost-button" type="button" :disabled="integralPage <= 1 || integralLoading" @click="changeIntegralPage(-1)">
+              上一页
+            </button>
+            <button class="ghost-button" type="button" :disabled="integralLogs.list.length < integralLogs.pagination.per_page || integralLoading" @click="changeIntegralPage(1)">
+              下一页
+            </button>
+          </div>
+        </template>
+        <p v-else>请选择用户后查看积分记录并执行积分发放。</p>
+      </article>
     </section>
   </div>
 </template>
@@ -262,24 +401,40 @@
 import { computed, onMounted, ref } from 'vue';
 import {
   approveSystemUser,
+  awardSystemUserIntegral,
   createSystemUser,
   declineSystemUser,
   fetchSystemUserDetail,
+  fetchSystemUserIntegralLogs,
   fetchSystemUsers,
   forbidSystemUser,
+  recoverSystemUser,
+  removeSystemUser,
   saveSystemUser,
   toggleSystemUserIp,
   unForbidSystemUser,
 } from '@/api/admin';
-import type { SystemUserOverviewPayload } from '@/types';
+import type { SystemUserIntegralLogPayload, SystemUserOverviewPayload } from '@/types';
 
 const payload = ref<SystemUserOverviewPayload | null>(null);
 const keyword = ref('');
 const currentStatus = ref(1);
 const currentForbiddenIp = ref(0);
 const selectedUid = ref(0);
+const selectedIds = ref<number[]>([]);
 const saving = ref(false);
 const creating = ref(false);
+const awarding = ref(false);
+const integralLoading = ref(false);
+const integralUid = ref(0);
+const integralPage = ref(1);
+const integralAmount = ref(0);
+const integralLogs = ref<SystemUserIntegralLogPayload>({
+  uid: 0,
+  list: [],
+  pagination: { page: 1, per_page: 10 },
+  page_html: '',
+});
 
 const userForm = ref({
   uid: 0,
@@ -314,6 +469,10 @@ const createForm = ref({
 });
 
 const meta = computed(() => payload.value?.meta ?? null);
+const isAllSelected = computed(() => {
+  const total = payload.value?.list.length ?? 0;
+  return total > 0 && selectedIds.value.length === total;
+});
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : '请求失败';
@@ -321,8 +480,13 @@ function getErrorMessage(error: unknown) {
 
 async function reload() {
   payload.value = await fetchSystemUsers(currentStatus.value, keyword.value, currentForbiddenIp.value);
-  if (!selectedUid.value && payload.value.list.length > 0) {
-    await editUser(payload.value.list[0].uid);
+  const validIds = new Set((payload.value?.list || []).map((item) => item.uid));
+  selectedIds.value = selectedIds.value.filter((id) => validIds.has(id));
+  if (selectedUid.value && !validIds.has(selectedUid.value)) {
+    selectedUid.value = 0;
+  }
+  if (!selectedUid.value && (payload.value?.list.length || 0) > 0) {
+    await editUser(payload.value!.list[0].uid);
   }
 }
 
@@ -330,7 +494,17 @@ async function switchTab(status: number, forbiddenIp: number) {
   currentStatus.value = status;
   currentForbiddenIp.value = forbiddenIp;
   selectedUid.value = 0;
+  selectedIds.value = [];
   await reload();
+}
+
+function toggleSelectAll() {
+  const list = payload.value?.list || [];
+  if (isAllSelected.value) {
+    selectedIds.value = [];
+    return;
+  }
+  selectedIds.value = list.map((item) => item.uid);
 }
 
 async function editUser(uid: number) {
@@ -353,6 +527,7 @@ async function editUser(uid: number) {
     password: '',
     deal_password: '',
   };
+  await loadIntegralLogs(uid, 1);
 }
 
 function resetCreateForm() {
@@ -411,12 +586,42 @@ async function approveUser(uid: number) {
   }
 }
 
+async function approveSelected() {
+  if (!selectedIds.value.length) {
+    return;
+  }
+  if (!window.confirm(`确认通过选中的 ${selectedIds.value.length} 个用户？`)) {
+    return;
+  }
+  try {
+    await approveSystemUser(selectedIds.value);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
 async function declineUser(uid: number) {
   if (!window.confirm('确认拒绝审核该用户？')) {
     return;
   }
   try {
     await declineSystemUser(uid);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function declineSelected() {
+  if (!selectedIds.value.length) {
+    return;
+  }
+  if (!window.confirm(`确认拒绝选中的 ${selectedIds.value.length} 个用户？`)) {
+    return;
+  }
+  try {
+    await declineSystemUser(selectedIds.value);
     await reload();
   } catch (error) {
     window.alert(getErrorMessage(error));
@@ -440,9 +645,41 @@ async function forbidUser(uid: number) {
   }
 }
 
+async function forbidSelected() {
+  if (!selectedIds.value.length) {
+    return;
+  }
+  const forbiddenReason = window.prompt('请输入批量封禁原因');
+  if (!forbiddenReason) {
+    return;
+  }
+  const forbiddenTime = window.prompt('请输入解封时间，格式：2026-04-30 23:59', '');
+  if (!forbiddenTime) {
+    return;
+  }
+  try {
+    await forbidSystemUser(selectedIds.value, forbiddenTime, forbiddenReason);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
 async function unForbidUser(uid: number) {
   try {
     await unForbidSystemUser(uid);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function unForbidSelected() {
+  if (!selectedIds.value.length) {
+    return;
+  }
+  try {
+    await unForbidSystemUser(selectedIds.value);
     await reload();
   } catch (error) {
     window.alert(getErrorMessage(error));
@@ -459,6 +696,136 @@ async function toggleIp(uid: number, relieve: boolean) {
     await reload();
   } catch (error) {
     window.alert(getErrorMessage(error));
+  }
+}
+
+async function toggleSelectedIp(relieve: boolean) {
+  if (!selectedIds.value.length) {
+    return;
+  }
+  const message = relieve ? `确认解封选中的 ${selectedIds.value.length} 个用户 IP？` : `确认封禁选中的 ${selectedIds.value.length} 个用户 IP？`;
+  if (!window.confirm(message)) {
+    return;
+  }
+  try {
+    await toggleSystemUserIp(selectedIds.value, relieve);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function recoverUser(uid: number) {
+  if (!window.confirm('确认恢复该用户？')) {
+    return;
+  }
+  try {
+    await recoverSystemUser(uid);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function recoverSelected() {
+  if (!selectedIds.value.length) {
+    return;
+  }
+  if (!window.confirm(`确认恢复选中的 ${selectedIds.value.length} 个用户？`)) {
+    return;
+  }
+  try {
+    await recoverSystemUser(selectedIds.value);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function removeUser(uid: number, real: boolean) {
+  const message = real ? '确认彻底删除该用户？' : '确认删除该用户？';
+  if (!window.confirm(message)) {
+    return;
+  }
+  try {
+    await removeSystemUser(uid, real);
+    if (selectedUid.value === uid) {
+      selectedUid.value = 0;
+      integralUid.value = 0;
+    }
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function removeSelected(real: boolean) {
+  if (!selectedIds.value.length) {
+    return;
+  }
+  const message = real
+    ? `确认彻底删除选中的 ${selectedIds.value.length} 个用户？`
+    : `确认删除选中的 ${selectedIds.value.length} 个用户？`;
+  if (!window.confirm(message)) {
+    return;
+  }
+  try {
+    await removeSystemUser(selectedIds.value, real);
+    if (selectedUid.value && selectedIds.value.includes(selectedUid.value)) {
+      selectedUid.value = 0;
+      integralUid.value = 0;
+    }
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function loadIntegralLogs(uid: number, page = 1) {
+  if (!uid) {
+    integralUid.value = 0;
+    integralLogs.value = { uid: 0, list: [], pagination: { page: 1, per_page: 10 }, page_html: '' };
+    return;
+  }
+  integralLoading.value = true;
+  try {
+    const data = await fetchSystemUserIntegralLogs(uid, page);
+    integralUid.value = uid;
+    integralPage.value = data.pagination.page;
+    integralLogs.value = data;
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  } finally {
+    integralLoading.value = false;
+  }
+}
+
+async function openIntegral(uid: number) {
+  await loadIntegralLogs(uid, 1);
+}
+
+async function changeIntegralPage(offset: number) {
+  if (!integralUid.value) {
+    return;
+  }
+  const nextPage = Math.max(1, integralPage.value + offset);
+  await loadIntegralLogs(integralUid.value, nextPage);
+}
+
+async function submitIntegralAward() {
+  if (!integralUid.value || integralAmount.value === 0) {
+    return;
+  }
+  awarding.value = true;
+  try {
+    await awardSystemUserIntegral(integralUid.value, integralAmount.value);
+    integralAmount.value = 0;
+    await loadIntegralLogs(integralUid.value, 1);
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  } finally {
+    awarding.value = false;
   }
 }
 

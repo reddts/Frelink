@@ -2,7 +2,9 @@
 
 namespace app\common\service\admin;
 
+use app\common\library\helper\LogHelper;
 use app\common\library\helper\RandomHelper;
+use app\model\Score as ScoreModel;
 use app\model\Users as UserModel;
 
 class AdminUserService
@@ -214,6 +216,75 @@ class AdminUserService
         return ['code' => $result ? 1 : 0, 'msg' => $result ? '操作成功' : '操作失败'];
     }
 
+    public function recover($ids): array
+    {
+        $ids = $this->normalizeIds($ids);
+        if (!$ids) {
+            return ['code' => 0, 'msg' => '请选择要操作的数据'];
+        }
+
+        if (!UserModel::recoverUsers($ids)) {
+            return ['code' => 0, 'msg' => '恢复失败:' . (UserModel::getError() ?: '未知错误')];
+        }
+
+        return ['code' => 1, 'msg' => '恢复成功'];
+    }
+
+    public function remove($ids, bool $real = false): array
+    {
+        $ids = $this->normalizeIds($ids);
+        if (!$ids) {
+            return ['code' => 0, 'msg' => '请选择要操作的数据'];
+        }
+
+        if (!UserModel::removeUser($ids, $real ? 1 : 0)) {
+            return ['code' => 0, 'msg' => UserModel::getError() ?: '操作失败'];
+        }
+
+        return ['code' => 1, 'msg' => $real ? '删除成功' : '删除成功'];
+    }
+
+    public function getIntegralLogs(int $uid, int $page = 1, int $perPage = 10): array
+    {
+        if ($uid <= 0) {
+            return ['uid' => 0, 'list' => [], 'pagination' => ['page' => 1, 'per_page' => $perPage], 'page_html' => ''];
+        }
+
+        $result = ScoreModel::getScoreList(['uid' => $uid], $page, $perPage);
+        $list = $result['list'] ?? [];
+        foreach ($list as &$item) {
+            $item['integral'] = intval($item['integral'] ?? 0);
+            $item['create_time_text'] = !empty($item['create_time']) ? date('Y-m-d H:i:s', intval($item['create_time'])) : '-';
+        }
+        unset($item);
+
+        return [
+            'uid' => $uid,
+            'list' => $list,
+            'pagination' => [
+                'page' => $page,
+                'per_page' => $perPage,
+            ],
+            'page_html' => (string) ($result['page'] ?? ''),
+        ];
+    }
+
+    public function awardIntegral(int $uid, int $integral): array
+    {
+        if ($uid <= 0) {
+            return ['code' => 0, 'msg' => '用户不存在'];
+        }
+        if ($integral === 0) {
+            return ['code' => 0, 'msg' => '请输入操作积分'];
+        }
+
+        if (!LogHelper::addIntegralLog('AWARD', $uid, 'users', $uid, $integral)) {
+            return ['code' => 0, 'msg' => '积分操作失败'];
+        }
+
+        return ['code' => 1, 'msg' => '积分操作成功'];
+    }
+
     public function getEditorMeta(): array
     {
         return [
@@ -310,6 +381,14 @@ class AdminUserService
     protected function resolveActions(int $status, int $forbiddenIp): array
     {
         $actions = ['edit'];
+        if ($status === 0) {
+            $actions[] = 'recover';
+            $actions[] = 'remove';
+            return $actions;
+        }
+
+        $actions[] = 'delete';
+        $actions[] = 'integral';
         if ($status === 2) {
             $actions[] = 'approve';
             $actions[] = 'decline';

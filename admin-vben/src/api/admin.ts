@@ -25,6 +25,7 @@ import type {
   SystemConfigPagePayload,
   SystemConfigOverviewPayload,
   SystemUserDetail,
+  SystemUserIntegralLogPayload,
   SystemUserOverviewPayload,
   SystemMenuListPayload,
   SystemMenuNode,
@@ -236,39 +237,68 @@ export async function createSystemUser(payload: Record<string, unknown>) {
   return response.data.data;
 }
 
-export async function approveSystemUser(id: number) {
+export async function approveSystemUser(id: IdInput) {
   const response = await client.get<ApiEnvelope<null>>('/SystemUser/approve', {
-    params: { id },
+    params: { id: serializeIds(id) },
   });
   return response.data.data;
 }
 
-export async function declineSystemUser(id: number) {
+export async function declineSystemUser(id: IdInput) {
   const response = await client.get<ApiEnvelope<null>>('/SystemUser/decline', {
-    params: { id },
+    params: { id: serializeIds(id) },
   });
   return response.data.data;
 }
 
-export async function forbidSystemUser(id: number, forbiddenTime: string, forbiddenReason: string) {
+export async function forbidSystemUser(id: IdInput, forbiddenTime: string, forbiddenReason: string) {
   const response = await client.post<ApiEnvelope<null>>('/SystemUser/forbid', {
-    id,
+    id: serializeIds(id),
     forbidden_time: forbiddenTime,
     forbidden_reason: forbiddenReason,
   });
   return response.data.data;
 }
 
-export async function unForbidSystemUser(id: number) {
+export async function unForbidSystemUser(id: IdInput) {
   const response = await client.get<ApiEnvelope<null>>('/SystemUser/unForbid', {
-    params: { id },
+    params: { id: serializeIds(id) },
   });
   return response.data.data;
 }
 
-export async function toggleSystemUserIp(id: number, relieve = false) {
+export async function toggleSystemUserIp(id: IdInput, relieve = false) {
   const response = await client.get<ApiEnvelope<null>>('/SystemUser/forbiddenIp', {
-    params: { id, action: relieve ? 'relieve' : 'forbidden' },
+    params: { id: serializeIds(id), action: relieve ? 'relieve' : 'forbidden' },
+  });
+  return response.data.data;
+}
+
+export async function recoverSystemUser(id: IdInput) {
+  const response = await client.get<ApiEnvelope<null>>('/SystemUser/recover', {
+    params: { id: serializeIds(id) },
+  });
+  return response.data.data;
+}
+
+export async function removeSystemUser(id: IdInput, real = false) {
+  const response = await client.get<ApiEnvelope<null>>('/SystemUser/remove', {
+    params: { id: serializeIds(id), real: real ? 1 : 0 },
+  });
+  return response.data.data;
+}
+
+export async function fetchSystemUserIntegralLogs(uid: number, page = 1) {
+  const response = await client.get<ApiEnvelope<SystemUserIntegralLogPayload>>('/SystemUser/integralLogs', {
+    params: { uid, page },
+  });
+  return response.data.data;
+}
+
+export async function awardSystemUserIntegral(uid: number, integral: number) {
+  const response = await client.post<ApiEnvelope<null>>('/SystemUser/integralAward', {
+    uid,
+    integral,
   });
   return response.data.data;
 }

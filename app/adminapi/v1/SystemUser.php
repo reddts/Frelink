@@ -116,4 +116,46 @@ class SystemUser extends AdminApi
         }
         $this->apiSuccess((string) ($result['msg'] ?? '操作成功'));
     }
+
+    public function recover()
+    {
+        $result = $this->userService->recover($this->request->param('id', ''));
+        if (intval($result['code'] ?? 0) !== 1) {
+            $this->apiError((string) ($result['msg'] ?? '操作失败'));
+        }
+        $this->apiSuccess((string) ($result['msg'] ?? '操作成功'));
+    }
+
+    public function remove()
+    {
+        $real = intval($this->request->param('real', 0)) === 1;
+        $result = $this->userService->remove($this->request->param('id', ''), $real);
+        if (intval($result['code'] ?? 0) !== 1) {
+            $this->apiError((string) ($result['msg'] ?? '操作失败'));
+        }
+        $this->apiSuccess((string) ($result['msg'] ?? '操作成功'));
+    }
+
+    public function integralLogs()
+    {
+        $uid = intval($this->request->param('uid', 0));
+        $page = intval($this->request->param('page', 1));
+        $this->apiResult($this->userService->getIntegralLogs($uid, $page));
+    }
+
+    public function integralAward()
+    {
+        if (!$this->request->isPost()) {
+            $this->apiError('请求参数错误');
+        }
+
+        $result = $this->userService->awardIntegral(
+            intval($this->request->post('uid', 0)),
+            intval($this->request->post('integral', 0))
+        );
+        if (intval($result['code'] ?? 0) !== 1) {
+            $this->apiError((string) ($result['msg'] ?? '操作失败'));
+        }
+        $this->apiSuccess((string) ($result['msg'] ?? '操作成功'));
+    }
 }

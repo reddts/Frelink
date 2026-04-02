@@ -300,6 +300,27 @@ export interface SystemUserDetail extends SystemUserItem {
   meta: SystemUserOverviewPayload['meta'];
 }
 
+export interface SystemUserIntegralLogItem {
+  id?: number;
+  action_type: string;
+  record_id: number;
+  record_db: string;
+  integral: number;
+  balance: number;
+  remark: string;
+  create_time_text: string;
+}
+
+export interface SystemUserIntegralLogPayload {
+  uid: number;
+  list: SystemUserIntegralLogItem[];
+  pagination: {
+    page: number;
+    per_page: number;
+  };
+  page_html: string;
+}
+
 export interface ContentStatusTab {
   label: string;
   value: number;

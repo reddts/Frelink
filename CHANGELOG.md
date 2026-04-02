@@ -2,6 +2,35 @@
 
 ## 2026-04-02
 
+### 里程碑：用户管理补齐批量动作与积分链路
+
+- 已完成上轮遗留的 `SystemUser` 迁移收口：
+  - [SystemUser.php](/mnt/f/workwww/knowlege-github/app/adminapi/v1/SystemUser.php) 已补 `recover`、`remove`、`integralLogs`、`integralAward`
+  - [AdminUserService.php](/mnt/f/workwww/knowlege-github/app/common/service/admin/AdminUserService.php) 已补用户恢复、真实删除、积分记录读取、积分发放
+- 新管理端用户页已从“列表 + 单用户编辑”推进到“批量操作 + 积分链路”：
+  - [SystemUsersView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/SystemUsersView.vue) 支持批量通过、批量拒绝、批量封禁、批量解封、批量删除、批量恢复、批量封禁/解封 IP
+  - 用户页已补积分记录面板，支持查看积分日志与手动积分增减
+  - `admin.ts` 已补 `recover/remove/integralLogs/integralAward` 新接口封装，并扩展用户批量 `id` 传参
+- 本轮完成本地验证：
+  - `corepack pnpm run typecheck`
+  - `corepack pnpm run build`
+  - 本地无 `php` 命令，未执行本地 PHP lint
+- 本轮完成生产同步：
+  - 定向同步 `SystemUser.php`
+  - 定向同步 `AdminUserService.php`
+  - 定向同步 `public/admin-vben/`
+- 本轮完成远端验证：
+  - `bash scripts/deploy.sh verify`
+  - `GET https://www.frelink.top/admin-vben/index.html` 在 `Cache-Control: no-cache` 条件下已确认引用本轮新资源：
+    - `/admin-vben/assets/index-BSLb2Ewh.js`
+    - `/admin-vben/assets/index-CpGMqINp.css`
+  - 上述 `js/css` 资源均返回 `HTTP/2 200`
+  - `GET https://www.frelink.top/adminapi.php/SystemUser/index?version=v1` 未登录返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+  - `GET https://www.frelink.top/adminapi.php/SystemUser/integralLogs?version=v1&uid=1` 未登录返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+- 当前结论：
+  - 用户管理遗留接口已不再悬空，`SystemUser` 这轮迁移已经从半成品推进到可实际操作的版本
+  - 下一轮可继续推进用户详情深层能力，或转入其他后台模块迁移
+
 ### 里程碑：内容模块第二轮补齐批量操作与前台跳转链路
 
 - 已继续增强内容服务层输出：
