@@ -525,6 +525,27 @@ input {
   border-bottom: 1px solid rgba(21, 33, 45, 0.06);
 }
 
+.menu-table-row strong,
+.menu-table-row small {
+  display: block;
+}
+
+.menu-table-row small {
+  margin-top: 4px;
+  opacity: 0.7;
+  word-break: break-all;
+}
+
+.auth-table-head,
+.auth-table-row {
+  grid-template-columns: 1.6fr 1.8fr 100px 100px 1.2fr;
+}
+
+.is-current-row {
+  background: rgba(20, 101, 255, 0.04);
+  border-radius: 14px;
+}
+
 .quick-links a {
   padding: 10px 12px;
   border-radius: 12px;

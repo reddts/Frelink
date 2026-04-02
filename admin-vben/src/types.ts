@@ -62,6 +62,45 @@ export interface MenuGroupTab {
   value: string;
 }
 
+export interface SystemAuthNode {
+  id: number;
+  pid: number;
+  icon: string;
+  name: string;
+  title: string;
+  param: string;
+  auth_open: number;
+  status: number;
+  sort: number;
+  menu: number;
+  type: number;
+  children: SystemAuthNode[];
+}
+
+export interface SystemAuthListPayload {
+  list: SystemAuthNode[];
+  parent_options: SelectOption[];
+}
+
+export interface SystemAuthDetail {
+  id: number;
+  pid: number;
+  icon: string;
+  name: string;
+  title: string;
+  param: string;
+  auth_open: number;
+  status: number;
+  sort: number;
+  menu: number;
+  type: number;
+}
+
+export interface SystemAuthMetaPayload {
+  parent_options: SelectOption[];
+  detail_template: SystemAuthDetail;
+}
+
 export interface SystemMenuNode {
   id: number;
   pid: number;
@@ -111,6 +150,10 @@ export interface SystemGroupItem {
 export interface SystemGroupListPayload {
   keyword: string;
   list: SystemGroupItem[];
+}
+
+export interface SystemGroupMetaPayload {
+  rule_tree: GroupRuleTreeNode[];
 }
 
 export interface SystemGroupDetail extends SystemGroupItem {

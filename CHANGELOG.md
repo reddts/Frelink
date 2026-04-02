@@ -2,6 +2,50 @@
 
 ## 2026-04-02
 
+### 里程碑：系统权限节点、管理组与菜单进入新管理端可编辑阶段
+
+- 已新增独立权限节点服务层：
+  - `app/common/service/admin/AdminAuthService.php`
+- 已新增独立权限节点接口：
+  - `GET /adminapi.php/SystemAuth/index`
+  - `GET /adminapi.php/SystemAuth/detail`
+  - `GET /adminapi.php/SystemAuth/meta`
+  - `POST /adminapi.php/SystemAuth/save`
+  - `POST /adminapi.php/SystemAuth/delete`
+  - `POST /adminapi.php/SystemAuth/state`
+- `AdminApi` 已补齐新旧权限映射与前端路由映射：
+  - `admin/Auth/index` 进入新壳层后将跳转到 `/system/auths`
+  - `admin/Menu/index`
+  - `admin/Group/index`
+  - `admin/Config/index`
+  - `admin/Config/group`
+  - `member/Users/index`
+  - 以上迁移页均标记为 `vben-ready`
+- 新管理端已新增真实迁移页面：
+  - `/admin-vben/#/system/auths`
+- 已补齐系统管理页的可操作链路：
+  - `/admin-vben/#/system/auths` 支持权限节点新增、编辑、删除、状态切换
+  - `/admin-vben/#/system/groups` 支持管理组新增、编辑、删除、规则勾选保存
+  - `/admin-vben/#/system/menus` 支持菜单新增、编辑、删除、状态切换、默认首页切换
+- 本轮完成本地验证：
+  - `corepack pnpm install`
+  - `corepack pnpm run typecheck`
+  - `corepack pnpm run build`
+  - 构建产物已输出到 `public/admin-vben/`
+- 本轮完成生产同步：
+  - `bash scripts/deploy.sh sync`
+- 本轮完成远端验证：
+  - `bash scripts/deploy.sh verify`
+  - `GET https://www.frelink.top/admin-vben/` 返回 `HTTP/2 200`
+  - `GET https://www.frelink.top/admin-vben/index.html` 已确认引用本轮新的前端构建产物：
+    - `/admin-vben/assets/index-Rv0FnAiA.js`
+    - `/admin-vben/assets/index-BiBSJvR8.css`
+  - `GET https://www.frelink.top/adminapi.php/SystemAuth/index?version=v1` 在未登录条件下返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+- 当前结论：
+  - `admin/Auth.php` 已开始脱离旧模板后台，进入 `adminapi + Vue` 真实迁移阶段
+  - `管理组 / 菜单 / 配置` 四个系统管理模块中，前三者已从只读状态推进到可编辑状态，系统管理主链路进一步向新管理端收口
+  - 下一轮应转入 `文章 / 问题 / 回答 / 审核` 这组高频内容主链路，继续压缩旧后台主操作入口
+
 ### 里程碑：用户管理开始脱离 app/backend，迁入 adminapi + Vue
 
 - 已新增独立用户管理服务层：

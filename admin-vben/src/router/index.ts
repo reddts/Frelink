@@ -23,6 +23,12 @@ const routes = [
         meta: { title: '仪表盘' },
       },
       {
+        path: 'system/auths',
+        name: 'system-auths',
+        component: () => import('@/views/SystemAuthsView.vue'),
+        meta: { title: '权限节点' },
+      },
+      {
         path: 'system/menus',
         name: 'system-menus',
         component: () => import('@/views/SystemMenusView.vue'),

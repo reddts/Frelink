@@ -5,8 +5,12 @@ import type {
   AdminMenuItem,
   AdminProfile,
   ApiEnvelope,
+  SystemAuthDetail,
+  SystemAuthListPayload,
+  SystemAuthMetaPayload,
   SystemGroupDetail,
   SystemGroupListPayload,
+  SystemGroupMetaPayload,
   SystemConfigDetail,
   SystemConfigGroupItem,
   SystemConfigMetaPayload,
@@ -15,6 +19,7 @@ import type {
   SystemUserDetail,
   SystemUserOverviewPayload,
   SystemMenuListPayload,
+  SystemMenuNode,
 } from '@/types';
 
 export async function loginAdmin(payload: { username: string; password: string }) {
@@ -42,10 +47,64 @@ export async function fetchAdminDashboard() {
   return response.data.data;
 }
 
+export async function fetchSystemAuths() {
+  const response = await client.get<ApiEnvelope<SystemAuthListPayload>>('/SystemAuth/index');
+  return response.data.data;
+}
+
+export async function fetchSystemAuthDetail(id: number) {
+  const response = await client.get<ApiEnvelope<SystemAuthDetail>>('/SystemAuth/detail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function fetchSystemAuthMeta() {
+  const response = await client.get<ApiEnvelope<SystemAuthMetaPayload>>('/SystemAuth/meta');
+  return response.data.data;
+}
+
+export async function saveSystemAuth(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/SystemAuth/save', payload);
+  return response.data.data;
+}
+
+export async function deleteSystemAuth(id: number) {
+  const response = await client.post<ApiEnvelope<null>>('/SystemAuth/delete', { id });
+  return response.data.data;
+}
+
+export async function toggleSystemAuthState(id: number) {
+  const response = await client.post<ApiEnvelope<null>>('/SystemAuth/state', { id });
+  return response.data.data;
+}
+
 export async function fetchSystemMenus(group = 'nav') {
   const response = await client.get<ApiEnvelope<SystemMenuListPayload>>('/SystemMenu/index', {
     params: { group },
   });
+  return response.data.data;
+}
+
+export async function fetchSystemMenuDetail(id: number) {
+  const response = await client.get<ApiEnvelope<SystemMenuNode>>('/SystemMenu/detail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function saveSystemMenu(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/SystemMenu/save', payload);
+  return response.data.data;
+}
+
+export async function deleteSystemMenu(id: number) {
+  const response = await client.post<ApiEnvelope<null>>('/SystemMenu/delete', { id });
+  return response.data.data;
+}
+
+export async function toggleSystemMenuState(id: number, field: 'status' | 'is_home') {
+  const response = await client.post<ApiEnvelope<null>>('/SystemMenu/state', { id, field });
   return response.data.data;
 }
 
@@ -60,6 +119,21 @@ export async function fetchSystemGroupDetail(id: number) {
   const response = await client.get<ApiEnvelope<SystemGroupDetail>>('/SystemGroup/detail', {
     params: { id },
   });
+  return response.data.data;
+}
+
+export async function fetchSystemGroupMeta() {
+  const response = await client.get<ApiEnvelope<SystemGroupMetaPayload>>('/SystemGroup/createMeta');
+  return response.data.data;
+}
+
+export async function saveSystemGroup(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/SystemGroup/save', payload);
+  return response.data.data;
+}
+
+export async function deleteSystemGroup(id: number) {
+  const response = await client.post<ApiEnvelope<null>>('/SystemGroup/delete', { id });
   return response.data.data;
 }
 

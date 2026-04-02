@@ -82,6 +82,12 @@ abstract class AdminApi extends Base
         $action = strtolower(Str::snake($this->request->action()));
 
         $mapped = [
+            'systemauth/index' => 'admin/Auth/index',
+            'systemauth/detail' => 'admin/Auth/edit',
+            'systemauth/meta' => 'admin/Auth/add',
+            'systemauth/save' => 'admin/Auth/edit',
+            'systemauth/delete' => 'admin/Auth/delete',
+            'systemauth/state' => 'admin/Auth/edit',
             'systemmenu/index' => 'admin/Menu/index',
             'systemmenu/detail' => 'admin/Menu/edit',
             'systemmenu/save' => 'admin/Menu/edit',
@@ -111,6 +117,10 @@ abstract class AdminApi extends Base
             'systemuser/forbid' => 'member/Users/forbidden',
             'systemuser/unforbid' => 'member/Users/un_forbidden',
             'systemuser/forbiddenip' => 'member/Users/forbidden_ip',
+            'systemuser/recover' => 'member/Users/manager',
+            'systemuser/remove' => 'member/Users/manager',
+            'systemuser/integrallogs' => 'member/Users/integral',
+            'systemuser/integralaward' => 'member/Users/integral',
         ];
 
         $key = $controller . '/' . $action;
@@ -243,6 +253,7 @@ abstract class AdminApi extends Base
         }
 
         $mapped = [
+            'admin/auth/index' => '/system/auths',
             'admin/menu/index' => '/system/menus',
             'admin/group/index' => '/system/groups',
             'admin/config/index' => '/system/configs',
@@ -261,6 +272,17 @@ abstract class AdminApi extends Base
     protected function resolveMigrationStatus(string $name): string
     {
         if ($name === '' || strcasecmp($name, 'Index/index') === 0) {
+            return 'vben-ready';
+        }
+
+        if (in_array(strtolower($name), [
+            'admin/auth/index',
+            'admin/menu/index',
+            'admin/group/index',
+            'admin/config/index',
+            'admin/config/group',
+            'member/users/index',
+        ], true)) {
             return 'vben-ready';
         }
 
