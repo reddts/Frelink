@@ -18,6 +18,20 @@
           {{ item.label }}
         </button>
       </div>
+      <div class="selection-toolbar">
+        <span>已选 {{ selectedIds.length }} 条回答</span>
+        <button class="ghost-button" type="button" @click="toggleSelectAll">
+          {{ isAllSelected ? '取消全选' : '全选当前列表' }}
+        </button>
+        <button
+          class="ghost-button danger-button"
+          type="button"
+          :disabled="!selectedIds.length"
+          @click="deleteSelected(currentStatus === 0)"
+        >
+          {{ currentStatus === 0 ? '批量彻底删除' : '批量删除' }}
+        </button>
+      </div>
     </section>
 
     <section class="panel-grid config-panel-grid">
@@ -25,6 +39,7 @@
         <span class="eyebrow">回答列表</span>
         <div class="config-table content-table">
           <div class="config-table-head answer-table-head">
+            <span>选择</span>
             <span>问题</span>
             <span>作者</span>
             <span>内容</span>
@@ -37,6 +52,12 @@
             class="config-table-row answer-table-row"
             :class="{ 'is-current': selectedId === item.id }"
           >
+            <span>
+              <label class="table-check">
+                <input v-model="selectedIds" :value="item.id" type="checkbox" />
+                <small>选中</small>
+              </label>
+            </span>
             <span>
               <strong>{{ item.title }}</strong>
               <small>#{{ item.id }}</small>
@@ -55,6 +76,9 @@
             </span>
             <span class="config-actions">
               <button class="text-button" type="button" @click="editItem(item.id)">编辑</button>
+              <a v-if="item.preview_url" class="text-button" :href="item.preview_url" target="_blank" rel="noreferrer">
+                预览
+              </a>
               <button
                 v-if="currentStatus === 1"
                 class="text-button danger-button"
@@ -79,6 +103,9 @@
       <article class="panel-card">
         <span class="eyebrow">回答编辑器</span>
         <form class="editor-form" @submit.prevent="submitAnswer">
+          <div v-if="detail?.preview_url" class="inline-links">
+            <a class="text-button" :href="detail.preview_url" target="_blank" rel="noreferrer">打开前台预览</a>
+          </div>
           <label>
             <span>问题标题</span>
             <input :value="detail?.question_title || ''" disabled />
@@ -99,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { deleteContentAnswer, fetchContentAnswerDetail, fetchContentAnswers, saveContentAnswer } from '@/api/admin';
 import type { ContentAnswerDetail, ContentAnswerOverviewPayload } from '@/types';
 
@@ -107,6 +134,7 @@ const payload = ref<ContentAnswerOverviewPayload | null>(null);
 const detail = ref<ContentAnswerDetail | null>(null);
 const currentStatus = ref(1);
 const selectedId = ref(0);
+const selectedIds = ref<number[]>([]);
 const saving = ref(false);
 
 const answerForm = ref({
@@ -125,10 +153,27 @@ function resetForm() {
   };
   detail.value = null;
   selectedId.value = 0;
+  selectedIds.value = [];
+}
+
+const isAllSelected = computed(() => {
+  const total = payload.value?.list.length ?? 0;
+  return total > 0 && selectedIds.value.length === total;
+});
+
+function toggleSelectAll() {
+  const list = payload.value?.list || [];
+  if (isAllSelected.value) {
+    selectedIds.value = [];
+    return;
+  }
+  selectedIds.value = list.map((item) => item.id);
 }
 
 async function reload() {
   payload.value = await fetchContentAnswers(currentStatus.value);
+  const validIds = new Set((payload.value?.list || []).map((item) => item.id));
+  selectedIds.value = selectedIds.value.filter((id) => validIds.has(id));
 }
 
 async function switchStatus(status: number) {
@@ -170,6 +215,27 @@ async function deleteItem(id: number, real: boolean) {
   try {
     await deleteContentAnswer(id, real);
     if (selectedId.value === id) {
+      resetForm();
+    }
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function deleteSelected(real: boolean) {
+  if (!selectedIds.value.length) {
+    return;
+  }
+  const tips = real
+    ? `确认彻底删除选中的 ${selectedIds.value.length} 条回答？`
+    : `确认删除选中的 ${selectedIds.value.length} 条回答？`;
+  if (!window.confirm(tips)) {
+    return;
+  }
+  try {
+    await deleteContentAnswer(selectedIds.value, real);
+    if (selectedId.value && selectedIds.value.includes(selectedId.value)) {
       resetForm();
     }
     await reload();

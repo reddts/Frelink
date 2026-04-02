@@ -199,6 +199,12 @@ input {
   color: #fff;
 }
 
+.ghost-button:disabled,
+.primary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .primary-button,
 .primary-link {
   background: linear-gradient(135deg, #1465ff, #1ca9a0);
@@ -302,6 +308,27 @@ input {
   flex-wrap: wrap;
   gap: 14px;
   align-items: flex-end;
+}
+
+.selection-toolbar,
+.inline-links,
+.table-check {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.selection-toolbar {
+  margin-top: 14px;
+}
+
+.inline-links {
+  margin-bottom: -2px;
+}
+
+.table-check {
+  gap: 8px;
 }
 
 .editor-form-group {
@@ -543,17 +570,17 @@ input {
 
 .content-table-head,
 .content-table-row {
-  grid-template-columns: 1.6fr 1fr 1fr 1fr 1.1fr;
+  grid-template-columns: 0.5fr 1.6fr 1fr 1fr 1fr 1.1fr;
 }
 
 .answer-table-head,
 .answer-table-row {
-  grid-template-columns: 1.2fr 0.8fr 1.3fr 1fr 0.9fr;
+  grid-template-columns: 0.5fr 1.2fr 0.8fr 1.3fr 1fr 0.9fr;
 }
 
 .approval-table-head,
 .approval-table-row {
-  grid-template-columns: 1fr 1fr 1.4fr 1fr 0.9fr;
+  grid-template-columns: 0.5fr 1fr 1fr 1.4fr 1fr 0.9fr;
 }
 
 .is-current-row {

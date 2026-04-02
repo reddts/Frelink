@@ -2,6 +2,41 @@
 
 ## 2026-04-02
 
+### 里程碑：内容模块第二轮补齐批量操作与前台跳转链路
+
+- 已继续增强内容服务层输出：
+  - `ContentArticleService` 列表和详情已补 `preview_url`、`edit_url`
+  - `ContentQuestionService` 列表和详情已补 `preview_url`、`edit_url`
+  - `ContentAnswerService` 列表和详情已补 `preview_url`
+  - `ContentApprovalService` 列表和详情已补 `target_url`
+- 新管理端四个内容页已从“单条基础动作”推进到“批量处理 + 跳转”：
+  - `/admin-vben/#/content/articles` 支持批量删除、批量恢复、批量彻底删除、前台预览、发布页跳转
+  - `/admin-vben/#/content/questions` 支持批量删除、批量恢复、批量彻底删除、前台预览、发布页跳转
+  - `/admin-vben/#/content/answers` 支持批量删除、批量彻底删除、前台预览
+  - `/admin-vben/#/content/approvals` 支持批量通过、批量拒绝、批量封禁用户、批量封禁 IP、前台预览
+- 前端 `admin.ts` 已统一支持以逗号串形式提交批量 `id/uid`，复用现有 `adminapi` 动作接口，不新增重复端点
+- 本轮完成本地验证：
+  - `corepack pnpm run typecheck`
+  - `corepack pnpm run build`
+  - 构建产物已再次输出到 `public/admin-vben/`
+- 本轮完成生产同步：
+  - `bash scripts/deploy.sh sync`
+  - 随后补充定向同步 `public/admin-vben/`，确保本轮最新前端构建产物真实落到线上
+- 本轮完成远端验证：
+  - `bash scripts/deploy.sh verify`
+  - `GET https://www.frelink.top/admin-vben/` 返回 `HTTP/2 200`
+  - `GET https://www.frelink.top/admin-vben/index.html` 在 `Cache-Control: no-cache` 条件下已确认引用本轮新的前端构建产物：
+    - `/admin-vben/assets/index-Cl_jfWiM.js`
+    - `/admin-vben/assets/index-B-nEHbJX.css`
+  - `GET https://www.frelink.top/admin-vben/assets/index-Cl_jfWiM.js` 返回 `HTTP/2 200`
+  - `GET https://www.frelink.top/admin-vben/assets/index-B-nEHbJX.css` 返回 `HTTP/2 200`
+  - `GET https://www.frelink.top/adminapi.php/ContentApproval/index?version=v1` 在未登录条件下返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+  - `GET https://www.frelink.top/adminapi.php/ContentArticle/index?version=v1` 在未登录条件下返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+- 当前结论：
+  - 高频内容主链路已从“列表 + 基础动作”推进到“批量操作 + 前台跳转”
+  - `文章 / 问题 / 回答 / 审核` 四个页面在新管理端内已经具备更接近旧后台主操作面的工作能力
+  - 下一轮应继续补发布态细节、详情结构化预览和更细颗粒度编辑能力
+
 ### 里程碑：内容审核、文章、问题、回答进入新管理端主链路
 
 - 已新增独立内容服务层：

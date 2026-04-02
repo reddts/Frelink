@@ -24,6 +24,39 @@
           </button>
         </div>
       </div>
+      <div class="selection-toolbar">
+        <span>已选 {{ selectedIds.length }} 篇</span>
+        <button class="ghost-button" type="button" @click="toggleSelectAll">
+          {{ isAllSelected ? '取消全选' : '全选当前列表' }}
+        </button>
+        <button
+          v-if="currentStatus === 1"
+          class="ghost-button danger-button"
+          type="button"
+          :disabled="!selectedIds.length"
+          @click="deleteSelected"
+        >
+          批量删除
+        </button>
+        <button
+          v-if="currentStatus === 0"
+          class="ghost-button"
+          type="button"
+          :disabled="!selectedIds.length"
+          @click="manageSelected('recover')"
+        >
+          批量恢复
+        </button>
+        <button
+          v-if="currentStatus === 0"
+          class="ghost-button danger-button"
+          type="button"
+          :disabled="!selectedIds.length"
+          @click="manageSelected('remove')"
+        >
+          批量彻底删除
+        </button>
+      </div>
     </section>
 
     <section class="panel-grid config-panel-grid">
@@ -31,6 +64,7 @@
         <span class="eyebrow">文章列表</span>
         <div class="config-table content-table">
           <div class="config-table-head content-table-head">
+            <span>选择</span>
             <span>标题</span>
             <span>用户</span>
             <span>互动</span>
@@ -43,6 +77,12 @@
             class="config-table-row content-table-row"
             :class="{ 'is-current': selectedId === item.id }"
           >
+            <span>
+              <label class="table-check">
+                <input v-model="selectedIds" :value="item.id" type="checkbox" />
+                <small>选中</small>
+              </label>
+            </span>
             <span>
               <strong>{{ item.title }}</strong>
               <small>#{{ item.id }}</small>
@@ -61,6 +101,12 @@
             </span>
             <span class="config-actions">
               <button class="text-button" type="button" @click="editItem(item.id)">SEO</button>
+              <a v-if="item.preview_url" class="text-button" :href="item.preview_url" target="_blank" rel="noreferrer">
+                预览
+              </a>
+              <a v-if="item.edit_url" class="text-button" :href="item.edit_url" target="_blank" rel="noreferrer">
+                发布页
+              </a>
               <button
                 v-if="currentStatus === 1"
                 class="text-button danger-button"
@@ -93,6 +139,14 @@
       <article class="panel-card">
         <span class="eyebrow">SEO 编辑器</span>
         <form class="editor-form" @submit.prevent="submitSeo">
+          <div v-if="detail" class="inline-links">
+            <a v-if="detail.preview_url" class="text-button" :href="detail.preview_url" target="_blank" rel="noreferrer">
+              打开前台预览
+            </a>
+            <a v-if="detail.edit_url" class="text-button" :href="detail.edit_url" target="_blank" rel="noreferrer">
+              打开发布页
+            </a>
+          </div>
           <label>
             <span>文章标题</span>
             <input :value="detail?.title || ''" disabled />
@@ -125,7 +179,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import {
   deleteContentArticle,
   fetchContentArticleDetail,
@@ -140,6 +194,7 @@ const detail = ref<ContentArticleDetail | null>(null);
 const keyword = ref('');
 const currentStatus = ref(1);
 const selectedId = ref(0);
+const selectedIds = ref<number[]>([]);
 const saving = ref(false);
 
 const seoForm = ref({
@@ -162,10 +217,27 @@ function resetSeoForm() {
   };
   detail.value = null;
   selectedId.value = 0;
+  selectedIds.value = [];
+}
+
+const isAllSelected = computed(() => {
+  const total = payload.value?.list.length ?? 0;
+  return total > 0 && selectedIds.value.length === total;
+});
+
+function toggleSelectAll() {
+  const list = payload.value?.list || [];
+  if (isAllSelected.value) {
+    selectedIds.value = [];
+    return;
+  }
+  selectedIds.value = list.map((item) => item.id);
 }
 
 async function reload() {
   payload.value = await fetchContentArticles(currentStatus.value, keyword.value);
+  const validIds = new Set((payload.value?.list || []).map((item) => item.id));
+  selectedIds.value = selectedIds.value.filter((id) => validIds.has(id));
 }
 
 async function switchStatus(status: number) {
@@ -217,6 +289,24 @@ async function deleteItem(id: number) {
   }
 }
 
+async function deleteSelected() {
+  if (!selectedIds.value.length) {
+    return;
+  }
+  if (!window.confirm(`确认删除选中的 ${selectedIds.value.length} 篇文章？`)) {
+    return;
+  }
+  try {
+    await deleteContentArticle(selectedIds.value);
+    if (selectedId.value && selectedIds.value.includes(selectedId.value)) {
+      resetSeoForm();
+    }
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
 async function manageItem(id: number, type: 'recover' | 'remove') {
   const tips = type === 'recover' ? '确认恢复该文章？' : '确认彻底删除该文章？';
   if (!window.confirm(tips)) {
@@ -225,6 +315,28 @@ async function manageItem(id: number, type: 'recover' | 'remove') {
   try {
     await manageContentArticle(id, type);
     if (selectedId.value === id) {
+      resetSeoForm();
+    }
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function manageSelected(type: 'recover' | 'remove') {
+  if (!selectedIds.value.length) {
+    return;
+  }
+  const tips =
+    type === 'recover'
+      ? `确认恢复选中的 ${selectedIds.value.length} 篇文章？`
+      : `确认彻底删除选中的 ${selectedIds.value.length} 篇文章？`;
+  if (!window.confirm(tips)) {
+    return;
+  }
+  try {
+    await manageContentArticle(selectedIds.value, type);
+    if (selectedId.value && selectedIds.value.includes(selectedId.value)) {
       resetSeoForm();
     }
     await reload();

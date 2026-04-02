@@ -311,6 +311,8 @@ export interface ContentArticleItem {
   title: string;
   user_name: string;
   url_token: string;
+  preview_url: string;
+  edit_url: string;
   comment_count: number;
   view_count: number;
   create_time_text: string;
@@ -337,6 +339,8 @@ export interface ContentQuestionItem {
   title: string;
   user_name: string;
   url_token: string;
+  preview_url: string;
+  edit_url: string;
   answer_count: number;
   comment_count: number;
   view_count: number;
@@ -365,6 +369,7 @@ export interface ContentAnswerItem {
   title: string;
   nick_name: string;
   url_token: string;
+  preview_url: string;
   content_preview: string;
   against_count: number;
   agree_count: number;
@@ -387,6 +392,7 @@ export interface ContentAnswerDetail {
   comment_count: number;
   is_best: number;
   status: number;
+  preview_url: string;
   create_time_text: string;
   update_time_text: string;
 }
@@ -414,6 +420,7 @@ export interface ContentApprovalItem {
   reason: string;
   is_agent: number;
   summary: string;
+  target_url: string;
   create_time_text: string;
 }
 
@@ -430,6 +437,7 @@ export interface ContentApprovalDetail {
   is_agent: number;
   create_time_text: string;
   summary: string;
+  target_url: string;
   payload: Record<string, any>;
   payload_json: string;
 }

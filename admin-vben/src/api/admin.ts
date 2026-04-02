@@ -30,6 +30,12 @@ import type {
   SystemMenuNode,
 } from '@/types';
 
+type IdInput = number | number[];
+
+function serializeIds(ids: IdInput) {
+  return Array.isArray(ids) ? ids.join(',') : ids;
+}
+
 export async function loginAdmin(payload: { username: string; password: string }) {
   const response = await client.post<ApiEnvelope<AdminBootstrapPayload>>('/Admin/login', payload);
   return response.data.data;
@@ -286,16 +292,16 @@ export async function saveContentArticleSeo(payload: Record<string, unknown>) {
   return response.data.data;
 }
 
-export async function deleteContentArticle(id: number) {
+export async function deleteContentArticle(id: IdInput) {
   const response = await client.get<ApiEnvelope<null>>('/ContentArticle/delete', {
-    params: { id },
+    params: { id: serializeIds(id) },
   });
   return response.data.data;
 }
 
-export async function manageContentArticle(id: number, type: 'recover' | 'remove') {
+export async function manageContentArticle(id: IdInput, type: 'recover' | 'remove') {
   const response = await client.get<ApiEnvelope<null>>('/ContentArticle/manager', {
-    params: { id, type },
+    params: { id: serializeIds(id), type },
   });
   return response.data.data;
 }
@@ -319,16 +325,16 @@ export async function saveContentQuestionSeo(payload: Record<string, unknown>) {
   return response.data.data;
 }
 
-export async function deleteContentQuestion(id: number) {
+export async function deleteContentQuestion(id: IdInput) {
   const response = await client.get<ApiEnvelope<null>>('/ContentQuestion/delete', {
-    params: { id },
+    params: { id: serializeIds(id) },
   });
   return response.data.data;
 }
 
-export async function manageContentQuestion(id: number, type: 'recover' | 'remove') {
+export async function manageContentQuestion(id: IdInput, type: 'recover' | 'remove') {
   const response = await client.get<ApiEnvelope<null>>('/ContentQuestion/manager', {
-    params: { id, type },
+    params: { id: serializeIds(id), type },
   });
   return response.data.data;
 }
@@ -352,9 +358,9 @@ export async function saveContentAnswer(payload: Record<string, unknown>) {
   return response.data.data;
 }
 
-export async function deleteContentAnswer(id: number, real = false) {
+export async function deleteContentAnswer(id: IdInput, real = false) {
   const response = await client.get<ApiEnvelope<null>>('/ContentAnswer/delete', {
-    params: { id, real: real ? 1 : 0 },
+    params: { id: serializeIds(id), real: real ? 1 : 0 },
   });
   return response.data.data;
 }
@@ -373,33 +379,33 @@ export async function fetchContentApprovalDetail(id: number) {
   return response.data.data;
 }
 
-export async function approveContentApproval(id: number) {
+export async function approveContentApproval(id: IdInput) {
   const response = await client.get<ApiEnvelope<null>>('/ContentApproval/approve', {
-    params: { id },
+    params: { id: serializeIds(id) },
   });
   return response.data.data;
 }
 
-export async function declineContentApproval(id: number, reason: string) {
+export async function declineContentApproval(id: IdInput, reason: string) {
   const response = await client.post<ApiEnvelope<null>>('/ContentApproval/decline', {
-    id,
+    id: serializeIds(id),
     reason,
   });
   return response.data.data;
 }
 
-export async function forbidContentApprovalUser(uid: number, forbiddenTime: string, forbiddenReason: string) {
+export async function forbidContentApprovalUser(uid: IdInput, forbiddenTime: string, forbiddenReason: string) {
   const response = await client.post<ApiEnvelope<null>>('/ContentApproval/forbid', {
-    uid,
+    uid: serializeIds(uid),
     forbidden_time: forbiddenTime,
     forbidden_reason: forbiddenReason,
   });
   return response.data.data;
 }
 
-export async function forbidContentApprovalUserIp(uid: number) {
+export async function forbidContentApprovalUserIp(uid: IdInput) {
   const response = await client.get<ApiEnvelope<null>>('/ContentApproval/forbiddenIp', {
-    params: { uid },
+    params: { uid: serializeIds(uid) },
   });
   return response.data.data;
 }

@@ -63,6 +63,7 @@ class ContentApprovalService
             'is_agent' => intval($info['is_agent'] ?? 0),
             'create_time_text' => !empty($info['create_time']) ? date('Y-m-d H:i:s', intval($info['create_time'])) : '-',
             'summary' => $this->buildSummary((string) ($info['type'] ?? ''), $data),
+            'target_url' => $this->buildTargetUrl((string) ($info['type'] ?? ''), $data, intval($info['item_id'] ?? 0)),
             'payload' => $data,
             'payload_json' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
         ];
@@ -164,6 +165,7 @@ class ContentApprovalService
             $item['is_agent'] = intval($item['is_agent'] ?? 0);
             $item['type_label'] = $this->getTypeLabel((string) ($item['type'] ?? ''));
             $item['summary'] = $this->buildSummary((string) ($item['type'] ?? ''), $payload);
+            $item['target_url'] = $this->buildTargetUrl((string) ($item['type'] ?? ''), $payload, $item['item_id']);
             $item['create_time_text'] = !empty($item['create_time']) ? date('Y-m-d H:i:s', intval($item['create_time'])) : '-';
             unset($item['data']);
         }
@@ -212,6 +214,26 @@ class ContentApprovalService
             return str_cut(strip_tags(htmlspecialchars_decode((string) ($payload['message'] ?? ''))), 0, 80);
         }
         return '待审内容 #' . (string) intval($payload['id'] ?? 0);
+    }
+
+    protected function buildTargetUrl(string $type, array $payload, int $itemId): string
+    {
+        if (in_array($type, ['question', 'modify_question'], true)) {
+            $questionId = $itemId > 0 ? $itemId : intval($payload['id'] ?? 0);
+            return $questionId > 0 ? get_url('question/detail', ['id' => $questionId], true, false) : '';
+        }
+        if (in_array($type, ['article', 'modify_article'], true)) {
+            $articleId = $itemId > 0 ? $itemId : intval($payload['id'] ?? 0);
+            return $articleId > 0 ? get_url('article/detail', ['id' => $articleId], true, false) : '';
+        }
+        if (in_array($type, ['answer', 'modify_answer'], true)) {
+            $questionId = intval($payload['question_id'] ?? 0);
+            $answerId = $itemId > 0 ? $itemId : intval($payload['id'] ?? 0);
+            return ($questionId > 0 && $answerId > 0)
+                ? get_url('question/detail', ['id' => $questionId, 'answer' => $answerId], true, false)
+                : '';
+        }
+        return '';
     }
 
     protected function normalizeIds($ids): array

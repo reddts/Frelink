@@ -49,6 +49,7 @@ class ContentAnswerService
             'comment_count' => intval($info['comment_count'] ?? 0),
             'is_best' => intval($info['is_best'] ?? 0),
             'status' => intval($info['status'] ?? 0),
+            'preview_url' => get_url('question/detail', ['id' => intval($info['question_id'] ?? 0), 'answer' => intval($info['id'] ?? 0)], true, false),
             'create_time_text' => !empty($info['create_time']) ? date('Y-m-d H:i:s', intval($info['create_time'])) : '-',
             'update_time_text' => !empty($info['update_time']) ? date('Y-m-d H:i:s', intval($info['update_time'])) : '-',
         ];
@@ -103,6 +104,7 @@ class ContentAnswerService
             $item['comment_count'] = intval($item['comment_count'] ?? 0);
             $item['is_best'] = intval($item['is_best'] ?? 0);
             $item['content_preview'] = str_cut(strip_tags(htmlspecialchars_decode((string) ($item['content'] ?? ''))), 0, 100);
+            $item['preview_url'] = get_url('question/detail', ['id' => $item['question_id'], 'answer' => $item['id']], true, false);
             $item['create_time_text'] = !empty($item['create_time']) ? date('Y-m-d H:i:s', intval($item['create_time'])) : '-';
             $item['update_time_text'] = !empty($item['update_time']) ? date('Y-m-d H:i:s', intval($item['update_time'])) : '-';
         }

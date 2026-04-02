@@ -46,6 +46,8 @@ class ContentArticleService
             'user_name' => (string) ($info['user_name'] ?? ''),
             'url_token' => (string) ($info['url_token'] ?? ''),
             'status' => intval($info['status'] ?? 0),
+            'preview_url' => get_url('article/detail', ['id' => intval($info['id'] ?? 0)], true, false),
+            'edit_url' => get_url('article/publish', ['id' => intval($info['id'] ?? 0)], true, false),
             'create_time_text' => !empty($info['create_time']) ? date('Y-m-d H:i:s', intval($info['create_time'])) : '-',
             'update_time_text' => !empty($info['update_time']) ? date('Y-m-d H:i:s', intval($info['update_time'])) : '-',
             'comment_count' => intval($info['comment_count'] ?? 0),
@@ -125,6 +127,8 @@ class ContentArticleService
             $item['uid'] = intval($item['uid'] ?? 0);
             $item['comment_count'] = intval($item['comment_count'] ?? 0);
             $item['view_count'] = intval($item['view_count'] ?? 0);
+            $item['preview_url'] = get_url('article/detail', ['id' => $item['id']], true, false);
+            $item['edit_url'] = get_url('article/publish', ['id' => $item['id']], true, false);
             $item['create_time_text'] = !empty($item['create_time']) ? date('Y-m-d H:i:s', intval($item['create_time'])) : '-';
             $item['update_time_text'] = !empty($item['update_time']) ? date('Y-m-d H:i:s', intval($item['update_time'])) : '-';
         }
