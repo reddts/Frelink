@@ -88,6 +88,11 @@ class AdminConsoleService
                     'value' => intval(db('answer')->where('status', 1)->count()),
                 ],
                 [
+                    'key' => 'approval_article',
+                    'label' => '待审文章',
+                    'value' => intval(db('approval')->where(['status' => 0, 'type' => 'article'])->count()),
+                ],
+                [
                     'key' => 'approval_question',
                     'label' => '待审问题',
                     'value' => intval(db('approval')->where(['status' => 0, 'type' => 'question'])->count()),

@@ -2,6 +2,24 @@
 
 ## 2026-04-03
 
+### 里程碑：为新版管理端 Dashboard 增加待审文章统计
+
+- 已补新版管理端仪表盘的待审文章卡片：
+  - [AdminConsoleService.php](/mnt/f/workwww/knowlege-github/app/common/service/admin/AdminConsoleService.php) 已新增 `approval_article`
+  - 仪表盘统计区现可直接显示 `待审文章`
+  - 前端 [DashboardView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/DashboardView.vue) 无需额外改模板，沿用现有统计卡渲染即可显示新指标
+- 本轮完成真实闭环：
+  - 本地执行 `corepack pnpm --dir admin-vben typecheck`
+  - 本地执行 `corepack pnpm --dir admin-vben build`
+  - 构建产物已再次写入 `public/admin-vben/`
+  - 已执行 `bash scripts/deploy.sh sync`
+  - 已执行 `bash scripts/deploy.sh verify`
+  - 远端已执行 `php -l app/function.inc.php`
+  - 远端已执行 `php -l app/frontend/Article.php`
+  - 远端已执行 `sudo php think clear`
+  - 远端已重新生成 `docs/api-v1.md` 与 `public/docs/api-v1.openapi.json`
+  - 已完成线上 smoke check：`/`、`/questions/`、`/articles/`
+
 ### 里程碑：压缩新管理端登录页到单屏内并恢复 Linux 本地构建链
 
 - 已继续优化登录页首屏高度：
