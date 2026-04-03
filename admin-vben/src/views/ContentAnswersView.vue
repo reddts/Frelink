@@ -109,26 +109,20 @@
 
       <article class="panel-card">
         <span class="eyebrow">回答编辑器</span>
-        <form class="editor-form" @submit.prevent="submitAnswer">
-          <ContentDetailPanel
-            :links="detailLinks"
-            :detail-fields="detail?.detail_fields || []"
-            :flags="detail?.flags || []"
-          />
-          <label>
-            <span>问题标题</span>
-            <input :value="detail?.question_title || ''" disabled />
-          </label>
-          <label>
-            <span>回答正文</span>
-            <textarea v-model="answerForm.content" rows="12" placeholder="请输入回答正文" />
-          </label>
-          <div class="form-actions">
-            <button class="primary-button" type="submit" :disabled="saving || !answerForm.id">
-              {{ saving ? '保存中...' : answerForm.id ? '保存回答' : '请选择回答' }}
-            </button>
-          </div>
-        </form>
+        <ContentRecordEditor
+          :form="editorForm"
+          :links="detailLinks"
+          :detail-fields="answerDetailFields"
+          :flags="detail?.flags || []"
+          body-label="回答正文"
+          body-placeholder="请输入回答正文"
+          submit-label="保存回答"
+          empty-label="请选择回答"
+          :saving="saving"
+          :show-title-field="false"
+          :show-seo-fields="false"
+          @submit="submitAnswer"
+        />
       </article>
     </section>
   </div>
@@ -137,9 +131,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import ContentFlags from '@/components/ContentFlags.vue';
-import ContentDetailPanel from '@/components/ContentDetailPanel.vue';
+import ContentRecordEditor from '@/components/ContentRecordEditor.vue';
 import { deleteContentAnswer, fetchContentAnswerDetail, fetchContentAnswers, saveContentAnswer } from '@/api/admin';
-import type { ContentAnswerDetail, ContentAnswerOverviewPayload } from '@/types';
+import type { ContentAnswerDetail, ContentAnswerOverviewPayload, ContentRecordFormState } from '@/types';
 
 const payload = ref<ContentAnswerOverviewPayload | null>(null);
 const detail = ref<ContentAnswerDetail | null>(null);
@@ -149,6 +143,17 @@ const selectedId = ref(0);
 const selectedIds = ref<number[]>([]);
 const saving = ref(false);
 
+const answerDetailFields = computed(() => {
+  if (!detail.value) {
+    return [];
+  }
+
+  return [
+    { label: '所属问题', value: detail.value.question_title || '-' },
+    ...(detail.value.detail_fields || []),
+  ];
+});
+
 const detailLinks = computed(() => {
   if (!detail.value) {
     return [];
@@ -157,9 +162,13 @@ const detailLinks = computed(() => {
   return [{ label: '打开前台预览', href: detail.value.preview_url || '' }];
 });
 
-const answerForm = ref({
+const editorForm = ref<ContentRecordFormState>({
   id: 0,
-  content: '',
+  title: '',
+  body: '',
+  seo_title: '',
+  seo_keywords: '',
+  seo_description: '',
 });
 
 function getErrorMessage(error: unknown) {
@@ -167,9 +176,13 @@ function getErrorMessage(error: unknown) {
 }
 
 function resetForm() {
-  answerForm.value = {
+  editorForm.value = {
     id: 0,
-    content: '',
+    title: '',
+    body: '',
+    seo_title: '',
+    seo_keywords: '',
+    seo_description: '',
   };
   detail.value = null;
   selectedId.value = 0;
@@ -205,20 +218,27 @@ async function switchStatus(status: number) {
 async function editItem(id: number) {
   detail.value = await fetchContentAnswerDetail(id);
   selectedId.value = id;
-  answerForm.value = {
+  editorForm.value = {
     id: detail.value.id,
-    content: detail.value.content || '',
+    title: '',
+    body: detail.value.content || '',
+    seo_title: '',
+    seo_keywords: '',
+    seo_description: '',
   };
 }
 
 async function submitAnswer() {
-  if (!answerForm.value.id) {
+  if (!editorForm.value.id) {
     return;
   }
   saving.value = true;
   try {
-    await saveContentAnswer(answerForm.value);
-    await editItem(answerForm.value.id);
+    await saveContentAnswer({
+      id: editorForm.value.id,
+      content: editorForm.value.body,
+    });
+    await editItem(editorForm.value.id);
     await reload();
   } catch (error) {
     window.alert(getErrorMessage(error));

@@ -155,9 +155,22 @@
       <article class="panel-card">
         <span class="eyebrow">审核详情</span>
         <template v-if="detail">
+          <ContentDetailPanel :summary-fields="detailSummaryFields" :links="detailLinks" />
+          <ContentRecordEditor
+            v-if="previewEditorForm"
+            :form="previewEditorForm"
+            :detail-fields="detail.preview_fields || []"
+            :title-label="previewEditorMeta.titleLabel"
+            :body-label="previewEditorMeta.bodyLabel"
+            :show-title-field="previewEditorMeta.showTitle"
+            :show-seo-fields="previewEditorMeta.showSeo"
+            :show-actions="false"
+            readonly
+            readonly-title
+            readonly-body
+          />
           <ContentDetailPanel
-            :summary-fields="detailSummaryFields"
-            :links="detailLinks"
+            v-else
             :detail-fields="detail.preview_fields || []"
           />
           <label class="editor-form-group">
@@ -194,6 +207,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import ContentDetailPanel from '@/components/ContentDetailPanel.vue';
+import ContentRecordEditor from '@/components/ContentRecordEditor.vue';
 import {
   approveContentApproval,
   declineContentApproval,
@@ -202,7 +216,7 @@ import {
   forbidContentApprovalUser,
   forbidContentApprovalUserIp,
 } from '@/api/admin';
-import type { ContentApprovalDetail, ContentApprovalOverviewPayload } from '@/types';
+import type { ContentApprovalDetail, ContentApprovalOverviewPayload, ContentRecordFormState } from '@/types';
 
 const payload = ref<ContentApprovalOverviewPayload | null>(null);
 const detail = ref<ContentApprovalDetail | null>(null);
@@ -248,6 +262,81 @@ const detailLinks = computed(() => {
   }
 
   return [{ label: '打开前台预览', href: detail.value.target_url || '' }];
+});
+
+const previewEditorMeta = computed(() => {
+  const type = detail.value?.type || '';
+  if (type === 'question' || type === 'modify_question') {
+    return {
+      titleLabel: '问题标题',
+      bodyLabel: '问题详情',
+      showTitle: true,
+      showSeo: true,
+    };
+  }
+  if (type === 'article' || type === 'modify_article') {
+    return {
+      titleLabel: '文章标题',
+      bodyLabel: '文章正文',
+      showTitle: true,
+      showSeo: true,
+    };
+  }
+  if (type === 'answer' || type === 'modify_answer') {
+    return {
+      titleLabel: '标题',
+      bodyLabel: '回答正文',
+      showTitle: false,
+      showSeo: false,
+    };
+  }
+  return {
+    titleLabel: '标题',
+    bodyLabel: '正文',
+    showTitle: true,
+    showSeo: false,
+  };
+});
+
+const previewEditorForm = computed<ContentRecordFormState | null>(() => {
+  if (!detail.value) {
+    return null;
+  }
+
+  const payload = detail.value.payload || {};
+  const type = detail.value.type || '';
+  if (type === 'question' || type === 'modify_question') {
+    return {
+      id: detail.value.id,
+      title: String(payload.title || ''),
+      body: String(payload.detail || ''),
+      seo_title: String(payload.seo_title || ''),
+      seo_keywords: String(payload.seo_keywords || ''),
+      seo_description: String(payload.seo_description || ''),
+    };
+  }
+  if (type === 'article' || type === 'modify_article') {
+    return {
+      id: detail.value.id,
+      title: String(payload.title || ''),
+      body: String(payload.message || ''),
+      seo_title: String(payload.seo_title || ''),
+      seo_keywords: String(payload.seo_keywords || ''),
+      seo_description: String(payload.seo_description || ''),
+    };
+  }
+  if (type === 'answer' || type === 'modify_answer') {
+    return {
+      id: detail.value.id,
+      title: '',
+      body: String(payload.content || ''),
+      seo_title: '',
+      seo_keywords: '',
+      seo_description: '',
+    };
+  }
+
+  return null;
 });
 
 function getErrorMessage(error: unknown) {

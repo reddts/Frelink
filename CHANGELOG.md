@@ -2,6 +2,24 @@
 
 ## 2026-04-03
 
+### 里程碑：回答页接入统一编辑器并为审核详情补只读候选内容模型
+
+- 已继续推进 `管理端模板更新计划.md` 中“统一表单 / 详情模型复用”的下一步：
+  - [ContentRecordEditor.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/components/ContentRecordEditor.vue) 已扩展为可配置组件，支持隐藏标题、隐藏 SEO、只读展示、禁用提交动作
+  - 该组件不再只服务文章 / 问题编辑，而是开始覆盖“可编辑”和“只读候选内容预览”两种场景
+- 已落地到高频内容页：
+  - [ContentAnswersView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentAnswersView.vue) 已切换到统一编辑器，回答页不再单独维护一套正文表单模板
+  - [ContentApprovalsView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentApprovalsView.vue) 已对问题 / 文章 / 回答类审核详情补只读候选内容模型
+  - 审核详情现在可直接按内容类型查看“标题 / 正文 / SEO”结构，而不再只能依赖原始 JSON 和字段列表拼读
+- 本轮完成本地验证：
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run typecheck"`
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run build"`
+  - 构建产物已再次输出到 `public/admin-vben/`
+  - 本地无 `php` 命令，未执行本地 PHP lint
+- 当前结论：
+  - 统一编辑器已从“文章 / 问题表单复用”扩展到“回答页复用 + 审核候选内容只读复用”
+  - 下一轮可以继续把审核页往更完整编辑链路推进，或继续收口其他内容模块页面的同构表单
+
 ### 里程碑：修复生产库 `admin_auth` 缺失 `menu` 字段导致的新管理端登录 500
 
 - 已定位并修复线上真实登录 500 根因：
