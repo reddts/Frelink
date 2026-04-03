@@ -2,6 +2,19 @@
 
 ## 2026-04-03
 
+### 里程碑：新管理端菜单支持分组折叠并补官方组件优先规范
+
+- 已增强新管理端侧栏导航：
+  - [AppMenuTree.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/components/AppMenuTree.vue) 已支持菜单分组折叠
+  - 顶级菜单组在展开侧栏时可单独折叠 / 展开，并将展开状态持久化到本地
+  - 侧栏整体折叠时仍保持图标导航，展开后继续沿用用户上次的分组展开状态
+- 已补最小交互样式：
+  - [styles.css](/mnt/f/workwww/knowlege-github/admin-vben/src/styles.css) 已补分组切换按钮、收展过渡和折叠指示
+- 已把规范写入迁移计划：
+  - [管理端模板更新计划.md](/mnt/f/workwww/knowlege-github/管理端模板更新计划.md) 已新增“新管理端实现规范补充”
+  - 后续新增页面、交互和基础 UI 必须优先采用 `admin-vben` 官方组件、官方布局和官方样式语义
+  - 若当前子工程缺少官方组件依赖，默认应先补官方依赖，再进入页面实现；不再继续长期扩写自定义基础组件
+
 ### 里程碑：为新管理端补全局 loading 动画
 
 - 已为新管理端补入口级 loading 动画，而不是让用户在首屏和切页时看到静态空白：
