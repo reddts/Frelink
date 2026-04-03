@@ -41,6 +41,11 @@ input {
   display: grid;
   grid-template-columns: 320px 1fr;
   min-height: 100vh;
+  transition: grid-template-columns 0.2s ease;
+}
+
+.shell.is-sidebar-collapsed {
+  grid-template-columns: 96px 1fr;
 }
 
 .sidebar {
@@ -49,6 +54,7 @@ input {
   color: #f4f8fb;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(18px);
+  transition: padding 0.2s ease;
 }
 
 .brand,
@@ -67,6 +73,11 @@ input {
   align-items: center;
   padding: 18px;
   background: rgba(255, 255, 255, 0.08);
+}
+
+.is-sidebar-collapsed .brand,
+.is-sidebar-collapsed .menu-link {
+  justify-content: center;
 }
 
 .brand-badge,
@@ -117,6 +128,10 @@ input {
   padding: 0 0 0 14px;
 }
 
+.is-sidebar-collapsed .menu-tree {
+  padding-left: 0;
+}
+
 .menu-node {
   margin-top: 8px;
 }
@@ -146,6 +161,7 @@ input {
   text-align: center;
   font-size: 11px;
   opacity: 0.85;
+  flex-shrink: 0;
 }
 
 .main-panel {
@@ -162,10 +178,20 @@ input {
   backdrop-filter: blur(12px);
 }
 
+.topbar-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .topbar-actions {
   display: flex;
   align-items: center;
   gap: 14px;
+}
+
+.sidebar-toggle {
+  min-width: 112px;
 }
 
 .user-card {
@@ -676,6 +702,10 @@ input {
   .login-page,
   .stats-grid,
   .panel-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .shell.is-sidebar-collapsed {
     grid-template-columns: 1fr;
   }
 

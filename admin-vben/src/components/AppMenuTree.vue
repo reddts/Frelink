@@ -1,11 +1,11 @@
 <template>
   <ul class="menu-tree">
     <li v-for="item in items" :key="item.id" class="menu-node">
-      <RouterLink :to="item.path" class="menu-link" active-class="is-active">
+      <RouterLink :to="item.path" class="menu-link" active-class="is-active" :title="collapsed ? item.title : ''">
         <span class="menu-icon">{{ iconText(item.icon) }}</span>
-        <span class="menu-title">{{ item.title }}</span>
+        <span v-if="!collapsed" class="menu-title">{{ item.title }}</span>
       </RouterLink>
-      <AppMenuTree v-if="item.children?.length" :items="item.children" />
+      <AppMenuTree v-if="item.children?.length" :items="item.children" :collapsed="collapsed" />
     </li>
   </ul>
 </template>
@@ -15,6 +15,7 @@ import type { AdminMenuItem } from '@/types';
 
 defineProps<{
   items: AdminMenuItem[];
+  collapsed?: boolean;
 }>();
 
 function iconText(icon: string) {

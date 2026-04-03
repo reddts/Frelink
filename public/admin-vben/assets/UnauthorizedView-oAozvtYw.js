@@ -1,1 +1,0 @@
-import{ay as t,o as a,c as o,a as e}from"./index-CEOeajCP.js";const n={},r={class:"empty-state"};function c(l,s){return a(),o("div",r,[...s[0]||(s[0]=[e("span",{class:"eyebrow"},"401",-1),e("h3",null,"当前账号没有访问权限",-1),e("p",null,"请确认管理员分组规则，或切回旧后台核查菜单授权。",-1)])])}const d=t(n,[["render",c]]);export{d as default};

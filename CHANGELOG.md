@@ -2,6 +2,23 @@
 
 ## 2026-04-03
 
+### 里程碑：新管理端菜单改为默认折叠并记忆用户切换状态
+
+- 已优化新管理端壳层的侧栏交互：
+  - [AdminLayout.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/layouts/AdminLayout.vue) 已新增侧栏折叠状态，默认进入管理端时为折叠
+  - 顶部操作区已补“展开菜单 / 折叠菜单”切换按钮，避免侧栏长菜单持续挤压主内容区
+  - 折叠状态已通过 `localStorage` 持久化，用户手动展开后刷新页面不会被立即重置
+- 已同步菜单组件和样式：
+  - [AppMenuTree.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/components/AppMenuTree.vue) 已支持折叠态，仅保留图标并补 `title` 提示
+  - [styles.css](/mnt/f/workwww/knowlege-github/admin-vben/src/styles.css) 已补侧栏宽度切换、折叠态居中、移动端兜底样式
+- 本轮完成本地验证：
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run typecheck"`
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run build"`
+  - 构建产物已再次输出到 `public/admin-vben/`
+- 当前结论：
+  - 新管理端默认进入“更关注内容区”的折叠壳层模式
+  - 后续若继续优化导航，可再补二级菜单悬浮展开或分组折叠
+
 ### 里程碑：回答页接入统一编辑器并为审核详情补只读候选内容模型
 
 - 已继续推进 `管理端模板更新计划.md` 中“统一表单 / 详情模型复用”的下一步：
