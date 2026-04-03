@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(20,101,255,0.18),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(15,160,140,0.14),transparent_22%),linear-gradient(180deg,#eef4fb_0%,#f8fbff_100%)] px-5 py-4 md:px-8 md:py-5 lg:px-10 lg:py-6">
-    <div class="mx-auto grid h-[calc(100vh-2rem)] max-w-7xl grid-cols-1 gap-4 md:h-[calc(100vh-2.5rem)] lg:grid-cols-[1.08fr_0.92fr] lg:gap-5">
-      <Card class="relative hidden overflow-hidden border-slate-200/70 bg-slate-950 text-slate-50 shadow-[0_24px_72px_rgba(15,23,42,0.24)] lg:flex lg:min-h-0">
+  <div class="login-screen min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(20,101,255,0.18),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(15,160,140,0.14),transparent_22%),linear-gradient(180deg,#eef4fb_0%,#f8fbff_100%)] px-4 py-3 md:px-6 md:py-4 lg:px-8 lg:py-4">
+    <div class="login-screen-grid mx-auto grid h-[calc(100vh-1.5rem)] max-w-7xl grid-cols-1 gap-3 md:h-[calc(100vh-2rem)] lg:grid-cols-[1.04fr_0.96fr] lg:gap-4">
+      <Card class="login-screen-hero relative hidden overflow-hidden border-slate-200/70 bg-slate-950 text-slate-50 shadow-[0_24px_72px_rgba(15,23,42,0.24)] lg:flex lg:min-h-0">
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.32),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(45,212,191,0.22),transparent_18%),linear-gradient(135deg,rgba(15,23,42,0.96),rgba(15,23,42,0.82))]"></div>
         <CardHeader class="relative z-10 flex h-full min-h-0 flex-col gap-5 p-7 xl:p-8">
           <div class="inline-flex w-fit items-center rounded-full border border-white/12 bg-white/8 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-100">
@@ -90,9 +90,9 @@
         </CardHeader>
       </Card>
 
-      <section class="flex min-h-0 items-center justify-center">
-        <Card class="w-full max-w-[520px] border-slate-200/80 bg-white/92 shadow-[0_24px_80px_rgba(15,23,42,0.12)] backdrop-blur">
-          <CardHeader class="space-y-3 px-7 pt-7 pb-3 md:px-8 md:pt-8">
+      <section class="login-screen-form-wrap flex min-h-0 items-center justify-center">
+        <Card class="login-screen-card w-full max-w-[500px] border-slate-200/80 bg-white/92 shadow-[0_24px_80px_rgba(15,23,42,0.12)] backdrop-blur">
+          <CardHeader class="space-y-3 px-6 pt-6 pb-3 md:px-7 md:pt-7">
             <div class="inline-flex w-fit items-center rounded-full bg-slate-900 px-3 py-1 text-xs font-medium uppercase tracking-[0.24em] text-white">
               Secure Access
             </div>
@@ -102,7 +102,7 @@
             </CardDescription>
           </CardHeader>
 
-          <CardContent class="px-7 pb-7 md:px-8 md:pb-8">
+          <CardContent class="px-6 pb-6 md:px-7 md:pb-7">
             <form class="login-form" @submit.prevent="handleSubmit">
               <label>
                 <span class="text-sm font-medium text-slate-700">用户名</span>

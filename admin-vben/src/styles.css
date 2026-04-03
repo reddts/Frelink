@@ -931,6 +931,62 @@ input {
   padding: 14px 16px;
 }
 
+.login-screen {
+  box-sizing: border-box;
+}
+
+.login-screen-grid {
+  align-items: stretch;
+}
+
+.login-screen-hero,
+.login-screen-card {
+  max-height: 100%;
+}
+
+@media (max-height: 860px) {
+  .login-screen {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .login-screen-grid {
+    height: calc(100vh - 24px);
+    gap: 12px;
+  }
+
+  .login-screen-hero {
+    display: none !important;
+  }
+
+  .login-screen-form-wrap {
+    grid-column: 1 / -1;
+  }
+
+  .login-screen-card {
+    max-width: 480px;
+  }
+}
+
+@media (max-height: 760px) {
+  .login-screen {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .login-screen-grid {
+    height: calc(100vh - 16px);
+  }
+
+  .login-screen-card .p-6,
+  .login-screen-card .px-6,
+  .login-screen-card .pb-6,
+  .login-screen-card .pt-6 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+}
+
 .error-text {
   margin: 0;
   color: #b42318;
