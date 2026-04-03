@@ -81,7 +81,7 @@
 {block name="main"}
 <div class="aui-content mt-1 mescroll" id="ajaxPage">
     <div class="aw-question-container">
-        <div class="aw-mobile-detail-card bg-white p-3 mb-1">
+        <div class="aw-mobile-detail-card bg-white p-3">
             <div class="pb-2">
                 <div class="clearfix">
                     {if !empty($question_info['topics']) || ($user_id && ($user_info['group_id']==1 || $user_info['group_id']==2))}
@@ -167,7 +167,7 @@
 
             {:hook('pageDetailBottom',['info'=>$question_info])}
             {if !empty($next_reads)}
-            <div class="question-next-read-panel aw-mobile-detail-panel mt-3">
+            <div class="question-next-read-panel aw-mobile-detail-panel pt-3">
                 <div class="question-next-read-heading aw-mobile-detail-panel-title">
                     <span>下一步阅读</span>
                     <em>自动延展阅读</em>
@@ -187,7 +187,7 @@
                 <div class="aw-mobile-detail-panel-title">{:L('已归档到知识章节')}</div>
                 <div class="text-muted font-8 mb-2">{:L('这条 FAQ 已经进入知识归档，可从章节继续查找背景和相关内容。')}</div>
                 {volist name="archive_chapters" id="chapter"}
-                <a class="d-block py-2 border-bottom text-body" href="{:url('help/detail',['token'=>$chapter['url_token']])}" data-pjax="pageMain">
+                <a class="d-block py-2 border-bottom text-body" href="{:get_url('help/detail',['token'=>$chapter['url_token']])}" data-pjax="pageMain">
                     <div class="font-weight-bold mb-1">{$chapter.title}</div>
                     {if !empty($chapter.description)}<div class="text-muted font-8">{:str_cut(strip_tags((string)$chapter['description']),0,80)}</div>{/if}
                 </a>
@@ -244,28 +244,63 @@
     let questionId = parseInt("{$question_info.id}");
     var answerId = parseInt("{$answer_id ? $answer_id : 0}");
     var showAll = $('#show-all');
+    var questionContent = $('#question-content');
+    var previewLines = 6;
     var url = "{:url('question/answers')}";
     var sort = 'new';
     var type = 'answer';
     var param = {sort:sort,question_id:questionId};
+
+    function getPreviewHeight(element, lines)
+    {
+        if (!element || !element.length) {
+            return 0;
+        }
+
+        var node = element[0];
+        var style = window.getComputedStyle(node);
+        var lineHeight = parseFloat(style.lineHeight);
+
+        if (!lineHeight || isNaN(lineHeight)) {
+            var fontSize = parseFloat(style.fontSize) || 16;
+            lineHeight = fontSize * 1.82;
+        }
+
+        return Math.round(lineHeight * lines);
+    }
+
+    function collapseQuestionDetail()
+    {
+        var collapsedHeight = getPreviewHeight(showAll, previewLines);
+        $('.aw-question-hide').hide();
+        showAll.show().css('height', collapsedHeight + 'px');
+        questionContent.addClass('aw-question-collapsed');
+        $('.aw-question-show').show();
+    }
+
+    function expandQuestionDetail()
+    {
+        $('.aw-question-show').hide();
+        showAll.show().css('height', 'auto');
+        questionContent.removeClass('aw-question-collapsed');
+        $('.aw-question-hide').show();
+    }
+
     $(document).ready(function ()
     {
-        if(showAll.height() >= 120)
+        var collapsedHeight = getPreviewHeight(showAll, previewLines);
+
+        if(showAll[0] && showAll[0].scrollHeight > collapsedHeight)
         {
-            showAll.show().css('height','120px');
-            $('.aw-question-show').show();
+            collapseQuestionDetail();
         }
 
         $(document).on('click', '.aw-question-show', function (e) {
-            $('.aw-question-show').hide();
-            showAll.show().css('height','auto');
-            $('.aw-question-hide').show();
+            expandQuestionDetail();
         });
 
         $(document).on('click', '.aw-question-hide', function (e) {
-            $('.aw-question-hide').hide();
-            showAll.show().css('height','120px');
-            $('.aw-question-show').show();
+            collapseQuestionDetail();
         });
     });
 
@@ -361,6 +396,9 @@
                         }
 
                         $('#ajaxResult').append(result.data.html);
+                        if (window.initMobileContentImages) {
+                            window.initMobileContentImages($('#ajaxResult'));
+                        }
 
                         if(type=='answer')
                         {

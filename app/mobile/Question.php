@@ -3,6 +3,7 @@ namespace app\mobile;
 use app\common\controller\Frontend;
 use app\common\library\helper\AgentHelper;
 use app\common\library\helper\FormatHelper;
+use app\common\library\helper\HtmlHelper;
 use app\common\library\helper\IpHelper;
 use app\common\library\helper\IpLocation;
 use app\common\library\helper\LogHelper;
@@ -67,6 +68,7 @@ class Question extends Frontend
         // 获取话题
         $question_info['topics'] = Topic::getTopicByItemType('question',$question_info['id']);
         $question_info['has_focus'] = FocusLogic::checkUserIsFocus($this->user_id, 'question', $question_info['id']) ? 1 : 0;
+        $question_info['detail'] = HtmlHelper::prepareMobileContentImages($question_info['detail']);
         $relation_question = QuestionModel::getRelationQuestion($question_id);
 
         //是否举报
@@ -379,6 +381,7 @@ class Question extends Frontend
             $answer['data'][$key]['vote_value'] = Vote::getVoteByType($val['id'],'answer',$this->user_id);
             $answer['data'][$key]['checkFavorite']=Common::checkFavorite(['uid'=>$this->user_id,'item_id'=>$val['id'],'item_type'=>'answer'])?1:0;
             $answer['data'][$key]['checkReport']=Report::getReportInfo($val['id'],'answer',$this->user_id)?1:0;
+            $answer['data'][$key]['content'] = HtmlHelper::prepareMobileContentImages($val['content']);
         }
 
         $question_info = db('question')->where(['id'=>$data['question_id'],'status'=>1])->field('title,detail,id')->find();

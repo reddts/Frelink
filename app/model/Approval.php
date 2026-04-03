@@ -198,12 +198,13 @@ class Approval extends BaseModel
      */
 	public static function decline($id,string $reason=''): bool
     {
-		if (!db('approval')->where('id',$id)->find())
-		{
-			return false;
-		}
-
         $id = is_array($id) ? $id : explode(',',$id);
+        $id = array_values(array_filter(array_map('intval', $id)));
+
+        if (!$id)
+        {
+            return false;
+        }
 
         if (!$approval_list = db('approval')->whereIn('id',$id)->select()->toArray())
         {

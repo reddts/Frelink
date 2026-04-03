@@ -72,27 +72,29 @@ Route::rule('api-docs', 'page/api');
 Route::rule('help/api', 'page/api');
 
 //接口处理
-if(ENTRANCE=='api')
+if (ENTRANCE == 'api' || ENTRANCE == 'adminapi')
 {
     $version = request()->header('version');
     if($version==null)$version = "v1";
     Route::rule(':controller/:function', $version.'.:controller/:function');
     if(get_setting('url_rewrite_enable')=='Y')
     {
-        $cacheKey = 'route_rules_api';
-        $routes = cache($cacheKey);
-        if ($routes === null) {
-            $routes = db('route_rule')->where(['status'=>1,'entrance'=>'api'])->select()->toArray();
-            cache($cacheKey, $routes, 300);
-        }
-        foreach ($routes as $k=>$v)
-        {
-            if($v['method']!='*')
+        if (ENTRANCE == 'api') {
+            $cacheKey = 'route_rules_api';
+            $routes = cache($cacheKey);
+            if ($routes === null) {
+                $routes = db('route_rule')->where(['status'=>1,'entrance'=>'api'])->select()->toArray();
+                cache($cacheKey, $routes, 300);
+            }
+            foreach ($routes as $k=>$v)
             {
-                $method = $v['method'];
-                Route::$method($v['rule'], $v['url']);
-            }else{
-                Route::rule($v['rule'], $v['url']);
+                if($v['method']!='*')
+                {
+                    $method = $v['method'];
+                    Route::$method($v['rule'], $v['url']);
+                }else{
+                    Route::rule($v['rule'], $v['url']);
+                }
             }
         }
     }

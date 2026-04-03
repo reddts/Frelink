@@ -123,6 +123,15 @@ class Approval extends Backend
             'edit'=>[
                 'title'       => '预览',
             ],
+            'approval' => [
+                'title'       => '通过',
+                'icon'        => 'fa fa-check',
+                'class'       => 'btn btn-success btn-sm aw-ajax-get',
+                'url'         => (string) url('state', ['id' => '__id__', 'type' => 'approval']),
+                'target'      => '',
+                'href'        => 'javascript:;',
+                'confirm'     => '确定通过审核该信息吗？'
+            ],
             'delete',
             'forbidden' => [
                 'title'       => '封禁',
@@ -402,9 +411,19 @@ class Approval extends Backend
 	//审核状态
 	public function state()
 	{
+        $id = $this->request->param('id');
+        $type = $this->request->param('type', '', 'trim');
+
+        if (!$this->request->isPost() && $type === 'approval' && $id) {
+            if (ApprovalModel::approval($id)) {
+                $this->success('审核成功');
+            }
+            $this->error('审核失败!'.ApprovalModel::getError());
+        }
+
         if ($this->request->isPost()) {
             $ids = $this->request->post('id');
-            $type = $this->request->post('type');
+            $type = $this->request->post('type', '', 'trim');
             if ($type == 'approval') {
                 if (ApprovalModel::approval($ids)) {
                     $this->success('审核成功');
@@ -420,7 +439,7 @@ class Approval extends Backend
                 $this->error('操作失败!'.ApprovalModel::getError());
             }
         }
-        $id = $this->request->param('id');
+
         return $this->formBuilder
             ->addHidden('id',$id)
             ->addHidden('type','decline')

@@ -22,6 +22,23 @@ use app\model\Common;
  */
 class Search extends Frontend
 {
+    protected function recordSearchLog(string $keywords): void
+    {
+        $keywords = trim($keywords);
+        if ($keywords === '') {
+            return;
+        }
+
+        db('search_log')->insert([
+            'uid' => $this->user_id,
+            'ip' => IpHelper::getRealIp(),
+            'keyword' => $keywords,
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? $this->request->server('HTTP_USER_AGENT', ''),
+            'from' => $_SERVER['HTTP_REFERER'] ?? $this->request->server('HTTP_REFERER', ''),
+            'create_time' => time()
+        ]);
+    }
+
     //搜索首页
     public function index()
     {
@@ -84,6 +101,7 @@ class Search extends Frontend
             $limit = $this->request->param('limit',5);
             $handle = new \app\logic\search\Search();
             $data = $handle->search($keywords,$type,$this->user_id,$order,$page,$limit);
+            $this->recordSearchLog($keywords);
             if($data)
             {
                 $data['keywords']=$keywords;
@@ -109,6 +127,7 @@ class Search extends Frontend
             $limit = $this->request->param('limit',15);
             $handle = new \app\logic\search\Search();
             $data = $handle->search($keywords,$type,$this->user_id,$order,$page,$limit);
+            $this->recordSearchLog($keywords);
             $data['keywords']=$keywords;
             $data['list'] = $data['list']??[];
             $data['type']=$type;

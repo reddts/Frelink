@@ -1441,7 +1441,7 @@ const AWS_ADMIN = {
         if($.support.pjax)
         {
             $.pjax.defaults.timeout = 1200;
-            $(document).on('click', 'a[data-pjax],a[target!=_blank]', function(event) {
+            $(document).on('click', 'a[data-pjax],a[href]:not([href^="javascript:"]):not(.aw-ajax-get):not(.ajax-get):not(.aw-ajax-open):not(.ajax-post):not(.ajax-form):not(.aw-ajax-form)[target!=_blank]', function(event) {
                 let container = $(this).attr('data-pjax')
                 let containerSelector = '#' + container;
                 $.pjax.defaults.fragment = containerSelector;

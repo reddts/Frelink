@@ -92,7 +92,7 @@
 
 {block name="main"}
 <div class="aui-content mt-1 mescroll" id="ajaxPage">
-    <div class="aw-mobile-detail-card bg-white p-3 mb-1">
+    <div class="aw-mobile-detail-card bg-white p-3">
         <div class="clearfix">
             <div style="{if $user_id && ($user_info['group_id']==1 || $user_info['group_id']==2)}width: calc(100% - 20px){else/}width: 100%{/if}" class="float-left mb-2">
                 {if !empty($article_info['topics']) || ($user_id && ($user_info['group_id']==1 || $user_info['group_id']==2))}
@@ -180,7 +180,7 @@
             <div class="aw-mobile-detail-panel-title">{:L('已归档到知识章节')}</div>
             <div class="text-muted font-8 mb-2">{:L('这条内容已经进入知识归档，可从章节继续延展阅读。')}</div>
             {volist name="archive_chapters" id="chapter"}
-            <a class="d-block py-2 border-bottom text-body" href="{:url('help/detail',['token'=>$chapter['url_token']])}" data-pjax="pageMain">
+            <a class="d-block py-2 border-bottom text-body" href="{:get_url('help/detail',['token'=>$chapter['url_token']])}" data-pjax="pageMain">
                 <div class="font-weight-bold mb-1">{$chapter.title}</div>
                 {if !empty($chapter.description)}<div class="text-muted font-8">{:str_cut(strip_tags((string)$chapter['description']),0,80)}</div>{/if}
             </a>
@@ -341,6 +341,9 @@
                             $('#ajaxResult').empty();
                         }
                         $('#ajaxResult').append(result.data.html);
+                        if (window.initMobileContentImages) {
+                            window.initMobileContentImages($('#ajaxResult'));
+                        }
                     },
                     error: function(e) {
                         //联网失败的回调,隐藏下拉刷新和上拉加载的状态

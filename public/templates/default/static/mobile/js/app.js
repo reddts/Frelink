@@ -20,6 +20,103 @@ function cutImg(obj){
         }
     }
 }
+
+function initMobileContentImages(root) {
+    var $scope = root ? $(root) : $(document);
+    var $images = $scope.find('.aw-content img');
+    if (!$images.length) {
+        return;
+    }
+
+    $images.each(function() {
+        var $img = $(this);
+        var original = $img.attr('data-original') || $img.attr('src');
+        if (!$img.attr('loading')) {
+            $img.attr('loading', 'lazy');
+        }
+        if (!$img.attr('decoding')) {
+            $img.attr('decoding', 'async');
+        }
+        if (original) {
+            $img.attr('data-original', original);
+        }
+
+        var parent = this.parentNode;
+        if (!parent || parent.tagName !== 'A' || !parent.href) {
+            if (original) {
+                $img.wrap("<a href='" + original + "' data-fancybox='fancybox' data-fancybox-group='aw-thumb' data-caption='" + (this.alt || '') + "'></a>");
+            }
+        } else if (original && parent.getAttribute('data-fancybox')) {
+            parent.setAttribute('href', original);
+        }
+    });
+
+    var activateOriginal = function (img) {
+        var $img = $(img);
+        if ($img.attr('data-original-loaded') === '1') {
+            return;
+        }
+        var original = $img.attr('data-original');
+        if (!original || original === $img.attr('src')) {
+            $img.attr('data-original-loaded', '1');
+            return;
+        }
+
+        var loader = new Image();
+        loader.onload = function () {
+            img.src = original;
+            $img.attr('data-original-loaded', '1');
+        };
+        loader.onerror = function () {
+            $img.attr('data-original-loaded', '1');
+        };
+        loader.src = original;
+    };
+
+    if ('IntersectionObserver' in window) {
+        if (!window.awMobileContentImageObserver) {
+            window.awMobileContentImageObserver = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(function(entry) {
+                    if (!entry.isIntersecting) {
+                        return;
+                    }
+                    activateOriginal(entry.target);
+                    observer.unobserve(entry.target);
+                });
+            }, {
+                rootMargin: '200px 0px'
+            });
+        }
+
+        $images.each(function() {
+            if ($(this).attr('data-original-loaded') !== '1') {
+                window.awMobileContentImageObserver.observe(this);
+            }
+        });
+    } else {
+        $images.each(function() {
+            activateOriginal(this);
+        });
+    }
+
+    $("[data-fancybox]").fancybox({
+        openEffect  : 'none',
+        closeEffect : 'none',
+        prevEffect : 'none',
+        nextEffect : 'none',
+        closeBtn  : false,
+        helpers : {
+            title : {
+                type : 'inside'
+            },
+            buttons	: {}
+        },
+        afterLoad : function() {
+            this.title = (this.index + 1) + ' / ' + this.group.length + (this.title ? ' - ' + this.title : '');
+        }
+    });
+}
+
 $(document).ready(function ()
 {
     $(function(){
@@ -58,30 +155,7 @@ $(document).ready(function ()
     }
 
     //灯箱效果
-    let acimg = $(".aw-content img")
-    if (acimg.length) {
-        acimg.each(function(i) {
-            if (!this.parentNode.href) {
-                $(this).wrap("<a href='" + this.src + "' data-fancybox='fancybox' data-fancybox-group='aw-thumb' data-caption='" + this.alt + "'></a>")
-            }
-        })
-    }
-    $("[data-fancybox]").fancybox({
-        openEffect  : 'none',
-        closeEffect : 'none',
-        prevEffect : 'none',
-        nextEffect : 'none',
-        closeBtn  : false,
-        helpers : {
-            title : {
-                type : 'inside'
-            },
-            buttons	: {}
-        },
-        afterLoad : function() {
-            this.title = (this.index + 1) + ' / ' + this.group.length + (this.title ? ' - ' + this.title : '');
-        }
-    });
+    initMobileContentImages(document);
 
 
     //发送短信
