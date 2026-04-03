@@ -2,6 +2,42 @@
 
 ## 2026-04-03
 
+### 里程碑：内容模块开始收口统一表单模型并补文章/问题直接编辑
+
+- 已继续推进高频内容页从“统一详情面板”走向“统一表单模型”：
+  - 新增 [ContentRecordEditor.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/components/ContentRecordEditor.vue)，统一承接标题、正文、SEO 标题、SEO 关键词、SEO 描述的编辑表单
+  - [ContentArticlesView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentArticlesView.vue) 与 [ContentQuestionsView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentQuestionsView.vue) 已从“SEO 编辑器”切到“内容编辑器”
+  - 文章页和问题页的编辑器已复用同一套表单模型，后续继续补审核 / 回答 / 用户详情时不再重复拼表单
+- 已补文章 / 问题在新管理端内的直接保存链路：
+  - [ContentArticle.php](/mnt/f/workwww/knowlege-github/app/adminapi/v1/ContentArticle.php) 与 [ContentQuestion.php](/mnt/f/workwww/knowlege-github/app/adminapi/v1/ContentQuestion.php) 已新增 `save` 动作
+  - [ContentArticleService.php](/mnt/f/workwww/knowlege-github/app/common/service/admin/ContentArticleService.php) 已支持直接保存标题、正文和 SEO 字段
+  - [ContentQuestionService.php](/mnt/f/workwww/knowlege-github/app/common/service/admin/ContentQuestionService.php) 已支持直接保存标题、详情和 SEO 字段
+  - [AdminApi.php](/mnt/f/workwww/knowlege-github/app/common/controller/AdminApi.php) 已补对应权限映射，新的保存动作继续挂到当前内容迁移链路下
+- 本轮完成本地验证：
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run typecheck"`
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run build"`
+  - 构建产物已再次输出到 `public/admin-vben/`
+  - 本地无 `php` 命令，未执行本地 PHP lint
+- 本轮完成生产同步：
+  - `bash scripts/deploy.sh sync`
+  - 同步时间：2026-04-03 13:15 CST
+  - 目标服务器：`azureuser@20.191.157.253:/www/wwwroot/knoledge`
+- 本轮完成远端验证：
+  - `bash scripts/deploy.sh verify`
+  - 远端 `php -l app/function.inc.php`
+  - 远端 `php -l app/frontend/Article.php`
+  - 远端 `sudo -n php think clear`
+  - 远端 `sudo -n php think api:doc --output docs/api-v1.md`
+  - 远端 `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+  - `GET https://www.frelink.top/admin-vben/index.html` 在 `Cache-Control: no-cache` 条件下已确认引用本轮新资源：
+    - `/admin-vben/assets/index-Bmvk2CEf.js`
+    - `/admin-vben/assets/index-Dsqjff7L.css`
+  - `GET https://www.frelink.top/adminapi.php/ContentArticle/detail?version=v1&id=1` 未登录返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+  - `GET https://www.frelink.top/adminapi.php/ContentQuestion/detail?version=v1&id=1` 未登录返回 `code=99` 与 `error_code=AUTH_REQUIRED`
+- 当前结论：
+  - 文章 / 问题 已从“只改 SEO”推进到“可在新管理端直接改标题 + 主体内容 + SEO”
+  - 内容模块的统一表单模型已起步，下一轮可以继续补回答 / 审核的编辑器复用或继续推进更深业务字段
+
 ### 里程碑：新管理端登录容错修复并开始收口统一详情模型
 
 - 已修复 `admin-vben` 登录阶段潜在的 500 触发点：

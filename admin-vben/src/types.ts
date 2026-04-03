@@ -445,6 +445,15 @@ export interface ContentAnswerDetail {
   detail_fields: DetailFieldItem[];
 }
 
+export interface ContentRecordFormState {
+  id: number;
+  title: string;
+  body: string;
+  seo_title: string;
+  seo_keywords: string;
+  seo_description: string;
+}
+
 export interface ContentAnswerOverviewPayload {
   status: number;
   keyword: string;

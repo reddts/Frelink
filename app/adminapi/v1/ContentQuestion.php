@@ -45,6 +45,19 @@ class ContentQuestion extends AdminApi
         $this->apiSuccess((string) ($result['msg'] ?? '保存成功'), $result['data'] ?? []);
     }
 
+    public function save()
+    {
+        if (!$this->request->isPost()) {
+            $this->apiError('请求参数错误');
+        }
+
+        $result = $this->service->save($this->request->post());
+        if (intval($result['code'] ?? 0) !== 1) {
+            $this->apiError((string) ($result['msg'] ?? '保存失败'));
+        }
+        $this->apiSuccess((string) ($result['msg'] ?? '保存成功'), $result['data'] ?? []);
+    }
+
     public function delete()
     {
         $result = $this->service->delete($this->request->param('id', ''));

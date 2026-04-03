@@ -83,6 +83,38 @@ class ContentQuestionService
         return ['code' => 1, 'msg' => '保存成功', 'data' => ['id' => $id]];
     }
 
+    public function save(array $data): array
+    {
+        $id = intval($data['id'] ?? 0);
+        if ($id <= 0) {
+            return ['code' => 0, 'msg' => '问题不存在'];
+        }
+
+        $title = trim((string) ($data['title'] ?? ''));
+        $detail = trim((string) ($data['detail'] ?? ''));
+        if ($title === '') {
+            return ['code' => 0, 'msg' => '问题标题不能为空'];
+        }
+        if ($detail === '') {
+            return ['code' => 0, 'msg' => '问题详情不能为空'];
+        }
+
+        $updated = db('question')->where('id', $id)->update([
+            'title' => $title,
+            'detail' => htmlspecialchars($detail, ENT_QUOTES),
+            'seo_title' => trim((string) ($data['seo_title'] ?? '')),
+            'seo_keywords' => trim((string) ($data['seo_keywords'] ?? '')),
+            'seo_description' => trim((string) ($data['seo_description'] ?? '')),
+            'update_time' => time(),
+        ]);
+
+        if ($updated === false) {
+            return ['code' => 0, 'msg' => '保存失败'];
+        }
+
+        return ['code' => 1, 'msg' => '保存成功', 'data' => ['id' => $id]];
+    }
+
     public function delete($ids): array
     {
         if (!QuestionModel::removeQuestion($this->normalizeIds($ids))) {

@@ -82,6 +82,38 @@ class ContentArticleService
         return ['code' => 1, 'msg' => '保存成功', 'data' => ['id' => $id]];
     }
 
+    public function save(array $data): array
+    {
+        $id = intval($data['id'] ?? 0);
+        if ($id <= 0) {
+            return ['code' => 0, 'msg' => '文章不存在'];
+        }
+
+        $title = trim((string) ($data['title'] ?? ''));
+        $message = trim((string) ($data['message'] ?? ''));
+        if ($title === '') {
+            return ['code' => 0, 'msg' => '文章标题不能为空'];
+        }
+        if ($message === '') {
+            return ['code' => 0, 'msg' => '文章正文不能为空'];
+        }
+
+        $updated = db('article')->where('id', $id)->update([
+            'title' => $title,
+            'message' => htmlspecialchars($message, ENT_QUOTES),
+            'seo_title' => trim((string) ($data['seo_title'] ?? '')),
+            'seo_keywords' => trim((string) ($data['seo_keywords'] ?? '')),
+            'seo_description' => trim((string) ($data['seo_description'] ?? '')),
+            'update_time' => time(),
+        ]);
+
+        if ($updated === false) {
+            return ['code' => 0, 'msg' => '保存失败'];
+        }
+
+        return ['code' => 1, 'msg' => '保存成功', 'data' => ['id' => $id]];
+    }
+
     public function delete($ids): array
     {
         if (!ArticleModel::removeArticle($this->normalizeIds($ids))) {

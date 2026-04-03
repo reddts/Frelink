@@ -322,6 +322,11 @@ export async function saveContentArticleSeo(payload: Record<string, unknown>) {
   return response.data.data;
 }
 
+export async function saveContentArticle(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/ContentArticle/save', payload);
+  return response.data.data;
+}
+
 export async function deleteContentArticle(id: IdInput) {
   const response = await client.get<ApiEnvelope<null>>('/ContentArticle/delete', {
     params: { id: serializeIds(id) },
@@ -352,6 +357,11 @@ export async function fetchContentQuestionDetail(id: number) {
 
 export async function saveContentQuestionSeo(payload: Record<string, unknown>) {
   const response = await client.post<ApiEnvelope<{ id: number }>>('/ContentQuestion/saveSeo', payload);
+  return response.data.data;
+}
+
+export async function saveContentQuestion(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/ContentQuestion/save', payload);
   return response.data.data;
 }
 

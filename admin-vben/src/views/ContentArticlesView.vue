@@ -101,7 +101,7 @@
               <small>{{ item.update_time_text }}</small>
             </span>
             <span class="config-actions">
-              <button class="text-button" type="button" @click="editItem(item.id)">SEO</button>
+              <button class="text-button" type="button" @click="editItem(item.id)">编辑</button>
               <a v-if="item.preview_url" class="text-button" :href="item.preview_url" target="_blank" rel="noreferrer">
                 预览
               </a>
@@ -138,39 +138,21 @@
       </article>
 
       <article class="panel-card">
-        <span class="eyebrow">SEO 编辑器</span>
-        <form class="editor-form" @submit.prevent="submitSeo">
-          <ContentDetailPanel
-            :links="detailLinks"
-            :detail-fields="detail?.detail_fields || []"
-            :flags="detail?.flags || []"
-          />
-          <label>
-            <span>文章标题</span>
-            <input :value="detail?.title || ''" disabled />
-          </label>
-          <label>
-            <span>SEO 标题</span>
-            <input v-model.trim="seoForm.seo_title" placeholder="请输入 SEO 标题" />
-          </label>
-          <label>
-            <span>SEO 关键词</span>
-            <input v-model.trim="seoForm.seo_keywords" placeholder="请输入 SEO 关键词" />
-          </label>
-          <label>
-            <span>SEO 描述</span>
-            <textarea v-model="seoForm.seo_description" rows="5" placeholder="请输入 SEO 描述" />
-          </label>
-          <label>
-            <span>正文预览</span>
-            <textarea :value="detail?.message || ''" rows="10" disabled />
-          </label>
-          <div class="form-actions">
-            <button class="primary-button" type="submit" :disabled="saving || !seoForm.id">
-              {{ saving ? '保存中...' : seoForm.id ? '保存 SEO' : '请选择文章' }}
-            </button>
-          </div>
-        </form>
+        <span class="eyebrow">内容编辑器</span>
+        <ContentRecordEditor
+          :form="editorForm"
+          :links="detailLinks"
+          :detail-fields="detail?.detail_fields || []"
+          :flags="detail?.flags || []"
+          title-label="文章标题"
+          title-placeholder="请输入文章标题"
+          body-label="文章正文"
+          body-placeholder="请输入文章正文"
+          submit-label="保存文章"
+          empty-label="请选择文章"
+          :saving="saving"
+          @submit="submitArticle"
+        />
       </article>
     </section>
   </div>
@@ -179,15 +161,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import ContentFlags from '@/components/ContentFlags.vue';
-import ContentDetailPanel from '@/components/ContentDetailPanel.vue';
+import ContentRecordEditor from '@/components/ContentRecordEditor.vue';
 import {
   deleteContentArticle,
   fetchContentArticleDetail,
   fetchContentArticles,
   manageContentArticle,
-  saveContentArticleSeo,
+  saveContentArticle,
 } from '@/api/admin';
-import type { ContentArticleDetail, ContentArticleOverviewPayload } from '@/types';
+import type { ContentArticleDetail, ContentArticleOverviewPayload, ContentRecordFormState } from '@/types';
 
 const payload = ref<ContentArticleOverviewPayload | null>(null);
 const detail = ref<ContentArticleDetail | null>(null);
@@ -208,8 +190,10 @@ const detailLinks = computed(() => {
   ];
 });
 
-const seoForm = ref({
+const editorForm = ref<ContentRecordFormState>({
   id: 0,
+  title: '',
+  body: '',
   seo_title: '',
   seo_keywords: '',
   seo_description: '',
@@ -220,8 +204,10 @@ function getErrorMessage(error: unknown) {
 }
 
 function resetSeoForm() {
-  seoForm.value = {
+  editorForm.value = {
     id: 0,
+    title: '',
+    body: '',
     seo_title: '',
     seo_keywords: '',
     seo_description: '',
@@ -260,23 +246,32 @@ async function switchStatus(status: number) {
 async function editItem(id: number) {
   detail.value = await fetchContentArticleDetail(id);
   selectedId.value = id;
-  seoForm.value = {
+  editorForm.value = {
     id: detail.value.id,
+    title: detail.value.title || '',
+    body: detail.value.message || '',
     seo_title: detail.value.seo_title || '',
     seo_keywords: detail.value.seo_keywords || '',
     seo_description: detail.value.seo_description || '',
   };
 }
 
-async function submitSeo() {
-  if (!seoForm.value.id) {
+async function submitArticle() {
+  if (!editorForm.value.id) {
     return;
   }
 
   saving.value = true;
   try {
-    await saveContentArticleSeo(seoForm.value);
-    await editItem(seoForm.value.id);
+    await saveContentArticle({
+      id: editorForm.value.id,
+      title: editorForm.value.title,
+      message: editorForm.value.body,
+      seo_title: editorForm.value.seo_title,
+      seo_keywords: editorForm.value.seo_keywords,
+      seo_description: editorForm.value.seo_description,
+    });
+    await editItem(editorForm.value.id);
     await reload();
   } catch (error) {
     window.alert(getErrorMessage(error));
