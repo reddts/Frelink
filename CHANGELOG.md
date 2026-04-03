@@ -2,6 +2,46 @@
 
 ## 2026-04-03
 
+### 里程碑：移动端首页热榜轮换与详情问句摘要修复
+
+- 已修复移动端首页“本周值得看”的数据选择与展示方式：
+  - `app/mobile/Index.php` 已改为调用 `Insight::getWeeklyFeaturedContent(7, 3, 9)`，不再直接固定取 `getContentTrends(7, 3)`
+  - `app/model/Insight.php` 已新增首页热榜选择器：仍基于最近 7 天曝光 / 点击 / 详情阅读统计，但会先取热度池再做日级轮换
+  - 首页榜单已限定在 `question / article` 两类公开内容，避免主题等非目标条目混入“本周值得看”
+  - 同类型内容已加上数量约束，避免榜单长期固化为单一内容形态
+  - 移动端首页模板已改为显示人类可读的内容类型标签，不再直接暴露原始 `item_type`
+- 已修复详情页“30 秒看懂”只是截断正文的问题：
+  - `app/function.inc.php` 已新增问句式摘要构造能力，先抽取完整语义片段，再转换为问句钩子
+  - 问答详情页（PC / 移动）已切换为问句式 `summary_points`
+  - 文章详情页（PC / 移动）也已同步使用问句式摘要，避免两套详情页长期分叉
+- 本轮完成本地验证：
+  - 本机无 `php` 命令，未执行本地 PHP lint
+- 本轮完成生产同步：
+  - `bash scripts/deploy.sh sync`
+  - 同步时间：2026-04-03 11:44 CST
+  - 目标服务器：`azureuser@20.191.157.253:/www/wwwroot/knoledge`
+- 本轮完成远端验证：
+  - `bash scripts/deploy.sh verify`
+  - 远端 `php -l app/function.inc.php`
+  - 远端 `php -l app/frontend/Article.php`
+  - 远端补充执行：
+  - `php -l app/model/Insight.php`
+  - `php -l app/mobile/Index.php`
+  - `php -l app/mobile/Question.php`
+  - `php -l app/frontend/Question.php`
+  - `php -l app/mobile/Article.php`
+  - 远端 `sudo -n php think clear`
+  - 远端 `sudo -n php think api:doc --output docs/api-v1.md`
+  - 远端 `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+  - 实际访问首页并确认移动端 HTML 已包含“本周值得看”区块
+  - 实际访问 `https://www.frelink.top/question/29` 并确认“30 秒看懂”输出为问句式内容：
+  - `大数据展示平台怎么选，先看哪些维度？`
+  - `准备搭一个大数据展示平台意味着什么？`
+  - `为什么先把选型思路理清楚？`
+- 当前结论：
+  - 移动端首页“本周值得看”仍然来源于近 7 天真实行为数据，但已从“固定前三”改为“热度池筛选 + 去重 + 按日轮换”
+  - 详情页“30 秒看懂”已不再是正文残句，而是更适合作为观看钩子的问句式摘要
+
 ### 里程碑：旧后台审核链路修复
 
 - 已修复旧 `admin` 管理端审核页的失效问题：
