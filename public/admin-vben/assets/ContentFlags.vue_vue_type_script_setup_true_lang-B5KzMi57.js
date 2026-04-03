@@ -1,1 +1,0 @@
-import{d as a,c as e,F as o,h as r,e as c,o as t,t as l}from"./index-Dki5TI8O.js";const m={key:0,class:"content-flags"},u=a({__name:"ContentFlags",props:{flags:{default:()=>[]}},setup(n){return(f,g)=>n.flags.length?(t(),e("div",m,[(t(!0),e(o,null,r(n.flags,s=>(t(),e("span",{key:s,class:"content-flag"},l(s),1))),128))])):c("",!0)}});export{u as _};

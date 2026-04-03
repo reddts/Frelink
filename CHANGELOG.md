@@ -2,6 +2,42 @@
 
 ## 2026-04-03
 
+### 里程碑：新管理端登录容错修复并开始收口统一详情模型
+
+- 已修复 `admin-vben` 登录阶段潜在的 500 触发点：
+  - [AdminApi.php](/mnt/f/workwww/knowlege-github/app/common/controller/AdminApi.php) 的菜单树构造已对外链、`javascript:`、占位菜单和异常路由生成做容错
+  - 新管理端登录成功后的 bootstrap 不再因为历史脏菜单数据或不可解析规则名而在 `legacy_url / path` 生成阶段直接打断
+  - 未迁移菜单的前端路由键已改为安全 slug / `menu-{id}` 兜底，避免出现不可用路径
+- 已继续推进 `管理端模板更新计划.md` 当前主目标中的“统一详情 / 表单模型”：
+  - 新增 [ContentDetailPanel.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/components/ContentDetailPanel.vue) 统一承接详情字段、跳转链接、发布态标签
+  - [ContentArticlesView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentArticlesView.vue)、[ContentQuestionsView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentQuestionsView.vue)、[ContentAnswersView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentAnswersView.vue)、[ContentApprovalsView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentApprovalsView.vue) 已切到统一详情面板
+  - 审核详情的基础摘要字段和结构化预览字段已开始用同一组件表达，后续继续补统一表单模型时不再从零拼装
+- 本轮完成本地验证：
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run typecheck"`
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run build"`
+  - 构建产物已再次输出到 `public/admin-vben/`
+  - 本地无 `php` 命令，未执行本地 PHP lint
+- 本轮完成生产同步：
+  - `bash scripts/deploy.sh sync`
+  - 同步时间：2026-04-03 12:59 CST
+  - 目标服务器：`azureuser@20.191.157.253:/www/wwwroot/knoledge`
+- 本轮完成远端验证：
+  - `bash scripts/deploy.sh verify`
+  - 远端 `php -l app/function.inc.php`
+  - 远端 `php -l app/frontend/Article.php`
+  - 远端 `sudo -n php think clear`
+  - 远端 `sudo -n php think api:doc --output docs/api-v1.md`
+  - 远端 `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+  - `GET https://www.frelink.top/admin-vben/index.html` 在 `Cache-Control: no-cache` 条件下已确认引用本轮新资源：
+    - `/admin-vben/assets/index-BGFJhQP5.js`
+    - `/admin-vben/assets/index-Dsqjff7L.css`
+  - `GET https://www.frelink.top/admin-vben/assets/index-Dsqjff7L.css` 返回 `HTTP/2 200`
+  - `GET https://www.frelink.top/adminapi.php/Admin/login?version=v1` 返回 `logged_in=false`
+  - `POST https://www.frelink.top/adminapi.php/Admin/login` 在空参下返回 `code=0` 与 `error_code=INVALID_REQUEST`，未再出现 500
+- 当前结论：
+  - 新管理端登录阶段的菜单构造已补容错，线上 `Admin/login` 基础链路恢复稳定
+  - 内容模块已从“统一标签组件”继续推进到“统一详情面板组件”，可以继续往统一表单模型收口
+
 ### 里程碑：旧后台审核链路修复
 
 - 已修复旧 `admin` 管理端审核页的失效问题：

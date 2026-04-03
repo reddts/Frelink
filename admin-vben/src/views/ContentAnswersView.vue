@@ -110,13 +110,11 @@
       <article class="panel-card">
         <span class="eyebrow">回答编辑器</span>
         <form class="editor-form" @submit.prevent="submitAnswer">
-          <div v-if="detail?.preview_url" class="inline-links">
-            <a class="text-button" :href="detail.preview_url" target="_blank" rel="noreferrer">打开前台预览</a>
-          </div>
-          <div v-if="detail?.detail_fields?.length" class="detail-stack">
-            <p v-for="field in detail.detail_fields" :key="field.label"><strong>{{ field.label }}：</strong>{{ field.value }}</p>
-          </div>
-          <ContentFlags :flags="detail?.flags || []" />
+          <ContentDetailPanel
+            :links="detailLinks"
+            :detail-fields="detail?.detail_fields || []"
+            :flags="detail?.flags || []"
+          />
           <label>
             <span>问题标题</span>
             <input :value="detail?.question_title || ''" disabled />
@@ -139,6 +137,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import ContentFlags from '@/components/ContentFlags.vue';
+import ContentDetailPanel from '@/components/ContentDetailPanel.vue';
 import { deleteContentAnswer, fetchContentAnswerDetail, fetchContentAnswers, saveContentAnswer } from '@/api/admin';
 import type { ContentAnswerDetail, ContentAnswerOverviewPayload } from '@/types';
 
@@ -149,6 +148,14 @@ const currentStatus = ref(1);
 const selectedId = ref(0);
 const selectedIds = ref<number[]>([]);
 const saving = ref(false);
+
+const detailLinks = computed(() => {
+  if (!detail.value) {
+    return [];
+  }
+
+  return [{ label: '打开前台预览', href: detail.value.preview_url || '' }];
+});
 
 const answerForm = ref({
   id: 0,

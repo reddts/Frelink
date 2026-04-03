@@ -213,13 +213,14 @@ abstract class AdminApi extends Base
                 continue;
             }
 
+            $ruleId = intval($rule['id'] ?? 0);
             $items[] = [
-                'id' => intval($rule['id']),
+                'id' => $ruleId,
                 'pid' => intval($rule['pid']),
                 'title' => (string) ($rule['title'] ?? ''),
                 'icon' => (string) ($rule['icon'] ?? 'fa fa-circle-o'),
                 'rule_name' => $name,
-                'path' => $this->buildFrontendPath($name),
+                'path' => $this->buildFrontendPath($name, $ruleId),
                 'legacy_url' => $this->buildLegacyUrl($name, (string) ($rule['param'] ?? '')),
                 'migration_status' => $this->resolveMigrationStatus($name),
                 'children' => [],
@@ -254,19 +255,31 @@ abstract class AdminApi extends Base
             return '';
         }
 
+        if ($this->isExternalMenuTarget($name)) {
+            return $name;
+        }
+
+        if ($this->isUnsafeMenuTarget($name)) {
+            return '';
+        }
+
         $params = [];
         if ($param !== '') {
             parse_str($param, $params);
         }
 
-        if (str_starts_with($name, 'plugins/')) {
-            return backend_plugins_url(substr($name, 8), $params, true, false);
-        }
+        try {
+            if (str_starts_with($name, 'plugins/')) {
+                return backend_plugins_url(substr($name, 8), $params, true, false);
+            }
 
-        return backend_url($name, $params, true, false);
+            return backend_url($name, $params, true, false);
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
-    protected function buildFrontendPath(string $name): string
+    protected function buildFrontendPath(string $name, int $id = 0): string
     {
         if ($name === '' || strcasecmp($name, 'Index/index') === 0) {
             return '/dashboard';
@@ -290,7 +303,7 @@ abstract class AdminApi extends Base
             return $mapped[$normalized];
         }
 
-        return '/legacy/' . ltrim(strtolower($name), '/');
+        return '/legacy/' . $this->buildLegacyRouteKey($name, $id);
     }
 
     protected function resolveMigrationStatus(string $name): string
@@ -315,5 +328,33 @@ abstract class AdminApi extends Base
         }
 
         return 'legacy';
+    }
+
+    protected function buildLegacyRouteKey(string $name, int $id = 0): string
+    {
+        $normalized = strtolower($name);
+        $normalized = preg_replace('/[^a-z0-9]+/', '-', $normalized) ?: '';
+        $normalized = trim($normalized, '-');
+
+        if ($normalized !== '') {
+            return $normalized;
+        }
+
+        if ($id > 0) {
+            return 'menu-' . $id;
+        }
+
+        return 'legacy-entry';
+    }
+
+    protected function isExternalMenuTarget(string $name): bool
+    {
+        return preg_match('/^(https?:)?\/\//i', $name) === 1;
+    }
+
+    protected function isUnsafeMenuTarget(string $name): bool
+    {
+        $normalized = strtolower(trim($name));
+        return $normalized === '#' || str_starts_with($normalized, 'javascript:');
     }
 }

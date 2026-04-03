@@ -155,20 +155,11 @@
       <article class="panel-card">
         <span class="eyebrow">审核详情</span>
         <template v-if="detail">
-          <div class="detail-stack">
-            <p><strong>类型：</strong>{{ detail.type_label }}</p>
-            <p><strong>用户：</strong>{{ detail.user_name || '未知用户' }}</p>
-            <p><strong>摘要：</strong>{{ detail.summary }}</p>
-            <p v-if="detail.subject_title"><strong>关联标题：</strong>{{ detail.subject_title }}</p>
-            <p><strong>状态：</strong>{{ statusLabel(detail.status) }}</p>
-            <p><strong>拒绝理由：</strong>{{ detail.reason || '无' }}</p>
-          </div>
-          <div v-if="detail.target_url" class="inline-links">
-            <a class="text-button" :href="detail.target_url" target="_blank" rel="noreferrer">打开前台预览</a>
-          </div>
-          <div v-if="detail.preview_fields?.length" class="detail-stack">
-            <p v-for="field in detail.preview_fields" :key="field.label"><strong>{{ field.label }}：</strong>{{ field.value }}</p>
-          </div>
+          <ContentDetailPanel
+            :summary-fields="detailSummaryFields"
+            :links="detailLinks"
+            :detail-fields="detail.preview_fields || []"
+          />
           <label class="editor-form-group">
             <span>原始内容</span>
             <textarea :value="detail.payload_json" rows="14" disabled />
@@ -202,6 +193,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import ContentDetailPanel from '@/components/ContentDetailPanel.vue';
 import {
   approveContentApproval,
   declineContentApproval,
@@ -233,6 +225,29 @@ const selectedUids = computed(() => {
     }
   }
   return Array.from(uidSet);
+});
+
+const detailSummaryFields = computed(() => {
+  if (!detail.value) {
+    return [];
+  }
+
+  return [
+    { label: '类型', value: detail.value.type_label },
+    { label: '用户', value: detail.value.user_name || '未知用户' },
+    { label: '摘要', value: detail.value.summary },
+    { label: '关联标题', value: detail.value.subject_title || '' },
+    { label: '状态', value: statusLabel(detail.value.status) },
+    { label: '拒绝理由', value: detail.value.reason || '无' },
+  ];
+});
+
+const detailLinks = computed(() => {
+  if (!detail.value) {
+    return [];
+  }
+
+  return [{ label: '打开前台预览', href: detail.value.target_url || '' }];
 });
 
 function getErrorMessage(error: unknown) {
