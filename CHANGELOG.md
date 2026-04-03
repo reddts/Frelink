@@ -2,6 +2,30 @@
 
 ## 2026-04-03
 
+### 里程碑：修复生产库 `admin_auth` 缺失 `menu` 字段导致的新管理端登录 500
+
+- 已定位并修复线上真实登录 500 根因：
+  - 生产环境 `kn_admin_auth` 表不存在 `menu` 字段，而 [AdminApi.php](/mnt/f/workwww/knowlege-github/app/common/controller/AdminApi.php) 在登录成功后的 bootstrap 菜单树构造中仍直接附加 `where('menu', 1)`
+  - 该问题只会在“账号密码正确、开始拉取登录后菜单”时触发，因此空参请求和未登录探活都正常，实际登录后才出现 `Request failed with status code 500`
+  - 线上访问日志已确认真实报错链路为 `POST /adminapi.php/Admin/login HTTP/2.0" 500`
+- 已完成兼容修复：
+  - [AdminApi.php](/mnt/f/workwww/knowlege-github/app/common/controller/AdminApi.php) 的登录后菜单树读取不再依赖 `menu` 字段，改为兼容当前生产表结构
+  - [AdminAuthService.php](/mnt/f/workwww/knowlege-github/app/common/service/admin/AdminAuthService.php) 已增加对 `menu` 字段是否存在的探测，保存权限节点时只在字段真实存在时才写入，避免后续在权限节点维护页再次因生产库结构差异报错
+- 本轮完成生产同步：
+  - `bash scripts/deploy.sh sync`
+  - 同步时间：2026-04-03 13:24 CST
+  - 目标服务器：`azureuser@20.191.157.253:/www/wwwroot/knoledge`
+- 本轮完成远端验证：
+  - `bash scripts/deploy.sh verify`
+  - 远端 `php -l app/function.inc.php`
+  - 远端 `php -l app/frontend/Article.php`
+  - 远端 `sudo -n php think clear`
+  - 远端 `sudo -n php think api:doc --output docs/api-v1.md`
+  - 远端 `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+  - 线上访问日志已确认此前真实异常发生在 `2026-04-03 13:07 CST` 左右的成功登录请求
+- 当前结论：
+  - 这次 500 不是前端构建缓存问题，而是生产库结构与开发假设不一致导致的后端 SQL 错误
+  - 新管理端登录链路已补上对历史生产表结构的兼容，后续再测若仍报错，应继续沿真实返回体和线上日志排查而不是只看本地空参接口
 ### 里程碑：内容模块开始收口统一表单模型并补文章/问题直接编辑
 
 - 已继续推进高频内容页从“统一详情面板”走向“统一表单模型”：

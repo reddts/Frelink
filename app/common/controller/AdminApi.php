@@ -199,7 +199,6 @@ abstract class AdminApi extends Base
         $allowedRules = array_flip($this->getAdminPermissionNames());
         $menuRules = db('admin_auth')
             ->where('status', 1)
-            ->where('menu', 1)
             ->order(['sort' => 'asc', 'id' => 'asc'])
             ->select()
             ->toArray();

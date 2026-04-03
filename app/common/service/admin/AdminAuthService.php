@@ -6,6 +6,8 @@ use app\model\admin\AdminAuth;
 
 class AdminAuthService
 {
+    protected ?bool $hasMenuColumn = null;
+
     public function getTreeList(): array
     {
         $list = db('admin_auth')
@@ -155,7 +157,7 @@ class AdminAuthService
 
     protected function normalizePayload(array $data): array
     {
-        return [
+        $payload = [
             'id' => intval($data['id'] ?? 0),
             'pid' => intval($data['pid'] ?? 0),
             'icon' => trim((string) ($data['icon'] ?? '')),
@@ -165,9 +167,14 @@ class AdminAuthService
             'auth_open' => intval($data['auth_open'] ?? 1),
             'status' => intval($data['status'] ?? 1),
             'sort' => intval($data['sort'] ?? 50),
-            'menu' => intval($data['menu'] ?? 1),
             'type' => intval($data['type'] ?? 1),
         ];
+
+        if ($this->hasMenuColumn()) {
+            $payload['menu'] = intval($data['menu'] ?? 1);
+        }
+
+        return $payload;
     }
 
     protected function formatDetail(array $info): array
@@ -185,5 +192,24 @@ class AdminAuthService
             'menu' => intval($info['menu'] ?? 1),
             'type' => intval($info['type'] ?? 1),
         ];
+    }
+
+    protected function hasMenuColumn(): bool
+    {
+        if ($this->hasMenuColumn !== null) {
+            return $this->hasMenuColumn;
+        }
+
+        $prefix = app()->db->getConfig('connections.mysql.prefix');
+        $table = $prefix . 'admin_auth';
+        $database = app()->db->getConfig('connections.mysql.database');
+
+        $result = db()->query(
+            "SELECT COUNT(*) AS count FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = :database AND TABLE_NAME = :table AND COLUMN_NAME = 'menu'",
+            ['database' => $database, 'table' => $table]
+        );
+
+        $this->hasMenuColumn = intval($result[0]['count'] ?? 0) > 0;
+        return $this->hasMenuColumn;
     }
 }
