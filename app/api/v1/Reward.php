@@ -100,7 +100,7 @@ class Reward extends Api
         //判断用户查看问题回答权限
         //0原始状态 1发起悬赏 2发起者最佳答案选择期间 3 管理员选择期间 4 悬赏公示期 5 赏金分配完成 6 悬赏结束
         //公示期之前参与回答的只能看到自己的
-        if($reward_info['reward_status']<4 && !isSuperAdmin() && !isNormalAdmin() && $this->user_id!=$reward_info['uid'])
+        if($reward_info['reward_status']<4 && !$this->currentUserIsAdmin() && $this->user_id!=$reward_info['uid'])
         {
             $where['reward_id'] = $reward_info['id'];
             $where['uid'] = $this->user_id;
@@ -119,7 +119,7 @@ class Reward extends Api
         //悬赏结束 未开放回答 围观用户可见
         $look_enable_answer = $reward_info['reward_status']>=5 && $reward_info['is_open']==0 && $is_look_question;
 
-        if($look_enable_answer || isNormalAdmin() || isSuperAdmin() || $this->user_id==$reward_info['uid'])
+        if($look_enable_answer || $this->currentUserIsAdmin() || $this->user_id==$reward_info['uid'])
         {
             $answer = Answer::getAnswerByRewardId($reward_info['id'],0,$page,10,$order);
         }

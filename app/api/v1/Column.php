@@ -125,7 +125,7 @@ class Column extends Api
                 $this->apiResult([],0,'专栏已存在');
             }
 
-            $verify = (isSuperAdmin() || isNormalAdmin()) ? 1 :0;
+            $verify = $this->currentUserIsAdmin() ? 1 :0;
             \app\model\Column::applyColumn($this->user_id,$name,$description,$cover,intval($id),$verify);
             $this->apiResult([],0,$verify ? '申请成功' : '申请成功,请等待管理员审核');
         }

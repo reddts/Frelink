@@ -79,17 +79,17 @@ abstract class Api
         //检查IP封禁
         $this->checkIpAllowed();
 
-        //前置操作
+        $this->controller = strtolower($this->request->controller());
+        $this->action = $this->request->action();
+		// 控制器初始化
+		$this->initialize();
+        // 前置操作依赖 initialize 中解析出的登录态与 token 上下文
         if ($this->beforeActionList)
         {
             foreach ($this->beforeActionList as $method => $options) {
                 is_numeric($method) ? $this->beforeAction($options) : $this->beforeAction($method, $options);
             }
         }
-        $this->controller = strtolower($this->request->controller());
-        $this->action = $this->request->action();
-		// 控制器初始化
-		$this->initialize();
 	}
 
 	public function initialize()
@@ -239,6 +239,25 @@ abstract class Api
             'publish_article_approval',
             'modify_article_approval',
         ], true);
+    }
+
+    protected function currentUserGroupId(): int
+    {
+        return intval($this->user_info['group_id'] ?? 0);
+    }
+
+    protected function currentUserIsAdmin(): bool
+    {
+        return in_array($this->currentUserGroupId(), [1, 2], true);
+    }
+
+    protected function currentUserPermission(string $permission)
+    {
+        if (!$this->user_id) {
+            return false;
+        }
+
+        return get_user_permission($permission, $this->user_id);
     }
 
     /**

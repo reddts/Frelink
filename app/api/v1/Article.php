@@ -113,7 +113,7 @@ class Article extends Api
         $postData['id'] = intval($postData['id'] ?? 0);
         if ($postData['id']) {
             $article_info = ArticleModel::getArticleInfo($postData['id']);
-            if (!$article_info || ($article_info['uid'] != $this->user_id && get_user_permission('modify_article') != 'Y')) $this->apiError('您没有修改文章的权限');
+            if (!$article_info || ($article_info['uid'] != $this->user_id && $this->currentUserPermission('modify_article') != 'Y')) $this->apiError('您没有修改文章的权限');
         } else {
             if ($this->user_info['permission']['publish_article_enable'] != 'Y') $this->apiError('您没有发布文章的权限');
 
@@ -238,7 +238,7 @@ class Article extends Api
             $this->apiError('文章不存在');
         }
 
-        if ($this->user_id != $article_info['uid'] && get_user_permission('modify_article') != 'Y' && !isSuperAdmin() && !isNormalAdmin()) {
+        if ($this->user_id != $article_info['uid'] && $this->currentUserPermission('modify_article') != 'Y' && !$this->currentUserIsAdmin()) {
             $this->apiError('您没有操作权限');
         }
 
@@ -278,7 +278,7 @@ class Article extends Api
         $id = $this->request->param('id');
         $article_info = ArticleModel::getArticleInfo($id);
 
-        if ($this->user_id != $article_info['uid'] && get_user_permission('remove_article')!='Y') {
+        if ($this->user_id != $article_info['uid'] && $this->currentUserPermission('remove_article')!='Y') {
             $this->apiError('您没有删除文章的权限');
         }
 

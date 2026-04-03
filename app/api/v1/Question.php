@@ -136,7 +136,7 @@ class Question extends Api
 
         if ($postData['id']) {
             $question_info = QuestionModel::getQuestionInfo($postData['id'], 'uid,id');
-            if (!$question_info || ($question_info['uid'] != $this->user_id && get_user_permission('modify_question') != 'Y')) $this->apiError('您没有修改问题的权限');
+            if (!$question_info || ($question_info['uid'] != $this->user_id && $this->currentUserPermission('modify_question') != 'Y')) $this->apiError('您没有修改问题的权限');
         } else {
             if ($this->user_info['permission']['publish_question_enable'] != 'Y') $this->apiError('您没有发布问题的权限');
 
@@ -298,11 +298,11 @@ class Question extends Api
         $id = $this->request->param('id');
         $question_info = QuestionModel::getQuestionInfo($id, 'uid');
 
-        if ($this->user_id !== $question_info['uid'] && get_user_permission('remove_question') != 'Y' && !isSuperAdmin() && !isNormalAdmin()) {
+        if ($this->user_id !== $question_info['uid'] && $this->currentUserPermission('remove_question') != 'Y' && !$this->currentUserIsAdmin()) {
             $this->apiError('您没有删除问题的权限');
         }
 
-        if(($question_info['answer_count'] || $question_info['focus_count']) && !isSuperAdmin() && !isNormalAdmin())
+        if(($question_info['answer_count'] || $question_info['focus_count']) && !$this->currentUserIsAdmin())
         {
             $this->apiError('已经有回答或有用户关注的问题，无法被删除');
         }
@@ -329,7 +329,7 @@ class Question extends Api
             if (!$question_info) {
                 $this->apiError('问题不存在');
             }
-            if ($this->user_id != $question_info['uid'] && get_user_permission('modify_question') != 'Y' && !isSuperAdmin() && !isNormalAdmin()) {
+            if ($this->user_id != $question_info['uid'] && $this->currentUserPermission('modify_question') != 'Y' && !$this->currentUserIsAdmin()) {
                 $this->apiError('您没有操作权限');
             }
             if (!QuestionModel::rollbackQuestion(intval($question_info['uid']), $question_id)) {
@@ -535,7 +535,7 @@ class Question extends Api
     // 设置最佳回复
     public function set_best_answer()
     {
-        if(get_user_permission('set_best_answer')!='Y')
+        if($this->currentUserPermission('set_best_answer')!='Y')
         {
             $this->apiError('您没有操作权限');
         }

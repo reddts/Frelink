@@ -2,6 +2,46 @@
 
 ## 2026-04-03
 
+### 里程碑：修复 API token 在运营洞察与同类接口中的权限上下文误判
+
+- 已定位并修复 `/api` 下 API token 登录态与会话登录态混用导致的权限误判：
+  - [Api.php](/mnt/f/workwww/knowlege-github/app/common/controller/Api.php) 已调整执行顺序，先 `initialize()` 再执行 `beforeActionList`
+  - [Api.php](/mnt/f/workwww/knowlege-github/app/common/controller/Api.php) 已新增 `currentUserGroupId()`、`currentUserIsAdmin()`、`currentUserPermission()`
+  - [Insight.php](/mnt/f/workwww/knowlege-github/app/api/v1/Insight.php) 已改为基于当前 API 上下文判断 `recommend_post`
+- 已一并收口同类高风险接口，避免 `ApiToken / AccessToken` 下再次误判管理员身份或权限：
+  - [Article.php](/mnt/f/workwww/knowlege-github/app/api/v1/Article.php)
+  - [Question.php](/mnt/f/workwww/knowlege-github/app/api/v1/Question.php)
+  - [Account.php](/mnt/f/workwww/knowlege-github/app/api/v1/Account.php)
+  - [Agent.php](/mnt/f/workwww/knowlege-github/app/api/v1/Agent.php)
+  - [Column.php](/mnt/f/workwww/knowlege-github/app/api/v1/Column.php)
+  - [Reward.php](/mnt/f/workwww/knowlege-github/app/api/v1/Reward.php)
+- 已完成权限数据修复：
+  - 远端已执行 [insight-permission-upgrade.sql](/mnt/f/workwww/knowlege-github/docs/insight-permission-upgrade.sql) 对应的 `kn_` 前缀升级 SQL
+  - 已补 `kn_users_permission.recommend_post`
+  - 已把系统组权限 JSON 中的 `recommend_post` 回填到远端数据库
+  - 已生成远端备份：`/www/wwwroot/knoledge/backup/sql/insight-permission-20260403-152801.sql`
+- 本轮完成真实远端同步：
+  - 目标服务器：`azureuser@20.191.157.253:/www/wwwroot/knoledge`
+  - 已执行 `bash scripts/deploy.sh deploy` 同步权限修复相关文件
+  - 已执行定向 `sync` 将 API token 权限热修同步到远端
+- 本轮完成真实远端验证：
+  - 远端已执行 `php -l app/common/controller/Api.php`
+  - 远端已执行 `php -l app/api/v1/Insight.php`
+  - 远端已执行 `php -l app/api/v1/Article.php`
+  - 远端已执行 `php -l app/api/v1/Question.php`
+  - 远端已执行 `php -l app/api/v1/Account.php`
+  - 远端已执行 `php -l app/api/v1/Agent.php`
+  - 远端已执行 `php -l app/api/v1/Column.php`
+  - 远端已执行 `php -l app/api/v1/Reward.php`
+  - 远端已多次执行 `sudo -n php think clear`
+  - 已实测 `GET https://www.frelink.top/api/Insight/summary?days=7`
+  - 请求头 `ApiToken: c73e263ce8a8ba5c46cbb5745013b8f7` 返回 `code=1`
+  - 请求头 `AccessToken: c73e263ce8a8ba5c46cbb5745013b8f7` 返回 `code=1`
+- 当前结论：
+  - 运营洞察权限问题已不是数据库缺项，而是 API token 上下文与会话态 helper 混用
+  - `/app/api` 下已扫清同类高风险写法，API token 绑定用户现在可按真实 UID / 分组 / 权限参与鉴权
+  - `john@frelink.top` 绑定的前台管理员 token 已可正常访问运营洞察摘要接口
+
 ### 里程碑：为新版管理端登录页补低高度视口单屏规则
 
 - 已继续收口登录页在低高度窗口下的溢出问题：

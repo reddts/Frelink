@@ -179,7 +179,7 @@ class Insight extends Api
 
     protected function authorizeInsightAccess(): void
     {
-        if (!isSuperAdmin() && !isNormalAdmin() && get_user_permission('recommend_post') !== 'Y') {
+        if (!$this->currentUserIsAdmin() && $this->currentUserPermission('recommend_post') !== 'Y') {
             $this->apiError('您没有查看运营洞察的权限');
         }
     }
