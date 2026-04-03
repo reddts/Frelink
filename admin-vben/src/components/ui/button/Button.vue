@@ -18,6 +18,7 @@ const buttonVariants = cva(
         outline: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
         secondary: 'bg-slate-100 text-slate-800 hover:bg-slate-200',
         ghost: 'text-slate-700 hover:bg-slate-100',
+        destructive: 'bg-red-600 text-white shadow-sm hover:bg-red-500',
       },
       size: {
         default: 'h-10 px-4 py-2',
@@ -35,7 +36,7 @@ const buttonVariants = cva(
 const props = withDefaults(
   defineProps<{
     tag?: string;
-    variant?: 'default' | 'outline' | 'secondary' | 'ghost';
+    variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'destructive';
     size?: 'default' | 'sm' | 'lg';
     class?: string;
   }>(),

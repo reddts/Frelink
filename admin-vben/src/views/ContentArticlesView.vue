@@ -9,53 +9,56 @@
       <div class="toolbar-row">
         <label class="search-inline">
           <span>搜索</span>
-          <input v-model.trim="keyword" placeholder="按文章标题筛选" @keydown.enter="reload" />
+          <Input v-model.trim="keyword" placeholder="按文章标题筛选" @keydown.enter="reload" />
         </label>
         <div class="tab-row">
-          <button
+          <Button
             v-for="item in payload?.tabs || []"
             :key="item.value"
-            class="ghost-button"
-            :class="{ 'is-current': currentStatus === item.value }"
             type="button"
+            :variant="currentStatus === item.value ? 'default' : 'outline'"
+            size="sm"
             @click="switchStatus(item.value)"
           >
             {{ item.label }}
-          </button>
+          </Button>
         </div>
       </div>
       <div class="selection-toolbar">
         <span>已选 {{ selectedIds.length }} 篇</span>
-        <button class="ghost-button" type="button" @click="toggleSelectAll">
+        <Button variant="outline" size="sm" type="button" @click="toggleSelectAll">
           {{ isAllSelected ? '取消全选' : '全选当前列表' }}
-        </button>
-        <button
+        </Button>
+        <Button
           v-if="currentStatus === 1"
-          class="ghost-button danger-button"
+          variant="destructive"
+          size="sm"
           type="button"
           :disabled="!selectedIds.length"
           @click="deleteSelected"
         >
           批量删除
-        </button>
-        <button
+        </Button>
+        <Button
           v-if="currentStatus === 0"
-          class="ghost-button"
           type="button"
+          variant="outline"
+          size="sm"
           :disabled="!selectedIds.length"
           @click="manageSelected('recover')"
         >
           批量恢复
-        </button>
-        <button
+        </Button>
+        <Button
           v-if="currentStatus === 0"
-          class="ghost-button danger-button"
           type="button"
+          variant="destructive"
+          size="sm"
           :disabled="!selectedIds.length"
           @click="manageSelected('remove')"
         >
           批量彻底删除
-        </button>
+        </Button>
       </div>
     </section>
 
@@ -162,6 +165,8 @@
 import { computed, onMounted, ref } from 'vue';
 import ContentFlags from '@/components/ContentFlags.vue';
 import ContentRecordEditor from '@/components/ContentRecordEditor.vue';
+import Button from '@/components/ui/button/Button.vue';
+import Input from '@/components/ui/input/Input.vue';
 import {
   deleteContentArticle,
   fetchContentArticleDetail,

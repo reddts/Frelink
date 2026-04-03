@@ -20,9 +20,9 @@
     <main class="main-panel">
       <header class="topbar">
         <div class="topbar-main">
-          <button class="ghost-button sidebar-toggle" type="button" @click="toggleSidebar">
+          <Button class="sidebar-toggle" variant="outline" type="button" @click="toggleSidebar">
             {{ isSidebarCollapsed ? '展开菜单' : '折叠菜单' }}
-          </button>
+          </Button>
           <div>
           <div class="eyebrow">管理端 / M1</div>
           <h2>{{ route.meta.title || '管理端' }}</h2>
@@ -37,7 +37,7 @@
             <strong>{{ auth.user?.nick_name || auth.user?.user_name }}</strong>
             <span>{{ auth.user?.group_name || '管理员' }}</span>
           </div>
-          <button class="ghost-button" type="button" @click="handleLogout">退出</button>
+          <Button variant="outline" type="button" @click="handleLogout">退出</Button>
         </div>
       </header>
 
@@ -52,6 +52,7 @@
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AppMenuTree from '@/components/AppMenuTree.vue';
+import Button from '@/components/ui/button/Button.vue';
 import { useAuthStore } from '@/stores/auth';
 import { FRAMEWORK_BASELINE, LOCAL_APP_VERSION } from '@/version';
 

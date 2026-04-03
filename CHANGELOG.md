@@ -2,6 +2,18 @@
 
 ## 2026-04-03
 
+### 里程碑：继续把登录外高频通用层迁到官方基线
+
+- 已继续扩大官方基线组件的使用范围：
+  - 新增 `ui/textarea/Textarea.vue`
+  - [AdminLayout.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/layouts/AdminLayout.vue) 的顶部壳层按钮已切到 `Button`
+  - [ContentRecordEditor.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/components/ContentRecordEditor.vue) 已切到 `Button / Input / Textarea`
+  - [ContentArticlesView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentArticlesView.vue) 与 [ContentQuestionsView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentQuestionsView.vue) 的搜索、状态切换、批量操作按钮已切到 `Button / Input`
+- 当前收口效果：
+  - 内容模块的统一编辑器已不再依赖原有自定义基础输入组件
+  - 内容高频页最常见的“筛选 + tab + 批量操作”交互已开始统一到同一套基线按钮和输入框
+  - 新管理端壳层按钮不再继续扩写 `ghost-button` 风格作为主要实现
+
 ### 里程碑：接入新管理端官方依赖基线第一步
 
 - 已开始把新管理端从“纯自定义基础 UI”收口到官方基线：
