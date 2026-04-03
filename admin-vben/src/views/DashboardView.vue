@@ -1,19 +1,21 @@
 <template>
   <div class="dashboard">
-    <section class="hero-card">
-      <div>
+    <Card class="hero-card">
+      <CardHeader class="hero-card-header">
         <span class="eyebrow">M1 / Dashboard</span>
-        <h3>{{ dashboard?.title || 'Frelink 管理端' }}</h3>
-        <p>{{ dashboard?.subtitle || '正在加载仪表盘数据...' }}</p>
-      </div>
-      <a class="ghost-link" href="/admin.php" target="_blank" rel="noreferrer">打开旧后台</a>
-    </section>
+        <CardTitle>{{ dashboard?.title || 'Frelink 管理端' }}</CardTitle>
+        <CardDescription>{{ dashboard?.subtitle || '正在加载仪表盘数据...' }}</CardDescription>
+      </CardHeader>
+      <CardContent class="hero-card-actions">
+        <Button tag="a" href="/admin.php" target="_blank" rel="noreferrer" variant="outline">打开旧后台</Button>
+      </CardContent>
+    </Card>
 
     <section class="stats-grid">
-      <article v-for="item in dashboard?.stats || []" :key="item.key" class="stat-card">
+      <Card v-for="item in dashboard?.stats || []" :key="item.key" class="stat-card">
         <span>{{ item.label }}</span>
         <strong>{{ item.value }}</strong>
-      </article>
+      </Card>
     </section>
 
     <section class="panel-grid dashboard-visual-grid">
@@ -62,6 +64,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import DashboardTrendChart from '@/components/DashboardTrendChart.vue';
+import Button from '@/components/ui/button/Button.vue';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { fetchAdminDashboard } from '@/api/admin';
 import { useAuthStore } from '@/stores/auth';
 import type { AdminDashboardPayload } from '@/types';

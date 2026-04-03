@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 :root {
   font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   color: #15212d;

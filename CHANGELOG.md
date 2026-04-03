@@ -2,6 +2,26 @@
 
 ## 2026-04-03
 
+### 里程碑：接入新管理端官方依赖基线第一步
+
+- 已开始把新管理端从“纯自定义基础 UI”收口到官方基线：
+  - `admin-vben/package.json` 已接入 `tailwindcss@4.2.2`、`@tailwindcss/vite@4.2.2`
+  - 同时接入 Shadcn 常用基础依赖：`class-variance-authority`、`clsx`、`tailwind-merge`、`lucide-vue-next`
+  - 由于 `shadcn-vue@2.5.0` 当前发布包在 `pnpm dlx` 下存在 `catalog:` 解析问题，本轮未直接使用其 CLI，而是先手工落最小基线组件
+- 已补最小官方风格基础组件：
+  - 新增 [utils.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/lib/utils.ts) 统一收口 `cn`
+  - 新增 `ui/button/Button.vue`
+  - 新增 `ui/card/*`
+  - 新增 `ui/input/Input.vue`
+- 已先在两个页面做基线迁移试点：
+  - [LoginView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/LoginView.vue) 已切到 `Card / Input / Button`
+  - [DashboardView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/DashboardView.vue) 已切到 `Card / Button`
+  - [vite.config.ts](/mnt/f/workwww/knowlege-github/admin-vben/vite.config.ts) 已接入 `@tailwindcss/vite`
+  - [styles.css](/mnt/f/workwww/knowlege-github/admin-vben/src/styles.css) 已引入 `@import "tailwindcss";`
+- 本轮处理的构建问题：
+  - Windows 侧初次接入时 `@tailwindcss/oxide` 缺少平台原生绑定，已显式补 `@tailwindcss/oxide-win32-x64-msvc@4.2.2`
+  - 之后本地 `typecheck` 与 `build` 已恢复通过
+
 ### 里程碑：新管理端菜单支持分组折叠并补官方组件优先规范
 
 - 已增强新管理端侧栏导航：

@@ -1,0 +1,1 @@
+import{_ as s}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{o as t,c as n,b as e}from"./index-B850XPTr.js";const r={},a={class:"empty-state"};function c(l,o){return t(),n("div",a,[...o[0]||(o[0]=[e("span",{class:"eyebrow"},"404",-1),e("h3",null,"页面不存在",-1),e("p",null,"当前路由未映射到迁移菜单，请检查菜单配置或直接返回仪表盘。",-1)])])}const d=s(r,[["render",c]]);export{d as default};
