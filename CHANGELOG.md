@@ -2,6 +2,28 @@
 
 ## 2026-04-03
 
+### 里程碑：新管理端仪表盘补齐图形化趋势与占比指标
+
+- 已增强后台仪表盘接口，不再只有汇总数字：
+  - [AdminConsoleService.php](/mnt/f/workwww/knowlege-github/app/common/service/admin/AdminConsoleService.php) 已补 `ratio_metrics` 与 `trend_panels`
+  - 新增 4 个占比指标：访问覆盖率、用户活跃度、机器人参与度、审核处理率
+  - 新增 3 组 7 日趋势：内容新增趋势、用户活跃趋势、机器人参与趋势
+- 已在新管理端补可视化图形展示：
+  - [DashboardView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/DashboardView.vue) 已从“数字卡 + 快捷入口”升级到“数字卡 + 占比条 + 趋势图”
+  - 新增 [DashboardTrendChart.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/components/DashboardTrendChart.vue)，使用轻量 SVG 折线图直接展示趋势，不额外引入图表库
+  - [types.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/types.ts) 已补仪表盘趋势与比率类型定义
+  - [styles.css](/mnt/f/workwww/knowlege-github/admin-vben/src/styles.css) 已补占比卡和趋势图样式
+- 当前图形指标口径：
+  - 访问覆盖率：至少被访问过一次的文章和问题占全部有效文章 / 问题的比例
+  - 用户活跃度：近 7 天发生登录的有效用户占比
+  - 机器人参与度：近 7 天新文章 / 问题 / 回答中由 Agent 产出的占比
+  - 审核处理率：近 7 天新增审核记录中已处理完成的占比
+- 本轮完成本地验证：
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run typecheck"`
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run build"`
+  - 构建产物已再次输出到 `public/admin-vben/`
+  - 本地无 `php` 命令，未执行本地 PHP lint
+
 ### 里程碑：在新管理端壳层标注框架基线和本地版本
 
 - 已在新管理端顶部壳层补版本标识：

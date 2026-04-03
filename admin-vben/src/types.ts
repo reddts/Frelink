@@ -47,10 +47,34 @@ export interface AdminDashboardStat {
   value: number;
 }
 
+export interface AdminDashboardRatioMetric {
+  key: string;
+  label: string;
+  value: number;
+  unit: string;
+  description: string;
+}
+
+export interface AdminDashboardTrendSeries {
+  label: string;
+  color: string;
+  values: number[];
+}
+
+export interface AdminDashboardTrendPanel {
+  key: string;
+  title: string;
+  description: string;
+  labels: string[];
+  series: AdminDashboardTrendSeries[];
+}
+
 export interface AdminDashboardPayload {
   title: string;
   subtitle: string;
   stats: AdminDashboardStat[];
+  ratio_metrics: AdminDashboardRatioMetric[];
+  trend_panels: AdminDashboardTrendPanel[];
   quick_links: Array<{
     title: string;
     path: string;
