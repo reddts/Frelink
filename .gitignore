@@ -1,6 +1,7 @@
 /.idea
 /.vscode
 /.codex
+/skills
 
 *.log
 *.tar.gz
