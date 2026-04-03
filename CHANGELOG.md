@@ -2,6 +2,23 @@
 
 ## 2026-04-03
 
+### 里程碑：在新管理端壳层标注框架基线和本地版本
+
+- 已在新管理端顶部壳层补版本标识：
+  - [AdminLayout.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/layouts/AdminLayout.vue) 已显示 `框架基线` 与 `本地版本`
+  - 当前明确标注为：
+    - 框架基线：`Vben Admin 5.x`
+    - 本地版本：`v0.1.0`
+- 已补版本来源收口：
+  - 新增 [version.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/version.ts)，统一从 `admin-vben/package.json` 读取本地版本号
+  - 之所以标记为“框架基线”而不是 npm 依赖版本，是因为当前子工程并未直接安装 `vue-vben-admin` 包，而是按 `Vben Admin 5.x` 方案自建壳层
+- 已同步样式调整：
+  - [styles.css](/mnt/f/workwww/knowlege-github/admin-vben/src/styles.css) 已补版本卡片样式，并兼容移动端排列
+- 本轮完成本地验证：
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run typecheck"`
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run build"`
+  - 构建产物已再次输出到 `public/admin-vben/`
+
 ### 里程碑：新管理端菜单改为默认折叠并记忆用户切换状态
 
 - 已优化新管理端壳层的侧栏交互：

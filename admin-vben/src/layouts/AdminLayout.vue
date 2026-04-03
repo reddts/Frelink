@@ -29,6 +29,10 @@
           </div>
         </div>
         <div class="topbar-actions">
+          <div class="version-card" title="当前新管理端框架基线与本地工程版本">
+            <strong>框架基线 {{ frameworkBaseline }}</strong>
+            <span>本地版本 {{ localAppVersion }}</span>
+          </div>
           <div class="user-card">
             <strong>{{ auth.user?.nick_name || auth.user?.user_name }}</strong>
             <span>{{ auth.user?.group_name || '管理员' }}</span>
@@ -49,12 +53,15 @@ import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AppMenuTree from '@/components/AppMenuTree.vue';
 import { useAuthStore } from '@/stores/auth';
+import { FRAMEWORK_BASELINE, LOCAL_APP_VERSION } from '@/version';
 
 const SIDEBAR_STATE_KEY = 'frelink-admin-sidebar-collapsed';
 const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 const isSidebarCollapsed = ref(readSidebarState());
+const frameworkBaseline = FRAMEWORK_BASELINE;
+const localAppVersion = `v${LOCAL_APP_VERSION}`;
 
 function readSidebarState() {
   if (typeof window === 'undefined') {
