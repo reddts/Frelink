@@ -2,6 +2,20 @@
 
 ## 2026-04-03
 
+### 里程碑：为新管理端补全局 loading 动画
+
+- 已为新管理端补入口级 loading 动画，而不是让用户在首屏和切页时看到静态空白：
+  - 新增 [loading.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/stores/loading.ts)，统一管理全局载入状态和提示文案
+  - [App.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/App.vue) 已增加全屏 loading 遮罩和动画卡片
+  - [router/index.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/router/index.ts) 已在路由切换前后接入 loading 生命周期，首屏 bootstrap 和页面切换都会显示载入反馈
+  - [auth.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/stores/auth.ts) 已在登录 / 退出时补专用 loading 文案
+- 已补动画样式：
+  - [styles.css](/mnt/f/workwww/knowlege-github/admin-vben/src/styles.css) 已新增毛玻璃遮罩、旋转轨道和淡入淡出过渡
+- 本轮完成本地验证：
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run typecheck"`
+  - `cmd.exe /c "cd /d F:\\workwww\\knowlege-github\\admin-vben && corepack.cmd pnpm run build"`
+  - 构建产物已再次输出到 `public/admin-vben/`
+
 ### 里程碑：新管理端仪表盘补齐图形化趋势与占比指标
 
 - 已增强后台仪表盘接口，不再只有汇总数字：

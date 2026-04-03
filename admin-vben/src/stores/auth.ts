@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { fetchAdminMe, fetchAdminMenu, loginAdmin, logoutAdmin } from '@/api/admin';
+import { useLoadingStore } from '@/stores/loading';
 import type { AdminBootstrapPayload, AdminMenuItem, AdminProfile } from '@/types';
 
 export const useAuthStore = defineStore('admin-auth', () => {
@@ -38,16 +39,25 @@ export const useAuthStore = defineStore('admin-auth', () => {
   }
 
   async function login(username: string, password: string) {
-    const payload = await loginAdmin({ username, password });
-    applyBootstrap(payload);
+    const loading = useLoadingStore();
+    loading.start('正在登录并载入菜单...');
+    try {
+      const payload = await loginAdmin({ username, password });
+      applyBootstrap(payload);
+    } finally {
+      loading.finish();
+    }
   }
 
   async function logout() {
+    const loading = useLoadingStore();
+    loading.start('正在退出登录...');
     try {
       await logoutAdmin();
     } finally {
       reset();
       bootstrapped.value = true;
+      loading.finish();
     }
   }
 

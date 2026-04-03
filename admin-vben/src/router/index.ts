@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { useLoadingStore } from '@/stores/loading';
 
 const routes = [
   {
@@ -105,6 +106,8 @@ export const router = createRouter({
 
 router.beforeEach(async (to) => {
   const auth = useAuthStore();
+  const loading = useLoadingStore();
+  loading.start(to.meta.public ? '正在进入页面...' : '正在加载管理端...');
 
   if (!auth.bootstrapped) {
     await auth.bootstrap();
@@ -130,6 +133,13 @@ router.beforeEach(async (to) => {
 });
 
 router.afterEach((to) => {
+  const loading = useLoadingStore();
   const title = to.meta.title ? `${to.meta.title} - ${import.meta.env.VITE_APP_TITLE || 'Frelink Admin'}` : import.meta.env.VITE_APP_TITLE || 'Frelink Admin';
   document.title = title;
+  loading.finish();
+});
+
+router.onError(() => {
+  const loading = useLoadingStore();
+  loading.reset();
 });
