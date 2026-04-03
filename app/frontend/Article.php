@@ -343,7 +343,7 @@ class Article extends Frontend
         }
         $recommend_post = frelink_sort_recommend_posts($recommend_post ?: []);
 
-        $summary_points = frelink_extract_text_points($article_info['message']);
+        $summary_points = frelink_build_summary_questions((string) ($article_info['title'] ?? ''), (string) ($article_info['message'] ?? ''));
         $nextReadGroups = array_merge(
             frelink_recommend_groups($recommend_post),
             [['label' => '相关文章', 'items' => $relation_article ?: []]]

@@ -101,7 +101,7 @@ class Article extends Frontend
         }
 
         $relation_article = ArticleModel::getRelationArticleList($article_info['id']);
-        $summary_points = frelink_extract_text_points($article_info['message']);
+        $summary_points = frelink_build_summary_questions((string) ($article_info['title'] ?? ''), (string) ($article_info['message'] ?? ''));
 
         //获取推荐内容
         $recommend_post=[];

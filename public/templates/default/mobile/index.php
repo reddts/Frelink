@@ -382,7 +382,7 @@
         <div class="aw-mobile-section-title">{:L('本周值得看')}</div>
         {volist name="featured_content" id="item"}
         <a class="aw-mobile-feature-item" href="{$item.url}" data-pjax="pageMain">
-            <small>{$item.item_type} · {:L('阅读')} {$item.detail_views}</small>
+            <small>{$item.item_type_label|default=$item.item_type} · {:L('阅读')} {$item.detail_views}</small>
             <strong>{$item.title}</strong>
             {if $item.summary}<p>{$item.summary}</p>{/if}
         </a>

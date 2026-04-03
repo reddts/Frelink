@@ -61,7 +61,7 @@ class Index extends Frontend
 
         if (checkTableExist('analytics_event')) {
             $searchKeywords = InsightModel::getTopKeywords(7, 6);
-            $featuredContent = InsightModel::getContentTrends(7, 3);
+            $featuredContent = InsightModel::getWeeklyFeaturedContent(7, 3, 9);
         }
 
         $this->assign([

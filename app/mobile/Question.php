@@ -95,7 +95,7 @@ class Question extends Frontend
                 ->order(['is_best' => 'DESC', 'agree_count' => 'DESC', 'id' => 'DESC'])
                 ->value('content');
         }
-        $summary_points = frelink_extract_text_points($summary_source);
+        $summary_points = frelink_build_summary_questions((string) ($question_info['title'] ?? ''), (string) $summary_source);
         $nextReadGroups = array_merge(
             frelink_recommend_groups($recommend_post),
             [['label' => '相关问题', 'items' => $relation_question ?: []]]

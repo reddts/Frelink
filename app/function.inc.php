@@ -521,6 +521,122 @@ if (! function_exists('frelink_extract_text_points')) {
     }
 }
 
+if (! function_exists('frelink_extract_text_clauses')) {
+    function frelink_extract_text_clauses(string $html = '', int $limit = 8, int $maxLen = 28): array
+    {
+        $text = preg_replace('/\s+/u', ' ', trim(strip_tags(htmlspecialchars_decode($html))));
+        if (!$text) {
+            return [];
+        }
+
+        $sentences = preg_split('/[。！？；\n\r]+/u', $text) ?: [];
+        $clauses = [];
+
+        foreach ($sentences as $sentence) {
+            $parts = preg_split('/[,，、：:]/u', (string) $sentence) ?: [];
+            foreach ($parts as $part) {
+                $part = trim((string) $part);
+                if (!$part) {
+                    continue;
+                }
+
+                $part = preg_replace('/^(另外|此外|同时|其中|以及|并且|但是|不过|所以|因此|如果|对于|关于|基于|通过|针对)\s*/u', '', $part);
+                $part = trim((string) $part, " \t\n\r\0\x0B\"'“”‘’()（）[]【】");
+                if (!$part) {
+                    continue;
+                }
+
+                $length = mb_strlen($part, 'UTF-8');
+                if ($length < 6 || $length > $maxLen) {
+                    continue;
+                }
+
+                $normalized = preg_replace('/[？?！!。；;，,\s]+/u', '', mb_strtolower($part, 'UTF-8'));
+                if (!$normalized || isset($clauses[$normalized])) {
+                    continue;
+                }
+
+                $clauses[$normalized] = $part;
+                if (count($clauses) >= $limit) {
+                    break 2;
+                }
+            }
+        }
+
+        return array_values($clauses);
+    }
+}
+
+if (! function_exists('frelink_looks_like_question')) {
+    function frelink_looks_like_question(string $text = ''): bool
+    {
+        $text = trim((string) $text);
+        if ($text === '') {
+            return false;
+        }
+
+        if (preg_match('/[?？]\s*$/u', $text)) {
+            return true;
+        }
+
+        return (bool) preg_match('/(如何|怎么|怎样|为什么|为何|是否|能否|可否|哪些|什么|谁|哪里|几种|几类|多久|多少|会不会|是不是)/u', $text);
+    }
+}
+
+if (! function_exists('frelink_build_summary_questions')) {
+    function frelink_build_summary_questions(string $title = '', string $html = '', int $limit = 3): array
+    {
+        $results = [];
+        $seen = [];
+        $candidates = [];
+        $title = trim(preg_replace('/\s+/u', ' ', strip_tags(htmlspecialchars_decode($title))));
+
+        if ($title !== '' && frelink_looks_like_question($title)) {
+            $candidates[] = $title;
+        }
+
+        $candidates = array_merge($candidates, frelink_extract_text_clauses($html, max($limit * 3, 6)));
+
+        foreach ($candidates as $candidate) {
+            $candidate = trim((string) $candidate, " \t\n\r\0\x0B\"'“”‘’。！？；;，,、");
+            if ($candidate === '') {
+                continue;
+            }
+
+            if (frelink_looks_like_question($candidate)) {
+                $question = preg_replace('/[?？]+$/u', '', $candidate) . '？';
+            } else {
+                $length = mb_strlen($candidate, 'UTF-8');
+                if ($length <= 10) {
+                    $question = '为什么' . $candidate . '？';
+                } elseif ($length <= 18) {
+                    $question = $candidate . '意味着什么？';
+                } else {
+                    $question = $candidate . '该怎么理解？';
+                }
+            }
+
+            $normalized = preg_replace('/[？?！!。；;，,\s]+/u', '', mb_strtolower($question, 'UTF-8'));
+            if (!$normalized || isset($seen[$normalized])) {
+                continue;
+            }
+
+            $seen[$normalized] = true;
+            $results[] = $question;
+
+            if (count($results) >= $limit) {
+                break;
+            }
+        }
+
+        if ($results) {
+            return $results;
+        }
+
+        return frelink_extract_text_points($html, $limit, 36);
+    }
+}
+
 if (! function_exists('frelink_build_next_reads')) {
     function frelink_build_next_reads(array $groups = [], int $limit = 4): array
     {

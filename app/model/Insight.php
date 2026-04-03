@@ -395,6 +395,87 @@ class Insight extends BaseModel
         }, 180);
     }
 
+    public static function getWeeklyFeaturedContent(int $days = 7, int $limit = 3, int $poolSize = 9): array
+    {
+        $days = self::normalizeDays($days);
+        $limit = max(1, min(10, $limit));
+        $poolSize = max($limit, min(30, $poolSize));
+
+        return self::rememberCache('insight:weekly_featured:' . $days . ':' . $limit . ':' . $poolSize . ':' . date('Y-m-d'), function () use ($days, $limit, $poolSize) {
+            $pool = self::getContentTrends($days, $poolSize);
+            $pool = array_values(array_filter($pool, static function ($row) {
+                if (empty($row['title']) || empty($row['url'])) {
+                    return false;
+                }
+
+                if (!in_array((string) ($row['item_type'] ?? ''), ['question', 'article'], true)) {
+                    return false;
+                }
+
+                return intval($row['detail_views'] ?? 0) > 0 || intval($row['clicks'] ?? 0) > 0;
+            }));
+
+            if (!$pool) {
+                return [];
+            }
+
+            $count = count($pool);
+            $offset = $count > 1 ? intval(date('z')) % $count : 0;
+            if ($offset > 0) {
+                $pool = array_merge(array_slice($pool, $offset), array_slice($pool, 0, $offset));
+            }
+
+            $selected = [];
+            $used = [];
+            $typeCount = [];
+
+            foreach ($pool as $row) {
+                $uniqueKey = (string) $row['item_type'] . ':' . intval($row['item_id'] ?? 0);
+                if (isset($used[$uniqueKey])) {
+                    continue;
+                }
+
+                $itemType = (string) ($row['item_type'] ?? '');
+                if (($typeCount[$itemType] ?? 0) >= 2) {
+                    continue;
+                }
+
+                $row['item_type_label'] = $itemType === 'article'
+                    ? (string) ($row['article_type_label'] ?? L('内容'))
+                    : frelink_content_label($itemType);
+                $selected[] = $row;
+                $used[$uniqueKey] = true;
+                $typeCount[$itemType] = intval($typeCount[$itemType] ?? 0) + 1;
+
+                if (count($selected) >= $limit) {
+                    break;
+                }
+            }
+
+            if (count($selected) < $limit) {
+                foreach ($pool as $row) {
+                    $uniqueKey = (string) $row['item_type'] . ':' . intval($row['item_id'] ?? 0);
+                    if (isset($used[$uniqueKey])) {
+                        continue;
+                    }
+
+                    $itemType = (string) ($row['item_type'] ?? '');
+                    $row['item_type_label'] = $itemType === 'article'
+                        ? (string) ($row['article_type_label'] ?? L('内容'))
+                        : frelink_content_label($itemType);
+                    $selected[] = $row;
+                    $used[$uniqueKey] = true;
+
+                    if (count($selected) >= $limit) {
+                        break;
+                    }
+                }
+            }
+
+            return $selected;
+        }, 3600);
+    }
+
     public static function getTopicTrends(int $days = 7, int $limit = 10): array
     {
         $days = self::normalizeDays($days);
@@ -1986,7 +2067,7 @@ class Insight extends BaseModel
                 }
                 return [
                     'title' => $info['title'],
-                    'summary' => str_cut(strip_tags(htmlspecialchars_decode((string) $info['detail'])), 0, 120),
+                    'summary' => frelink_build_summary_questions((string) ($info['title'] ?? ''), (string) ($info['detail'] ?? ''), 1)[0] ?? str_cut(strip_tags(htmlspecialchars_decode((string) $info['detail'])), 0, 120),
                     'url' => (string) url('question/detail', ['id' => $itemId]),
                 ];
             case 'article':
@@ -1996,7 +2077,7 @@ class Insight extends BaseModel
                 }
                 return [
                     'title' => $info['title'],
-                    'summary' => str_cut(strip_tags(htmlspecialchars_decode((string) $info['message'])), 0, 120),
+                    'summary' => frelink_build_summary_questions((string) ($info['title'] ?? ''), (string) ($info['message'] ?? ''), 1)[0] ?? str_cut(strip_tags(htmlspecialchars_decode((string) $info['message'])), 0, 120),
                     'url' => (string) url('article/detail', ['id' => $itemId]),
                     'article_type' => $info['article_type'] ?? '',
                     'article_type_label' => frelink_article_type_label($info['article_type'] ?? 'normal'),
