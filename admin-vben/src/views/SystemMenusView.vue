@@ -4,23 +4,41 @@
       <div>
         <span class="eyebrow">System / Menus</span>
         <h3>菜单管理</h3>
-        <p>菜单树现在支持分组切换、编辑、删除和状态切换，旧后台不再是唯一入口。</p>
+        <p>菜单树支持分组切换、编辑、删除和状态切换，并继续向统一后台基线的表单与列表语义收口。</p>
       </div>
       <div class="toolbar-row">
         <div class="tab-row">
-          <button
+          <Button
             v-for="item in payload?.groups || []"
             :key="item.value"
-            class="ghost-button"
-            :class="{ 'is-current': currentGroup === item.value }"
+            :variant="currentGroup === item.value ? 'default' : 'outline'"
+            size="sm"
             type="button"
             @click="switchGroup(item.value)"
           >
             {{ item.label }}
-          </button>
+          </Button>
         </div>
-        <button class="primary-button" type="button" @click="startCreate">新增菜单</button>
+        <Button type="button" @click="startCreate">新增菜单</Button>
       </div>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <span class="eyebrow">Group</span>
+        <strong>{{ currentGroup }}</strong>
+        <small>当前正在维护的菜单分组</small>
+      </article>
+      <article class="stat-card">
+        <span class="eyebrow">Menus</span>
+        <strong>{{ flatList.length }}</strong>
+        <small>当前分组下的菜单节点总数</small>
+      </article>
+      <article class="stat-card">
+        <span class="eyebrow">Selection</span>
+        <strong>{{ selectedMenuLabel }}</strong>
+        <small>{{ selectedId ? '已进入菜单编辑模式' : '当前为新建菜单模式' }}</small>
+      </article>
     </section>
 
     <section class="panel-grid config-panel-grid">
@@ -81,19 +99,19 @@
           </label>
           <label>
             <span>导航名称</span>
-            <input v-model.trim="form.title" placeholder="请输入导航名称" />
+            <Input v-model.trim="form.title" placeholder="请输入导航名称" />
           </label>
           <label>
             <span>导航链接</span>
-            <input v-model.trim="form.name" placeholder="如 member/MenuRule/index 或完整 URL" />
+            <Input v-model.trim="form.name" placeholder="如 member/MenuRule/index 或完整 URL" />
           </label>
           <label>
             <span>图标</span>
-            <input v-model.trim="form.icon" placeholder="如 fa fa-home" />
+            <Input v-model.trim="form.icon" placeholder="如 fa fa-home" />
           </label>
           <label>
             <span>附加参数</span>
-            <input v-model.trim="form.param" placeholder="如 type=button&name=my" />
+            <Input v-model.trim="form.param" placeholder="如 type=button&name=my" />
           </label>
           <label>
             <span>链接类型</span>
@@ -125,13 +143,13 @@
           </label>
           <label>
             <span>排序值</span>
-            <input v-model.number="form.sort" type="number" />
+            <Input v-model.number="form.sort" type="number" />
           </label>
           <div class="form-actions">
-            <button class="primary-button" type="submit" :disabled="saving">
+            <Button type="submit" :disabled="saving">
               {{ saving ? '保存中...' : form.id ? '保存菜单' : '创建菜单' }}
-            </button>
-            <button class="ghost-button" type="button" @click="startCreate">重置</button>
+            </Button>
+            <Button variant="outline" type="button" @click="startCreate">重置</Button>
           </div>
         </form>
       </article>
@@ -142,6 +160,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { deleteSystemMenu, fetchSystemMenuDetail, fetchSystemMenus, saveSystemMenu, toggleSystemMenuState } from '@/api/admin';
+import Button from '@/components/ui/button/Button.vue';
+import Input from '@/components/ui/input/Input.vue';
 import type { SystemMenuListPayload, SystemMenuNode } from '@/types';
 
 type FlatMenuNode = SystemMenuNode & { depth: number };
@@ -177,6 +197,13 @@ const flatList = computed<FlatMenuNode[]>(() => {
   };
   walk(payload.value?.list || []);
   return result;
+});
+
+const selectedMenuLabel = computed(() => {
+  if (!selectedId.value) {
+    return '新建模式';
+  }
+  return flatList.value.find((item) => item.id === selectedId.value)?.title || `#${selectedId.value}`;
 });
 
 function getErrorMessage(error: unknown) {

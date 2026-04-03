@@ -2,6 +2,47 @@
 
 ## 2026-04-03
 
+### 里程碑：压缩新管理端登录页到单屏内并恢复 Linux 本地构建链
+
+- 已继续优化登录页首屏高度：
+  - [LoginView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/LoginView.vue) 已把外层容器改为单屏优先布局
+  - 登录页上下留白、左右列间距、左侧指标卡、图表区和说明块都已压缩
+  - 左侧封面已调整为仅在 `lg` 及以上显示，小屏优先保留登录卡，不再被封面内容撑高
+  - 右侧登录卡的头部、输入框和提交按钮高度已同步收紧，常见桌面分辨率下可稳定落在一屏内
+- 已修复本地 Linux 侧前端构建环境：
+  - 当前 WSL 已安装 `nvm + Node.js v24.14.1 + npm v11.11.0`
+  - 已确认 `corepack pnpm v10.33.0` 可在 Linux 侧使用，不再依赖 Windows 侧损坏的 `pnpm` 入口
+  - [admin-vben/package.json](/mnt/f/workwww/knowlege-github/admin-vben/package.json) 已补 `tailwindcss@4.2.2` 与 `@tailwindcss/vite@4.2.2`
+  - [admin-vben/pnpm-lock.yaml](/mnt/f/workwww/knowlege-github/admin-vben/pnpm-lock.yaml) 已同步更新为可在 Linux 侧完成安装与构建的状态
+- 本轮完成真实闭环：
+  - 本地执行 `corepack pnpm --dir admin-vben typecheck`
+  - 本地执行 `corepack pnpm --dir admin-vben build`
+  - 构建产物已再次写入 `public/admin-vben/`
+  - 已执行 `bash scripts/deploy.sh sync`
+  - 已执行 `bash scripts/deploy.sh verify`
+  - 远端已执行 `php -l app/function.inc.php`
+  - 远端已执行 `php -l app/frontend/Article.php`
+  - 远端已执行 `sudo php think clear`
+  - 远端已重新生成 `docs/api-v1.md` 与 `public/docs/api-v1.openapi.json`
+  - 已完成线上 smoke check：`/`、`/questions/`、`/articles/`
+
+### 里程碑：继续把系统管理高频页收口到统一后台基线
+
+- 已继续扩大新管理端共享基线组件的覆盖范围：
+  - [SystemUsersView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/SystemUsersView.vue) 已统一到 `Button / Input / Textarea`
+  - [SystemGroupsView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/SystemGroupsView.vue) 已统一到 `Button / Input`
+  - [SystemMenusView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/SystemMenusView.vue) 已统一到 `Button / Input`
+  - [SystemAuthsView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/SystemAuthsView.vue) 已统一到 `Button / Input`
+  - [SystemConfigsView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/SystemConfigsView.vue) 已统一到 `Button / Input / Textarea`
+- 已补基线输入能力，避免“只换壳不换绑定”：
+  - [Input.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/components/ui/input/Input.vue) 现已支持组件级 `v-model`
+  - [Textarea.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/components/ui/textarea/Textarea.vue) 现已支持组件级 `v-model`
+  - 两者均已支持 `.trim`，`Input` 额外支持 `.number`
+- 当前收口结果：
+  - 系统管理高频页已不再长期混用原生输入框和自定义旧按钮作为主实现
+  - 菜单、权限、配置、用户、管理组页都已补概览卡片，后台通用交互开始向同一结构靠拢
+  - 动态配置页、配置项编辑器和分组编辑器已不再各自维持一套不同输入语义
+
 ### 里程碑：重做新管理端登录页视觉语言
 
 - 已重做登录页的正式视觉方案：

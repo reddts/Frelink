@@ -4,18 +4,18 @@
       <div>
         <span class="eyebrow">System / Users</span>
         <h3>用户管理</h3>
-        <p>用户列表和单用户编辑已经开始从旧后台 `member/Users.php` 迁入 `adminapi + Vue`。</p>
+        <p>用户列表、编辑和积分发放已迁入 `adminapi + Vue`，并按管理端统一基线组件重排交互结构。</p>
       </div>
       <label class="search-inline">
         <span>搜索</span>
-        <input v-model.trim="keyword" placeholder="用户名 / 昵称 / 邮箱 / 手机" @keydown.enter="reload" />
+        <Input v-model.trim="keyword" placeholder="用户名 / 昵称 / 邮箱 / 手机" @keydown.enter="reload" />
       </label>
-      <button class="primary-button" type="button" @click="resetCreateForm">新增用户</button>
+      <Button type="button" @click="resetCreateForm">新增用户</Button>
       <div class="selection-toolbar">
         <span>已选 {{ selectedIds.length }} 个用户</span>
-        <button class="ghost-button" type="button" @click="toggleSelectAll">
+        <Button variant="outline" size="sm" type="button" @click="toggleSelectAll">
           {{ isAllSelected ? '取消全选' : '全选当前列表' }}
-        </button>
+        </Button>
         <button
           v-if="currentStatus === 0"
           class="ghost-button"
@@ -90,19 +90,37 @@
       </div>
     </section>
 
+    <section class="stats-grid">
+      <article class="stat-card">
+        <span class="eyebrow">Users</span>
+        <strong>{{ payload?.list.length || 0 }}</strong>
+        <small>当前筛选条件下的用户数量</small>
+      </article>
+      <article class="stat-card">
+        <span class="eyebrow">Editor</span>
+        <strong>{{ selectedUid || '-' }}</strong>
+        <small>{{ selectedUserLabel }}</small>
+      </article>
+      <article class="stat-card">
+        <span class="eyebrow">Integral</span>
+        <strong>{{ integralUid || '-' }}</strong>
+        <small>{{ integralUid ? `当前第 ${integralPage} 页积分记录` : '未选择积分记录用户' }}</small>
+      </article>
+    </section>
+
     <article class="panel-card">
       <span class="eyebrow">状态筛选</span>
       <div class="tab-row">
-        <button
+        <Button
           v-for="item in payload?.tabs || []"
           :key="`${item.value}-${item.forbidden_ip}`"
-          class="ghost-button"
-          :class="{ 'is-current': currentStatus === item.value && currentForbiddenIp === item.forbidden_ip }"
+          :variant="currentStatus === item.value && currentForbiddenIp === item.forbidden_ip ? 'default' : 'outline'"
+          size="sm"
           type="button"
           @click="switchTab(item.value, item.forbidden_ip)"
         >
           {{ item.label }}
-        </button>
+        </Button>
       </div>
     </article>
 
@@ -185,31 +203,31 @@
         <form class="editor-form" @submit.prevent="submitCreate">
           <label>
             <span>用户名</span>
-            <input v-model.trim="createForm.user_name" placeholder="请输入用户名" />
+            <Input v-model.trim="createForm.user_name" placeholder="请输入用户名" />
           </label>
           <label>
             <span>用户昵称</span>
-            <input v-model.trim="createForm.nick_name" placeholder="请输入用户昵称" />
+            <Input v-model.trim="createForm.nick_name" placeholder="请输入用户昵称" />
           </label>
           <label>
             <span>登录密码</span>
-            <input v-model="createForm.password" type="password" placeholder="请输入登录密码" />
+            <Input v-model="createForm.password" type="password" placeholder="请输入登录密码" />
           </label>
           <label>
             <span>邮箱</span>
-            <input v-model.trim="createForm.email" placeholder="请输入邮箱" />
+            <Input v-model.trim="createForm.email" placeholder="请输入邮箱" />
           </label>
           <label>
             <span>手机</span>
-            <input v-model.trim="createForm.mobile" placeholder="请输入手机号" />
+            <Input v-model.trim="createForm.mobile" placeholder="请输入手机号" />
           </label>
           <label>
             <span>头像地址</span>
-            <input v-model.trim="createForm.avatar" placeholder="请输入头像地址" />
+            <Input v-model.trim="createForm.avatar" placeholder="请输入头像地址" />
           </label>
           <label>
             <span>个人签名</span>
-            <textarea v-model="createForm.signature" rows="3" />
+            <Textarea v-model="createForm.signature" rows="3" />
           </label>
           <label>
             <span>系统组</span>
@@ -244,10 +262,10 @@
             </select>
           </label>
           <div class="form-actions">
-            <button class="primary-button" type="submit" :disabled="creating">
+            <Button type="submit" :disabled="creating">
               {{ creating ? '创建中...' : '创建用户' }}
-            </button>
-            <button class="ghost-button" type="button" @click="resetCreateForm">重置</button>
+            </Button>
+            <Button variant="outline" type="button" @click="resetCreateForm">重置</Button>
           </div>
         </form>
       </article>
@@ -260,23 +278,23 @@
           </div>
           <label>
             <span>用户昵称</span>
-            <input v-model.trim="userForm.nick_name" placeholder="请输入用户昵称" />
+            <Input v-model.trim="userForm.nick_name" placeholder="请输入用户昵称" />
           </label>
           <label>
             <span>邮箱</span>
-            <input v-model.trim="userForm.email" placeholder="请输入邮箱" />
+            <Input v-model.trim="userForm.email" placeholder="请输入邮箱" />
           </label>
           <label>
             <span>手机</span>
-            <input v-model.trim="userForm.mobile" placeholder="请输入手机号" />
+            <Input v-model.trim="userForm.mobile" placeholder="请输入手机号" />
           </label>
           <label>
             <span>头像地址</span>
-            <input v-model.trim="userForm.avatar" placeholder="请输入头像地址" />
+            <Input v-model.trim="userForm.avatar" placeholder="请输入头像地址" />
           </label>
           <label>
             <span>个人签名</span>
-            <textarea v-model="userForm.signature" rows="4" placeholder="请输入个人签名" />
+            <Textarea v-model="userForm.signature" rows="4" placeholder="请输入个人签名" />
           </label>
           <label>
             <span>系统组</span>
@@ -320,7 +338,7 @@
           </label>
           <label>
             <span>生日</span>
-            <input v-model="userForm.birthday" type="date" />
+            <Input v-model="userForm.birthday" type="date" />
           </label>
           <label>
             <span>状态</span>
@@ -332,16 +350,16 @@
           </label>
           <label>
             <span>新登录密码</span>
-            <input v-model="userForm.password" type="password" placeholder="留空表示不修改" />
+            <Input v-model="userForm.password" type="password" placeholder="留空表示不修改" />
           </label>
           <label>
             <span>新交易密码</span>
-            <input v-model="userForm.deal_password" type="password" placeholder="留空表示不修改" />
+            <Input v-model="userForm.deal_password" type="password" placeholder="留空表示不修改" />
           </label>
           <div class="form-actions">
-            <button class="primary-button" type="submit" :disabled="saving">
+            <Button type="submit" :disabled="saving">
               {{ saving ? '保存中...' : selectedUid ? '保存用户' : '请选择用户' }}
-            </button>
+            </Button>
           </div>
         </form>
       </article>
@@ -352,15 +370,15 @@
           <div class="toolbar-row">
             <label class="search-inline">
               <span>当前用户</span>
-              <input :value="integralUid" disabled />
+              <Input :value="integralUid" disabled />
             </label>
             <label class="search-inline">
               <span>积分增减</span>
-              <input v-model.number="integralAmount" type="number" placeholder="正数增加，负数扣减" />
+              <Input v-model.number="integralAmount" type="number" placeholder="正数增加，负数扣减" />
             </label>
-            <button class="primary-button" type="button" :disabled="awarding || integralAmount === 0" @click="submitIntegralAward">
+            <Button type="button" :disabled="awarding || integralAmount === 0" @click="submitIntegralAward">
               {{ awarding ? '提交中...' : '发放积分' }}
-            </button>
+            </Button>
           </div>
           <div class="config-table content-table integral-table">
             <div class="config-table-head integral-table-head">
@@ -383,12 +401,12 @@
             </div>
           </div>
           <div class="form-actions">
-            <button class="ghost-button" type="button" :disabled="integralPage <= 1 || integralLoading" @click="changeIntegralPage(-1)">
+            <Button variant="outline" type="button" :disabled="integralPage <= 1 || integralLoading" @click="changeIntegralPage(-1)">
               上一页
-            </button>
-            <button class="ghost-button" type="button" :disabled="integralLogs.list.length < integralLogs.pagination.per_page || integralLoading" @click="changeIntegralPage(1)">
+            </Button>
+            <Button variant="outline" type="button" :disabled="integralLogs.list.length < integralLogs.pagination.per_page || integralLoading" @click="changeIntegralPage(1)">
               下一页
-            </button>
+            </Button>
           </div>
         </template>
         <p v-else>请选择用户后查看积分记录并执行积分发放。</p>
@@ -414,6 +432,9 @@ import {
   toggleSystemUserIp,
   unForbidSystemUser,
 } from '@/api/admin';
+import Button from '@/components/ui/button/Button.vue';
+import Input from '@/components/ui/input/Input.vue';
+import Textarea from '@/components/ui/textarea/Textarea.vue';
 import type { SystemUserIntegralLogPayload, SystemUserOverviewPayload } from '@/types';
 
 const payload = ref<SystemUserOverviewPayload | null>(null);
@@ -472,6 +493,17 @@ const meta = computed(() => payload.value?.meta ?? null);
 const isAllSelected = computed(() => {
   const total = payload.value?.list.length ?? 0;
   return total > 0 && selectedIds.value.length === total;
+});
+
+const selectedUserLabel = computed(() => {
+  if (!selectedUid.value) {
+    return '当前未选中编辑用户';
+  }
+  const current = payload.value?.list.find((item) => item.uid === selectedUid.value);
+  if (!current) {
+    return '当前用户不在列表中';
+  }
+  return `${current.nick_name || current.user_name} / ${current.group_name}`;
 });
 
 function getErrorMessage(error: unknown) {

@@ -4,26 +4,44 @@
       <div>
         <span class="eyebrow">System / Groups</span>
         <h3>管理组</h3>
-        <p>管理组列表、规则选择和保存删除都已接入独立 `adminapi`，不再停留在只读查看。</p>
+        <p>管理组列表、规则选择和保存删除都已接入独立 `adminapi`，页面结构按管理端统一基线整理。</p>
       </div>
       <div class="toolbar-row">
         <label class="search-inline">
           <span>搜索</span>
-          <input v-model.trim="keyword" placeholder="按组名称筛选" @keydown.enter="reload" />
+          <Input v-model.trim="keyword" placeholder="按组名称筛选" @keydown.enter="reload" />
         </label>
-        <button class="primary-button" type="button" @click="startCreate">新增管理组</button>
+        <Button type="button" @click="startCreate">新增管理组</Button>
       </div>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <span class="eyebrow">Groups</span>
+        <strong>{{ payload?.list.length || 0 }}</strong>
+        <small>当前可维护的系统组总数</small>
+      </article>
+      <article class="stat-card">
+        <span class="eyebrow">Selection</span>
+        <strong>{{ selectedGroup?.title || '新建模式' }}</strong>
+        <small>{{ selectedGroup ? (selectedGroup.system ? '系统内置组' : '自定义组') : '尚未选择管理组' }}</small>
+      </article>
+      <article class="stat-card">
+        <span class="eyebrow">Rules</span>
+        <strong>{{ form.rule_ids.length }}</strong>
+        <small>当前编辑器已选权限规则</small>
+      </article>
     </section>
 
     <section class="panel-grid config-panel-grid">
       <article class="panel-card">
         <span class="eyebrow">系统组列表</span>
         <div class="quick-links group-list">
-          <button
+          <Button
             v-for="item in payload?.list || []"
             :key="item.id"
-            class="ghost-button group-card-button"
-            :class="{ 'is-current': selectedId === item.id }"
+            class="group-card-button"
+            :variant="selectedId === item.id ? 'default' : 'outline'"
             type="button"
             @click="editGroup(item.id)"
           >
@@ -32,7 +50,7 @@
               <small>{{ item.status ? '启用' : '禁用' }} / {{ item.rule_count < 0 ? '全部规则' : `${item.rule_count} 条规则` }}</small>
             </span>
             <span>{{ item.system ? '系统内置' : '自定义' }}</span>
-          </button>
+          </Button>
         </div>
       </article>
 
@@ -58,20 +76,21 @@
                 <span>{{ item.label }}</span>
               </label>
             </div>
+            <small>保留旧后台规则树的层级顺序，便于按模块逐步迁移后台模板。</small>
           </div>
           <div class="form-actions">
-            <button class="primary-button" type="submit" :disabled="saving">
+            <Button type="submit" :disabled="saving">
               {{ saving ? '保存中...' : form.id ? '保存管理组' : '创建管理组' }}
-            </button>
-            <button class="ghost-button" type="button" @click="startCreate">重置</button>
-            <button
+            </Button>
+            <Button variant="outline" type="button" @click="startCreate">重置</Button>
+            <Button
               v-if="form.id && !form.system"
-              class="ghost-button danger-button"
+              variant="destructive"
               type="button"
               @click="removeGroup(form.id)"
             >
               删除当前组
-            </button>
+            </Button>
           </div>
         </form>
       </article>
@@ -82,6 +101,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { deleteSystemGroup, fetchSystemGroupDetail, fetchSystemGroupMeta, fetchSystemGroups, saveSystemGroup } from '@/api/admin';
+import Button from '@/components/ui/button/Button.vue';
+import Input from '@/components/ui/input/Input.vue';
 import type { GroupRuleTreeNode, SystemGroupListPayload, SystemGroupMetaPayload } from '@/types';
 
 const payload = ref<SystemGroupListPayload | null>(null);
@@ -113,6 +134,8 @@ const ruleOptions = computed(() => {
   walk(source);
   return result;
 });
+
+const selectedGroup = computed(() => payload.value?.list.find((item) => item.id === selectedId.value) || null);
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : '请求失败';

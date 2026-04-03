@@ -4,11 +4,29 @@
       <div>
         <span class="eyebrow">System / Auth</span>
         <h3>权限节点</h3>
-        <p>旧后台 `admin/Auth.php` 已迁入 `adminapi + Vue`，现在可直接在新管理端维护节点树。</p>
+        <p>旧后台 `admin/Auth.php` 已迁入 `adminapi + Vue`，节点树和编辑器继续按统一后台基线组件收口。</p>
       </div>
       <div class="quick-links">
-        <button class="primary-button" type="button" @click="startCreate">新增节点</button>
+        <Button type="button" @click="startCreate">新增节点</Button>
       </div>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <span class="eyebrow">Nodes</span>
+        <strong>{{ flatList.length }}</strong>
+        <small>当前权限树节点总数</small>
+      </article>
+      <article class="stat-card">
+        <span class="eyebrow">Selection</span>
+        <strong>{{ selectedAuthLabel }}</strong>
+        <small>{{ selectedId ? '已选中节点进行编辑' : '当前为新建节点模式' }}</small>
+      </article>
+      <article class="stat-card">
+        <span class="eyebrow">Parents</span>
+        <strong>{{ parentOptions.length }}</strong>
+        <small>可选父级节点数量</small>
+      </article>
     </section>
 
     <section class="panel-grid config-panel-grid">
@@ -61,19 +79,19 @@
           </label>
           <label>
             <span>菜单名称</span>
-            <input v-model.trim="form.title" placeholder="请输入菜单名称" />
+            <Input v-model.trim="form.title" placeholder="请输入菜单名称" />
           </label>
           <label>
             <span>控制器 / 方法</span>
-            <input v-model.trim="form.name" placeholder="如 admin/Menu/index" />
+            <Input v-model.trim="form.name" placeholder="如 admin/Menu/index" />
           </label>
           <label>
             <span>图标</span>
-            <input v-model.trim="form.icon" placeholder="如 fa fa-cog" />
+            <Input v-model.trim="form.icon" placeholder="如 fa fa-cog" />
           </label>
           <label>
             <span>附加参数</span>
-            <input v-model.trim="form.param" placeholder="如 type=button&name=my" />
+            <Input v-model.trim="form.param" placeholder="如 type=button&name=my" />
           </label>
           <label>
             <span>权限验证</span>
@@ -105,13 +123,13 @@
           </label>
           <label>
             <span>排序值</span>
-            <input v-model.number="form.sort" type="number" />
+            <Input v-model.number="form.sort" type="number" />
           </label>
           <div class="form-actions">
-            <button class="primary-button" type="submit" :disabled="saving">
+            <Button type="submit" :disabled="saving">
               {{ saving ? '保存中...' : form.id ? '保存节点' : '创建节点' }}
-            </button>
-            <button class="ghost-button" type="button" @click="startCreate">重置</button>
+            </Button>
+            <Button variant="outline" type="button" @click="startCreate">重置</Button>
           </div>
         </form>
       </article>
@@ -129,6 +147,8 @@ import {
   saveSystemAuth,
   toggleSystemAuthState,
 } from '@/api/admin';
+import Button from '@/components/ui/button/Button.vue';
+import Input from '@/components/ui/input/Input.vue';
 import type { SelectOption, SystemAuthDetail, SystemAuthNode } from '@/types';
 
 type AuthFlatNode = SystemAuthNode & { depth: number };
@@ -164,6 +184,13 @@ const flatList = computed<AuthFlatNode[]>(() => {
   };
   walk(payload.value?.list || []);
   return result;
+});
+
+const selectedAuthLabel = computed(() => {
+  if (!selectedId.value) {
+    return '新建模式';
+  }
+  return flatList.value.find((item) => item.id === selectedId.value)?.title || `#${selectedId.value}`;
 });
 
 function getErrorMessage(error: unknown) {

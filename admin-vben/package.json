@@ -20,9 +20,11 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "4.2.2",
     "@tailwindcss/oxide-win32-x64-msvc": "4.2.2",
     "@types/node": "^22.14.1",
     "@vitejs/plugin-vue": "^5.2.3",
+    "tailwindcss": "4.2.2",
     "typescript": "^5.8.3",
     "vite": "^5.4.18",
     "vue-tsc": "^2.2.8"

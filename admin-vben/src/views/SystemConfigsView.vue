@@ -4,33 +4,51 @@
       <div>
         <span class="eyebrow">System / Configs</span>
         <h3>系统配置</h3>
-        <p>配置页已经进入第二阶段，除了配置项和分组管理，也开始接管旧后台按分组动态配置表单。</p>
+        <p>配置页已进入第二阶段，动态配置、配置项和分组编辑继续向统一后台表单与动作基线收口。</p>
       </div>
       <div class="toolbar-row">
         <label class="search-inline">
           <span>搜索</span>
-          <input v-model.trim="keyword" placeholder="按变量名或标题筛选" @keydown.enter="reload" />
+          <Input v-model.trim="keyword" placeholder="按变量名或标题筛选" @keydown.enter="reload" />
         </label>
         <div class="quick-links">
-          <button class="primary-button" type="button" @click="startCreateConfig">新增配置</button>
-          <button class="ghost-button" type="button" @click="startCreateGroup">新增分组</button>
+          <Button type="button" @click="startCreateConfig">新增配置</Button>
+          <Button variant="outline" type="button" @click="startCreateGroup">新增分组</Button>
         </div>
       </div>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <span class="eyebrow">Group</span>
+        <strong>{{ currentGroupId || '-' }}</strong>
+        <small>当前加载的配置分组</small>
+      </article>
+      <article class="stat-card">
+        <span class="eyebrow">Configs</span>
+        <strong>{{ payload?.list.length || 0 }}</strong>
+        <small>当前筛选下的配置项数量</small>
+      </article>
+      <article class="stat-card">
+        <span class="eyebrow">Schema</span>
+        <strong>{{ configPage?.fields.length || 0 }}</strong>
+        <small>当前分组动态配置字段数</small>
+      </article>
     </section>
 
     <article class="panel-card">
       <span class="eyebrow">配置分组</span>
       <div class="tab-row">
-        <button
+        <Button
           v-for="item in payload?.group_tabs || []"
           :key="item.value"
-          class="ghost-button"
-          :class="{ 'is-current': currentGroupId === item.value }"
+          :variant="currentGroupId === item.value ? 'default' : 'outline'"
+          size="sm"
           type="button"
           @click="switchGroup(item.value)"
         >
           {{ item.label }}
-        </button>
+        </Button>
       </div>
     </article>
 
@@ -42,19 +60,19 @@
             <template v-for="field in configPage.fields" :key="field.id">
               <label v-if="field.widget === 'text'">
                 <span>{{ field.title }}</span>
-                <input :type="resolveInputType(field.type)" :value="getScalarValue(field.name)" @input="setScalarValue(field.name, $event)" />
+                <Input :type="resolveInputType(field.type)" :value="getScalarValue(field.name)" @input="setScalarValue(field.name, $event)" />
                 <small>{{ field.tips }}</small>
               </label>
 
               <label v-else-if="field.widget === 'number'">
                 <span>{{ field.title }}</span>
-                <input :value="getScalarValue(field.name)" type="number" @input="setScalarValue(field.name, $event)" />
+                <Input :value="getScalarValue(field.name)" type="number" @input="setScalarValue(field.name, $event)" />
                 <small>{{ field.tips }}</small>
               </label>
 
               <label v-else-if="field.widget === 'textarea'">
                 <span>{{ field.title }}</span>
-                <textarea :value="getScalarValue(field.name)" rows="5" @input="setScalarValue(field.name, $event)" />
+                <Textarea :value="getScalarValue(field.name)" rows="5" @input="setScalarValue(field.name, $event)" />
                 <small>{{ field.tips }}</small>
               </label>
 
@@ -101,11 +119,11 @@
                     :key="`${field.name}-${index}`"
                     class="kv-row"
                   >
-                    <input v-model="getStringList(field.name)[index]" type="text" />
-                    <button class="ghost-button" type="button" @click="removeListItem(field.name, index)">移除</button>
+                    <Input v-model="getStringList(field.name)[index]" type="text" />
+                    <Button variant="outline" type="button" @click="removeListItem(field.name, index)">移除</Button>
                   </div>
                 </div>
-                <button class="ghost-button" type="button" @click="appendListItem(field.name)">追加一项</button>
+                <Button variant="outline" type="button" @click="appendListItem(field.name)">追加一项</Button>
                 <small>{{ field.tips }}</small>
               </div>
 
@@ -117,21 +135,21 @@
                     :key="`${field.name}-${index}`"
                     class="kv-row kv-pair"
                   >
-                    <input v-model="item.key" placeholder="键名" type="text" />
-                    <input v-model="item.value" placeholder="键值" type="text" />
-                    <button class="ghost-button" type="button" @click="removePairItem(field.name, index)">移除</button>
+                    <Input v-model="item.key" placeholder="键名" type="text" />
+                    <Input v-model="item.value" placeholder="键值" type="text" />
+                    <Button variant="outline" type="button" @click="removePairItem(field.name, index)">移除</Button>
                   </div>
                 </div>
-                <button class="ghost-button" type="button" @click="appendPairItem(field.name)">追加一项</button>
+                <Button variant="outline" type="button" @click="appendPairItem(field.name)">追加一项</Button>
                 <small>{{ field.tips }}</small>
               </div>
             </template>
 
             <div class="form-actions">
-              <button class="primary-button" type="submit" :disabled="savingConfigPage">
+              <Button type="submit" :disabled="savingConfigPage">
                 {{ savingConfigPage ? '保存中...' : '保存当前分组配置' }}
-              </button>
-              <button class="ghost-button" type="button" @click="handleReloadConfigPage">重载当前分组</button>
+              </Button>
+              <Button variant="outline" type="button" @click="handleReloadConfigPage">重载当前分组</Button>
             </div>
           </form>
         </template>
@@ -159,15 +177,15 @@
           </label>
           <label>
             <span>变量名</span>
-            <input v-model.trim="configForm.name" placeholder="如 site_name" />
+            <Input v-model.trim="configForm.name" placeholder="如 site_name" />
           </label>
           <label>
             <span>配置标题</span>
-            <input v-model.trim="configForm.title" placeholder="请输入配置标题" />
+            <Input v-model.trim="configForm.title" placeholder="请输入配置标题" />
           </label>
           <label>
             <span>默认值</span>
-            <textarea v-model="configForm.value" rows="3" placeholder="请输入默认值" />
+            <Textarea v-model="configForm.value" rows="3" placeholder="请输入默认值" />
           </label>
           <label>
             <span>数据源</span>
@@ -186,21 +204,21 @@
           </label>
           <label v-else>
             <span>配置信息</span>
-            <textarea v-model="configForm.option_text" rows="4" placeholder="格式：配置值|配置名，一行一个" />
+            <Textarea v-model="configForm.option_text" rows="4" placeholder="格式：配置值|配置名，一行一个" />
           </label>
           <label>
             <span>提示信息</span>
-            <textarea v-model="configForm.tips" rows="3" placeholder="请输入提示信息" />
+            <Textarea v-model="configForm.tips" rows="3" placeholder="请输入提示信息" />
           </label>
           <label>
             <span>排序值</span>
-            <input v-model.number="configForm.sort" type="number" />
+            <Input v-model.number="configForm.sort" type="number" />
           </label>
           <div class="form-actions">
-            <button class="primary-button" type="submit" :disabled="savingConfig">
+            <Button type="submit" :disabled="savingConfig">
               {{ savingConfig ? '保存中...' : configForm.id ? '保存配置' : '创建配置' }}
-            </button>
-            <button class="ghost-button" type="button" @click="startCreateConfig">重置</button>
+            </Button>
+            <Button variant="outline" type="button" @click="startCreateConfig">重置</Button>
           </div>
         </form>
       </article>
@@ -250,15 +268,15 @@
         <form class="editor-form" @submit.prevent="submitGroup">
           <label>
             <span>分组名称</span>
-            <input v-model.trim="groupForm.name" placeholder="请输入分组名称" />
+            <Input v-model.trim="groupForm.name" placeholder="请输入分组名称" />
           </label>
           <label>
             <span>备注</span>
-            <textarea v-model="groupForm.description" rows="4" placeholder="请输入分组备注" />
+            <Textarea v-model="groupForm.description" rows="4" placeholder="请输入分组备注" />
           </label>
           <label>
             <span>排序值</span>
-            <input v-model.number="groupForm.sort" type="number" />
+            <Input v-model.number="groupForm.sort" type="number" />
           </label>
           <label>
             <span>状态</span>
@@ -268,19 +286,20 @@
             </select>
           </label>
           <div class="form-actions">
-            <button class="primary-button" type="submit" :disabled="savingGroup">
+            <Button type="submit" :disabled="savingGroup">
               {{ savingGroup ? '保存中...' : groupForm.id ? '保存分组' : '创建分组' }}
-            </button>
-            <button class="ghost-button" type="button" @click="startCreateGroup">重置</button>
+            </Button>
+            <Button variant="outline" type="button" @click="startCreateGroup">重置</Button>
           </div>
         </form>
 
         <div class="quick-links group-list group-list-panel">
-          <div
+          <Button
             v-for="item in payload?.groups || []"
             :key="item.id"
-            class="ghost-button group-card-button config-group-card"
-            :class="{ 'is-current': selectedGroupId === item.id }"
+            tag="div"
+            class="group-card-button config-group-card"
+            :variant="selectedGroupId === item.id ? 'default' : 'outline'"
           >
             <div class="config-group-main">
               <strong>{{ item.name }}</strong>
@@ -291,7 +310,7 @@
               <button type="button" class="text-button" @click="editGroup(item.id)">编辑</button>
               <button type="button" class="text-button danger-button" @click="removeGroup(item.id)">删除</button>
             </div>
-          </div>
+          </Button>
         </div>
       </article>
     </section>
@@ -312,6 +331,9 @@ import {
   saveSystemConfigGroup,
   saveSystemConfigPage,
 } from '@/api/admin';
+import Button from '@/components/ui/button/Button.vue';
+import Input from '@/components/ui/input/Input.vue';
+import Textarea from '@/components/ui/textarea/Textarea.vue';
 import type {
   SystemConfigMetaPayload,
   SystemConfigOverviewPayload,
