@@ -20,7 +20,8 @@ class ContentApproval extends AdminApi
         $this->apiResult($this->service->getOverview(
             intval($this->request->param('status', 0)),
             trim((string) $this->request->param('type', '')),
-            trim((string) $this->request->param('is_agent', ''))
+            trim((string) $this->request->param('is_agent', '')),
+            trim((string) $this->request->param('keyword', ''))
         ));
     }
 
@@ -56,6 +57,15 @@ class ContentApproval extends AdminApi
             $this->apiError((string) ($result['msg'] ?? '操作失败'));
         }
         $this->apiSuccess((string) ($result['msg'] ?? '操作成功'));
+    }
+
+    public function delete()
+    {
+        $result = $this->service->delete($this->request->param('id', ''));
+        if (intval($result['code'] ?? 0) !== 1) {
+            $this->apiError((string) ($result['msg'] ?? '删除失败'));
+        }
+        $this->apiSuccess((string) ($result['msg'] ?? '删除成功'));
     }
 
     public function forbid()

@@ -7,7 +7,7 @@ use app\model\Users as UserModel;
 
 class ContentApprovalService
 {
-    public function getOverview(int $status = 0, string $type = '', string $agentScope = ''): array
+    public function getOverview(int $status = 0, string $type = '', string $agentScope = '', string $keyword = ''): array
     {
         $allowedStatus = [0, 1, 2];
         if (!in_array($status, $allowedStatus, true)) {
@@ -18,13 +18,14 @@ class ContentApprovalService
             'status' => $status,
             'type' => $type,
             'is_agent' => $agentScope,
+            'keyword' => $keyword,
             'status_tabs' => [
                 ['label' => '待审核', 'value' => 0],
                 ['label' => '已审核', 'value' => 1],
                 ['label' => '已拒绝', 'value' => 2],
             ],
             'type_tabs' => $this->getTypeTabs(),
-            'list' => $this->getList($status, $type, $agentScope),
+            'list' => $this->getList($status, $type, $agentScope, $keyword),
         ];
     }
 
@@ -50,6 +51,8 @@ class ContentApprovalService
             $data = [];
         }
 
+        $reviewMeta = $this->buildContentReview((string) ($info['type'] ?? ''), $data);
+
         return [
             'id' => intval($info['id'] ?? 0),
             'uid' => intval($info['uid'] ?? 0),
@@ -66,6 +69,7 @@ class ContentApprovalService
             'target_url' => $this->buildTargetUrl((string) ($info['type'] ?? ''), $data, intval($info['item_id'] ?? 0)),
             'subject_title' => $this->buildSubjectTitle((string) ($info['type'] ?? ''), $data, intval($info['item_id'] ?? 0)),
             'preview_fields' => $this->buildPreviewFields((string) ($info['type'] ?? ''), $data, intval($info['uid'] ?? 0)),
+            'content_review' => $reviewMeta,
             'payload' => $data,
             'payload_json' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
         ];
@@ -87,6 +91,21 @@ class ContentApprovalService
         }
 
         return ['code' => 1, 'msg' => '操作成功'];
+    }
+
+    public function delete($ids): array
+    {
+        $ids = $this->normalizeIds($ids);
+        if (!$ids) {
+            return ['code' => 0, 'msg' => '请选择要删除的数据'];
+        }
+
+        $deleted = db('approval')->whereIn('id', $ids)->delete();
+        if (!$deleted) {
+            return ['code' => 0, 'msg' => '删除失败'];
+        }
+
+        return ['code' => 1, 'msg' => '删除成功'];
     }
 
     public function forbid($uids, string $forbiddenTime, string $reason): array
@@ -139,7 +158,7 @@ class ContentApprovalService
         return ['code' => $result ? 1 : 0, 'msg' => $result ? '操作成功' : '操作失败'];
     }
 
-    protected function getList(int $status, string $type, string $agentScope): array
+    protected function getList(int $status, string $type, string $agentScope, string $keyword = ''): array
     {
         $query = db('approval')
             ->alias('a')
@@ -155,6 +174,7 @@ class ContentApprovalService
         }
 
         $list = $query->order(['a.id' => 'desc'])->select()->toArray();
+        $keyword = trim($keyword);
         foreach ($list as &$item) {
             $payload = json_decode((string) ($item['data'] ?? '{}'), true);
             if (!is_array($payload)) {
@@ -169,9 +189,23 @@ class ContentApprovalService
             $item['summary'] = $this->buildSummary((string) ($item['type'] ?? ''), $payload);
             $item['target_url'] = $this->buildTargetUrl((string) ($item['type'] ?? ''), $payload, $item['item_id']);
             $item['create_time_text'] = !empty($item['create_time']) ? date('Y-m-d H:i:s', intval($item['create_time'])) : '-';
+            $item['content_review'] = $this->buildContentReview((string) ($item['type'] ?? ''), $payload);
             unset($item['data']);
         }
         unset($item);
+
+        if ($keyword !== '') {
+            $normalized = mb_strtolower($keyword, 'UTF-8');
+            $list = array_values(array_filter($list, function ($item) use ($normalized) {
+                $id = strval(intval($item['id'] ?? 0));
+                if ($id === $normalized) {
+                    return true;
+                }
+                $summary = mb_strtolower((string) ($item['summary'] ?? ''), 'UTF-8');
+                $userName = mb_strtolower((string) ($item['user_name'] ?? ''), 'UTF-8');
+                return str_contains($summary, $normalized) || str_contains($userName, $normalized);
+            }));
+        }
 
         return $list;
     }
@@ -373,6 +407,120 @@ class ContentApprovalService
                 : '';
         }
         return '';
+    }
+
+    protected function buildContentReview(string $type, array $payload): array
+    {
+        if (!in_array($type, ['article', 'modify_article'], true)) {
+            return [];
+        }
+
+        $title = trim((string) ($payload['title'] ?? ''));
+        $message = htmlspecialchars_decode((string) ($payload['message'] ?? ''));
+        $plainText = trim(preg_replace('/\s+/u', ' ', strip_tags($message)));
+        $plainTextChars = function_exists('mb_strlen') ? mb_strlen($plainText, 'UTF-8') : strlen($plainText);
+        $paragraphs = preg_match_all('/<p\b/i', $message);
+        $headings = preg_match_all('/<h[23]\b/i', $message);
+        $listItems = preg_match_all('/<li\b/i', $message);
+        $categoryId = intval($payload['category_id'] ?? 0);
+        $cover = trim((string) ($payload['cover'] ?? ''));
+        $articleType = trim((string) ($payload['article_type'] ?? ''));
+
+        $score = 0;
+        $issues = [];
+
+        if ($title !== '') {
+            $score += 10;
+        } else {
+            $issues[] = '缺少标题';
+        }
+
+        if ($categoryId > 0) {
+            $score += 10;
+            $categoryStatus = '已设置，需人工确认是否准确';
+        } else {
+            $categoryStatus = '缺失';
+            $issues[] = '缺少分类';
+        }
+
+        if ($cover !== '') {
+            $score += 12;
+            $coverStatus = '完整';
+        } else {
+            $coverStatus = '缺失';
+            $issues[] = '缺少封面';
+        }
+
+        if ($articleType !== '') {
+            $score += 5;
+        } else {
+            $issues[] = '缺少 article_type';
+        }
+
+        if ($plainTextChars >= 1800) {
+            $score += 35;
+        } elseif ($plainTextChars >= 1200) {
+            $score += 30;
+        } elseif ($plainTextChars >= 900) {
+            $score += 24;
+        } elseif ($plainTextChars >= 600) {
+            $score += 15;
+            $issues[] = '正文长度偏短';
+        } else {
+            $score += 5;
+            $issues[] = '正文长度明显不足';
+        }
+
+        $score += min(10, intval($paragraphs) * 2);
+        if (intval($paragraphs) < 5) {
+            $issues[] = '段落数量不足';
+        }
+
+        $score += min(10, intval($headings) * 5);
+        if (intval($headings) < 2) {
+            $issues[] = '小标题不足';
+        }
+
+        $score += min(8, intval($listItems) * 2);
+        if (intval($listItems) < 3) {
+            $issues[] = '列表项不足';
+        }
+
+        $score = min(100, $score);
+        if ($score >= 85) {
+            $recommendation = '可优先审核';
+        } elseif ($score >= 70) {
+            $recommendation = '可审核，但建议人工复核分类与封面';
+        } elseif ($score >= 50) {
+            $recommendation = '建议先复核后再决定是否通过';
+        } else {
+            $recommendation = '建议拒审或删除后重提';
+        }
+
+        return [
+            'score' => intval($score),
+            'recommendation' => $recommendation,
+            'completeness' => [
+                'category' => [
+                    'status' => $categoryStatus,
+                    'value' => $categoryId > 0
+                        ? (string) (db('category')->where('id', $categoryId)->value('title') ?: $categoryId)
+                        : '',
+                ],
+                'cover' => [
+                    'status' => $coverStatus,
+                    'value' => $cover,
+                ],
+                'article_type' => $articleType,
+            ],
+            'metrics' => [
+                'plain_text_chars' => intval($plainTextChars),
+                'paragraphs' => intval($paragraphs),
+                'headings' => intval($headings),
+                'list_items' => intval($listItems),
+            ],
+            'issues' => array_values(array_unique($issues)),
+        ];
     }
 
     protected function normalizeIds($ids): array

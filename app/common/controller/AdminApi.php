@@ -102,6 +102,7 @@ abstract class AdminApi extends Base
             'contentapproval/detail' => 'content/Approval/edit',
             'contentapproval/approve' => 'content/Approval/state',
             'contentapproval/decline' => 'content/Approval/state',
+            'contentapproval/delete' => 'content/Approval/delete',
             'contentapproval/forbid' => 'content/Approval/forbidden',
             'contentapproval/forbiddenip' => 'content/Approval/forbidden_ip',
             'systemauth/index' => 'admin/Auth/index',

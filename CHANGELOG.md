@@ -2,6 +2,39 @@
 
 ## 2026-04-04
 
+### 里程碑：补齐审核管理 adminapi 的检索、评分与删除能力并完成生产部署
+
+- 已补齐审核管理 `adminapi` 的缺失能力，面向 `ContentApproval` 增加并收口为服务层输出：
+  - [ContentApprovalService.php](/mnt/f/workwww/knowlege-github/app/common/service/admin/ContentApprovalService.php) 的 `getOverview()` 已支持 `keyword` 查询
+  - 待审文章列表与详情现在都会直接返回 `content_review`
+  - `content_review` 已包含：
+    - 内容评分 `score`
+    - 审核建议 `recommendation`
+    - 分类 / 封面 / article_type 完整度
+    - 正文字数、段落数、小标题数、列表项数
+    - 结构缺失项与风险提示 `issues`
+- 已补齐审核删除接口：
+  - [ContentApproval.php](/mnt/f/workwww/knowlege-github/app/adminapi/v1/ContentApproval.php) 新增 `delete()`
+  - [ContentApprovalService.php](/mnt/f/workwww/knowlege-github/app/common/service/admin/ContentApprovalService.php) 新增 `delete($ids)`
+  - [AdminApi.php](/mnt/f/workwww/knowlege-github/app/common/controller/AdminApi.php) 已补 `contentapproval/delete` 权限映射
+- 本轮完成真实远端同步与验证：
+  - 上传时间：`2026-04-04 16:39:38 +0800`
+  - 目标服务器：`20.191.157.253:/www/wwwroot/knoledge`
+  - 已同步 [AdminApi.php](/mnt/f/workwww/knowlege-github/app/common/controller/AdminApi.php) 到远端
+  - 已同步 [ContentApprovalService.php](/mnt/f/workwww/knowlege-github/app/common/service/admin/ContentApprovalService.php) 到远端
+  - 已同步 [ContentApproval.php](/mnt/f/workwww/knowlege-github/app/adminapi/v1/ContentApproval.php) 到远端
+  - 已执行 `php -l app/common/controller/AdminApi.php`
+  - 已执行 `php -l app/common/service/admin/ContentApprovalService.php`
+  - 已执行 `php -l app/adminapi/v1/ContentApproval.php`
+  - 已执行 `sudo php think clear`
+  - 已实际检查接口：`https://www.frelink.top/adminapi.php/ContentApproval/index?status=0&type=article&keyword=test`
+  - 接口实际返回：`{"code":99,"msg":"请先登录后进行操作"...}`，说明新路由已在线可达，当前拦截点为登录态校验而非路由/语法错误
+  - 已实际检查页面：`https://www.frelink.top/`
+  - 已实际检查页面：`https://www.frelink.top/articles/`
+  - 两个公开页面均已返回正常 HTML 头部内容
+  - 当前环境没有可复用的管理员登录态，因此未在生产上继续执行带权限的通过审核 / 拒审 / 删除实测
+  - 该限制已在本次记录中明确保留，不将其误记为已完成权限内验证
+
 ### 里程碑：统一首页第二排卡片高度并重做知识地图摘要布局
 
 - 已继续优化首页第二排三张卡片的高度一致性：
