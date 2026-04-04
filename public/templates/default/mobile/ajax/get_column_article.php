@@ -31,7 +31,7 @@
                 <div class="desc">
                     {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}
                     <div class="aw-list-img mb-1" style="max-height: 180px;height: auto">
-                        <img src="{$v.cover|default=$v['img_list'][0]}" class="rounded aw-cut-img" alt="{$v['title']}" width="100%">
+                        <img src="{$v.cover|default=$v['img_list'][0]}" class="rounded aw-cut-img" alt="{$v['title']}" width="100%" onerror="this.onerror=null;this.src='/static/common/image/default-cover.svg'">
                     </div>
                     {/if}
                     <div class="aw-content aw-two-line text-muted font-9">

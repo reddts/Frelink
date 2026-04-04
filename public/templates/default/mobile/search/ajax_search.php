@@ -45,12 +45,12 @@
                         <div class="d-flex aw-list-img">
                             {volist name="$v['img_list']" id="img" key="k"}
                             {if($k<4)}
-                            <img src="{$img|default='/static/common/image/default-cover.svg'}" class="flex-fill mx-1 rounded aw-cut-img" style="margin-bottom: 5px;max-width: 33.3%;border-radius: 5px" loading="lazy" decoding="async">
+                            <img src="{$img|default='/static/common/image/default-cover.svg'}" class="flex-fill mx-1 rounded aw-cut-img" style="margin-bottom: 5px;max-width: 33.3%;border-radius: 5px" onerror="this.onerror=null;this.src='/static/common/image/default-cover.svg'" loading="lazy" decoding="async">
                             {/if}
                             {/volist}
                         </div>
                         {else/}
-                        <img src="{$v['img_list'][0]|default='/static/common/image/default-cover.svg'}" class="rounded aw-cut-img w-100" style="margin-bottom: 5px;max-height: 200px;" loading="lazy" decoding="async">
+                        <img src="{$v['img_list'][0]|default='/static/common/image/default-cover.svg'}" class="rounded aw-cut-img w-100" style="margin-bottom: 5px;max-height: 200px;" onerror="this.onerror=null;this.src='/static/common/image/default-cover.svg'" loading="lazy" decoding="async">
                         {/if}
                         {/if}
                         <div class="aw-content aw-two-line text-muted font-9">
@@ -104,7 +104,7 @@
                     <div class="desc">
                         {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}
                         <div class="aw-list-img">
-                            <img src="{$v.cover|default=$v['img_list'][0]}" class="rounded aw-cut-img" alt="{$v['title']}" width="100%" loading="lazy" decoding="async">
+                            <img src="{$v.cover|default=$v['img_list'][0]}" class="rounded aw-cut-img" alt="{$v['title']}" width="100%" onerror="this.onerror=null;this.src='/static/common/image/default-cover.svg'" loading="lazy" decoding="async">
                         </div>
                         {/if}
                         <div class="aw-content aw-two-line text-muted font-9">
@@ -234,7 +234,7 @@
                     {volist name="$v['img_list']" id="img" key="k"}
                     {if($k<4)}
                     <div class="col-md-4 aw-list-img">
-                        <img src="{$img|default='/static/common/image/default-cover.svg'}" class="rounded w-100 aw-cut-img" style="margin-bottom: 5px;" loading="lazy" decoding="async">
+                        <img src="{$img|default='/static/common/image/default-cover.svg'}" class="rounded w-100 aw-cut-img" style="margin-bottom: 5px;" onerror="this.onerror=null;this.src='/static/common/image/default-cover.svg'" loading="lazy" decoding="async">
                     </div>
                     {/if}
                     {/volist}

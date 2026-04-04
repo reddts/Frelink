@@ -131,7 +131,7 @@
                 {volist name="$v['img_list']" id="img" key="k"}
                 {if($k<4)}
                 <div class="col-md-4 aw-list-img">
-                    <img src="{$img|default='/static/common/image/default-cover.svg'}" class="rounded w-100 aw-cut-img" style="margin-bottom: 5px;" >
+                    <img src="{$img|default='/static/common/image/default-cover.svg'}" class="rounded w-100 aw-cut-img" style="margin-bottom: 5px;" onerror="this.onerror=null;this.src='/static/common/image/default-cover.svg'">
                 </div>
                 {/if}
                 {/volist}

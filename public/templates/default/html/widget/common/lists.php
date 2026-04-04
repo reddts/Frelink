@@ -55,7 +55,7 @@
                 {volist name="$v['img_list']" id="img" key="k"}
                 {if($k<4)}
                 <div class="col-md-4 aw-list-img">
-                    <img src="{$img|default='/static/common/image/default-cover.svg'}" class="rounded w-100 aw-cut-img" style="margin-bottom: 5px;" loading="lazy" decoding="async">
+                    <img src="{$img|default='/static/common/image/default-cover.svg'}" class="rounded w-100 aw-cut-img" style="margin-bottom: 5px;" onerror="this.onerror=null;this.src='/static/common/image/default-cover.svg'" loading="lazy" decoding="async">
                 </div>
                 {/if}
                 {/volist}
@@ -125,7 +125,7 @@
             {if ($v['img_list'] || $v.cover) && get_theme_setting('common.list_show_image')=='Y'}
             <div class="col-md-3 aw-list-img">
                 <a href="{:url('article/detail',['id'=>$v['id']])}" target="_blank">
-                    <img src="{$v.cover|default=$v['img_list'][0]}" class="rounded aw-cut-img" alt="{$v['title']}" width="100%" loading="lazy" decoding="async">
+                    <img src="{$v.cover|default=$v['img_list'][0]}" class="rounded aw-cut-img" alt="{$v['title']}" width="100%" onerror="this.onerror=null;this.src='/static/common/image/default-cover.svg'" loading="lazy" decoding="async">
                 </a>
             </div>
             <div class="ov-3 col-md-9">
