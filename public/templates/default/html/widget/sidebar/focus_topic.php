@@ -56,9 +56,9 @@
             min-height: 38px;
             padding: 0 14px;
             border-radius: 12px;
-            border: 1px solid #d8d3ef;
-            background: #fff;
-            color: #5b4b98;
+            border: 1px solid #d9e4ec;
+            background: #f3f7fa;
+            color: #334155;
             font-size: 13px;
             font-weight: 700;
             line-height: 1;
@@ -67,11 +67,11 @@
 
         .aw-focus-topic-tag:hover,
         .aw-focus-topic-tag.is-active {
-            color: #1f2937;
+            color: #0f172a;
             text-decoration: none;
             border-color: #c9d8e6;
-            background: linear-gradient(180deg, #ffffff 0%, #f3f8fc 100%);
-            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+            background: linear-gradient(180deg, #ffffff 0%, #eef6fb 100%);
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
         }
 
         .aw-focus-topic-preview {
@@ -100,14 +100,14 @@
         }
 
         .aw-focus-topic-preview-title a {
-            color: #4c3f8f;
+            color: #0f172a;
             font-size: 15px;
             font-weight: 800;
             line-height: 1.35;
         }
 
         .aw-focus-topic-preview-title a:hover {
-            color: #1d4ed8;
+            color: #0f766e;
             text-decoration: none;
         }
 

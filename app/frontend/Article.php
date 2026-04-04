@@ -276,6 +276,10 @@ class Article extends Frontend
             }
         }
 
+        $weeklyExecutionTasks = is_array($weeklyExecution['tasks'] ?? null)
+            ? $weeklyExecution['tasks']
+            : [];
+
         $this->assign(
             [
                 'captcha_enable'=>$captcha_enable,
@@ -290,7 +294,7 @@ class Article extends Frontend
                 'access_key'=>md5($this->user_id.time()),
                 'attach_list'=>Attach::getAttach('article_attach',$article_id),
                 'publish_insight'=>$publishInsight,
-                'weekly_execution'=>$weeklyExecution
+                'weekly_execution'=>$weeklyExecutionTasks
             ]);
 
         /**

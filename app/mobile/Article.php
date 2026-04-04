@@ -334,6 +334,26 @@ class Article extends Frontend
             $helpChapterOptions[$k]['selected'] = in_array($chapter['id'], $selectedHelpChapterIds);
             $helpChapterOptions[$k]['suggested'] = in_array($chapter['id'], $suggestedHelpChapterIds);
         }
+        $publishInsight = [];
+        $weeklyExecution = [];
+        if (checkTableExist('analytics_event')) {
+            try {
+                $publishInsight = InsightModel::getPublishAssist('article', 7, 4);
+            } catch (\Throwable $e) {
+                \think\facade\Log::error('mobile_article_publish_insight_failed: ' . $e->getMessage());
+            }
+
+            try {
+                $weeklyExecution = InsightModel::getWeeklyExecutionPlan(7, 3);
+            } catch (\Throwable $e) {
+                \think\facade\Log::error('mobile_article_publish_weekly_execution_failed: ' . $e->getMessage());
+            }
+        }
+
+        $weeklyExecutionTasks = is_array($weeklyExecution['tasks'] ?? null)
+            ? $weeklyExecution['tasks']
+            : [];
+
         $this->assign(
             [
                 'captcha_enable'=>$captcha_enable,
@@ -347,8 +367,8 @@ class Article extends Frontend
                 'suggested_help_chapters'=>$suggestedHelpChapters,
                 'access_key'=>md5($this->user_id.time()),
                 'attach_list'=>Attach::getAttach('article_attach',$article_id),
-                'publish_insight'=>checkTableExist('analytics_event') ? InsightModel::getPublishAssist('article', 7, 4) : [],
-                'weekly_execution'=>checkTableExist('analytics_event') ? InsightModel::getWeeklyExecutionPlan(7, 3) : []
+                'publish_insight'=>$publishInsight,
+                'weekly_execution'=>$weeklyExecutionTasks
             ]);
 
         /**

@@ -2,6 +2,25 @@
 
 ## 2026-04-04
 
+### 里程碑：修复 research 发布页登录后 500 与主题页关注话题配色割裂
+
+- 已修复 `https://www.frelink.top/publish/article/?article_type=research` 登录后可能触发 `Trying to access array offset on value of type int` 的问题：
+  - 根因是 [Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php) 与 [Article.php](/mnt/f/workwww/knowlege-github/app/mobile/Article.php) 直接把 `InsightModel::getWeeklyExecutionPlan()` 的整包结果传给模板
+  - 发布模板实际只按“任务列表”遍历 `weekly_execution`，因此会把 `window_days` 这类整型元数据也当成一项，随后访问 `$v.title / $v.reason` 时触发数组下标错误
+  - 现已在控制器层统一改为只传 `tasks` 子数组，并保留异常降级，避免桌面端和移动端发布页再次出现同类 500
+- 已继续收口 [focus_topic.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/widget/sidebar/focus_topic.php) 的视觉样式：
+  - 去掉偏紫标签和标题色，统一为主题页当前使用的蓝灰描边和冷色卡片语言
+  - 右侧“关注话题”与主题页主体卡片不再出现明显的旧组件色彩割裂
+- 本轮完成真实远端同步与验证：
+  - 已同步 [Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php) 到远端
+  - 已同步 [Article.php](/mnt/f/workwww/knowlege-github/app/mobile/Article.php) 到远端
+  - 已同步 [focus_topic.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/widget/sidebar/focus_topic.php) 到远端
+  - 已执行 `php -l /www/wwwroot/knoledge/app/frontend/Article.php`
+  - 已执行 `php -l /www/wwwroot/knoledge/app/mobile/Article.php`
+  - 已执行 `php -l /www/wwwroot/knoledge/public/templates/default/html/widget/sidebar/focus_topic.php`
+  - 已执行 `sudo -n php think clear`
+  - 已抽查 `https://www.frelink.top/publish/article/?article_type=research&_t=...` 返回 `200`
+
 ### 里程碑：修正主题卡片图标垂直对齐
 
 - 已继续微调 PC 端主题卡片的 `dt/dd` 垂直对齐：
