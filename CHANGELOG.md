@@ -2,6 +2,20 @@
 
 ## 2026-04-04
 
+### 里程碑：收口观察发布页异常降级与主题页关注话题样式
+
+- 已对 [Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php) 的文章发布页辅助数据装配增加异常降级：
+  - `publish_insight` 与 `weekly_execution` 在运行异常时不再直接打断整个发布页
+  - 发生异常时会写入服务端错误日志并回退为空数据，避免登录后进入发布页直接 `500`
+- 已重做 [focus_topic.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/widget/sidebar/focus_topic.php) 的“关注话题”视觉：
+  - 从旧的浅灰 hover 盒子改为统一卡片、标签和预览面板结构
+  - 与主题页当前的卡片和描边体系保持一致，不再出现明显的旧组件风格割裂
+- 本轮完成真实远端同步与验证：
+  - 已同步 [Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php) 到远端
+  - 已同步 [focus_topic.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/widget/sidebar/focus_topic.php) 到远端
+  - 已执行 `php -l` 校验相关文件
+  - 已执行 `sudo -n php think clear`
+
 ### 里程碑：修复首页模板被误覆盖导致 explore 首页 500
 
 - 已修复 `https://www.frelink.top/explore/` 首页故障：
