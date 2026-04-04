@@ -28,10 +28,6 @@
     <script type="application/json" id="frelink-agent-protocol">{$agent_protocol_json|raw}</script>
     {/if}
     <link rel="canonical" href="{:request()->domain().request()->baseUrl()}">
-    {if $thisController=='index' && $thisAction=='index'}
-    <link rel="preload" as="image" href="{$static_url}images/top-img.avif" type="image/avif">
-    <link rel="preload" as="image" href="{$static_url}images/top-img.webp" type="image/webp">
-    {/if}
     <link rel="preload" as="font" href="{$cdnUrl}/static/common/fonts/fontawesome-webfont.woff2?v=4.7.0" type="font/woff2" crossorigin>
     <link rel="preload" as="font" href="{$cdnUrl}/static/common/fonts/iconfont.woff2?t=1649211101792" type="font/woff2" crossorigin>
     <link rel="preload" as="style" href="{$cdnUrl}/static/libs/swiper/swiper.min.css" onload="this.onload=null;this.rel='stylesheet'">

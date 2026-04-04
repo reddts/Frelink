@@ -65,6 +65,7 @@ class Index extends Frontend
             'type' => (string)$type,
             'article_type' => (string)$articleType,
             'article_version' => ArticleModel::getHomepageCacheVersion(),
+            'layout_version' => '2026-04-04.2',
             'lang' => (string)$this->request->cookie('aws_lang', ''),
         ]));
 
