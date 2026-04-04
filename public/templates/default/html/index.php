@@ -312,7 +312,7 @@
         align-items: stretch;
     }
     .aw-home-curated-row-secondary {
-        align-items: start;
+        align-items: stretch;
     }
     .aw-home-curated-card {
         display: flex;
@@ -321,7 +321,8 @@
         border-radius: 16px;
         border: 1px solid #e5edf6;
         background: #fff;
-        align-self: start;
+        align-self: stretch;
+        height: 100%;
     }
     .aw-home-curated-card--equal {
         height: 100%;
@@ -487,69 +488,9 @@
         justify-content: space-between;
         background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
     }
-    .aw-home-map-links {
+    .aw-home-map-summary-stack {
         display: grid;
         gap: 12px;
-        margin-bottom: 16px;
-    }
-    .aw-home-map-link {
-        display: block;
-        padding: 14px;
-        border-radius: 16px;
-        border: 1px solid #e5edf6;
-        background: rgba(255, 255, 255, 0.92);
-        color: #0f172a;
-    }
-    .aw-home-map-link:hover {
-        text-decoration: none;
-        border-color: #cfe0f5;
-        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.06);
-    }
-    .aw-home-map-link-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 8px;
-    }
-    .aw-home-map-link-head strong {
-        display: block;
-        margin: 0;
-        font-size: 15px;
-        font-weight: 700;
-    }
-    .aw-home-map-link-count {
-        flex-shrink: 0;
-        color: #2563eb;
-        font-size: 12px;
-        font-weight: 700;
-    }
-    .aw-home-map-link-chapters {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 8px;
-    }
-    .aw-home-map-link-chapters span {
-        display: inline-flex;
-        align-items: center;
-        padding: 3px 8px;
-        border-radius: 999px;
-        background: #f1f5f9;
-        color: #475569;
-        font-size: 12px;
-        line-height: 1.4;
-    }
-    .aw-home-map-link-note {
-        color: #64748b;
-        font-size: 13px;
-        line-height: 1.6;
-    }
-    .aw-home-map-summary-desc {
-        margin: 0 0 14px;
-        color: #64748b;
-        font-size: 13px;
-        line-height: 1.7;
     }
     .aw-home-map-summary-grid {
         display: grid;
@@ -573,6 +514,12 @@
     .aw-home-map-summary-grid span {
         color: #64748b;
         font-size: 12px;
+    }
+    .aw-home-curated-card--compact .aw-home-curated-list a {
+        padding: 12px 0;
+    }
+    .aw-home-curated-card--compact .aw-home-curated-list p {
+        -webkit-line-clamp: 3;
     }
     .aw-home-topic-card {
         display: block;
@@ -884,7 +831,7 @@
                                 {/we:topic}
                             </div>
                         </section>
-                        <section class="aw-home-curated-card">
+                        <section class="aw-home-curated-card aw-home-curated-card--compact">
                             <div class="aw-home-section-title">
                                 <h4>{:L('知识归档')}</h4>
                                 <a href="{:url('help/index')}">{:L('查看全部')}</a>
@@ -910,40 +857,34 @@
                                 <h4>{:L('知识地图')}</h4>
                                 <a href="{:url('help/index')}">{:L('查看全部')}</a>
                             </div>
-                            {if !empty($knowledge_map_connections)}
-                            <div class="aw-home-map-links">
-                                {volist name="knowledge_map_connections" id="topic"}
-                                <a class="aw-home-map-link" href="{:url('topic/detail',['id'=>$topic['id']])}" target="_blank">
-                                    <div class="aw-home-map-link-head">
-                                        <strong>{$topic.title}</strong>
-                                        <span class="aw-home-map-link-count">{$topic.chapter_count|default=0} {:L('个章节')}</span>
+                            <div class="aw-home-map-summary-stack">
+                                <div class="aw-home-map-summary-grid">
+                                    <div>
+                                        <strong>{$knowledge_map_summary.question_count|default=0}</strong>
+                                        <span>{:frelink_content_label('question')}</span>
                                     </div>
-                                    {if !empty($topic['chapters'])}
-                                    <div class="aw-home-map-link-chapters">
-                                        {volist name="topic['chapters']" id="chapter"}
-                                        <span>{$chapter.title}</span>
-                                        {/volist}
+                                    <div>
+                                        <strong>{$knowledge_map_summary.research_count|default=0}</strong>
+                                        <span>{:frelink_content_label('research')}</span>
                                     </div>
-                                    {/if}
-                                    <div class="aw-home-map-link-note">{$topic.matched_count|default=0} {:L('条关联内容')} · {:L('讨论')} {$topic.discuss|default=0}</div>
-                                </a>
-                                {/volist}
-                            </div>
-                            {else/}
-                            <p class="aw-home-map-summary-desc">{:L('当前还没有可展示的主题连接，先把归档章节和主题关联起来后，这里会展示真实地图内容。')}</p>
-                            {/if}
-                            <div class="aw-home-map-summary-grid">
-                                <div>
-                                    <strong>{$knowledge_map_summary.chapter_count|default=0}</strong>
-                                    <span>{:L('章节')}</span>
+                                    <div>
+                                        <strong>{$knowledge_map_summary.help_count|default=0}</strong>
+                                        <span>{:frelink_content_label('faq')}</span>
+                                    </div>
                                 </div>
-                                <div>
-                                    <strong>{$knowledge_map_summary.relation_count|default=0}</strong>
-                                    <span>{:L('关联')}</span>
-                                </div>
-                                <div>
-                                    <strong>{$knowledge_map_summary.topic_count|default=0}</strong>
-                                    <span>{:L('主题')}</span>
+                                <div class="aw-home-map-summary-grid">
+                                    <div>
+                                        <strong>{$knowledge_map_summary.chapter_count|default=0}</strong>
+                                        <span>{:L('章节')}</span>
+                                    </div>
+                                    <div>
+                                        <strong>{$knowledge_map_summary.relation_count|default=0}</strong>
+                                        <span>{:L('关联')}</span>
+                                    </div>
+                                    <div>
+                                        <strong>{$knowledge_map_summary.topic_count|default=0}</strong>
+                                        <span>{:L('主题')}</span>
+                                    </div>
                                 </div>
                             </div>
                         </section>

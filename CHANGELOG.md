@@ -2,6 +2,29 @@
 
 ## 2026-04-04
 
+### 里程碑：统一首页第二排卡片高度并重做知识地图摘要布局
+
+- 已继续优化首页第二排三张卡片的高度一致性：
+  - [Index.php](/mnt/f/workwww/knowlege-github/app/frontend/Index.php) 中的 `archive_chapters` 已从 `4` 条收为 `2` 条
+  - [index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/index.php) 已将第二排卡片从 `align-items: start` 改为 `align-items: stretch`
+  - 第二排三张卡片本身也已改为 `height: 100%`，避免“核心主题 / 知识归档 / 知识地图”高度各自漂移
+- 已重做“知识地图”卡片内容结构：
+  - 移除了原先占高较多的 3 张主题连接卡片
+  - 改为两排摘要格结构
+  - 第一排为 `FAQ / 综述 / 帮助`
+  - 第二排保留 `章节 / 关联 / 主题`
+- 已补首页知识地图摘要数据：
+  - [Help.php](/mnt/f/workwww/knowlege-github/app/model/Help.php) 的 `getKnowledgeMapSummary()` 新增 `research_count` 与 `help_count`
+  - 其中 `research_count` 统计已归档的 `research` 内容，`help_count` 统计已归档的 `faq` 帮助内容
+- 本轮完成真实远端同步与验证：
+  - 已同步 [Help.php](/mnt/f/workwww/knowlege-github/app/model/Help.php) 到远端
+  - 已同步 [Index.php](/mnt/f/workwww/knowlege-github/app/frontend/Index.php) 到远端
+  - 已同步 [index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/index.php) 到远端
+  - 已执行 `php -l /www/wwwroot/knoledge/app/model/Help.php`
+  - 已执行 `php -l /www/wwwroot/knoledge/app/frontend/Index.php`
+  - 已执行 `php -l /www/wwwroot/knoledge/public/templates/default/html/index.php`
+  - 已执行 `sudo -n php think clear`
+
 ### 里程碑：收紧首页综述与观察卡片条数以平衡三列高度
 
 - 已继续优化 [explore 首页](/mnt/f/workwww/knowlege-github/public/templates/default/html/index.php) 中“最新综述 / 最新观察 / 常见 FAQ”三列的高度平衡：

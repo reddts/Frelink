@@ -128,6 +128,16 @@ class Help extends BaseModel
         $relationCount = db('help_chapter_relation')->where(['status' => 1])->count();
         $questionCount = db('help_chapter_relation')->where(['status' => 1, 'item_type' => 'question'])->count();
         $articleCount = db('help_chapter_relation')->where(['status' => 1, 'item_type' => 'article'])->count();
+        $researchCount = db('help_chapter_relation')
+            ->alias('hcr')
+            ->join('article a', "a.id = hcr.item_id AND hcr.item_type = 'article' AND a.status = 1")
+            ->where(['hcr.status' => 1, 'a.article_type' => 'research'])
+            ->count();
+        $helpCount = db('help_chapter_relation')
+            ->alias('hcr')
+            ->join('article a', "a.id = hcr.item_id AND hcr.item_type = 'article' AND a.status = 1")
+            ->where(['hcr.status' => 1, 'a.article_type' => 'faq'])
+            ->count();
         $topicCount = db('help_chapter_relation')
             ->alias('hcr')
             ->join('topic_relation tr', 'tr.item_id = hcr.item_id AND tr.item_type = hcr.item_type AND tr.status = 1')
@@ -140,6 +150,8 @@ class Help extends BaseModel
             'relation_count' => $relationCount,
             'question_count' => $questionCount,
             'article_count' => $articleCount,
+            'research_count' => $researchCount,
+            'help_count' => $helpCount,
             'topic_count' => $topicCount,
         ];
     }
