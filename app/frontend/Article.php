@@ -303,6 +303,7 @@ class Article extends Frontend
 
         //记录用户浏览记录
         BrowseRecords::recordViewLog($this->user_id,$article_info['id'],'article');
+        $article_info = ArticleModel::getArticleInfo($id);
 
         //更新文章热度值
         PopularHelper::calcArticlePopularValue($id);

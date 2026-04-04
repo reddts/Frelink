@@ -1,5 +1,29 @@
 # Frelink 项目更新日志
 
+## 2026-04-04
+
+### 里程碑：修复文章详情页浏览记录与返回浏览数不同步
+
+- 已修复文章详情浏览链路在前台页与 API 详情接口中的不一致：
+  - [Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php) 现会在累加浏览量并写入浏览记录后，重新读取文章详情，避免页面渲染继续使用累加前的 `view_count`
+  - [Article.php](/mnt/f/workwww/knowlege-github/app/api/v1/Article.php) 现会在详情接口中补写 `BrowseRecords::recordViewLog(...)`
+  - [Article.php](/mnt/f/workwww/knowlege-github/app/api/v1/Article.php) 现会在累加浏览量后重新读取文章详情，避免移动端接口继续返回旧的浏览数
+- 本轮完成真实远端同步：
+  - 上传时间：2026-04-04 10:10:08 CST
+  - 目标服务器：`azureuser@20.191.157.253:/www/wwwroot/knoledge`
+  - 已执行 `bash scripts/deploy.sh deploy`
+- 本轮完成真实远端验证：
+  - 远端已执行 `php -l app/function.inc.php`
+  - 远端已执行 `php -l app/frontend/Article.php`
+  - 远端已执行 `sudo -n php think clear`
+  - 远端已执行 `sudo -n php think api:doc --output docs/api-v1.md`
+  - 远端已执行 `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+  - 已完成线上 smoke check：`/`、`/questions/`、`/articles/`
+- 当前结论：
+  - 前台文章详情页不再继续展示累加前的浏览数
+  - 移动端文章详情接口已补齐浏览记录写入
+  - 文章浏览量与浏览记录的更新时机已在前台页和 API 详情接口中统一
+
 ## 2026-04-03
 
 ### 里程碑：修复 API token 在运营洞察与同类接口中的权限上下文误判

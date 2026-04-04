@@ -10,6 +10,7 @@ use app\logic\common\FocusLogic;
 use app\model\Approval;
 use app\model\Article as ArticleModel;
 use app\model\Attach;
+use app\model\BrowseRecords;
 use app\model\PostRelation;
 use app\model\Report;
 use app\model\Topic;
@@ -53,6 +54,8 @@ class Article extends Api
 
         //更新文章浏览量
         ArticleModel::updateArticleViews($id, $this->user_id);
+        BrowseRecords::recordViewLog($this->user_id, $id, 'article');
+        $article_info = ArticleModel::getArticleInfo($id);
 
         //更新文章热度值
         PopularHelper::calcArticlePopularValue($id);
