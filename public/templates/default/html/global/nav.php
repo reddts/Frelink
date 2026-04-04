@@ -67,70 +67,53 @@
                     </div>
                     {if $user_id}
                     <div class="nav-user-actions d-flex align-items-center">
-                    <div class="dropdown d-inline-block mr-4 position-relative">
-                        <a href="javascript:;" class="btn btn-sm gradientBtn px-3 text-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {:L('新建')}
-                        </a>
-                        <div class="dropdown-menu p-0 dropdown-menu-right border-0 font-size-sm" style="z-index: 1065;">
-                            <div class="text-center d-block py-2 aw-nav aw-dropdown-nav text-center aw-answer-sort" style="min-width: 100px">
-                                <a href="{:frelink_publish_url('question')}" class="py-1 dropdown-item">{:L('FAQ')}</a>
-                                <a href="{:frelink_publish_url('article')}" class="py-1 dropdown-item">{:L('知识内容')}</a>
-                                {volist name=":config('aws.publish')" id="v"}
-                                {if isset($v['url']) && $v['url']}
-                                <a href="{:url($v['url'])}" class="py-1 dropdown-item">{$v.title}</a>
-                                {/if}
-                                {/volist}
-                                {:hook('publishButtons')}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dropdown d-inline-block mr-4 position-relative">
-                        <a href="javascript:;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="inboxBox">
+                    <div class="dropdown d-inline-block position-relative nav-user-dropdown">
+                        <a href="javascript:;" class="nav-user-trigger nav-user-icon-trigger" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="inboxBox" title="{:L('私信消息')}" aria-label="{:L('私信消息')}">
                             <i class="iconfont">&#xe628</i>
                             {if $user_id && $user_info['inbox_unread']}
-                            <span class="badge badge-danger badge-pill position-absolute" id="inboxUnreadTag" style="right:-20px">{$user_info['inbox_unread']? $user_info['inbox_unread'] : '99+'}</span>
+                            <span class="badge badge-danger badge-pill position-absolute" id="inboxUnreadTag">{$user_info['inbox_unread']? $user_info['inbox_unread'] : '99+'}</span>
                             {/if}
                         </a>
-                        <div class="dropdown-menu p-0 dropdown-menu-right border-0 font-size-sm" style="width: 350px !important;">
-                            <div class="bg-light text-center">
+                        <div class="dropdown-menu aw-nav-dropdown-menu aw-nav-dropdown-menu-lg p-0 dropdown-menu-right border-0 font-size-sm">
+                            <div class="aw-nav-dropdown-head text-center">
                                 <h5 class="dropdown-header text-uppercase py-2">{:L('私信消息')}</h5>
                             </div>
                             <div class="nav-items mb-0 aw-overflow-auto" id="topInboxBox" style="max-height: 400px"></div>
-                            <div class="p-2 border-top">
+                            <div class="aw-nav-dropdown-foot p-2 border-top">
                                 <a class="btn btn-sm btn-light btn-block text-center" href="{:url('inbox/index')}">
                                     <i class="fa fa-fw fa-arrow-down mr-1"></i> {:L('加载更多')}...
                                 </a>
                             </div>
                         </div>
                     </div>
-                    <div class="dropdown d-inline-block mr-4 position-relative">
-                        <a href="javascript:;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="notifyBox">
+                    <div class="dropdown d-inline-block position-relative nav-user-dropdown">
+                        <a href="javascript:;" class="nav-user-trigger nav-user-icon-trigger" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="notifyBox" title="{:L('通知消息')}" aria-label="{:L('通知消息')}">
                             <i class="iconfont">&#xe689</i>
                             {if $user_id && $user_info['notify_unread']}
-                            <span class="badge badge-danger badge-pill position-absolute" id="notifyUnreadTag" style="right:-20px">{$user_info['notify_unread']? $user_info['notify_unread'] : '99+'}</span>
+                            <span class="badge badge-danger badge-pill position-absolute" id="notifyUnreadTag">{$user_info['notify_unread']? $user_info['notify_unread'] : '99+'}</span>
                             {/if}
                         </a>
-                        <div class="dropdown-menu dropdown-menu-right p-0 border-0 font-size-sm" style="width: 350px !important;">
-                            <div class="bg-light clearfix py-2 px-3">
+                        <div class="dropdown-menu aw-nav-dropdown-menu aw-nav-dropdown-menu-lg dropdown-menu-right p-0 border-0 font-size-sm">
+                            <div class="aw-nav-dropdown-head clearfix py-2 px-3">
                                 <h5 class="text-uppercase float-left font-weight-bold font-9 mb-0">{:L('通知消息')}</h5>
                                 <a class="text-muted float-right font-8" href="javascript:;" onclick="AWS.User.headerNotifyReadAll()">{:L('全部已读')}</a>
                             </div>
                             <div class="nav-items mb-0 aw-overflow-auto" id="topNotifyBox" style="max-height: 400px"></div>
-                            <div class="p-2 border-top">
+                            <div class="aw-nav-dropdown-foot p-2 border-top">
                                 <a class="btn btn-sm btn-light btn-block text-center" href="{:url('notify/index')}">
                                     <i class="fa fa-fw fa-arrow-down mr-1"></i> {:L('加载更多')}...
                                 </a>
                             </div>
                         </div>
                     </div>
-                    <div class="dropdown d-inline-block position-relative">
-                        <a href="javascript:;" id="page-header-user-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="dropdown d-inline-block position-relative nav-user-dropdown">
+                        <a href="javascript:;" class="nav-user-trigger nav-user-profile-trigger" id="page-header-user-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <img class="rounded" src="{$user_info.avatar}" style="width: 22px;height: 22px">
                             <span class="d-none d-sm-inline-block ml-1">{$user_info.nick_name}</span>
                             <i class="fa fa-fw fa-angle-down d-none d-sm-inline-block"></i>
                         </a>
-                        <div class="dropdown-menu p-0 border-0 font-size-sm" aria-labelledby="page-header-user-dropdown">
-                            <div class="p-3 text-center bg-primary">
+                        <div class="dropdown-menu aw-nav-dropdown-menu aw-nav-dropdown-menu-profile p-0 border-0 font-size-sm" aria-labelledby="page-header-user-dropdown">
+                            <div class="aw-nav-profile-head p-3 text-center">
                                 <a href="{:url('creator/index')}">
                                     <img class="img-avatar img-avatar-thumb" style="border-radius: 50%" width="48" height="48" src="{$user_info.avatar ? : '/static/libs/aw-core/media/avatars/avatar0.jpg'}" alt="">
                                 </a>
@@ -158,11 +141,11 @@
                         </div>
                     </div>
                     {if get_setting('enable_multilingual','N')=='Y'}
-                    <div class="dropdown d-inline-block position-relative nav-lang-switch">
-                        <a href="javascript:;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="dropdown d-inline-block position-relative nav-user-dropdown nav-lang-switch">
+                        <a href="javascript:;" class="nav-user-trigger nav-user-icon-trigger" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{:L('语言切换')}" aria-label="{:L('语言切换')}">
                             <span class="d-none d-sm-inline-block ml-1"><i class="fa fa-language font-12"></i></span>
                         </a>
-                        <div class="dropdown-menu p-0 border-0 font-size-sm" aria-labelledby="page-header-user-dropdown">
+                        <div class="dropdown-menu aw-nav-dropdown-menu p-0 border-0 font-size-sm" aria-labelledby="page-header-user-dropdown">
                             <div class="p-2 text-center">
                                 <a class="dropdown-item align-items-center aw-ajax-get" data-url="{:url('ajax/change_lang',['lang'=>'zh-cn'])}" href="JavaScript:;">
                                     <span>{:L('中文')}</span>

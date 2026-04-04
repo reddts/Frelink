@@ -2,6 +2,30 @@
 
 ## 2026-04-04
 
+### 里程碑：重做登录后导航栏用户操作区与下拉菜单风格
+
+- 已重做登录后顶部导航中的 `nav-user-actions d-flex align-items-center` 区块：
+  - 已从 [block.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/block.php) 和 [nav.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/global/nav.php) 去掉“发起 / 新建”按钮区块
+  - 登录后顶部导航现只保留私信、通知、用户头像和语言切换四类入口
+  - 各入口统一改为 `nav-user-trigger` 触发器，视觉从旧按钮和裸图标混排改为一致的描边卡片按钮
+- 已统一下拉菜单的显示效果：
+  - 为消息、通知、个人菜单和语言菜单新增 `aw-nav-dropdown-menu` 系列样式
+  - 下拉层统一使用圆角、描边、浅冷色渐变和阴影，不再沿用旧的白底 + 灰条块式结构
+  - 个人菜单头部改为和整站一致的深蓝到青色渐变头图
+- 已同步补齐样式文件：
+  - [app.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/app.css)
+  - [app.min.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/app.min.css)
+  - 移动端登录后导航格局已从 5 列改成 4 列，适配去掉“发起 / 新建”后的布局
+- 本轮完成真实远端同步与验证：
+  - 已同步 [block.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/block.php) 到远端
+  - 已同步 [nav.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/global/nav.php) 到远端
+  - 已同步 [app.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/app.css) 到远端
+  - 已同步 [app.min.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/app.min.css) 到远端
+  - 已执行 `php -l /www/wwwroot/knoledge/public/templates/default/html/block.php`
+  - 已执行 `php -l /www/wwwroot/knoledge/public/templates/default/html/global/nav.php`
+  - 已执行 `sudo -n php think clear`
+  - 已在远端文件中核对 `nav-user-trigger / aw-nav-dropdown-menu / aw-nav-profile-head` 等新类名已生效
+
 ### 里程碑：统一 FAQ / 知识内容发布页右栏视觉语言
 
 - 已重做 [question/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/publish.php) 与 [article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/publish.php) 的右侧栏视觉：
