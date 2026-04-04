@@ -2,6 +2,52 @@
 
 ## 2026-04-04
 
+### 里程碑：搜索页统一视觉并收口 FAQ / 知识内容 / 主题页右侧入口
+
+- 已完成桌面端与移动端搜索页的统一整理：
+  - [search/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/search/index.php) 已收口到与内容页一致的视觉语言
+  - [search/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/search/index.php) 已补移动端“未搜索”和“无结果”状态，不再整页空白
+  - [ajax_search.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/search/ajax_search.php) 已补移动端搜索结果卡片样式承接
+- 已修复新文章发布后移动端知识内容列表刷新不出现的问题：
+  - [Article.php](/mnt/f/workwww/knowlege-github/app/model/Article.php) 的文章列表缓存 key 已挂上首页内容版本号
+  - 发文、改文、删文、恢复后会自动切换缓存版本，避免刷新命中旧列表
+- 已修复近期文章外链封面失效问题：
+  - 文章 `150-154` 原 `Unsplash` 外链封面已确认失效并返回 `404`
+  - 已为这 5 篇文章重新生成本地 SVG 封面，文件位于 [20260404](/mnt/f/workwww/knowlege-github/public/storage/common/20260404)
+  - 远端数据库 `kn_article.cover` 已改为本地 `storage/common/20260404/article-cover-15x.svg`
+  - 列表模板已补 `onerror` 默认封面兜底，避免后续坏图直接暴露破图
+- 已继续收口公开页面右侧入口：
+  - FAQ 列表页右侧现改为 FAQ 专属小型图标卡片，只保留“补充 FAQ / 新建 FAQ”
+  - 知识内容页右侧现改为知识内容专属小型图标卡片，只保留“新建综述 / 新建观察”
+  - 主题列表页右侧已移除通用 `write_nav`，不再显示“补 FAQ / 新建 FAQ / 写综述”
+  - 涉及文件包括：
+    - [Sidebar.php](/mnt/f/workwww/knowlege-github/app/widget/Sidebar.php)
+    - [question/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/index.php)
+    - [article/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/index.php)
+    - [topic/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/topic/index.php)
+    - [faq_write_nav.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/widget/sidebar/faq_write_nav.php)
+    - [article_write_nav.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/widget/sidebar/article_write_nav.php)
+- 本轮完成真实远端同步：
+  - 上传时间：2026-04-04 11:09:20 CST
+  - 目标服务器：`azureuser@20.191.157.253:/www/wwwroot/knoledge`
+  - 已执行定向 `rsync` 上传本次会话相关代码文件
+  - 已执行定向 `scp` 上传 `public/storage/common/20260404/article-cover-150.svg` 至 `article-cover-154.svg`
+- 本轮完成真实远端验证：
+  - 远端已执行 `php -l app/model/Article.php`
+  - 远端已执行 `php -l app/widget/Sidebar.php`
+  - 远端已执行 `sudo -n php think clear`
+  - 远端已检查 `public/storage/common/20260404/article-cover-15*.svg`
+  - 已抽查页面 `https://www.frelink.top/search/index.html`
+  - 已抽查页面 `https://www.frelink.top/questions/`
+  - 已抽查页面 `https://www.frelink.top/articles/`
+  - 已抽查页面 `https://www.frelink.top/topics/`
+  - 已抽查资源 `https://www.frelink.top/storage/common/20260404/article-cover-153.svg`
+- 当前结论：
+  - 搜索页、FAQ 页、知识内容页和主题页的右侧入口已按新的信息架构分离
+  - 新文章发布后的移动端知识内容列表刷新已不再停留在旧缓存
+  - `150-154` 的封面已脱离失效外链并切到服务器本地资源
+  - 本轮改动已完成远端同步与线上最小验证
+
 ### 里程碑：修复文章详情页浏览记录与返回浏览数不同步
 
 - 已修复文章详情浏览链路在前台页与 API 详情接口中的不一致：
