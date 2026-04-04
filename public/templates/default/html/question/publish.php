@@ -189,6 +189,123 @@
     .aw-archive-option input {
         margin-right: 6px;
     }
+    .aw-publish-sidebar {
+        display: grid;
+        gap: 14px;
+    }
+    .aw-publish-sidebar-card {
+        overflow: hidden;
+        padding: 18px 18px 16px;
+        border: 1px solid #d9e4ec;
+        border-radius: 22px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%);
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+    }
+    .aw-publish-sidebar-card::before {
+        content: "";
+        display: block;
+        width: 44px;
+        height: 4px;
+        margin-bottom: 14px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #1d4ed8 0%, #0f766e 100%);
+    }
+    .aw-publish-sidebar-title {
+        margin: 0 0 6px;
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+    .aw-publish-sidebar-subtitle {
+        margin: 0 0 14px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+    .aw-publish-sidebar-section + .aw-publish-sidebar-section {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #e5edf4;
+    }
+    .aw-publish-sidebar-label {
+        margin-bottom: 10px;
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 800;
+    }
+    .aw-publish-insight .insight-chip {
+        padding: 6px 12px;
+        border: 1px solid #d9e4ec;
+        background: #f3f7fa;
+        color: #334155;
+        font-weight: 700;
+    }
+    .aw-publish-insight .insight-chip:hover {
+        border-color: #c4d5e2;
+        background: #fff;
+        color: #0f172a;
+    }
+    .aw-publish-insight .insight-title-idea {
+        border: 1px solid #e5edf4;
+        border-radius: 16px;
+        padding: 12px 14px;
+        margin-top: 0;
+        background: #fff;
+    }
+    .aw-publish-insight .insight-title-idea + .insight-title-idea {
+        margin-top: 10px;
+    }
+    .aw-publish-insight .insight-title-idea:hover {
+        border-color: #c4d5e2;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    }
+    .aw-publish-action-link {
+        display: block;
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #e5edf4;
+        border-radius: 14px;
+        background: #fff;
+        color: #0f172a;
+        font-weight: 700;
+        text-align: left;
+    }
+    .aw-publish-action-link:hover {
+        text-decoration: none;
+        color: #0f766e;
+        border-color: #c4d5e2;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    }
+    .aw-publish-checklist,
+    .aw-publish-desc-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .aw-publish-checklist li,
+    .aw-publish-desc-list li {
+        position: relative;
+        padding-left: 16px;
+        color: #475569;
+        font-size: 13px;
+        line-height: 1.8;
+    }
+    .aw-publish-checklist li + li,
+    .aw-publish-desc-list li + li {
+        margin-top: 8px;
+    }
+    .aw-publish-checklist li::before,
+    .aw-publish-desc-list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 10px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1d4ed8 0%, #0f766e 100%);
+    }
 </style>
 {/block}
 {block name="main"}
@@ -402,15 +519,14 @@
             </div>
         </div>
         <div class="aw-right radius col-md-3 px-xs-0">
+            <div class="aw-publish-sidebar">
             {if !empty($publish_insight)}
-            <div class="r-box mb-2 aw-publish-insight">
-                <div class="r-title">
-                    <h4>{:L('最近 %s 天可写方向',$publish_insight.window_days)}</h4>
-                </div>
-                <div class="pb-2">
+            <div class="aw-publish-sidebar-card aw-publish-insight">
+                <h4 class="aw-publish-sidebar-title">{:L('最近 %s 天可写方向',$publish_insight.window_days)}</h4>
+                <p class="aw-publish-sidebar-subtitle">{:L('优先处理重复出现的问题，把 FAQ 入口补齐成稳定答案。')}</p>
                     {if !empty($publish_insight.top_keywords)}
-                    <div class="mb-3">
-                        <div class="font-weight-bold mb-2">{:L('最近有人在搜')}</div>
+                    <div class="aw-publish-sidebar-section">
+                        <div class="aw-publish-sidebar-label">{:L('最近有人在搜')}</div>
                         <div>
                             {volist name="publish_insight.top_keywords" id="v"}
                             <span class="insight-chip insight-action js-fill-title" data-title="{$v.keyword|htmlspecialchars}">{$v.keyword} · {$v.search_count}</span>
@@ -419,8 +535,8 @@
                     </div>
                     {/if}
                     {if !empty($publish_insight.title_ideas)}
-                    <div class="mb-3">
-                        <div class="font-weight-bold mb-2">{:L('建议 FAQ 标题')}</div>
+                    <div class="aw-publish-sidebar-section">
+                        <div class="aw-publish-sidebar-label">{:L('建议 FAQ 标题')}</div>
                         {volist name="publish_insight.title_ideas" id="v"}
                         <div class="insight-title-idea insight-action js-fill-title" data-title="{$v.title|htmlspecialchars}">
                             <div>{$v.title}</div>
@@ -430,65 +546,51 @@
                     </div>
                     {/if}
                     {if !empty($publish_insight.suggested_topics)}
-                    <div>
-                        <div class="font-weight-bold mb-2">{:L('建议优先挂载的话题')}</div>
+                    <div class="aw-publish-sidebar-section">
+                        <div class="aw-publish-sidebar-label">{:L('建议优先挂载的话题')}</div>
                         {volist name="publish_insight.suggested_topics" id="v"}
                         {if isset($v.topic_id) && $v.topic_id}
-                        <button type="button" class="btn btn-link p-0 d-block text-left text-primary mb-2 js-apply-suggested-topic" data-topic-id="{$v.topic_id}" data-topic-title="{$v.title|htmlspecialchars}">
+                        <button type="button" class="aw-publish-action-link js-apply-suggested-topic mb-2" data-topic-id="{$v.topic_id}" data-topic-title="{$v.title|htmlspecialchars}">
                             {$v.title|htmlspecialchars}
                         </button>
                         {/if}
                         {/volist}
                     </div>
                     {/if}
-                    <div class="r-box mb-2">
-                        <div class="r-title">
-                            <h4>{:L('发布前检查')}</h4>
-                        </div>
-                        <div class="pb-2">
-                            <ul class="text-muted font-9 pl-3 mb-0">
-                                <li class="mb-2">{:L('用户能否在 3 秒内知道这篇和自己有关')}</li>
-                                <li class="mb-2">{:L('用户能否在 30 秒内获得一个新判断')}</li>
-                                <li class="mb-2">{:L('用户看完后是否愿意继续点下一篇')}</li>
-                                <li>{:L('标题是否真实反映正文，不靠夸张承诺骗点击')}</li>
-                            </ul>
-                        </div>
+                    <div class="aw-publish-sidebar-section">
+                        <div class="aw-publish-sidebar-label">{:L('发布前检查')}</div>
+                        <ul class="aw-publish-checklist">
+                            <li>{:L('用户能否在 3 秒内知道这篇和自己有关')}</li>
+                            <li>{:L('用户能否在 30 秒内获得一个新判断')}</li>
+                            <li>{:L('用户看完后是否愿意继续点下一篇')}</li>
+                            <li>{:L('标题是否真实反映正文，不靠夸张承诺骗点击')}</li>
+                        </ul>
                     </div>
-                </div>
             </div>
             {/if}
-            <div class="r-box mb-2">
-                <div class="r-title">
-                    <h4>{:L('发布说明')}</h4>
+            <div class="aw-publish-sidebar-card">
+                <h4 class="aw-publish-sidebar-title">{:L('发布说明')}</h4>
+                <p class="aw-publish-sidebar-subtitle">{:L('FAQ 更像长期可复用入口，核心不是表达观点，而是给出稳定、可执行的答案。')}</p>
+                <div class="aw-publish-sidebar-section">
+                    <div class="aw-publish-sidebar-label">{:L('发布要求')}</div>
+                    <ul class="aw-publish-desc-list">
+                        <li>{:L('标题要尽量贴近用户真实搜索句式，避免抽象概念化。')}</li>
+                        <li>{:L('正文要给出明确结论，并补齐边界、例外和版本差异。')}</li>
+                        <li>{:L('至少绑定一个话题，让 FAQ 能进入后续内容聚合和持续补充链路。')}</li>
+                        <li>{:L('发起一个 FAQ 会消耗您')} {$integral_rule.NEW_QUESTION}{:L($setting.score_unit)}，{:L('每多一个回复你将获得')} {$integral_rule.QUESTION_ANSWER} {:L($setting.score_unit)}。</li>
+                    </ul>
                 </div>
-                <div class="pb-2">
-                    <dl class="text-muted font-9">
-                        <dt>{:L('FAQ 标题')}：</dt>
-                        <dd>{:L('请用准确的语言描述您发布的 FAQ 主题')}</dd>
-                    </dl>
-                    <dl class="text-muted font-9">
-                        <dt>{:L('FAQ 补充')}：</dt>
-                        <dd>{:L('详细补充您的 FAQ 内容，并提供一些相关的素材以供参与者更多地了解您所要表达的主题。')}</dd>
-                    </dl>
-                    <dl class="text-muted font-9">
-                        <dt>{:L('选择话题')}：</dt>
-                        <dd>{:L('选择一个或者多个合适的话题，让您发布的 FAQ 得到更多有相同兴趣的人参与，所有人可以在发布后添加和编辑该条目所属的话题')}</dd>
-                    </dl>
-                    <dl class="text-muted font-9">
-                        <dt>{:L('关于')}{:L($setting.score_unit)}：</dt>
-                        <dd>{:L('发起一个 FAQ 会消耗您')} {$integral_rule.NEW_QUESTION}{:L($setting.score_unit)},
-                            {:L('每多一个回复你将获得')} {$integral_rule.QUESTION_ANSWER} {:L($setting.score_unit)}{:L('的奖励')} ,{:L('为了您的利益')},
-                            {:L('在发起 FAQ 的时候希望能够更好地描述条目主题并多使用站内搜索功能')}.</dd>
-                    </dl>
-                    {if !empty($publish_insight.guidance)}
-                    <dl class="text-muted font-9">
-                        <dt>{:L('运营建议')}：</dt>
+                {if !empty($publish_insight.guidance)}
+                <div class="aw-publish-sidebar-section">
+                    <div class="aw-publish-sidebar-label">{:L('运营建议')}</div>
+                    <ul class="aw-publish-desc-list">
                         {volist name="publish_insight.guidance" id="v"}
-                        <dd>{$v}</dd>
+                        <li>{$v}</li>
                         {/volist}
-                    </dl>
-                    {/if}
+                    </ul>
                 </div>
+                {/if}
+            </div>
             </div>
         </div>
     </div>

@@ -204,6 +204,150 @@
     .aw-archive-option input {
         margin-right: 6px;
     }
+    .aw-publish-sidebar {
+        display: grid;
+        gap: 14px;
+    }
+    .aw-publish-sidebar-card {
+        overflow: hidden;
+        padding: 18px 18px 16px;
+        border: 1px solid #d9e4ec;
+        border-radius: 22px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%);
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+    }
+    .aw-publish-sidebar-card::before {
+        content: "";
+        display: block;
+        width: 44px;
+        height: 4px;
+        margin-bottom: 14px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #1d4ed8 0%, #0f766e 100%);
+    }
+    .aw-publish-sidebar-title {
+        margin: 0 0 6px;
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+    .aw-publish-sidebar-subtitle {
+        margin: 0 0 14px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+    .aw-publish-sidebar-section + .aw-publish-sidebar-section {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #e5edf4;
+    }
+    .aw-publish-sidebar-label {
+        margin-bottom: 10px;
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 800;
+    }
+    .aw-publish-sidebar-note {
+        margin-bottom: 10px;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+    .aw-publish-insight .insight-chip {
+        padding: 6px 12px;
+        border: 1px solid #d9e4ec;
+        background: #f3f7fa;
+        color: #334155;
+        font-weight: 700;
+        margin: 0 8px 8px 0;
+    }
+    .aw-publish-insight .insight-chip:hover {
+        border-color: #c4d5e2;
+        background: #fff;
+        color: #0f172a;
+    }
+    .aw-publish-insight .insight-title-idea {
+        border: 1px solid #e5edf4;
+        border-radius: 16px;
+        padding: 12px 14px;
+        margin-top: 0;
+        background: #fff;
+    }
+    .aw-publish-insight .insight-title-idea + .insight-title-idea {
+        margin-top: 10px;
+    }
+    .aw-publish-insight .insight-title-idea:hover {
+        border-color: #c4d5e2;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    }
+    .aw-publish-action-link {
+        display: block;
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #e5edf4;
+        border-radius: 14px;
+        background: #fff;
+        color: #0f172a;
+        font-weight: 700;
+        text-align: left;
+    }
+    .aw-publish-action-link:hover {
+        text-decoration: none;
+        color: #0f766e;
+        border-color: #c4d5e2;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    }
+    .aw-publish-task {
+        border: 1px solid #e5edf4;
+        border-radius: 16px;
+        padding: 12px 14px;
+        background: #fff;
+    }
+    .aw-publish-task + .aw-publish-task {
+        margin-top: 10px;
+    }
+    .aw-publish-task-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid #d9e4ec;
+        background: #f8fbfd;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+    }
+    .aw-publish-checklist,
+    .aw-publish-desc-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .aw-publish-checklist li,
+    .aw-publish-desc-list li {
+        position: relative;
+        padding-left: 16px;
+        color: #475569;
+        font-size: 13px;
+        line-height: 1.8;
+    }
+    .aw-publish-checklist li + li,
+    .aw-publish-desc-list li + li {
+        margin-top: 8px;
+    }
+    .aw-publish-checklist li::before,
+    .aw-publish-desc-list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 10px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1d4ed8 0%, #0f766e 100%);
+    }
 </style>
 {/block}
 {block name="main"}
@@ -465,16 +609,15 @@
             </div>
         </div>
         <div class="aw-right radius col-md-3 px-xs-0">
+            <div class="aw-publish-sidebar">
             {:hook('content_ocr',['type'=>'article','element'=>''])}
             {if !empty($publish_insight)}
-            <div class="r-box mb-2 aw-publish-insight">
-                <div class="r-title">
-                    <h4>{:L('最近 %s 天可写方向',$publish_insight.window_days)}</h4>
-                </div>
-                <div class="pb-2">
+            <div class="aw-publish-sidebar-card aw-publish-insight">
+                <h4 class="aw-publish-sidebar-title">{:L('最近 %s 天可写方向',$publish_insight.window_days)}</h4>
+                <p class="aw-publish-sidebar-subtitle">{:L('优先补用户正在搜索、并且还没有被稳定回答的内容入口。')}</p>
                     {if !empty($publish_insight.top_keywords)}
-                    <div class="mb-3">
-                        <div class="font-weight-bold mb-2">{:L('最近有人在搜')}</div>
+                    <div class="aw-publish-sidebar-section">
+                        <div class="aw-publish-sidebar-label">{:L('最近有人在搜')}</div>
                         <div>
                             {volist name="publish_insight.top_keywords" id="v"}
                             <span class="insight-chip insight-action js-fill-title" data-title="{$v.keyword|htmlspecialchars}">{$v.keyword} · {$v.search_count}</span>
@@ -483,8 +626,8 @@
                     </div>
                     {/if}
                     {if !empty($publish_insight.title_ideas)}
-                    <div class="mb-3">
-                        <div class="font-weight-bold mb-2">{:L('建议文章标题')}</div>
+                    <div class="aw-publish-sidebar-section">
+                        <div class="aw-publish-sidebar-label">{:L('建议文章标题')}</div>
                         {volist name="publish_insight.title_ideas" id="v"}
                         <div class="insight-title-idea insight-action js-apply-idea" data-title="{$v.title|htmlspecialchars}" data-type="{$v.recommended_type|default=''}">
                             <div>{$v.title}</div>
@@ -497,8 +640,8 @@
                     </div>
                     {/if}
                     {if !empty($publish_insight.type_ideas)}
-                    <div class="mb-3">
-                        <div class="font-weight-bold mb-2">{:L('建议内容形态')}</div>
+                    <div class="aw-publish-sidebar-section">
+                        <div class="aw-publish-sidebar-label">{:L('建议内容形态')}</div>
                         <div>
                             {volist name="publish_insight.type_ideas" id="v"}
                             <span class="insight-chip insight-action js-apply-type" data-type="{$v.type}" data-title="{$v.title|htmlspecialchars}">
@@ -509,9 +652,9 @@
                     </div>
                     {/if}
                     {if !empty($publish_insight.fragment_ideas)}
-                    <div class="mb-3">
-                        <div class="font-weight-bold mb-2">{:L('观察整理')}</div>
-                        <div class="text-muted font-8 mb-2">{:L('把高频阅读的观察整理成更稳定的综述、帮助或追踪。')}</div>
+                    <div class="aw-publish-sidebar-section">
+                        <div class="aw-publish-sidebar-label">{:L('观察整理')}</div>
+                        <div class="aw-publish-sidebar-note">{:L('把高频阅读的观察整理成更稳定的综述、帮助或追踪。')}</div>
                         {volist name="publish_insight.fragment_ideas" id="v"}
                         <div class="insight-title-idea insight-action js-apply-idea" data-title="{$v.title|htmlspecialchars}" data-type="{$v.recommended_type|default='research'}">
                             <div>{$v.title}</div>
@@ -524,16 +667,16 @@
                     </div>
                     {/if}
                     {if !empty($weekly_execution)}
-                    <div class="mb-3">
-                        <div class="font-weight-bold mb-2">{:L('本周优先写作')}</div>
+                    <div class="aw-publish-sidebar-section">
+                        <div class="aw-publish-sidebar-label">{:L('本周优先写作')}</div>
                         {volist name="weekly_execution" id="v"}
-                        <div class="border rounded p-2 mb-2 bg-white">
+                        <div class="aw-publish-task">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="pr-2">
                                     <div class="font-weight-bold">{$v.title}</div>
                                     <div class="text-muted font-8 mt-1">{$v.label}{if !empty($v.keyword)} · {$v.keyword}{/if}</div>
                                 </div>
-                                <span class="badge badge-light border">{$v.content_type}</span>
+                                <span class="aw-publish-task-badge">{$v.content_type}</span>
                             </div>
                             <div class="text-muted font-8 mt-2">{$v.reason}</div>
                             <div class="mt-2">
@@ -545,11 +688,11 @@
                     </div>
                     {/if}
                     {if !empty($publish_insight.suggested_topics)}
-                    <div>
-                        <div class="font-weight-bold mb-2">建议优先扩展的话题</div>
+                    <div class="aw-publish-sidebar-section">
+                        <div class="aw-publish-sidebar-label">建议优先扩展的话题</div>
                         {volist name="publish_insight.suggested_topics" id="v"}
                         {if isset($v.topic_id) && $v.topic_id}
-                        <button type="button" class="btn btn-link p-0 d-block text-left text-primary mb-2 js-apply-suggested-topic" data-topic-id="{$v.topic_id}" data-topic-title="{$v.title|htmlspecialchars}">
+                        <button type="button" class="aw-publish-action-link js-apply-suggested-topic mb-2" data-topic-id="{$v.topic_id}" data-topic-title="{$v.title|htmlspecialchars}">
                             {$v.title|htmlspecialchars}
                         </button>
                         {/if}
@@ -557,17 +700,17 @@
                     </div>
                     {/if}
                     {if !empty($publish_insight.topic_graph.nodes)}
-                    <div class="mt-3">
-                        <div class="font-weight-bold mb-2">{:L('主题图谱')}</div>
-                        <div class="text-muted font-8 mb-2">{:L('优先把经常一起出现的主题串成一条内容线，减少内容割裂。')}</div>
+                    <div class="aw-publish-sidebar-section">
+                        <div class="aw-publish-sidebar-label">{:L('主题图谱')}</div>
+                        <div class="aw-publish-sidebar-note">{:L('优先把经常一起出现的主题串成一条内容线，减少内容割裂。')}</div>
                         {volist name="publish_insight.topic_graph.nodes" id="v"}
-                        <div class="border rounded p-2 mb-2 bg-white">
+                        <div class="aw-publish-task">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="pr-2">
                                     <button type="button" class="btn btn-link p-0 text-left text-primary font-weight-bold js-apply-suggested-topic" data-topic-id="{$v.topic_id}" data-topic-title="{$v.title|htmlspecialchars}" data-topic-url="{$v.url|default=''}">{$v.title}</button>
                                     <div class="text-muted font-8 mt-1">{:L('内容关联')}：{$v.content_count} {:L('条')}</div>
                                 </div>
-                                <span class="badge badge-light border">{:L('图谱')}：{$v.weight}</span>
+                                <span class="aw-publish-task-badge">{:L('图谱')}：{$v.weight}</span>
                             </div>
                             {if !empty($v.related_topics)}
                             <div class="mt-2">
@@ -580,50 +723,39 @@
                         {/volist}
                     </div>
                     {/if}
-                    <div class="r-box mb-2">
-                        <div class="r-title">
-                            <h4>{:L('发布前检查')}</h4>
-                        </div>
-                        <div class="pb-2">
-                            <ul class="text-muted font-9 pl-3 mb-0">
-                                <li class="mb-2">{:L('用户能否在 3 秒内知道这篇和自己有关')}</li>
-                                <li class="mb-2">{:L('用户能否在 30 秒内获得一个新判断')}</li>
-                                <li class="mb-2">{:L('用户看完后是否愿意继续点下一篇')}</li>
-                                <li>{:L('标题是否真实反映正文，不靠夸张承诺骗点击')}</li>
-                            </ul>
-                        </div>
+                    <div class="aw-publish-sidebar-section">
+                        <div class="aw-publish-sidebar-label">{:L('发布前检查')}</div>
+                        <ul class="aw-publish-checklist">
+                            <li>{:L('用户能否在 3 秒内知道这篇和自己有关')}</li>
+                            <li>{:L('用户能否在 30 秒内获得一个新判断')}</li>
+                            <li>{:L('用户看完后是否愿意继续点下一篇')}</li>
+                            <li>{:L('标题是否真实反映正文，不靠夸张承诺骗点击')}</li>
+                        </ul>
                     </div>
-                </div>
             </div>
             {/if}
-            <div class="r-box mb-2">
-                <div class="r-title">
-                    <h4>{:L('发布说明')}</h4>
+            <div class="aw-publish-sidebar-card">
+                <h4 class="aw-publish-sidebar-title">{:L('发布说明')}</h4>
+                <p class="aw-publish-sidebar-subtitle">{:L('右侧提示只负责提醒结构和运营边界，内容判断还是以正文质量为主。')}</p>
+                <div class="aw-publish-sidebar-section">
+                    <div class="aw-publish-sidebar-label">{:L('写作要求')}</div>
+                    <ul class="aw-publish-desc-list">
+                        <li>{:L('文章标题要准确表达核心判断，不要用空泛概念替代结论。')}</li>
+                        <li>{:L('正文要补足背景、证据、边界和素材，让读者能继续顺着线索看下去。')}</li>
+                        <li>{:L('至少绑定一个合适主题，方便后续把 FAQ、综述和观察内容串起来。')}</li>
+                    </ul>
                 </div>
-                <div class="pb-2 fbsm">
-                    <dl class="text-muted font-9">
-                        <dt>{:L('文章标题')}：</dt>
-                        <dd>{:L('请用准确的语言描述您发布的文章思想')}</dd>
-                    </dl>
-
-                    <dl class="text-muted font-9">
-                        <dt>{:L('文章补充')}：</dt>
-                        <dd>{:L('详细补充您的文章内容')}, {:L('并提供一些相关的素材以供参与者更多的了解您所要文章的主题思想')}</dd>
-                    </dl>
-
-                    <dl class="text-muted font-9">
-                        <dt>{:L('选择话题')}：</dt>
-                        <dd>{:L('选择一个或者多个合适的话题,让您发布的文章得到更多有相同兴趣的人参与,所有人可以在您发布文章之后添加和编辑该文章所属的话题')}</dd>
-                    </dl>
-                    {if !empty($publish_insight.guidance)}
-                    <dl class="text-muted font-9">
-                        <dt>运营建议：</dt>
+                {if !empty($publish_insight.guidance)}
+                <div class="aw-publish-sidebar-section">
+                    <div class="aw-publish-sidebar-label">{:L('运营建议')}</div>
+                    <ul class="aw-publish-desc-list">
                         {volist name="publish_insight.guidance" id="v"}
-                        <dd>{$v}</dd>
+                        <li>{$v}</li>
                         {/volist}
-                    </dl>
-                    {/if}
+                    </ul>
                 </div>
+                {/if}
+            </div>
             </div>
         </div>
     </div>

@@ -2,6 +2,29 @@
 
 ## 2026-04-04
 
+### 里程碑：统一 FAQ / 知识内容发布页右栏视觉语言
+
+- 已重做 [question/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/publish.php) 与 [article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/publish.php) 的右侧栏视觉：
+  - 从旧的 `r-box` 叠块改成统一的冷色描边卡片样式
+  - 新增统一的 `aw-publish-sidebar-card / aw-publish-sidebar-title / aw-publish-checklist` 结构
+  - 关键词标签、建议标题、建议话题和本周写作任务都改成与站点现有主题页一致的卡片与标签语言
+- FAQ 发布页右栏已统一为：
+  - 趋势提示卡片
+  - 发布前检查卡片
+  - 发布说明卡片
+- 知识内容发布页右栏已统一为：
+  - 趋势提示卡片
+  - 本周优先写作卡片
+  - 主题图谱卡片
+  - 发布前检查卡片
+  - 发布说明卡片
+- 本轮完成真实远端同步与验证：
+  - 已同步 [question/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/publish.php) 到远端
+  - 已同步 [article/publish.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/publish.php) 到远端
+  - 已执行 `php -l /www/wwwroot/knoledge/public/templates/default/html/question/publish.php`
+  - 已执行 `php -l /www/wwwroot/knoledge/public/templates/default/html/article/publish.php`
+  - 已执行 `sudo -n php think clear`
+
 ### 里程碑：修复 research 发布页登录后 500 与主题页关注话题配色割裂
 
 - 已修复 `https://www.frelink.top/publish/article/?article_type=research` 登录后可能触发 `Trying to access array offset on value of type int` 的问题：
