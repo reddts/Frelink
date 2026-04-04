@@ -2,6 +2,13 @@
 
 ## 2026-04-04
 
+### 里程碑：将主题卡片订阅按钮收口为纯图标
+
+- 已继续收口 PC 端主题页卡片中的订阅按钮：
+  - [topic/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/topic/index.php) 已移除按钮文字，只保留纯图标
+  - 图标提示已改为 `title / aria-label`，通过悬停提示表达“点击订阅 / 已订阅，点击取消”
+  - [topic/index.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/topic/index.css) 已去掉底色、边框和文字占位，进一步让出信息空间给“正在讨论 / 关注人数”
+
 ### 里程碑：弱化主题卡片已关注按钮占位
 
 - 已继续优化 PC 端主题页卡片的关注按钮信息权重：

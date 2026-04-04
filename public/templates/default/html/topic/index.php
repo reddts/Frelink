@@ -60,7 +60,11 @@
                                                 <span class="aw-topic-meta-item">{:L('正在讨论')}：{$v.discuss}</span>
                                                 <span class="aw-topic-meta-item"><span class="aw-global-focus-count">{:L('关注人数')}：{$v.focus}</span></span>
                                                 {if $user_id}
-                                                <a href="javascript:;" class="cursor-pointer aw-topic-follow-toggle {$v['has_focus'] ? 'active ygz' : ''}" onclick="AWS.User.focus(this,'topic','{$v.id}')">{$v['has_focus'] ? '<span><i class=\"far fa-bell\"></i><em>'.L('已订阅').'</em></span>' : '<span><i class=\"far fa-heart\"></i><em>'.L('订阅').'</em></span>'}</a>
+                                                <a href="javascript:;"
+                                                   class="cursor-pointer aw-topic-follow-toggle {$v['has_focus'] ? 'active ygz' : ''}"
+                                                   onclick="AWS.User.focus(this,'topic','{$v.id}')"
+                                                   title="{$v['has_focus'] ? L('已订阅，点击取消') : L('点击订阅')}"
+                                                   aria-label="{$v['has_focus'] ? L('已订阅，点击取消') : L('点击订阅')}">{$v['has_focus'] ? '<span><i class=\"far fa-bell\"></i></span>' : '<span><i class=\"far fa-heart\"></i></span>'}</a>
                                                 {/if}
                                             </div>
                                         </dd>
