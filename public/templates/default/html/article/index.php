@@ -192,6 +192,71 @@
     .aw-right .hot-list dl dd {
         padding: 0;
     }
+    .aw-side-entry-panel {
+        padding: 14px;
+        border: 1px solid #d9e4ec;
+        border-radius: 20px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%);
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+    }
+    .aw-side-entry-grid {
+        display: grid;
+        gap: 12px;
+    }
+    .aw-side-entry-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 1px solid #d9e4ec;
+        background: #fff;
+        color: #0f172a;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .aw-side-entry-card:hover {
+        text-decoration: none;
+        color: #0f172a;
+        transform: translateY(-1px);
+        border-color: #c4d5e2;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+    }
+    .aw-side-entry-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        font-size: 18px;
+        flex: 0 0 42px;
+    }
+    .aw-side-entry-copy {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+    .aw-side-entry-copy strong {
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.3;
+    }
+    .aw-side-entry-copy em {
+        margin-top: 3px;
+        color: #64748b;
+        font-style: normal;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+    .aw-side-entry-card-research .aw-side-entry-icon {
+        color: #4338ca;
+        background: #e0e7ff;
+    }
+    .aw-side-entry-card-fragment .aw-side-entry-icon {
+        color: #0f766e;
+        background: #ccfbf1;
+    }
 </style>
 {/block}
 {block name="main"}
@@ -310,7 +375,7 @@
                 {:hook('sidebarTop')}
 
                 {if $theme_config['article']['sidebar_show_items'] && in_array('write_nav',$theme_config['article']['sidebar_show_items'])}
-                {:widget('sidebar/writeNav')}
+                {:widget('sidebar/articleWriteNav')}
                 {/if}
 
                 {if $theme_config['article']['sidebar_show_items'] && in_array('focus_topic',$theme_config['article']['sidebar_show_items'])}

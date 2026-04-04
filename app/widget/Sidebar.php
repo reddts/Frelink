@@ -108,6 +108,16 @@ class Sidebar extends Widget
         return $this->fetch('sidebar/write_nav');
     }
 
+    public function faqWriteNav()
+    {
+        return $this->fetch('sidebar/faq_write_nav');
+    }
+
+    public function articleWriteNav()
+    {
+        return $this->fetch('sidebar/article_write_nav');
+    }
+
 	//侧边分类列表
     public function category($sort='',$category='')
     {
