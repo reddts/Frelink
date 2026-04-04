@@ -1,29 +1,442 @@
 {extend name="$theme_block" /}
+{block name="style"}
+<style>
+    body {
+        background:
+            radial-gradient(circle at top left, rgba(15, 118, 110, 0.10), transparent 26%),
+            radial-gradient(circle at top right, rgba(29, 78, 216, 0.08), transparent 24%),
+            linear-gradient(180deg, #eef4f7 0%, #f7fafc 38%, #f7fafc 100%);
+    }
+
+    #wrapMain .aw-search-shell {
+        overflow: hidden;
+        border-radius: 28px;
+        border: 1px solid #d8e4ec;
+        background: #fff;
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+    }
+
+    .aw-search-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 30px 28px 26px;
+        background: linear-gradient(135deg, #111827 0%, #1d4ed8 56%, #0f766e 100%);
+        color: #fff;
+    }
+
+    .aw-search-hero::after {
+        content: "";
+        position: absolute;
+        right: -110px;
+        bottom: -130px;
+        width: 360px;
+        height: 360px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.02) 48%, transparent 72%);
+        pointer-events: none;
+    }
+
+    .aw-page-kicker {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .aw-search-hero h1 {
+        position: relative;
+        z-index: 1;
+        margin: 0 0 12px;
+        font-size: 34px;
+        line-height: 1.14;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+    }
+
+    .aw-search-hero p {
+        position: relative;
+        z-index: 1;
+        max-width: 64ch;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.84);
+        font-size: 15px;
+        line-height: 1.8;
+    }
+
+    .aw-page-chips {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .aw-page-chips span {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: rgba(255, 255, 255, 0.88);
+        font-size: 13px;
+    }
+
+    .aw-search-content {
+        background: #fff;
+    }
+
+    .aw-search-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 18px 22px 0;
+        margin: 0;
+        border: 0 !important;
+        background: #fff;
+    }
+
+    .aw-search-tabs .nav-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 18px;
+        margin: 0;
+        border-radius: 999px;
+        border: 1px solid #d9e4ec;
+        background: linear-gradient(180deg, #fff 0%, #f6fbff 100%);
+        color: #475569;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+    }
+
+    .aw-search-tabs .nav-link:hover {
+        color: #0f172a;
+        background: #eef5f7;
+        border-color: #cddae5;
+        text-decoration: none;
+    }
+
+    .aw-search-tabs .nav-link.active {
+        color: #fff;
+        background: linear-gradient(135deg, #1d4ed8 0%, #0f766e 100%);
+        border-color: transparent;
+        box-shadow: 0 10px 18px rgba(29, 78, 216, 0.18);
+    }
+
+    .search-detail-list {
+        padding: 0 20px 24px;
+        background: #f7fafc;
+    }
+
+    .search-summary-card {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 18px;
+        padding: 18px 20px;
+        border: 1px solid #dce6ee;
+        border-radius: 22px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+    }
+
+    .search-summary-card strong,
+    .search-summary-card em {
+        font-style: normal;
+        color: #0f172a;
+    }
+
+    .search-summary-kicker {
+        display: block;
+        margin-bottom: 8px;
+        color: #0f766e;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .search-summary-main {
+        margin: 0;
+        color: #475569;
+        font-size: 15px;
+        line-height: 1.8;
+    }
+
+    .search-summary-side {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.7;
+        text-align: right;
+    }
+
+    .search-detail-list .aw-common-list {
+        padding-bottom: 6px;
+    }
+
+    .search-detail-list .aw-common-list dl {
+        position: relative;
+        margin-bottom: 18px;
+        padding: 18px 20px 16px;
+        border: 1px solid #d9e4ec;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .search-detail-list .aw-common-list dl:hover {
+        transform: translateY(-1px);
+        border-color: #cbd9e6;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    .search-detail-list .aw-common-list dl > dd:last-child {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        padding-top: 14px;
+        margin-top: 16px;
+        border-top: 1px solid #e5edf4;
+    }
+
+    .search-detail-list .n-title a,
+    .search-detail-list .topic .font-weight-bold,
+    .search-detail-list .users h3 a {
+        color: #0f172a;
+        font-weight: 800;
+    }
+
+    .search-detail-list .n-title a:hover,
+    .search-detail-list .topic .font-weight-bold:hover,
+    .search-detail-list .users h3 a:hover {
+        color: #1d4ed8;
+        text-decoration: none;
+    }
+
+    .search-detail-list .aw-two-line,
+    .search-detail-list .aw-three-line,
+    .search-detail-list .aw-one-line,
+    .search-detail-list .text-muted,
+    .search-detail-list p {
+        color: #5b6b7f;
+    }
+
+    .search-detail-list .aw-topic .tag,
+    .aw-search-empty-tag .tag,
+    .aw-search-aside .topic-btn .tag {
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .aw-search-empty {
+        padding: 28px 24px;
+        border: 1px solid #dce6ee;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+    }
+
+    .aw-search-empty h3 {
+        margin-bottom: 10px;
+        color: #0f172a;
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .aw-search-empty p {
+        margin-bottom: 12px;
+        color: #5b6b7f;
+        line-height: 1.8;
+    }
+
+    .aw-search-empty ul {
+        margin-bottom: 0;
+        padding-left: 18px;
+        color: #64748b;
+    }
+
+    .aw-search-empty ul li {
+        margin-bottom: 8px;
+    }
+
+    .aw-search-empty-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .aw-search-aside .r-box {
+        border: 1px solid #d9e4ec;
+        border-radius: 22px;
+        background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+        overflow: hidden;
+    }
+
+    .aw-search-aside .r-title {
+        padding: 18px 18px 0;
+    }
+
+    .aw-search-aside .r-title h4 {
+        margin-bottom: 0;
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .aw-search-aside .hot-list {
+        padding: 14px 18px 18px;
+    }
+
+    .aw-search-aside .topic-btn {
+        margin: 0 10px 10px 0;
+    }
+
+    .search-detail-list .pagination {
+        justify-content: center;
+        margin-top: 8px;
+        margin-bottom: 0;
+    }
+
+    @media (max-width: 767.98px) {
+        #wrapMain .aw-search-shell {
+            border-radius: 22px;
+        }
+
+        .aw-search-hero {
+            padding: 22px 18px 20px;
+        }
+
+        .aw-search-hero h1 {
+            font-size: 28px;
+        }
+
+        .aw-search-tabs {
+            padding: 14px 14px 0;
+            gap: 8px;
+        }
+
+        .aw-search-tabs .nav-link {
+            min-height: 38px;
+            padding: 0 14px;
+        }
+
+        .search-detail-list {
+            padding: 0 14px 18px;
+        }
+
+        .search-summary-card,
+        .search-detail-list .aw-common-list dl,
+        .aw-search-empty {
+            padding: 16px;
+            border-radius: 20px;
+        }
+
+        .search-summary-side {
+            text-align: left;
+        }
+    }
+</style>
+{/block}
 {block name="main"}
-<div class="aw-wrap mt-2">
+<div class="aw-wrap mt-2" id="wrapMain">
     <div class="container" >
         <div class="row">
-            <div class="aw-left col-md-9 col-sm-12 px-0 mb-1" id="SearchResultMain">
-                <div class="position-relative">
-                    <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block searchTypeTab px-3">
+            <div class="aw-left col-md-9 col-sm-12 px-0 mb-2 aw-search-shell">
+                <section class="aw-search-hero">
+                    <div class="aw-page-kicker">Knowledge Search</div>
+                    <h1>
+                        {if $keywords}
+                        {:L('搜索 “%s” 的知识结果', urldecode($keywords))}
+                        {else/}
+                        {:L('搜索 FAQ、综述与知识条目')}
+                        {/if}
+                    </h1>
+                    <p>
+                        {if $keywords}
+                        {:L('统一检索 FAQ、知识内容、主题和用户，把分散信息收拢成可继续阅读和继续补充的知识入口。')}
+                        {else/}
+                        {:L('先输入问题、主题、概念或人名，再按类型筛选结果。搜索页会优先展示可复用的 FAQ、综述与主题归档。')}
+                        {/if}
+                    </p>
+                    <div class="aw-page-chips">
+                        <span>{:L('FAQ / 综述 / 主题 / 用户统一检索')}</span>
+                        {if $keywords}
+                        <span>{:L('当前共找到 %s 条结果', $total)}</span>
+                        <span>{:L('支持继续按类型筛选')}</span>
+                        {else/}
+                        <span>{:L('支持按内容类型细分结果')}</span>
+                        <span>{:L('优先沉淀高频搜索主题')}</span>
+                        {/if}
+                    </div>
+                </section>
+                <div id="SearchResultMain" class="aw-search-content">
+                    <div class="position-relative">
+                    <ul class="aw-pjax-tabs nav nav-tabs nav-tabs-block searchTypeTab aw-search-tabs">
                         <li class="nav-item"><a class="nav-link {if $type=='all' || !$type}active{/if}" data-pjax="SearchResultMain" href="{:url('search/index',['q'=>$keywords,'sort'=>$sort,'type'=>'all'])}">{:L('全部')}</a></li>
                         {volist name="tab_list" id="v"}
                         <li class="nav-item"><a class="nav-link {if $type==$v.name}active{/if}" data-pjax="SearchResultMain" href="{:url('search/index',['q'=>$keywords,'sort'=>$sort,'type'=>$v.name])}">{:L($v.title)}</a></li>
                         {/volist}
                     </ul>
-                </div>
-                <div class="bg-white">
-                    <div class="search-detail-list bg-white" id="tabMain">
-                        <div class="search-detail-info mb-2 clearfix px-3 pt-3">
-                            <div class="search-discuss-info">
+                        </div>
+                    <div class="search-detail-list" id="tabMain">
+                        <div class="search-summary-card">
+                            <div>
+                                <span class="search-summary-kicker">{:L('结果概览')}</span>
+                                <p class="search-summary-main">
+                                    {if $keywords}
+                                    <strong>“{:urldecode($keywords)}”</strong> {:L('的搜索结果已按知识类型整理，可继续切换标签缩小范围。')}
+                                    {else/}
+                                    {:L('请输入关键词开始搜索，系统会优先返回更稳定、更适合沉淀的知识内容。')}
+                                    {/if}
+                                </p>
+                            </div>
+                            <div class="search-summary-side">
                                 {if $keywords}
-                                "<em style="font-style: normal;color: red">{:urldecode($keywords)}</em>" {:L('搜索结果')},{:L('为您找到约')} {$total} {:L('条结果')}
+                                <div>{:L('约 %s 条结果', $total)}</div>
+                                <div>{:L('当前筛选：%s', $type && $type!='all' ? $type : L('全部'))}</div>
                                 {else/}
-                                {:L('请输入关键词开始搜索')}
+                                <div>{:L('支持模糊检索与类型筛选')}</div>
+                                <div>{:L('可搜索 FAQ、知识内容、主题、用户')}</div>
                                 {/if}
                             </div>
                         </div>
-                        {if !empty($list)}
+                        {if !$keywords}
+                        <div class="aw-search-empty">
+                            <h3>{:L('先输入一个你想查的主题')}</h3>
+                            <p>{:L('可以直接搜索问题、主题、概念、作者名或知识章节标题。输入后，结果会按 FAQ、知识内容、主题和用户统一整理。')}</p>
+                            <p>{:L('如果暂时没有明确关键词，也可以从热门搜索开始。')}</p>
+                            {if $search_list}
+                            <div class="aw-search-empty-tags">
+                                {foreach $search_list as $key=>$v}
+                                <a href="{:url('search/index',['q'=>$v['keyword']])}" class="aw-search-empty-tag"><em class="tag">{$v.keyword}</em></a>
+                                {/foreach}
+                            </div>
+                            {/if}
+                        </div>
+                        {elseif !empty($list)}
                         <div class="aw-common-list">
                             {volist name="$list" id="v"}
                             {if $v['search_type']=="question" }
@@ -279,20 +692,27 @@
                         </div>
                         {$page|raw}
                         {else/}
-                        <div class="searchNotFound p-3">
-                            <p>{:L('找不到和')} <em style="font-style: normal;color: red">{$keywords}</em> {:L('相符的内容或信息')}。</p>
-                            <p>{:L('建议您')}：</p>
-                            <ul class="list-unstyled text-muted">
-                                <li>1.{:L('请检查输入字词有无错误')}。</li>
-                                <li>2.{:L('请换用另外的查询字词')}。</li>
-                                <li>3.{:L('请改用较短')}、{:L('较为常见的字词')}。</li>
+                        <div class="aw-search-empty">
+                            <h3>{:L('没有找到直接匹配的内容')}</h3>
+                            <p>{:L('当前没有找到与 “%s” 直接相符的结果。可以换一个更常见、更短或更接近主题本身的关键词再试一次。', urldecode($keywords))}</p>
+                            <ul>
+                                <li>{:L('检查是否有错别字或多余符号。')}</li>
+                                <li>{:L('尝试用更短的主题词、别名或上位概念。')}</li>
+                                <li>{:L('如果是具体问题，也可以先搜索主题，再从主题页继续查找。')}</li>
                             </ul>
+                            {if $search_list}
+                            <div class="aw-search-empty-tags">
+                                {foreach $search_list as $key=>$v}
+                                <a href="{:url('search/index',['q'=>$v['keyword']])}" class="aw-search-empty-tag"><em class="tag">{$v.keyword}</em></a>
+                                {/foreach}
+                            </div>
+                            {/if}
                         </div>
                         {/if}
                     </div>
                 </div>
             </div>
-            <div class="aw-right col-md-3 col-sm-12 px-xs-0">
+            <div class="aw-right col-md-3 col-sm-12 px-xs-0 aw-search-aside">
                 <!--侧边栏顶部钩子-->
                 {:hook('sidebarTop')}
                 {if $search_list}

@@ -1,8 +1,8 @@
 {if !empty($list)}
-<div class="aw-common-list">
+<div class="aw-common-list aw-mobile-search-feed">
     {volist name="$list" id="v"}
     {if $v['search_type']=="question" }
-    <div class="aui-card" style="background: none">
+    <div class="aui-card aw-mobile-search-card" style="background: none">
         <div class="aui-card-main pb-1 px-0 pt-0">
             <div class="aui-card aui-card-image">
                 <div class="aui-card-main">
@@ -73,7 +73,7 @@
     {/if}
 
     {if $v['search_type']=="article" }
-    <div class="aui-card" style="background: none">
+    <div class="aui-card aw-mobile-search-card" style="background: none">
         <div class="aui-card-main pb-1 px-0 pt-0">
             <div class="aui-card aui-card-image">
                 <div class="aui-card-main">
@@ -128,7 +128,7 @@
     {/if}
 
     {if $v['search_type']=="users" }
-    <div class="aui-card mb-1 aui-card-image">
+    <div class="aui-card mb-1 aui-card-image aw-mobile-search-user-card">
         <div class="aui-card-main">
             <div class="text-center p-3">
                 <a href="{$v.url}" class="aw-username font-12 d-block" data-id="{$v.uid}">
@@ -158,7 +158,7 @@
     {/if}
 
     {if $v['search_type']=="topic" }
-    <div class="px-3 py-2 rounded bg-white mb-1 topic-item">
+    <div class="px-3 py-2 rounded bg-white mb-1 topic-item aw-mobile-search-topic-card">
         <dl class="position-relative">
             <dt class="mb-0">
                 <a href="{:url('topic/detail',['id'=>$v['id']])}">
