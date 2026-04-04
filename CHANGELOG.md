@@ -24,6 +24,10 @@
   - 已执行 `php -l /www/wwwroot/knoledge/app/frontend/Index.php`
   - 已执行 `php -l /www/wwwroot/knoledge/public/templates/default/html/index.php`
   - 已执行 `sudo -n php think clear`
+- 补充修正：
+  - 已重新确认远端 [Index.php](/mnt/f/workwww/knowlege-github/app/frontend/Index.php) 的 `archive_chapters` 现为 `HelpModel::getHomepageArchiveHighlights(2, 3)`，不再停留在旧版 `4` 条
+  - 已移除 [block.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/block.php) 中未被及时消费的 `top-img.png` 预加载，避免首页产生浏览器 preload 警告
+  - 已执行 `php -l /www/wwwroot/knoledge/public/templates/default/html/block.php`
 
 ### 里程碑：收紧首页综述与观察卡片条数以平衡三列高度
 

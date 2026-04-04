@@ -31,7 +31,6 @@
     {if $thisController=='index' && $thisAction=='index'}
     <link rel="preload" as="image" href="{$static_url}images/top-img.avif" type="image/avif">
     <link rel="preload" as="image" href="{$static_url}images/top-img.webp" type="image/webp">
-    <link rel="preload" as="image" href="{$static_url}images/top-img.png" type="image/png">
     {/if}
     <link rel="preload" as="font" href="{$cdnUrl}/static/common/fonts/fontawesome-webfont.woff2?v=4.7.0" type="font/woff2" crossorigin>
     <link rel="preload" as="font" href="{$cdnUrl}/static/common/fonts/iconfont.woff2?t=1649211101792" type="font/woff2" crossorigin>
