@@ -197,8 +197,8 @@ body {
 
 .aw-topic-card dl {
     display: grid;
-    grid-template-columns: 72px minmax(0, 1fr);
-    gap: 14px;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 12px;
     margin-bottom: 0;
     align-items: start;
 }
@@ -209,9 +209,9 @@ body {
 }
 
 .aw-topic-card dt img {
-    width: 72px;
-    height: 72px;
-    border-radius: 18px;
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
     object-fit: cover;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
 }
@@ -219,7 +219,8 @@ body {
 .aw-topic-card .info {
     width: auto;
     height: auto;
-    min-height: 72px;
+    min-width: 0;
+    min-height: 64px;
 }
 
 .aw-topic-card .info > a {
@@ -250,9 +251,9 @@ body {
 
 .aw-topic-meta {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid #e5edf4;
@@ -261,35 +262,59 @@ body {
 .aw-topic-meta-item {
     display: inline-flex;
     align-items: center;
-    padding: 6px 10px;
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 6px 9px;
     border-radius: 999px;
     background: #f1f7fb;
     color: #475569;
-    font-size: 13px;
+    font-size: 12px;
     white-space: nowrap;
 }
 
 .aw-topic-card .info a.cursor-pointer {
     display: inline-flex;
     align-items: center;
+    flex: 0 0 auto;
     gap: 6px;
-    padding: 6px 10px;
+    margin-left: auto;
+    padding: 6px 8px;
     border-radius: 999px;
-    background: #eefaf5;
+    background: #f3faf8;
     color: #0f766e;
-    font-weight: 700;
+    font-weight: 600;
+    white-space: nowrap;
 }
 
 .aw-topic-card .info a.cursor-pointer.active,
 .aw-topic-card .info a.cursor-pointer.ygz {
-    background: #0f766e;
-    color: #fff;
+    background: #eef8f5;
+    color: #0f766e;
 }
 
 .aw-topic-card .info a.cursor-pointer span {
     display: inline-flex;
     align-items: center;
     gap: 4px;
+}
+
+.aw-topic-follow-toggle i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    font-size: 11px;
+    line-height: 1;
+}
+
+.aw-topic-follow-toggle em {
+    font-style: normal;
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.01em;
 }
 
 .aw-global-focus-count {

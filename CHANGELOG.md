@@ -2,6 +2,13 @@
 
 ## 2026-04-04
 
+### 里程碑：弱化主题卡片已关注按钮占位
+
+- 已继续优化 PC 端主题页卡片的关注按钮信息权重：
+  - [topic/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/topic/index.php) 的关注按钮文案已改为更短的“订阅 / 已订阅”
+  - [topic/index.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/topic/index.css) 已将按钮改为更轻的图标 + 短标签样式
+  - 已关注态不再使用高占位的大块深色按钮，避免挤压“正在讨论 / 关注人数”的主信息展示
+
 ### 里程碑：修复移动端主题卡片关注按钮点击参数错误
 
 - 已修复移动端主题页中 `aw-mobile-topic-card-action ygz` 按钮点击后提示“参数不正确”的问题：

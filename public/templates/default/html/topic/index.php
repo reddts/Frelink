@@ -60,7 +60,7 @@
                                                 <span class="aw-topic-meta-item">{:L('正在讨论')}：{$v.discuss}</span>
                                                 <span class="aw-topic-meta-item"><span class="aw-global-focus-count">{:L('关注人数')}：{$v.focus}</span></span>
                                                 {if $user_id}
-                                                <a href="javascript:;" class="cursor-pointer {$v['has_focus'] ? 'active ygz' : ''}" onclick="AWS.User.focus(this,'topic','{$v.id}')" >{$v['has_focus'] ? '<span><i class="icon-minus-circle text-danger"></i> '.L('已关注').'</span>' : '<span><i class="icon-plus-circle text-primary"></i> '.L('关注').'</span>'}</a>
+                                                <a href="javascript:;" class="cursor-pointer aw-topic-follow-toggle {$v['has_focus'] ? 'active ygz' : ''}" onclick="AWS.User.focus(this,'topic','{$v.id}')">{$v['has_focus'] ? '<span><i class=\"far fa-bell\"></i><em>'.L('已订阅').'</em></span>' : '<span><i class=\"far fa-heart\"></i><em>'.L('订阅').'</em></span>'}</a>
                                                 {/if}
                                             </div>
                                         </dd>
