@@ -2,6 +2,16 @@
 
 ## 2026-04-04
 
+### 里程碑：修复首页模板被误覆盖导致 explore 首页 500
+
+- 已修复 `https://www.frelink.top/explore/` 首页故障：
+  - 根因是一次错误目标路径的远端同步将 [index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/index.php) 误覆盖成了 FAQ 列表模板
+  - 远端哈希校验时可见首页模板与 [question/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/index.php) 一度完全相同
+  - 已重新上传本地正确的首页模板到远端正式路径并执行 `sudo -n php think clear`
+- 本轮完成真实远端验证：
+  - 服务器本机 `curl -sk https://127.0.0.1/explore/ -H 'Host: www.frelink.top'` 已返回 `200`
+  - 外部访问 `https://www.frelink.top/explore/?_t=...` 已恢复 `200`
+
 ### 里程碑：补齐 FAQ / 知识内容页右侧发布卡片的远端落地
 
 - 已修复 `https://www.frelink.top/questions/` 与 `https://www.frelink.top/articles/` 右侧发布卡片线上未显示的问题：
