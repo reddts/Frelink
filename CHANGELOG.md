@@ -2,6 +2,22 @@
 
 ## 2026-04-04
 
+### 里程碑：补齐 FAQ / 知识内容页右侧发布卡片的远端落地
+
+- 已修复 `https://www.frelink.top/questions/` 与 `https://www.frelink.top/articles/` 右侧发布卡片线上未显示的问题：
+  - 根因不是页面逻辑缺失，而是远端模板文件仍停留在旧版条件渲染写法
+  - 旧版依赖 `theme_config[*]['sidebar_show_items']` 中的 `write_nav` 开关，而线上当前未开启该项，因此卡片 HTML 不会输出
+  - 已将 [question/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/question/index.php) 与 [article/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/article/index.php) 的右侧卡片块直接落到正式远端模板
+- 本轮完成真实远端同步：
+  - 上传时间：2026-04-04 11:21:00 CST
+  - 目标服务器：`azureuser@20.191.157.253:/www/wwwroot/knoledge`
+  - 已将本地最新 `question/index.php` 与 `article/index.php` 直接覆盖到远端正式模板路径
+  - 已执行 `sudo -n php think clear`
+- 本轮完成真实远端验证：
+  - 已校验远端模板内容包含“补充 FAQ / 新建 FAQ / 新建综述 / 新建观察”
+  - 已抽查 `https://www.frelink.top/questions/?_t=...` 返回右侧卡片 HTML
+  - 已抽查 `https://www.frelink.top/articles/?_t=...` 返回右侧卡片 HTML
+
 ### 里程碑：搜索页统一视觉并收口 FAQ / 知识内容 / 主题页右侧入口
 
 - 已完成桌面端与移动端搜索页的统一整理：
