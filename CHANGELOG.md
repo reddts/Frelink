@@ -2,6 +2,18 @@
 
 ## 2026-04-04
 
+### 里程碑：修复移动端主题卡片关注按钮点击参数错误
+
+- 已修复移动端主题页中 `aw-mobile-topic-card-action ygz` 按钮点击后提示“参数不正确”的问题：
+  - [get_topic_list.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/ajax/get_topic_list.php) 已将关注按钮参数统一改为数组下标取值 `{$v['id']}`
+  - 按钮点击已显式 `return false`，避免默认跳转与点击串扰
+  - [index.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/topic/index.php) 已补事件隔离，阻止关注按钮点击冒泡到卡片其他链接
+- 本轮完成真实远端同步与验证：
+  - 已同步上述两个移动端主题页文件到远端
+  - 已执行 `php -l` 校验相关模板
+  - 已执行 `sudo -n php think clear`
+  - 已检查 `https://www.frelink.top/m/topic/index.html?_t=...` 返回 `200`
+
 ### 里程碑：收口观察发布页异常降级与主题页关注话题样式
 
 - 已对 [Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php) 的文章发布页辅助数据装配增加异常降级：

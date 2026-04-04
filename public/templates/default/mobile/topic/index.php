@@ -153,5 +153,9 @@
 </div>
 <script>
     var MeScroll = AWS_MOBILE.api.MeScroll('ajaxPage','#ajaxResult',"{:url('ajax/get_topic_list')}",{type:'{$type}',pid:'{$pid}'},perPage);
+    $(document).on('click', '.aw-mobile-topic-card-action', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
 </script>
 {/block}
