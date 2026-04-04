@@ -2,6 +2,22 @@
 
 ## 2026-04-04
 
+### 里程碑：修复 `/index.php/articles/` 兼容路径触发的文章列表 500
+
+- 已修复 `https://www.frelink.top/index.php/articles/` 访问时出现的 `SQLSTATE[42S22]: Unknown column 'index.php' in 'ORDER BY'`：
+  - 根因是文章列表的 `sort` 参数缺少白名单兜底，兼容路径中的异常路由段有机会被带入文章列表查询
+  - 当该异常值继续传入 [Article.php](/mnt/f/workwww/knowlege-github/app/model/Article.php) 的列表查询时，会落到 SQL `ORDER BY`，最终把 `index.php` 当成字段名
+- 已在两层补防御：
+  - [Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php) 的列表入口现对白名单之外的 `sort` 统一回退到 `new`
+  - [Article.php](/mnt/f/workwww/knowlege-github/app/model/Article.php) 的 `getArticleList()` 也增加了相同白名单校验，避免其他调用链再传入非法排序值
+- 本轮完成真实远端同步与验证：
+  - 已同步 [Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php) 到远端
+  - 已同步 [Article.php](/mnt/f/workwww/knowlege-github/app/model/Article.php) 到远端
+  - 已执行 `php -l /www/wwwroot/knoledge/app/frontend/Article.php`
+  - 已执行 `php -l /www/wwwroot/knoledge/app/model/Article.php`
+  - 已执行 `sudo -n php think clear`
+  - 已抽查 `https://www.frelink.top/index.php/articles/?_t=...` 返回 `200`
+
 ### 里程碑：继续收紧登录后导航尺寸并修复语言菜单溢出与子页压高问题
 
 - 已继续调整登录后顶部用户导航的尺寸与对齐：

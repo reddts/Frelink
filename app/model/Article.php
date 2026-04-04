@@ -882,6 +882,8 @@ class Article extends BaseModel
      */
     public static function getArticleList($uid=null,$sort = null, $topic_ids = null, $category_id = null,int $page=1, int $per_page=0,int $relation_uid=0,string $pjax='tabMain', string $article_type='all'): array
     {
+        $allowedSorts = ['new', 'hot', 'recommend', 'unresponsive'];
+        $sort = in_array($sort, $allowedSorts, true) ? $sort : 'new';
         $data_list = [];
         $key = md5(
             $sort . '-' .

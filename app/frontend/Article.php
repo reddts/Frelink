@@ -46,6 +46,10 @@ class Article extends Frontend
     public function index()
     {
         $sort = $this->request->param('sort','new','sqlFilter');
+        $allowedSorts = ['new', 'hot', 'recommend', 'unresponsive'];
+        if (!in_array($sort, $allowedSorts, true)) {
+            $sort = 'new';
+        }
         $category = $this->request->param('category_id',0,'intval');
         $articleType = trim((string)$this->request->param('type', 'all', 'sqlFilter'));
         $articleTypeOptions = frelink_public_article_type_options(true);
