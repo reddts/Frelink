@@ -2,6 +2,19 @@
 
 ## 2026-04-04
 
+### 里程碑：收紧首页综述与观察卡片条数以平衡三列高度
+
+- 已继续优化 [explore 首页](/mnt/f/workwww/knowlege-github/public/templates/default/html/index.php) 中“最新综述 / 最新观察 / 常见 FAQ”三列的高度平衡：
+  - [Index.php](/mnt/f/workwww/knowlege-github/app/frontend/Index.php) 中的 `homepage_research_cards` 已从 `3` 条收为 `2` 条
+  - [Index.php](/mnt/f/workwww/knowlege-github/app/frontend/Index.php) 中的 `homepage_fragment_cards` 已从 `3` 条收为 `2` 条
+  - 这样首页第一排三列会更接近 `2 / 2 / 2` 的信息量，不再出现“最新综述”明显高于“常见 FAQ”的视觉失衡
+- 本轮完成真实远端同步与验证：
+  - 已同步 [Index.php](/mnt/f/workwww/knowlege-github/app/frontend/Index.php) 到远端
+  - 已执行 `php -l /www/wwwroot/knoledge/app/frontend/Index.php`
+  - 已执行 `sudo -n php think clear`
+  - 已在本地代码中核对首页两组卡片数据源为 `2 / 2`
+  - 外部 `curl` 抽查 `https://www.frelink.top/explore/?_t=...` 时超时在代理连接阶段，未拿到最终响应头，因此这一项只完成了远端代码与缓存校验，未完成站外响应确认
+
 ### 里程碑：修复 `/index.php/articles/` 兼容路径触发的文章列表 500
 
 - 已修复 `https://www.frelink.top/index.php/articles/` 访问时出现的 `SQLSTATE[42S22]: Unknown column 'index.php' in 'ORDER BY'`：
