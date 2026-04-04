@@ -2,6 +2,12 @@
 
 ## 2026-04-04
 
+### 里程碑：修正主题卡片图标垂直对齐
+
+- 已继续微调 PC 端主题卡片的 `dt/dd` 垂直对齐：
+  - [topic/index.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/topic/index.css) 已将卡片 `dl` 对齐方式改为垂直居中
+  - 左侧话题图标不再贴近顶部，和右侧 `dd` 内容回到统一视觉中线
+
 ### 里程碑：将主题卡片订阅按钮收口为纯图标
 
 - 已继续收口 PC 端主题页卡片中的订阅按钮：

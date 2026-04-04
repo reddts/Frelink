@@ -200,12 +200,13 @@ body {
     grid-template-columns: 64px minmax(0, 1fr);
     gap: 12px;
     margin-bottom: 0;
-    align-items: start;
+    align-items: center;
 }
 
 .aw-topic-card dt {
     width: auto;
     height: auto;
+    align-self: center;
 }
 
 .aw-topic-card dt img {
