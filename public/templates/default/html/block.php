@@ -189,8 +189,10 @@
                             {/if}
                         </ul>
                     </div>
-                    <div class="nav-form position-relative" style="text-align:right;z-index: 2">
+                    {php}$isHomePage = !request()->plugin && $thisController=='index' && $thisAction=='index'; $showNavSearch = !$user_id || $isHomePage;{/php}
+                    <div class="nav-form position-relative {$showNavSearch ? '' : 'nav-form-user-compact'}" style="text-align:right;z-index: 2">
                         <div class="nav-search-actions d-flex align-items-center justify-content-end">
+                        {if $showNavSearch}
                         <form class="position-relative aw-form-search d-inline-block" action="{:url('search/index')}" method="get" id="awGlobalSearch">
                             <div class="searchbox">
                                 <input id="globalSearchInput" class="aw-search-input" autocomplete="off" placeholder="{:L('请输入您想搜索的内容')}" value="{:input('get.q')}"  name="q" type="text">
@@ -207,6 +209,7 @@
                                 </div>
                             </div>
                         </form>
+                        {/if}
                         {if !$user_id}
                         <div class="nav-auth-actions d-flex align-items-center justify-content-end">
                             <a {if $theme_config['common']['login_type']=='dialog'}href="javascript:;" onclick="AWS.User.login()" {else/}href="{:url('account/login')}"{/if} class="btn btn-sm gradientBtn px-3 logon-but d-inline-flex align-items-center justify-content-center">{:L('登录')}</a>
@@ -305,15 +308,15 @@
                                 </div>
                             </div>
                         </div>
-                        {if get_setting('enable_multilingual','N')=='Y'}
-                        <div class="dropdown d-inline-block position-relative nav-user-dropdown nav-lang-switch">
-                            <a href="javascript:;" class="nav-user-trigger nav-user-icon-trigger" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{:L('语言切换')}" aria-label="{:L('语言切换')}">
-                                <span class="d-none d-sm-inline-block ml-1"><i class="fa fa-language font-12"></i></span>
-                            </a>
-                            <div class="dropdown-menu aw-nav-dropdown-menu p-0 border-0 font-size-sm" aria-labelledby="page-header-user-dropdown">
-                                <div class="p-2 text-center">
-                                    <a class="dropdown-item align-items-center aw-ajax-get" data-url="{:url('ajax/change_lang',['lang'=>'zh-cn'])}" href="JavaScript:;">
-                                        <span>{:L('中文')}</span>
+                    {if get_setting('enable_multilingual','N')=='Y'}
+                    <div class="dropdown d-inline-block position-relative nav-user-dropdown nav-lang-switch">
+                        <a href="javascript:;" class="nav-user-trigger nav-user-icon-trigger" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{:L('语言切换')}" aria-label="{:L('语言切换')}">
+                            <span class="d-none d-sm-inline-block ml-1"><i class="fa fa-language font-12"></i></span>
+                        </a>
+                        <div class="dropdown-menu aw-nav-dropdown-menu aw-nav-dropdown-menu-compact dropdown-menu-right p-0 border-0 font-size-sm" aria-labelledby="page-header-user-dropdown">
+                            <div class="p-2 text-center">
+                                <a class="dropdown-item align-items-center aw-ajax-get" data-url="{:url('ajax/change_lang',['lang'=>'zh-cn'])}" href="JavaScript:;">
+                                    <span>{:L('中文')}</span>
                                     </a>
                                     <a class="dropdown-item align-items-center aw-ajax-get" data-url="{:url('ajax/change_lang',['lang'=>'en-us'])}" href="JavaScript:;">
                                         <span>{:L('英文')}</span>

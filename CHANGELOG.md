@@ -2,6 +2,29 @@
 
 ## 2026-04-04
 
+### 里程碑：继续收紧登录后导航尺寸并修复语言菜单溢出与子页压高问题
+
+- 已继续调整登录后顶部用户导航的尺寸与对齐：
+  - [app.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/app.css) 与 [app.min.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/app.min.css) 已将消息、通知、头像、语言切换按钮整体缩小一档
+  - 头像按钮中的头像、昵称字号、图标尺寸与按钮圆角均已收紧，避免顶部操作区视觉过重
+  - 下拉菜单的圆角、内边距、顶部/底部间距和阴影也已同步收紧，修正之前边框与内容块之间的视觉误差
+- 已修复语言切换菜单溢出右侧可视区的问题：
+  - [block.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/block.php) 与 [nav.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/global/nav.php) 中的语言菜单已改为 `dropdown-menu-right`
+  - 新增 `aw-nav-dropdown-menu-compact` 紧凑宽度，语言菜单不再过宽、也不会向右溢出
+- 已修复子页面用户导航被顶部搜索框压低的问题：
+  - 登录态下，非首页顶部导航不再显示用户导航上方的搜索框
+  - 首页仍保留既有首页搜索逻辑，其它页面切换为 `nav-form-user-compact` 紧凑模式，只保留用户操作区
+  - 这样可避免子页面头部高度被额外搜索框抬高，和首页导航视觉重新对齐
+- 本轮完成真实远端同步与验证：
+  - 已同步 [block.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/block.php) 到远端
+  - 已同步 [nav.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/global/nav.php) 到远端
+  - 已同步 [app.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/app.css) 到远端
+  - 已同步 [app.min.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/app.min.css) 到远端
+  - 已执行 `php -l /www/wwwroot/knoledge/public/templates/default/html/block.php`
+  - 已执行 `php -l /www/wwwroot/knoledge/public/templates/default/html/global/nav.php`
+  - 已执行 `sudo -n php think clear`
+  - 已在远端正式文件中核对 `showNavSearch / nav-form-user-compact / aw-nav-dropdown-menu-compact / nav-user-trigger` 已落地
+
 ### 里程碑：重做登录后导航栏用户操作区与下拉菜单风格
 
 - 已重做登录后顶部导航中的 `nav-user-actions d-flex align-items-center` 区块：
