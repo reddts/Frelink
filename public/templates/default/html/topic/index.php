@@ -75,7 +75,6 @@
             </div>
         </div>
         <div class="aw-right radius col-md-3 px-xs-0">
-            {:widget('sidebar/writeNav')}
             {:widget('sidebar/focusTopic',['uid'=>$user_id])}
             {:widget('sidebar/hotTopic',['uid'=>$user_id])}
         </div>
