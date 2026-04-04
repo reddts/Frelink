@@ -883,7 +883,16 @@ class Article extends BaseModel
     public static function getArticleList($uid=null,$sort = null, $topic_ids = null, $category_id = null,int $page=1, int $per_page=0,int $relation_uid=0,string $pjax='tabMain', string $article_type='all'): array
     {
         $data_list = [];
-        $key = md5($sort.'-'.$category_id.'-'.($topic_ids && is_array($topic_ids) ? implode(',',$topic_ids) :$topic_ids).'-'.$page.'-'.$per_page.'-'.$relation_uid.'-'.$article_type);
+        $key = md5(
+            $sort . '-' .
+            $category_id . '-' .
+            ($topic_ids && is_array($topic_ids) ? implode(',', $topic_ids) : $topic_ids) . '-' .
+            $page . '-' .
+            $per_page . '-' .
+            $relation_uid . '-' .
+            $article_type . '-' .
+            self::getHomepageCacheVersion()
+        );
         $cache_key = 'cache_list_article_data_'.$key;
 
         if($cache_list_time = get_setting('cache_list_time'))
