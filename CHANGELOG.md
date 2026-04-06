@@ -1,5 +1,28 @@
 # Frelink 项目更新日志
 
+## 2026-04-06
+
+### 里程碑：修复移动端搜索页多重 loading 叠加与空结果 loading 不销毁
+
+- 已修复移动端搜索页在连续下拉刷新时可能出现多个 loading 同时存在的问题：
+  - [index.php](/mnt/f/workwww/knowlege-github/public/templates/default/mobile/search/index.php) 现在在初始化前会销毁旧 `MeScroll` 实例并中止旧请求
+  - 新增 `awMobileSearchState` 统一管理 `mescroll`、请求句柄和请求序号，只处理最后一次有效响应
+  - 下拉刷新和上拉加载会主动取消未完成请求，避免回调交错导致 loading 无法及时回收
+- 已修复空结果场景下的接口返回稳定性：
+  - [Search.php](/mnt/f/workwww/knowlege-github/app/mobile/Search.php) 的 `ajax_search()` 现在在无命中时统一返回 `list=[]`、`total=0`
+  - 前端分页结束参数改为基于总条数换算总页数，避免 `endByPage` 误判
+- 本轮完成真实远端同步与验证：
+  - 上传时间：`2026-04-06 23:23:37 +0800`
+  - 目标服务器：`20.191.157.253:/www/wwwroot/knoledge`
+  - 已执行 `bash scripts/deploy.sh deploy`
+  - 已执行远端 `php -l app/mobile/Search.php`
+  - 已执行远端 `sudo php think clear`
+  - 已执行远端 API 文档重建：`php think api:doc --output docs/api-v1.md`、`php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+  - 已执行公开站点 smoke：`https://www.frelink.top/`、`https://www.frelink.top/questions/`、`https://www.frelink.top/articles/`
+  - 已实际检查移动搜索页：`https://www.frelink.top/search/?q=frelink&type=all`（页面已包含本次 `awMobileSearchState` 修复脚本）
+  - 已实际检查空结果页：`https://www.frelink.top/search/?q=__nohit_keyword_20260406&type=all`
+  - 已实际检查接口：`POST https://www.frelink.top/search/ajax_search?page=1`（`q=__nohit_keyword_20260406`），返回 `{"list":[],"total":0,...}`
+
 ## 2026-04-04
 
 ### 里程碑：补齐审核管理 adminapi 的检索、评分与删除能力并完成生产部署

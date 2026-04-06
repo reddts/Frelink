@@ -127,9 +127,16 @@ class Search extends Frontend
             $limit = $this->request->param('limit',15);
             $handle = new \app\logic\search\Search();
             $data = $handle->search($keywords,$type,$this->user_id,$order,$page,$limit);
+            if (!is_array($data)) {
+                $data = [
+                    'list' => [],
+                    'total' => 0
+                ];
+            }
             $this->recordSearchLog($keywords);
             $data['keywords']=$keywords;
             $data['list'] = $data['list']??[];
+            $data['total'] = intval($data['total'] ?? 0);
             $data['type']=$type;
             $data['html']=$this->fetch('',$data);
             $this->apiResult($data,1);
