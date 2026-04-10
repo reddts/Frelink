@@ -143,6 +143,31 @@ if [[ "\$RUN_FIX_RUNTIME" == "1" ]]; then
 fi
 
 if [[ "\$RUN_VERIFY_STEPS" == "1" ]]; then
+  run_step "php -v" php -v
+
+  if command -v composer >/dev/null 2>&1; then
+    run_step "composer --version" composer --version
+    run_step "composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader" composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+  else
+    echo "composer is required on remote host for migration verify" >&2
+    exit 1
+  fi
+
+  run_step "php think --version" php think --version
+  run_step "php think" php think
+  run_step "php think worker --help" php think worker --help
+  if php think list 2>/dev/null | grep -q "worker:server"; then
+    run_step "php think worker:server --help" php think worker:server --help
+  else
+    echo "[remote \$(date '+%F %T %Z')] skip: php think worker:server --help (not registered)"
+  fi
+  if php think list 2>/dev/null | grep -q "worker:gateway"; then
+    run_step "php think worker:gateway --help" php think worker:gateway --help
+  else
+    echo "[remote \$(date '+%F %T %Z')] skip: php think worker:gateway --help (not registered)"
+  fi
+  run_step "php gateway-worker class check" php -r "require 'vendor/autoload.php'; exit((class_exists('GatewayWorker\\\\Gateway') && class_exists('GatewayWorker\\\\Register') && class_exists('GatewayWorker\\\\BusinessWorker')) ? 0 : 1);"
+
   lint_failed=0
   for file in "\${PHP_LINT_FILES[@]}"; do
     [[ -z "\$file" ]] && continue
@@ -208,6 +233,7 @@ ensure_sync_prerequisites() {
 
 sync_full() {
   local started_at
+  local exclude_path="$ROOT_DIR/$EXCLUDE_FILE"
   started_at=$(timer_start)
   log "start: rsync sync"
   rsync -az "${RSYNC_DELETE_ARGS[@]}" \

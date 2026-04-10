@@ -162,7 +162,7 @@ SVG;
     public static function removeUser($uid, int $realMove=0): bool
     {
         $uid = is_array($uid) ? $uid : explode(',',$uid);
-        db()->startTrans();
+        \think\facade\Db::startTrans();
         try {
             if($realMove){
                 //真实删除用户
@@ -222,13 +222,13 @@ SVG;
                 //删除首页数据
                 db('post_relation')->whereIn('uid',$uid)->update(['status'=>0]);
             }
-            db()->commit();
+            \think\facade\Db::commit();
             return true;
         }
         catch (\Exception $e)
         {
             self::setError($e->getMessage());
-            db()->rollback();
+            \think\facade\Db::rollback();
             return false;
         }
     }
@@ -241,7 +241,7 @@ SVG;
     public static function recoverUsers($uid): bool
     {
         $uid = is_array($uid) ? $uid : explode(',',$uid);
-        db()->startTrans();
+        \think\facade\Db::startTrans();
         try {
             db('users')->whereIn('uid',$uid)->update(['status'=>1]);
             //问题
@@ -270,13 +270,13 @@ SVG;
 
             //删除首页数据
             db('post_relation')->whereIn('uid',$uid)->update(['status'=>1]);
-            db()->commit();
+            \think\facade\Db::commit();
             return true;
         }
         catch (\Exception $e)
         {
             self::setError($e->getMessage());
-            db()->rollback();
+            \think\facade\Db::rollback();
             return false;
         }
     }

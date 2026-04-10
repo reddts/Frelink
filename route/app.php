@@ -1,12 +1,13 @@
 <?php
 use think\facade\Route;
+use think\facade\Db;
 
 if(get_setting('url_rewrite_enable')=='Y' && ENTRANCE!='api')
 {
     $prefix = app()->db->getConfig('connections.mysql.prefix');
     $routeTableExists = cache('route_rule_table_exists');
     if ($routeTableExists === null) {
-        $routeTableExists = (bool) db()->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE table_name ='{$prefix}route_rule'")[0]['COUNT(*)'];
+        $routeTableExists = (bool) Db::query("SELECT COUNT(*) FROM information_schema.TABLES WHERE table_name ='{$prefix}route_rule'")[0]['COUNT(*)'];
         cache('route_rule_table_exists', $routeTableExists ? 1 : 0, 300);
     }
     if($routeTableExists)

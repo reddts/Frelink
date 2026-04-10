@@ -229,7 +229,7 @@ class Account extends Api
             return $value !== '' && $value !== null;
         });
 
-        db()->startTrans();
+        \think\facade\Db::startTrans();
         try {
             $uid = Users::createManagedUser($data['username'], $data['password'], $extend, 'api');
             if (!$uid) {
@@ -255,9 +255,9 @@ class Account extends Api
                 throw new \RuntimeException('绑定访问 token 失败');
             }
 
-            db()->commit();
+            \think\facade\Db::commit();
         } catch (\Throwable $e) {
-            db()->rollback();
+            \think\facade\Db::rollback();
             $this->apiError($e->getMessage());
         }
 

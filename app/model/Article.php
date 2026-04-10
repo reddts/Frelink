@@ -519,7 +519,7 @@ class Article extends BaseModel
             return false;
         }
 
-        db()->startTrans();
+        \think\facade\Db::startTrans();
         try {
             if($realMove)
             {
@@ -556,10 +556,10 @@ class Article extends BaseModel
                 }
             }
             // 提交事务
-            db()->commit();
+            \think\facade\Db::commit();
         } catch (\Exception $e) {
             // 回滚事务
-            db()->rollback();
+            \think\facade\Db::rollback();
             self::setError($e->getMessage());
             return false;
         }
@@ -586,7 +586,7 @@ class Article extends BaseModel
             return false;
         }
         db('browse_records')->whereIn('item_id',$ids)->where(['item_type'=>'article'])->update(['status'=>1]);
-        db()->startTrans();
+        \think\facade\Db::startTrans();
         try {
             //更新专栏文章数
             foreach ($article_infos as $article_info)
@@ -601,10 +601,10 @@ class Article extends BaseModel
                 PostRelation::updatePostRelation($article_info['id'],'article',['status'=>1]);
             }
             // 提交事务
-            db()->commit();
+            \think\facade\Db::commit();
         } catch (\Exception $e) {
             // 回滚事务
-            db()->rollback();
+            \think\facade\Db::rollback();
             self::setError($e->getMessage());
             return false;
         }

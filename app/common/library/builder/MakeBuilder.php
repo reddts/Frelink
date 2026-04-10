@@ -44,7 +44,7 @@ class MakeBuilder
             $table = " AND TABLE_NAME = '{$prefix}{$table}'";
         }
         $sql = "SELECT TABLE_NAME as `table`,TABLE_COMMENT as `comment`,TABLE_ROWS as `rows`,ENGINE as `engine` FROM information_schema.TABLES WHERE TABLE_SCHEMA = :table " . $table;
-        $list = db()->query($sql, ['table' => app()->db->getConfig('connections.mysql.database')]);
+        $list = \think\facade\Db::query($sql, ['table' => app()->db->getConfig('connections.mysql.database')]);
         foreach ($list as $k => $v) {
             $list[$k] = [
                 'table' => $prefix && 0 === strpos($v['table'], $prefix) ? substr($v['table'], strlen($prefix)) : $v['table'],
@@ -70,7 +70,7 @@ class MakeBuilder
      */
     public function fieldsInfo(string $table,$field = null): array
     {
-        $fields = db()->query("SHOW full columns FROM " . self::getPrefix() . $table);
+        $fields = \think\facade\Db::query("SHOW full columns FROM " . self::getPrefix() . $table);
         $lists = [];
         is_string($field) && $field = (array)$field;
         $weight = 10;
@@ -894,7 +894,7 @@ class MakeBuilder
              t.table_schema='$database'
          AND
              t.table_name='$table'";
-        return db()->query($sql)[0]["column_name"];    // 数据库查询语句根据情况而定
+        return \think\facade\Db::query($sql)[0]["column_name"];    // 数据库查询语句根据情况而定
 
     }
 }

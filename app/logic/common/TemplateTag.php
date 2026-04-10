@@ -353,7 +353,7 @@ class TemplateTag
         if(!$table && !$sql) return ['list'=>[]];
         if($sql)
         {
-            $data = db()->query($sql);
+            $data = \think\facade\Db::query($sql);
             $data_list['list'] = $data;
             return $data_list;
         }

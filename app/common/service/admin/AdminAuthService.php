@@ -204,7 +204,7 @@ class AdminAuthService
         $table = $prefix . 'admin_auth';
         $database = app()->db->getConfig('connections.mysql.database');
 
-        $result = db()->query(
+        $result = \think\facade\Db::query(
             "SELECT COUNT(*) AS count FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = :database AND TABLE_NAME = :table AND COLUMN_NAME = 'menu'",
             ['database' => $database, 'table' => $table]
         );

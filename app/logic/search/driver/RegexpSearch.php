@@ -73,8 +73,8 @@ class RegexpSearch
                         ->select().')';
             }
             $union_sql =implode( ' UNION ',$sql);
-            $searchResult = db()->query($union_sql.' LIMIT '.intval($limit).','.intval($per_page));
-            $totalCount = db()->query('SELECT COUNT(*) AS total FROM ('.$union_sql.') AS search_union');
+            $searchResult = \think\facade\Db::query($union_sql.' LIMIT '.intval($limit).','.intval($per_page));
+            $totalCount = \think\facade\Db::query('SELECT COUNT(*) AS total FROM ('.$union_sql.') AS search_union');
         }else{
             $search_type = db('search_engine')->where(['name'=>trim($type),'status'=>1,'search_engine'=>get_setting('search_handle','regexp')])->field('name,search_field,pk,union_sql')->find();
             $search_field = explode('|',$search_type['search_field']);
@@ -103,8 +103,8 @@ class RegexpSearch
                     ->order('create_time','DESC')
                     ->fetchSql()
                     ->select();
-            $searchResult = db()->query($sql.' LIMIT '.intval($limit).','.intval($per_page));
-            $totalCount = db()->query('SELECT COUNT(*) AS total FROM ('.$sql.') AS search_union');
+            $searchResult = \think\facade\Db::query($sql.' LIMIT '.intval($limit).','.intval($per_page));
+            $totalCount = \think\facade\Db::query('SELECT COUNT(*) AS total FROM ('.$sql.') AS search_union');
         }
         $totalCount = isset($totalCount[0]['total']) ? (int) $totalCount[0]['total'] : 0;
         return $this->parseMixResult($keywords,$searchResult,$uid,$totalCount);

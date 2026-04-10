@@ -184,7 +184,7 @@ class Agent extends Api
         $tokenValue = $this->buildUniqueApiToken();
         $expireTime = 0;
 
-        db()->startTrans();
+        \think\facade\Db::startTrans();
         try {
             $uid = Users::createManagedUser($username, $password, [
                 'nick_name' => $displayName ?: $username,
@@ -224,9 +224,9 @@ class Agent extends Api
                 throw new \RuntimeException('创建 agent token 失败');
             }
 
-            db()->commit();
+            \think\facade\Db::commit();
         } catch (\Throwable $e) {
-            db()->rollback();
+            \think\facade\Db::rollback();
             $this->apiError($e->getMessage());
         }
 

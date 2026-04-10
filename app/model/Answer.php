@@ -65,7 +65,7 @@ class Answer extends BaseModel
      */
 	public static function saveAnswer($data,string $access_key='')
     {
-        db()->startTrans();
+        \think\facade\Db::startTrans();
         $postData = [
             'question_id'=>intval($data['question_id']),
             'is_anonymous'=>$data['is_anonymous']??0,
@@ -157,16 +157,16 @@ class Answer extends BaseModel
                 $data['access_key']=$access_key;
                 hook('answer_model_save',['id'=>$answer_id,'data'=>$data]);
                 // 提交事务
-                db()->commit();
+                \think\facade\Db::commit();
                 return ['answer_count'=>$answer_count,'info'=>$info];
             }else{
-                db()->rollback();
+                \think\facade\Db::rollback();
                 self::setError('保存失败');
                 return false;
             }
         } catch (\Exception $e) {
             // 回滚事务
-            db()->rollback();
+            \think\facade\Db::rollback();
             self::setError($e->getMessage());
             return false;
         }
@@ -611,15 +611,15 @@ class Answer extends BaseModel
             return false;
         }
 
-        db()->startTrans();
+        \think\facade\Db::startTrans();
         try {
             $force_fold = $answer_info['force_fold'] ?0:1;
             db('answer')->where(['id'=>$answer_info['id']])->update(['force_fold'=>$force_fold]);
             // 提交事务
-            db()->commit();
+            \think\facade\Db::commit();
         } catch (\Exception $e) {
             // 回滚事务
-            db()->rollback();
+            \think\facade\Db::rollback();
             self::setError($e->getMessage());
             return false;
         }

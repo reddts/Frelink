@@ -95,7 +95,7 @@ class AdminMenuService
             $payload['is_home'] = 0;
         }
 
-        db()->startTrans();
+        \think\facade\Db::startTrans();
         try {
             if ($payload['is_home'] && $payload['status'] && $payload['type'] == 1) {
                 db('menu_rule')->where(['is_home' => 1])->update(['is_home' => 0]);
@@ -109,10 +109,10 @@ class AdminMenuService
                 $id = intval($menu->id ?? 0);
             }
 
-            db()->commit();
+            \think\facade\Db::commit();
             return ['code' => 1, 'msg' => '保存成功', 'data' => ['id' => $id]];
         } catch (\Throwable $e) {
-            db()->rollback();
+            \think\facade\Db::rollback();
             return ['code' => 0, 'msg' => $e->getMessage() ?: '保存失败'];
         }
     }

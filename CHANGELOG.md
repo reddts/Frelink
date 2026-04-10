@@ -1,5 +1,82 @@
 # Frelink 项目更新日志
 
+## 2026-04-10
+
+### 里程碑：修复 TP8 模板变量不解析（恢复 Think 模板引擎）
+
+- 已定位并确认根因：
+  - 前台模板大量使用 Think 标签语法（`{extend}`、`{if}`、`{$var}`），但运行配置曾切到 `view.type=php`，导致标签与变量不解析。
+  - “超大 diff / 行尾格式变化”会放大改动噪音，但不是本次模板语法整体失效的主因。
+- 已完成依赖与配置修复：
+  - [composer.json](/mnt/f/workwww/knowlege-github/composer.json) 已恢复 `topthink/think-view:^2.0`、`topthink/think-template:^3.0`
+  - [composer.lock](/mnt/f/workwww/knowlege-github/composer.lock) 已重锁并落地对应版本（`think-view v2.0.5`、`think-template v3.0.2`）
+  - [view.php](/mnt/f/workwww/knowlege-github/config/view.php) 视图驱动已从 `php` 切回 `Think`
+- 已完成运行与回归验证：
+  - 已执行 `bash scripts/deploy.sh verify`，链路通过
+  - 页面抽检 `https://www.frelink.top/`、`/questions/`、`/articles/`、`/m/`，未再出现未解析 Think 标签裸出
+  - API 抽检 `GET /api.php/Common/config`、`GET /api.php/Common/get_access_key` 均返回 `code=1`
+
+### 里程碑：启动 TP8 + Workerman5 第一阶段迁移基线
+
+- 已按迁移方案更新依赖目标线：
+  - [composer.json](/mnt/f/workwww/knowlege-github/composer.json) 已切换到 `php>=8.2`、`topthink/framework:^8.0`、`topthink/think-worker:^5.0`、`topthink/think-filesystem:^3.0`、`league/flysystem:^3.0`
+  - 已显式加入 `workerman/gateway-worker:^4.0`，将 Gateway 纳入本轮必做验收项
+- 已升级部署验证脚本以覆盖迁移必检命令：
+  - [deploy.sh](/mnt/f/workwww/knowlege-github/scripts/deploy.sh) 的远端 `verify/deploy` 现在会先执行：
+    - `php -v`
+    - `composer --version`
+    - `composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader`
+    - `php think --version`
+    - `php think`
+    - `php think worker --help`
+    - `php think worker:server --help`（仅在命令存在时执行）
+    - `php think worker:gateway --help`（仅在命令存在时执行）
+    - `GatewayWorker\\Gateway / Register / BusinessWorker` 类加载校验
+  - 保留原有 `php -l`、`php think clear`、API 文档重建与 smoke 检查
+- 已同步迁移文档执行口径：
+  - [thinkphp8-workerman5-migration-plan.md](/mnt/f/workwww/knowlege-github/docs/thinkphp8-workerman5-migration-plan.md) 已明确 Gateway 本轮必做、服务器安装依赖为默认策略，并补充第一阶段执行口径
+- 已在服务器完成第一轮依赖升级并回传新锁文件：
+  - 远端已执行 `composer update ... --with-all-dependencies`
+  - `topthink/framework` 已升级到 `v8.1.4`
+  - `topthink/think-worker` 已升级到 `v5.0.1`
+  - `workerman/workerman` 已升级到 `v5.1.10`
+  - `topthink/think-filesystem` 已升级到 `v3.0.0`
+  - `league/flysystem` 已升级到 `v3.33.0`
+  - 同步解决兼容冲突：`topthink/think-view` / `topthink/think-template` 已移除，`overtrue/wechat` 升级到 `6.19.1`，`mpdf/mpdf` 升级到 `8.3.1`
+- 运行时行为变化记录：
+  - `think-worker 5` 当前仅注册 `worker` 命令，`worker:server` / `worker:gateway` 在本环境未注册
+  - Gateway 能力改由 `GatewayWorker` 核心类可加载校验兜底验证
+- 已补上线后首轮兼容故障修复（均已在生产验证恢复）：
+  - [route/app.php](/mnt/f/workwww/knowlege-github/route/app.php) 把无参 `db()->query()` 改为 `Db::query()`，修复 TP8 下首页 500
+  - [config/view.php](/mnt/f/workwww/knowlege-github/config/view.php) 视图驱动从 `Think` 切到 `php`，修复 `Driver [Think] not supported`
+  - 批量修正应用代码中的无参 `db()->*` 调用为 `\think\facade\Db::*`，避免 TP8 下同类致命错误
+
+### 里程碑：完成 M3/M4 写链路生产 smoke 并清理测试数据
+
+- 已使用可用 `ApiToken`（脱敏：`c73e...b8f7`）执行 API 验收：
+  - `GET /api.php/Common/config` -> `code=1`
+  - `GET /api.php/Common/get_access_key` -> `code=1`
+- 上传链路验收（`POST /api.php/Common/upload`）：
+  - 图片样本上传成功，返回 `code=1`
+  - 文件样本上传成功，返回 `code=1`
+  - 错误样本（缺少文件）返回 `code=0` 且为 JSON（非 HTML 错误页）
+- 上传测试数据清理：
+  - 对两条上传记录执行 `POST /api.php/Common/remove_attach`
+  - 两次均返回 `code=1, msg=删除成功`
+- 发布链路验收（`POST /api.php/Article/publish`）：
+  - 最小样本返回 `code=1`，进入审核态 `pending_review`
+  - 生成 `approval_id=34`
+- 发布测试数据清理：
+  - 在服务器数据库中定向删除 `approval_id=34` 测试审批记录
+  - 回查剩余数量 `remain=0`
+- 已再次执行 `bash scripts/deploy.sh verify`：
+  - 验证通过，包含 `php/composer/think/worker` 检查、Gateway 类校验、`php think clear`、API 文档重建与站点 smoke。
+- 当前服务器 composer 版本：
+  - `Composer 2.9.5`（已升级）
+- 为后续复验新增人工脚本（不接入 deploy 自动流程）：
+  - [tp8_write_smoke.sh](/mnt/f/workwww/knowlege-github/scripts/tp8_write_smoke.sh)
+  - 覆盖 `get_access_key -> upload(img/file) -> publish -> cleanup` 的一次性写链路验收
+
 ## 2026-04-06
 
 ### 里程碑：修复移动端搜索页多重 loading 叠加与空结果 loading 不销毁

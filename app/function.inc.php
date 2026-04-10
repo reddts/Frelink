@@ -1792,7 +1792,7 @@ if(!function_exists('executeSql')) {
                 // 忽略数据库中已经存在的数据
                 $tempLine = str_ireplace('INSERT INTO ', 'INSERT IGNORE INTO ', $tempLine);
                 try {
-                    db()->execute($tempLine);
+                    \think\facade\Db::execute($tempLine);
                 } catch (Exception $e) {
                     return false;
                 }
@@ -1843,7 +1843,7 @@ if(!function_exists('getLoginUid'))
  */
 function fetchSql(string $sql_query)
 {
-    db()->startTrans();
+    \think\facade\Db::startTrans();
     $prefix = config('database.connections.mysql.prefix');
     try {
         foreach ($sql_query as $line) {
@@ -1856,14 +1856,14 @@ function fetchSql(string $sql_query)
                 $tempLine = str_ireplace('aws_', $prefix, $tempLine);
                 // 忽略数据库中已经存在的数据
                 $tempLine = str_ireplace('INSERT INTO ', 'INSERT IGNORE INTO ', $tempLine);
-                $sql_res = db()->execute($tempLine);
+                $sql_res = \think\facade\Db::execute($tempLine);
                 $tempLine = '';
             }
         }
-        db()->commit();
+        \think\facade\Db::commit();
     }catch (\Exception $e)
     {
-        db()->rollback();
+        \think\facade\Db::rollback();
         return  [
             'code'=>0,
             'msg'=>$e->getMessage(),
@@ -1881,7 +1881,7 @@ function checkTableExist($table)
 {
     $prefix = app()->db->getConfig('connections.mysql.prefix');
     $table = strstr($table,$prefix) ? $table : $prefix.$table;
-    return db()->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE table_name ='{$table}'")[0]['COUNT(*)'];
+    return \think\facade\Db::query("SELECT COUNT(*) FROM information_schema.TABLES WHERE table_name ='{$table}'")[0]['COUNT(*)'];
 }
 
 /**

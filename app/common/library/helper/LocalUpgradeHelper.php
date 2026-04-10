@@ -62,7 +62,7 @@ class LocalUpgradeHelper
         }
         $sqlFile = $dir.'update.sql';
         $prefix  =  config('database.connections.mysql.prefix');
-        db()->startTrans();
+        \think\facade\Db::startTrans();
         try {
             if (is_file($sqlFile)) {
                 $lines = file($sqlFile);
@@ -77,15 +77,15 @@ class LocalUpgradeHelper
                         $tempLine = str_ireplace('aws_', $prefix, $tempLine);
                         // 忽略数据库中已经存在的数据
                         $tempLine = str_ireplace('INSERT INTO ', 'INSERT IGNORE INTO ', $tempLine);
-                        db()->execute($tempLine);
+                        \think\facade\Db::execute($tempLine);
                         $tempLine = '';
                     }
                 }
             }
-            db()->commit();
+            \think\facade\Db::commit();
         }catch (\Exception $e)
         {
-            db()->rollback();
+            \think\facade\Db::rollback();
             return  [
                 'code'=>0,
                 'msg'=>$e->getMessage(),

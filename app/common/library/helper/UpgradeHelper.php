@@ -217,7 +217,7 @@ class UpgradeHelper
         }
         $sqlFile = $dir.'update.sql';
         $prefix  =  config('database.connections.mysql.prefix');
-        db()->startTrans();
+        \think\facade\Db::startTrans();
         try {
             if (is_file($sqlFile)) {
                 $lines = file($sqlFile);
@@ -232,7 +232,7 @@ class UpgradeHelper
                         $tempLine = str_ireplace('aws_', $prefix, $tempLine);
                         // 忽略数据库中已经存在的数据
                         $tempLine = str_ireplace('INSERT INTO ', 'INSERT IGNORE INTO ', $tempLine);
-                        $sql_res = db()->execute($tempLine);
+                        $sql_res = \think\facade\Db::execute($tempLine);
                         /*if (empty($sql_res)) {
                             return  [
                                 'code'=>0,
@@ -244,10 +244,10 @@ class UpgradeHelper
                     }
                 }
             }
-            db()->commit();
+            \think\facade\Db::commit();
         }catch (\Exception $e)
         {
-            db()->rollback();
+            \think\facade\Db::rollback();
             return  [
                 'code'=>0,
                 'msg'=>$e->getMessage(),

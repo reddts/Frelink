@@ -298,7 +298,7 @@ class Render extends Widget
 
         if($sql)
         {
-            $data = db()->query($sql);
+            $data = \think\facade\Db::query($sql);
             $this->assign($data);
             return $this->fetch($theme);
         }

@@ -171,6 +171,6 @@ class Common extends BaseModel
     public static function getHotSearchList($page = 1, $per_page = 10)
     {
         $sql = 'select keyword,count(*) from '.get_table('search_log').' group by keyword order by count(*) DESC limit '.$page.','.$per_page;
-        return db()->query($sql);
+        return \think\facade\Db::query($sql);
     }
 }
