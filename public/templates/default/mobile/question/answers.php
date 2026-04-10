@@ -38,14 +38,6 @@
         <div class="aw-answer-content overflow-hidden">
             {:html_entity_decode($v.content)}
         </div>
-        {if $v.content}
-        <div class="aw-answer-show aw-alpha-hidden" style="display: none">
-            <span style="cursor: pointer;"><i class="icon-chevrons-down"></i> {:L('阅读全文')}</span>
-        </div>
-        <div class="aw-answer-hide aw-alpha-hidden mt-3" style="display: none;background:none;position: inherit;height: auto">
-            <span style="position: unset;float: left;cursor: pointer"><i class="icon-chevrons-up"></i> {:L('收起全文')}</span>
-        </div>
-        {/if}
     </div>
     <div class="answer-btn-actions mt-3 pt-3 border-top">
         <label class="mr-3">

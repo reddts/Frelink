@@ -2,6 +2,7 @@
 /.vscode
 /.codex
 /skills
+/.venv-check
 
 *.log
 *.tar.gz

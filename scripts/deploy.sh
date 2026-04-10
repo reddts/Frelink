@@ -41,6 +41,7 @@ values = {
     'PROJECT_PATH': target['project_path'].rstrip('/'),
     'SITE_URL': target.get('url', ''),
     'SYNC_MODE': sync.get('mode', 'rsync'),
+    'SYNC_STRATEGY': sync.get('strategy', 'full'),
     'SYNC_DELETE': '1' if sync.get('delete', False) else '0',
     'EXCLUDE_FILE': sync.get('exclude_file', '.deployignore'),
     'PHP_LINT_FILES': '\n'.join(verify.get('php_lint_files', [])),
@@ -180,12 +181,12 @@ identity_file: $SSH_KEY
 project_path: $PROJECT_PATH
 site_url: $SITE_URL
 sync_mode: $SYNC_MODE
+sync_strategy: $SYNC_STRATEGY
 exclude_file: $EXCLUDE_FILE
 EOF
 }
 
-sync_code() {
-  local started_at
+ensure_sync_prerequisites() {
   if [[ "$SYNC_MODE" != "rsync" ]]; then
     echo "Unsupported sync mode: $SYNC_MODE" >&2
     exit 1
@@ -202,9 +203,13 @@ sync_code() {
     exit 1
   fi
 
+  mkdir -p "$ROOT_DIR/runtime"
+}
+
+sync_full() {
+  local started_at
   started_at=$(timer_start)
   log "start: rsync sync"
-  mkdir -p "$ROOT_DIR/runtime"
   rsync -az "${RSYNC_DELETE_ARGS[@]}" \
     --inplace \
     --no-perms \
@@ -215,6 +220,93 @@ sync_code() {
     -e "ssh -i '$SSH_KEY' -p '$SSH_PORT' -o StrictHostKeyChecking=accept-new" \
     "$ROOT_DIR/" "$SSH_USER@$SSH_HOST:$PROJECT_PATH/"
   timer_finish "rsync sync" "$started_at"
+}
+
+collect_changed_files() {
+  local path
+  (
+    cd "$ROOT_DIR"
+    while IFS= read -r path; do
+      [[ -z "$path" ]] && continue
+      if [[ -e "$path" || -L "$path" ]]; then
+        printf '%s\n' "$path"
+      fi
+    done < <(
+      {
+        git diff --name-only --relative
+        git diff --name-only --relative --cached
+        git ls-files --others --exclude-standard
+      } | awk 'NF' | sort -u
+    )
+  )
+}
+
+collect_deleted_files() {
+  (
+    cd "$ROOT_DIR"
+    {
+      git diff --name-only --relative --diff-filter=D
+      git diff --name-only --relative --cached --diff-filter=D
+    } | awk 'NF' | sort -u
+  )
+}
+
+sync_incremental() {
+  local started_at changed_file deleted_file changed_count deleted_count remote_script
+  started_at=$(timer_start)
+  changed_file="$(mktemp)"
+  deleted_file="$(mktemp)"
+
+  collect_changed_files >"$changed_file"
+  collect_deleted_files >"$deleted_file"
+
+  changed_count=$(wc -l <"$changed_file" | tr -d ' ')
+  deleted_count=$(wc -l <"$deleted_file" | tr -d ' ')
+  log "start: incremental sync (changed=${changed_count}, deleted=${deleted_count})"
+
+  if [[ "$changed_count" -gt 0 ]]; then
+    rsync -az \
+      --inplace \
+      --no-perms \
+      --no-owner \
+      --no-group \
+      --omit-dir-times \
+      --exclude-from="$ROOT_DIR/$EXCLUDE_FILE" \
+      --files-from="$changed_file" \
+      -e "ssh -i '$SSH_KEY' -p '$SSH_PORT' -o StrictHostKeyChecking=accept-new" \
+      "$ROOT_DIR/" "$SSH_USER@$SSH_HOST:$PROJECT_PATH/"
+  fi
+
+  if [[ "$SYNC_DELETE" == "1" && "$deleted_count" -gt 0 ]]; then
+    remote_script="$(mktemp)"
+    {
+      echo "set -euo pipefail"
+      printf "cd %q\n" "$PROJECT_PATH"
+      while IFS= read -r path; do
+        [[ -z "$path" ]] && continue
+        printf "rm -rf -- %q\n" "$path"
+      done <"$deleted_file"
+    } >"$remote_script"
+    "${SSH_BASE[@]}" 'bash -s' <"$remote_script"
+    rm -f "$remote_script"
+  fi
+
+  rm -f "$changed_file" "$deleted_file"
+  timer_finish "incremental sync" "$started_at"
+}
+
+sync_code() {
+  ensure_sync_prerequisites
+
+  if [[ "$SYNC_STRATEGY" == "changed" ]]; then
+    if command -v git >/dev/null 2>&1 && git -C "$ROOT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      sync_incremental
+      return
+    fi
+    log "fallback to full sync: git repository not available"
+  fi
+
+  sync_full
 }
 
 verify_remote() {

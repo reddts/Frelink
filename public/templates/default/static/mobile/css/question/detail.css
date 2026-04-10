@@ -44,7 +44,6 @@
     padding: 58px 12px 10px;
     z-index: 2;
     overflow: hidden;
-    pointer-events: none;
 }
 
 .aw-question-show::before {

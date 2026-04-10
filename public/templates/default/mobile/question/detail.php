@@ -155,14 +155,6 @@
 
             <div class="aw-content position-relative" id="question-content">
                 <div id="show-all" >{$question_info.detail|raw}</div>
-                {if $question_info.detail}
-                <div class="aw-question-show aw-alpha-hidden" style="display: none">
-                    <span style="cursor: pointer;" class="py-2"><i class="icon-chevrons-down"></i> {:L('阅读全文')}</span>
-                </div>
-                <div class="aw-question-hide aw-alpha-hidden" style="display: none;background:none;position: inherit;height: auto">
-                    <span style="position: unset;float: left;cursor: pointer" class="py-2"><i class="icon-chevrons-up"></i> {:L('收起全文')}</span>
-                </div>
-                {/if}
             </div>
 
             {:hook('pageDetailBottom',['info'=>$question_info])}
@@ -243,65 +235,13 @@
 <script>
     let questionId = parseInt("{$question_info.id}");
     var answerId = parseInt("{$answer_id ? $answer_id : 0}");
-    var showAll = $('#show-all');
-    var questionContent = $('#question-content');
-    var previewLines = 6;
     var url = "{:url('question/answers')}";
     var sort = 'new';
     var type = 'answer';
     var param = {sort:sort,question_id:questionId};
 
-    function getPreviewHeight(element, lines)
-    {
-        if (!element || !element.length) {
-            return 0;
-        }
-
-        var node = element[0];
-        var style = window.getComputedStyle(node);
-        var lineHeight = parseFloat(style.lineHeight);
-
-        if (!lineHeight || isNaN(lineHeight)) {
-            var fontSize = parseFloat(style.fontSize) || 16;
-            lineHeight = fontSize * 1.82;
-        }
-
-        return Math.round(lineHeight * lines);
-    }
-
-    function collapseQuestionDetail()
-    {
-        var collapsedHeight = getPreviewHeight(showAll, previewLines);
-        $('.aw-question-hide').hide();
-        showAll.show().css('height', collapsedHeight + 'px');
-        questionContent.addClass('aw-question-collapsed');
-        $('.aw-question-show').show();
-    }
-
-    function expandQuestionDetail()
-    {
-        $('.aw-question-show').hide();
-        showAll.show().css('height', 'auto');
-        questionContent.removeClass('aw-question-collapsed');
-        $('.aw-question-hide').show();
-    }
-
     $(document).ready(function ()
     {
-        var collapsedHeight = getPreviewHeight(showAll, previewLines);
-
-        if(showAll[0] && showAll[0].scrollHeight > collapsedHeight)
-        {
-            collapseQuestionDetail();
-        }
-
-        $(document).on('click', '.aw-question-show', function (e) {
-            expandQuestionDetail();
-        });
-
-        $(document).on('click', '.aw-question-hide', function (e) {
-            collapseQuestionDetail();
-        });
     });
 
     function changeOrder(obj){
@@ -400,26 +340,6 @@
                             window.initMobileContentImages($('#ajaxResult'));
                         }
 
-                        if(type=='answer')
-                        {
-                            $('.aw-answer-item .aw-answer-content').each(function(){
-                                if($(this).height() >= 200)
-                                {
-                                    $(this).css('height','200px');
-                                    $(this).parents('.aw-answer-item').find('.aw-answer-show').show();
-                                }
-                            });
-                            $(document).on('click', '.aw-answer-show', function (e) {
-                                $(this).hide();
-                                $(this).parents('.aw-answer-item').find('.aw-answer-content').show().css('height','auto');
-                                $(this).parents('.aw-answer-item').find('.aw-answer-hide').show();
-                            });
-                            $(document).on('click', '.aw-answer-hide', function (e) {
-                                $(this).hide();
-                                $(this).parents('.aw-answer-item').find('.aw-answer-content').show().css('height','200px');
-                                $(this).parents('.aw-answer-item').find('.aw-answer-show').show();
-                            });
-                        }
                     },
                     error: function(e) {
                         //联网失败的回调,隐藏下拉刷新和上拉加载的状态

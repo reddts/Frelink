@@ -13,6 +13,7 @@
   },
   "sync": {
     "mode": "rsync",
+    "strategy": "changed",
     "delete": false,
     "exclude_file": ".deployignore"
   },
