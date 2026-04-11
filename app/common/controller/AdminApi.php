@@ -105,6 +105,10 @@ abstract class AdminApi extends Base
             'contentapproval/delete' => 'content/Approval/delete',
             'contentapproval/forbid' => 'content/Approval/forbidden',
             'contentapproval/forbiddenip' => 'content/Approval/forbidden_ip',
+            'contenttopic/index' => 'content/Topic/index',
+            'contenttopic/detail' => 'content/Topic/edit',
+            'contenttopic/save' => 'content/Topic/edit',
+            'contenttopic/delete' => 'content/Topic/delete',
             'systemauth/index' => 'admin/Auth/index',
             'systemauth/detail' => 'admin/Auth/edit',
             'systemauth/meta' => 'admin/Auth/add',
@@ -144,6 +148,13 @@ abstract class AdminApi extends Base
             'systemuser/remove' => 'member/Users/manager',
             'systemuser/integrallogs' => 'member/Users/integral',
             'systemuser/integralaward' => 'member/Users/integral',
+            'systemverify/index' => 'member/Verify/index',
+            'systemverify/detail' => 'member/Verify/preview',
+            'systemverify/approve' => 'member/Verify/manager',
+            'systemverify/decline' => 'member/Verify/manager',
+            'systemforbiddenip/index' => 'member/Forbidden/ips',
+            'systemforbiddenip/add' => 'member/Forbidden/add_ip',
+            'systemforbiddenip/remove' => 'member/Forbidden/un_forbidden_ip',
         ];
 
         $key = $controller . '/' . $action;
@@ -297,7 +308,10 @@ abstract class AdminApi extends Base
             'content/question/index' => '/content/questions',
             'content/answer/index' => '/content/answers',
             'content/approval/index' => '/content/approvals',
+            'content/topic/index' => '/content/topics',
             'member/users/index' => '/system/users',
+            'member/verify/index' => '/system/verifies',
+            'member/forbidden/ips' => '/system/forbidden-ips',
         ];
 
         $normalized = strtolower($name);
@@ -324,7 +338,10 @@ abstract class AdminApi extends Base
             'content/question/index',
             'content/answer/index',
             'content/approval/index',
+            'content/topic/index',
             'member/users/index',
+            'member/verify/index',
+            'member/forbidden/ips',
         ], true)) {
             return 'vben-ready';
         }

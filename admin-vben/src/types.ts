@@ -345,6 +345,67 @@ export interface SystemUserIntegralLogPayload {
   page_html: string;
 }
 
+export interface SystemVerifyItem {
+  id: number;
+  uid: number;
+  user_name: string;
+  nick_name: string;
+  url_token: string;
+  type: string;
+  type_label: string;
+  status: number;
+  reason: string;
+  summary: string;
+  create_time_text: string;
+}
+
+export interface SystemVerifyOverviewPayload {
+  status: number;
+  type: string;
+  status_tabs: Array<{
+    label: string;
+    value: number;
+  }>;
+  type_tabs: Array<{
+    label: string;
+    value: string;
+  }>;
+  list: SystemVerifyItem[];
+}
+
+export interface SystemVerifyDetail {
+  id: number;
+  uid: number;
+  user_name: string;
+  nick_name: string;
+  url_token: string;
+  type: string;
+  type_label: string;
+  status: number;
+  reason: string;
+  create_time_text: string;
+  preview_fields: Array<{
+    label: string;
+    value: string;
+  }>;
+  payload: Record<string, unknown>;
+  payload_json: string;
+}
+
+export interface SystemForbiddenIpItem {
+  id: number;
+  uid: number;
+  ip: string;
+  address: string;
+  time: number;
+  time_text: string;
+}
+
+export interface SystemForbiddenIpOverviewPayload {
+  ip: string;
+  list: SystemForbiddenIpItem[];
+}
+
 export interface DetailFieldItem {
   label: string;
   value: string;
@@ -424,6 +485,41 @@ export interface ContentQuestionOverviewPayload {
   list: ContentQuestionItem[];
 }
 
+export interface ContentTopicItem {
+  id: number;
+  pid: number;
+  title: string;
+  parent_title: string;
+  pic: string;
+  url_token: string;
+  preview_url: string;
+  discuss: number;
+  discuss_week: number;
+  discuss_month: number;
+  focus: number;
+  is_parent: number;
+  lock: number;
+  top: number;
+  status: number;
+  flags: string[];
+  create_time_text: string;
+  update_time_text: string;
+}
+
+export interface ContentTopicDetail extends ContentTopicItem {
+  description: string;
+  seo_title: string;
+  seo_keywords: string;
+  seo_description: string;
+  detail_fields: DetailFieldItem[];
+}
+
+export interface ContentTopicOverviewPayload {
+  root_only: number;
+  tabs: ContentStatusTab[];
+  list: ContentTopicItem[];
+}
+
 export interface ContentAnswerItem {
   id: number;
   uid: number;
@@ -490,6 +586,29 @@ export interface ContentApprovalTypeTab {
   value: string;
 }
 
+export interface ContentReviewMeta {
+  score: number;
+  recommendation: string;
+  completeness: {
+    category?: {
+      status?: string;
+      value?: string;
+    };
+    cover?: {
+      status?: string;
+      value?: string;
+    };
+    article_type?: string;
+  };
+  metrics: {
+    plain_text_chars?: number;
+    paragraphs?: number;
+    headings?: number;
+    list_items?: number;
+  };
+  issues: string[];
+}
+
 export interface ContentApprovalItem {
   id: number;
   uid: number;
@@ -504,6 +623,7 @@ export interface ContentApprovalItem {
   summary: string;
   target_url: string;
   create_time_text: string;
+  content_review?: ContentReviewMeta;
 }
 
 export interface ContentApprovalDetail {
@@ -522,6 +642,7 @@ export interface ContentApprovalDetail {
   target_url: string;
   subject_title: string;
   preview_fields: DetailFieldItem[];
+  content_review?: ContentReviewMeta;
   payload: Record<string, any>;
   payload_json: string;
 }

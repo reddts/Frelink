@@ -13,6 +13,8 @@ import type {
   ContentArticleOverviewPayload,
   ContentQuestionDetail,
   ContentQuestionOverviewPayload,
+  ContentTopicDetail,
+  ContentTopicOverviewPayload,
   SystemAuthDetail,
   SystemAuthListPayload,
   SystemAuthMetaPayload,
@@ -24,6 +26,9 @@ import type {
   SystemConfigMetaPayload,
   SystemConfigPagePayload,
   SystemConfigOverviewPayload,
+  SystemForbiddenIpOverviewPayload,
+  SystemVerifyDetail,
+  SystemVerifyOverviewPayload,
   SystemUserDetail,
   SystemUserIntegralLogPayload,
   SystemUserOverviewPayload,
@@ -303,6 +308,54 @@ export async function awardSystemUserIntegral(uid: number, integral: number) {
   return response.data.data;
 }
 
+export async function fetchSystemVerifies(status = 1, type = '') {
+  const response = await client.get<ApiEnvelope<SystemVerifyOverviewPayload>>('/SystemVerify/index', {
+    params: { status, type },
+  });
+  return response.data.data;
+}
+
+export async function fetchSystemVerifyDetail(id: number) {
+  const response = await client.get<ApiEnvelope<SystemVerifyDetail>>('/SystemVerify/detail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function approveSystemVerify(id: IdInput) {
+  const response = await client.get<ApiEnvelope<null>>('/SystemVerify/approve', {
+    params: { id: serializeIds(id) },
+  });
+  return response.data.data;
+}
+
+export async function declineSystemVerify(id: IdInput, reason: string) {
+  const response = await client.post<ApiEnvelope<null>>('/SystemVerify/decline', {
+    id: serializeIds(id),
+    reason,
+  });
+  return response.data.data;
+}
+
+export async function fetchSystemForbiddenIps(ip = '') {
+  const response = await client.get<ApiEnvelope<SystemForbiddenIpOverviewPayload>>('/SystemForbiddenIp/index', {
+    params: { ip },
+  });
+  return response.data.data;
+}
+
+export async function addSystemForbiddenIp(ip: string) {
+  const response = await client.post<ApiEnvelope<null>>('/SystemForbiddenIp/add', { ip });
+  return response.data.data;
+}
+
+export async function removeSystemForbiddenIp(id: IdInput) {
+  const response = await client.get<ApiEnvelope<null>>('/SystemForbiddenIp/remove', {
+    params: { id: serializeIds(id) },
+  });
+  return response.data.data;
+}
+
 export async function fetchContentArticles(status = 1, keyword = '') {
   const response = await client.get<ApiEnvelope<ContentArticleOverviewPayload>>('/ContentArticle/index', {
     params: { status, keyword },
@@ -405,9 +458,35 @@ export async function deleteContentAnswer(id: IdInput, real = false) {
   return response.data.data;
 }
 
-export async function fetchContentApprovals(status = 0, type = '', isAgent = '') {
+export async function fetchContentApprovals(status = 0, type = '', isAgent = '', keyword = '') {
   const response = await client.get<ApiEnvelope<ContentApprovalOverviewPayload>>('/ContentApproval/index', {
-    params: { status, type, is_agent: isAgent },
+    params: { status, type, is_agent: isAgent, keyword },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentTopics(rootOnly = 0, keyword = '') {
+  const response = await client.get<ApiEnvelope<ContentTopicOverviewPayload>>('/ContentTopic/index', {
+    params: { root_only: rootOnly, keyword },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentTopicDetail(id: number) {
+  const response = await client.get<ApiEnvelope<ContentTopicDetail>>('/ContentTopic/detail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function saveContentTopic(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/ContentTopic/save', payload);
+  return response.data.data;
+}
+
+export async function deleteContentTopic(id: IdInput) {
+  const response = await client.get<ApiEnvelope<null>>('/ContentTopic/delete', {
+    params: { id: serializeIds(id) },
   });
   return response.data.data;
 }
@@ -430,6 +509,13 @@ export async function declineContentApproval(id: IdInput, reason: string) {
   const response = await client.post<ApiEnvelope<null>>('/ContentApproval/decline', {
     id: serializeIds(id),
     reason,
+  });
+  return response.data.data;
+}
+
+export async function deleteContentApproval(id: IdInput) {
+  const response = await client.get<ApiEnvelope<null>>('/ContentApproval/delete', {
+    params: { id: serializeIds(id) },
   });
   return response.data.data;
 }

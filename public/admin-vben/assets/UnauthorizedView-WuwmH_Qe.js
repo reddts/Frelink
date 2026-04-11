@@ -1,1 +1,0 @@
-import{_ as t}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{o,c as r,a as e}from"./index-BJ9yaQic.js";const a={},n={class:"empty-state"};function c(l,s){return o(),r("div",n,[...s[0]||(s[0]=[e("span",{class:"eyebrow"},"401",-1),e("h3",null,"当前账号没有访问权限",-1),e("p",null,"请确认管理员分组规则，或切回旧后台核查菜单授权。",-1)])])}const p=t(a,[["render",c]]);export{p as default};

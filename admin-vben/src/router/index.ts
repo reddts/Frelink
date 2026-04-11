@@ -48,6 +48,12 @@ const routes = [
         meta: { title: '内容审核' },
       },
       {
+        path: 'content/topics',
+        name: 'content-topics',
+        component: () => import('@/views/ContentTopicsView.vue'),
+        meta: { title: '话题管理' },
+      },
+      {
         path: 'system/auths',
         name: 'system-auths',
         component: () => import('@/views/SystemAuthsView.vue'),
@@ -76,6 +82,18 @@ const routes = [
         name: 'system-users',
         component: () => import('@/views/SystemUsersView.vue'),
         meta: { title: '用户管理' },
+      },
+      {
+        path: 'system/verifies',
+        name: 'system-verifies',
+        component: () => import('@/views/SystemVerifiesView.vue'),
+        meta: { title: '用户认证' },
+      },
+      {
+        path: 'system/forbidden-ips',
+        name: 'system-forbidden-ips',
+        component: () => import('@/views/SystemForbiddenIpsView.vue'),
+        meta: { title: 'IP 封禁' },
       },
       {
         path: 'legacy/:segments(.*)*',

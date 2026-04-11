@@ -39,3 +39,4 @@ view/.idea/*
 # Internal docs and generated API artifacts are not part of the public repo
 /docs/*
 /public/docs/*
+/public/admin-vben/*

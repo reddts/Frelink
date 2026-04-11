@@ -7,6 +7,10 @@
         <p>审核列表、详情预览、通过、拒绝、封禁和封禁 IP 已迁入新管理端主链路。</p>
       </div>
       <div class="toolbar-row">
+        <label class="search-inline">
+          <span>搜索</span>
+          <input v-model.trim="keyword" placeholder="按审核摘要或用户名筛选" @keydown.enter="reload" />
+        </label>
         <div class="tab-row">
           <button
             v-for="item in payload?.status_tabs || []"
@@ -67,6 +71,14 @@
         >
           批量封禁 IP
         </button>
+        <button
+          class="ghost-button danger-button"
+          type="button"
+          :disabled="!selectedIds.length"
+          @click="deleteSelected"
+        >
+          批量删除记录
+        </button>
       </div>
     </section>
 
@@ -121,6 +133,7 @@
             <span>
               <strong>{{ item.summary }}</strong>
               <small>{{ item.create_time_text }}</small>
+              <small v-if="item.content_review?.score">评分 {{ item.content_review.score }} / 100</small>
             </span>
             <span>
               <strong>{{ statusLabel(item.status) }}</strong>
@@ -147,6 +160,13 @@
               >
                 拒绝
               </button>
+              <button
+                class="text-button danger-button"
+                type="button"
+                @click="deleteItem(item.id)"
+              >
+                删除
+              </button>
             </span>
           </div>
         </div>
@@ -172,6 +192,11 @@
           <ContentDetailPanel
             v-else
             :detail-fields="detail.preview_fields || []"
+          />
+          <ContentDetailPanel
+            v-if="detailReviewFields.length"
+            :summary-fields="detailReviewSummaryFields"
+            :detail-fields="detailReviewFields"
           />
           <label class="editor-form-group">
             <span>原始内容</span>
@@ -210,19 +235,27 @@ import ContentDetailPanel from '@/components/ContentDetailPanel.vue';
 import ContentRecordEditor from '@/components/ContentRecordEditor.vue';
 import {
   approveContentApproval,
+  deleteContentApproval,
   declineContentApproval,
   fetchContentApprovalDetail,
   fetchContentApprovals,
   forbidContentApprovalUser,
   forbidContentApprovalUserIp,
 } from '@/api/admin';
-import type { ContentApprovalDetail, ContentApprovalOverviewPayload, ContentRecordFormState } from '@/types';
+import type {
+  ContentApprovalDetail,
+  ContentApprovalOverviewPayload,
+  ContentRecordFormState,
+  ContentReviewMeta,
+  DetailFieldItem,
+} from '@/types';
 
 const payload = ref<ContentApprovalOverviewPayload | null>(null);
 const detail = ref<ContentApprovalDetail | null>(null);
 const currentStatus = ref(0);
 const currentType = ref('');
 const currentAgentScope = ref('');
+const keyword = ref('');
 const selectedId = ref(0);
 const selectedIds = ref<number[]>([]);
 
@@ -251,6 +284,8 @@ const detailSummaryFields = computed(() => {
     { label: '用户', value: detail.value.user_name || '未知用户' },
     { label: '摘要', value: detail.value.summary },
     { label: '关联标题', value: detail.value.subject_title || '' },
+    { label: '审核评分', value: detail.value.content_review?.score ? `${detail.value.content_review.score} / 100` : '' },
+    { label: '审核建议', value: detail.value.content_review?.recommendation || '' },
     { label: '状态', value: statusLabel(detail.value.status) },
     { label: '拒绝理由', value: detail.value.reason || '无' },
   ];
@@ -262,6 +297,23 @@ const detailLinks = computed(() => {
   }
 
   return [{ label: '打开前台预览', href: detail.value.target_url || '' }];
+});
+
+const detailReviewSummaryFields = computed<DetailFieldItem[]>(() => {
+  const review = detail.value?.content_review;
+  if (!review) {
+    return [];
+  }
+  return [
+    { label: '正文字符数', value: String(review.metrics?.plain_text_chars || 0) },
+    { label: '段落数', value: String(review.metrics?.paragraphs || 0) },
+    { label: '小标题数', value: String(review.metrics?.headings || 0) },
+    { label: '列表项数', value: String(review.metrics?.list_items || 0) },
+  ];
+});
+
+const detailReviewFields = computed<DetailFieldItem[]>(() => {
+  return buildReviewDetailFields(detail.value?.content_review);
 });
 
 const previewEditorMeta = computed(() => {
@@ -350,7 +402,12 @@ function statusLabel(status: number) {
 }
 
 async function reload() {
-  payload.value = await fetchContentApprovals(currentStatus.value, currentType.value, currentAgentScope.value);
+  payload.value = await fetchContentApprovals(
+    currentStatus.value,
+    currentType.value,
+    currentAgentScope.value,
+    keyword.value,
+  );
   const validIds = new Set((payload.value?.list || []).map((item) => item.id));
   selectedIds.value = selectedIds.value.filter((id) => validIds.has(id));
 }
@@ -398,6 +455,25 @@ async function approveItem(id: number) {
   }
 }
 
+function buildReviewDetailFields(review?: ContentReviewMeta): DetailFieldItem[] {
+  if (!review) {
+    return [];
+  }
+  const categoryStatus = review.completeness?.category?.status || '';
+  const categoryValue = review.completeness?.category?.value || '';
+  const coverStatus = review.completeness?.cover?.status || '';
+  const coverValue = review.completeness?.cover?.value || '';
+  const articleType = review.completeness?.article_type || '';
+  const issues = Array.isArray(review.issues) ? review.issues.filter(Boolean) : [];
+
+  return [
+    { label: '分类完整度', value: categoryStatus ? `${categoryStatus}${categoryValue ? `（${categoryValue}）` : ''}` : '' },
+    { label: '封面完整度', value: coverStatus ? `${coverStatus}${coverValue ? `（${coverValue}）` : ''}` : '' },
+    { label: '文章类型', value: articleType },
+    { label: '风险项', value: issues.length ? issues.join('；') : '未检测到明显风险项' },
+  ].filter((item) => item.value);
+}
+
 async function approveSelected() {
   if (!selectedIds.value.length) {
     return;
@@ -438,6 +514,41 @@ async function declineSelected() {
     if (selectedId.value && selectedIds.value.includes(selectedId.value)) {
       await editItem(selectedId.value);
     }
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function deleteItem(id: number) {
+  if (!window.confirm('确认删除这条审核记录？')) {
+    return;
+  }
+  try {
+    await deleteContentApproval(id);
+    if (selectedId.value === id) {
+      detail.value = null;
+      selectedId.value = 0;
+    }
+    await reload();
+  } catch (error) {
+    window.alert(getErrorMessage(error));
+  }
+}
+
+async function deleteSelected() {
+  if (!selectedIds.value.length) {
+    return;
+  }
+  if (!window.confirm(`确认删除选中的 ${selectedIds.value.length} 条审核记录？`)) {
+    return;
+  }
+  try {
+    await deleteContentApproval(selectedIds.value);
+    if (selectedId.value && selectedIds.value.includes(selectedId.value)) {
+      detail.value = null;
+      selectedId.value = 0;
+    }
+    await reload();
   } catch (error) {
     window.alert(getErrorMessage(error));
   }
