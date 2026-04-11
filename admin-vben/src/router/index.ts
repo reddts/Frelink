@@ -54,6 +54,12 @@ const routes = [
         meta: { title: '话题管理' },
       },
       {
+        path: 'content/categories',
+        name: 'content-categories',
+        component: () => import('@/views/ContentCategoriesView.vue'),
+        meta: { title: '分类管理' },
+      },
+      {
         path: 'system/auths',
         name: 'system-auths',
         component: () => import('@/views/SystemAuthsView.vue'),

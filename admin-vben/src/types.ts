@@ -520,6 +520,37 @@ export interface ContentTopicOverviewPayload {
   list: ContentTopicItem[];
 }
 
+export interface ContentCategoryItem {
+  id: number;
+  pid: number;
+  title: string;
+  raw_title: string;
+  parent_title: string;
+  icon: string;
+  type: string;
+  type_label: string;
+  url_token: string;
+  status: number;
+  sort: number;
+  flags: string[];
+}
+
+export interface ContentCategoryDetail extends ContentCategoryItem {
+  description: string;
+  type_options: SelectOption[];
+  detail_fields: DetailFieldItem[];
+}
+
+export interface ContentCategoryOverviewPayload {
+  type: string;
+  tabs: Array<{
+    label: string;
+    value: string;
+  }>;
+  type_options: SelectOption[];
+  list: ContentCategoryItem[];
+}
+
 export interface ContentAnswerItem {
   id: number;
   uid: number;

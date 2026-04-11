@@ -11,6 +11,8 @@ import type {
   ContentApprovalOverviewPayload,
   ContentArticleDetail,
   ContentArticleOverviewPayload,
+  ContentCategoryDetail,
+  ContentCategoryOverviewPayload,
   ContentQuestionDetail,
   ContentQuestionOverviewPayload,
   ContentTopicDetail,
@@ -486,6 +488,32 @@ export async function saveContentTopic(payload: Record<string, unknown>) {
 
 export async function deleteContentTopic(id: IdInput) {
   const response = await client.get<ApiEnvelope<null>>('/ContentTopic/delete', {
+    params: { id: serializeIds(id) },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentCategories(type = '', keyword = '') {
+  const response = await client.get<ApiEnvelope<ContentCategoryOverviewPayload>>('/ContentCategory/index', {
+    params: { type, keyword },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentCategoryDetail(id: number) {
+  const response = await client.get<ApiEnvelope<ContentCategoryDetail>>('/ContentCategory/detail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function saveContentCategory(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/ContentCategory/save', payload);
+  return response.data.data;
+}
+
+export async function deleteContentCategory(id: IdInput) {
+  const response = await client.get<ApiEnvelope<null>>('/ContentCategory/delete', {
     params: { id: serializeIds(id) },
   });
   return response.data.data;
