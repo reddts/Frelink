@@ -1,6 +1,105 @@
 # Frelink 项目更新日志
 
+## 2026-04-11
+
+### 里程碑：按 P1 新增管理端话题模块（Topic）迁移首版
+
+- 已新增后台接口控制器：
+  - [ContentTopic.php](/mnt/f/workwww/knowlege-github/app/adminapi/v1/ContentTopic.php)
+- 已新增后台服务层：
+  - [ContentTopicService.php](/mnt/f/workwww/knowlege-github/app/common/service/admin/ContentTopicService.php)
+- 已补齐 `AdminApi` 菜单与权限映射：
+  - [AdminApi.php](/mnt/f/workwww/knowlege-github/app/common/controller/AdminApi.php) 新增
+    - `content/topic/index -> /content/topics`
+    - `contenttopic/index|detail|save|delete` 对应旧权限节点映射
+- 已新增管理端页面与路由：
+  - [ContentTopicsView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentTopicsView.vue)
+  - [index.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/router/index.ts)
+  - 页面能力：关键词筛选、全部/根话题切换、单条/批量删除、详情编辑（标题/描述/SEO/根话题/锁定/推荐/父级）
+- 已新增前端接口与类型：
+  - [admin.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/api/admin.ts)
+  - [types.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/types.ts)
+  - 新增 `ContentTopic` 的 `index/detail/save/delete` 封装与类型定义
+- 本地验证结果：
+  - 当前终端无可执行 `node/corepack/pnpm`（仅存在不可执行 Windows 路径），本轮未能执行 `admin-vben` `typecheck/build`
+  - 当前终端无 `php` 可执行文件，本轮未能执行 `php -l`
+
+### 里程碑：按优化规范完成本轮服务器部署与远程验证
+
+- 部署批次：
+  - 本地时间：`2026-04-11 22:49-22:50 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh sync`
+  - `bash scripts/deploy.sh verify`
+- 远程验证结果：
+  - `php -v`：`PHP 8.2.28`
+  - `composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader`：通过（无新增依赖变更）
+  - `php think --version`：`8.1.4`
+  - `php think worker --help`：通过
+  - `GatewayWorker` 类加载校验：通过
+  - `php -l app/function.inc.php`：通过
+  - `php -l app/frontend/Article.php`：通过
+  - `sudo -n php think clear`：通过
+  - `sudo -n php think api:doc --output docs/api-v1.md`：通过（`Controllers: 23`、`Endpoints: 154`）
+  - `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`：通过
+- 线上 smoke 页面：
+  - `https://www.frelink.top/`
+  - `https://www.frelink.top/questions/`
+  - `https://www.frelink.top/articles/`
+  - 三个页面检查均通过，未出现阻断错误
+
 ## 2026-04-10
+
+### 里程碑：完成管理端会员认证审核与 IP 封禁迁移（M2 补齐）
+
+- 已新增后台接口控制器：
+  - [SystemVerify.php](/mnt/f/workwww/knowlege-github/app/adminapi/v1/SystemVerify.php)
+  - [SystemForbiddenIp.php](/mnt/f/workwww/knowlege-github/app/adminapi/v1/SystemForbiddenIp.php)
+- 已新增后台服务层：
+  - [AdminVerifyService.php](/mnt/f/workwww/knowlege-github/app/common/service/admin/AdminVerifyService.php)
+  - [AdminForbiddenIpService.php](/mnt/f/workwww/knowlege-github/app/common/service/admin/AdminForbiddenIpService.php)
+- 已补齐 `AdminApi` 菜单与权限映射：
+  - [AdminApi.php](/mnt/f/workwww/knowlege-github/app/common/controller/AdminApi.php) 新增
+    - `member/verify/index -> /system/verifies`
+    - `member/forbidden/ips -> /system/forbidden-ips`
+    - `systemverify/*` 与 `systemforbiddenip/*` 的旧权限节点映射
+- 已新增管理端页面：
+  - [SystemVerifiesView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/SystemVerifiesView.vue)
+  - [SystemForbiddenIpsView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/SystemForbiddenIpsView.vue)
+- 已新增前端接口与类型：
+  - [admin.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/api/admin.ts)
+  - [types.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/types.ts)
+  - [index.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/router/index.ts)
+- 本地构建验证结果：
+  - 已在 WSL + nvm 环境执行 `corepack pnpm --dir admin-vben typecheck`，通过
+  - 已在 WSL + nvm 环境执行 `corepack pnpm --dir admin-vben build`，通过
+  - 产物已输出到 `public/admin-vben/`，包含新增页面资源
+- 环境限制记录：
+  - 当前终端无 `php` 可执行文件，未能在本地执行 `php -l`
+  - 登录态接口成功态/无权限态实测与服务器 `sync/verify` 待在具备 PHP 与管理员会话的环境补齐
+
+### 里程碑：继续推进管理端审核页链路（检索 + 评分展示 + 删除）
+
+- 已补审核页关键词检索链路：
+  - [ContentApprovalsView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentApprovalsView.vue) 新增关键词输入，回车触发筛选
+  - [admin.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/api/admin.ts) 的 `fetchContentApprovals` 已补 `keyword` 参数透传
+- 已补审核评分信息前端可视化：
+  - 审核列表行已显示 `content_review.score`
+  - 审核详情已显示评分、建议、完整度和文本结构指标（字符数/段落/小标题/列表项）
+  - [types.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/types.ts) 已新增 `ContentReviewMeta` 并接入审核列表/详情类型
+- 已补审核记录删除闭环：
+  - [admin.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/api/admin.ts) 已新增 `deleteContentApproval`
+  - [ContentApprovalsView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentApprovalsView.vue) 已支持单条删除与批量删除
+- 本地构建验证结果：
+  - 已在 WSL + nvm 环境执行 `corepack pnpm --dir admin-vben typecheck`，通过
+  - 已在 WSL + nvm 环境执行 `corepack pnpm --dir admin-vben build`，通过
+  - 产物已输出到 `public/admin-vben/`，包含最新审核页面资源
+- 环境限制记录：
+  - 当前终端无 `php` 可执行文件，未能在本地执行 `php -l`
+  - 带登录态的审核通过/拒绝/删除线上实测仍需在服务器会话环境补齐
 
 ### 里程碑：修复 TP8 模板变量不解析（恢复 Think 模板引擎）
 
