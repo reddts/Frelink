@@ -60,6 +60,12 @@ const routes = [
         meta: { title: '分类管理' },
       },
       {
+        path: 'content/announces',
+        name: 'content-announces',
+        component: () => import('@/views/ContentAnnouncesView.vue'),
+        meta: { title: '公告管理' },
+      },
+      {
         path: 'system/auths',
         name: 'system-auths',
         component: () => import('@/views/SystemAuthsView.vue'),

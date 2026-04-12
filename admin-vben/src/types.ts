@@ -551,6 +551,33 @@ export interface ContentCategoryOverviewPayload {
   list: ContentCategoryItem[];
 }
 
+export interface ContentAnnounceItem {
+  id: number;
+  uid: number;
+  title: string;
+  status: number;
+  set_top: number;
+  sort: number;
+  view_count: number;
+  user_name: string;
+  url_token: string;
+  preview_url: string;
+  create_time_text: string;
+  update_time_text: string;
+  flags: string[];
+}
+
+export interface ContentAnnounceDetail extends ContentAnnounceItem {
+  message: string;
+  detail_fields: DetailFieldItem[];
+}
+
+export interface ContentAnnounceOverviewPayload {
+  status: number;
+  tabs: ContentStatusTab[];
+  list: ContentAnnounceItem[];
+}
+
 export interface ContentAnswerItem {
   id: number;
   uid: number;

@@ -11,6 +11,8 @@ import type {
   ContentApprovalOverviewPayload,
   ContentArticleDetail,
   ContentArticleOverviewPayload,
+  ContentAnnounceDetail,
+  ContentAnnounceOverviewPayload,
   ContentCategoryDetail,
   ContentCategoryOverviewPayload,
   ContentQuestionDetail,
@@ -514,6 +516,32 @@ export async function saveContentCategory(payload: Record<string, unknown>) {
 
 export async function deleteContentCategory(id: IdInput) {
   const response = await client.get<ApiEnvelope<null>>('/ContentCategory/delete', {
+    params: { id: serializeIds(id) },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentAnnounces(status = -1, keyword = '') {
+  const response = await client.get<ApiEnvelope<ContentAnnounceOverviewPayload>>('/ContentAnnounce/index', {
+    params: { status, keyword },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentAnnounceDetail(id: number) {
+  const response = await client.get<ApiEnvelope<ContentAnnounceDetail>>('/ContentAnnounce/detail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function saveContentAnnounce(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/ContentAnnounce/save', payload);
+  return response.data.data;
+}
+
+export async function deleteContentAnnounce(id: IdInput) {
+  const response = await client.get<ApiEnvelope<null>>('/ContentAnnounce/delete', {
     params: { id: serializeIds(id) },
   });
   return response.data.data;

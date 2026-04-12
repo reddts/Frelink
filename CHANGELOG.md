@@ -2,6 +2,62 @@
 
 ## 2026-04-12
 
+### 里程碑：按 P1 迁移管理端公告模块（Announce）首版
+
+- 已新增后台接口控制器：
+  - [ContentAnnounce.php](/mnt/f/workwww/knowlege-github/app/adminapi/v1/ContentAnnounce.php)
+- 已新增后台服务层：
+  - [ContentAnnounceService.php](/mnt/f/workwww/knowlege-github/app/common/service/admin/ContentAnnounceService.php)
+- 已补齐 `AdminApi` 菜单与权限映射：
+  - [AdminApi.php](/mnt/f/workwww/knowlege-github/app/common/controller/AdminApi.php) 新增
+    - `content/announce/index -> /content/announces`
+    - `contentannounce/index|detail|save|delete` 对应旧权限节点映射
+- 已新增管理端页面与路由：
+  - [ContentAnnouncesView.vue](/mnt/f/workwww/knowlege-github/admin-vben/src/views/ContentAnnouncesView.vue)
+  - [index.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/router/index.ts)
+  - 页面能力：关键词筛选、状态分组切换、单条/批量删除、详情编辑（标题/内容/排序/状态/置顶）
+- 已新增前端接口与类型：
+  - [admin.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/api/admin.ts)
+  - [types.ts](/mnt/f/workwww/knowlege-github/admin-vben/src/types.ts)
+  - 新增 `ContentAnnounce` 的 `index/detail/save/delete` 封装与类型定义
+- 本地验证结果：
+  - `php -l app/adminapi/v1/ContentAnnounce.php`：通过
+  - `php -l app/common/service/admin/ContentAnnounceService.php`：通过
+  - `php -l app/common/controller/AdminApi.php`：通过
+  - `pnpm --dir admin-vben typecheck`：通过
+  - `pnpm --dir admin-vben build`：通过，构建产物已写入 `public/admin-vben/`
+
+### 里程碑：按优化规范完成本轮服务器部署与远程验证（公告迁移批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-12 19:24:03-19:24:38 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh sync`
+  - `bash scripts/deploy.sh verify`
+- 远程验证结果：
+  - `php -v`：`PHP 8.2.28`
+  - `composer --version`：`2.9.5`
+  - `composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader`：通过（无依赖变更）
+  - `php think --version`：`8.1.4`
+  - `php think worker --help`：通过
+  - `GatewayWorker` 类加载校验：通过
+  - `php -l app/function.inc.php`：通过
+  - `php -l app/frontend/Article.php`：通过
+  - `sudo -n php think clear`：通过
+  - `sudo -n php think api:doc --output docs/api-v1.md`：通过（`Controllers: 23`、`Endpoints: 154`）
+  - `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`：通过
+- 线上 smoke 页面：
+  - `https://www.frelink.top/`
+  - `https://www.frelink.top/questions/`
+  - `https://www.frelink.top/articles/`
+  - 三个页面检查均通过，未出现阻断错误
+- 线上接口抽检：
+  - `GET https://www.frelink.top/adminapi.php/ContentAnnounce/index`
+  - 未登录态返回 `AUTH_REQUIRED`（`code=99`），说明新接口路由在线可达且权限拦截正常
+
 ### 里程碑：按 P1 迁移管理端分类模块（Category）首版
 
 - 已新增后台接口控制器：
