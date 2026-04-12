@@ -13,6 +13,8 @@ import type {
   ContentArticleOverviewPayload,
   ContentAnnounceDetail,
   ContentAnnounceOverviewPayload,
+  ContentColumnDetail,
+  ContentColumnOverviewPayload,
   ContentCategoryDetail,
   ContentCategoryOverviewPayload,
   ContentQuestionDetail,
@@ -542,6 +544,46 @@ export async function saveContentAnnounce(payload: Record<string, unknown>) {
 
 export async function deleteContentAnnounce(id: IdInput) {
   const response = await client.get<ApiEnvelope<null>>('/ContentAnnounce/delete', {
+    params: { id: serializeIds(id) },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentColumns(verify = 1, keyword = '') {
+  const response = await client.get<ApiEnvelope<ContentColumnOverviewPayload>>('/ContentColumn/index', {
+    params: { verify, keyword },
+  });
+  return response.data.data;
+}
+
+export async function fetchContentColumnDetail(id: number) {
+  const response = await client.get<ApiEnvelope<ContentColumnDetail>>('/ContentColumn/detail', {
+    params: { id },
+  });
+  return response.data.data;
+}
+
+export async function saveContentColumn(payload: Record<string, unknown>) {
+  const response = await client.post<ApiEnvelope<{ id: number }>>('/ContentColumn/save', payload);
+  return response.data.data;
+}
+
+export async function deleteContentColumn(id: IdInput) {
+  const response = await client.get<ApiEnvelope<null>>('/ContentColumn/delete', {
+    params: { id: serializeIds(id) },
+  });
+  return response.data.data;
+}
+
+export async function approveContentColumn(id: IdInput) {
+  const response = await client.get<ApiEnvelope<null>>('/ContentColumn/approve', {
+    params: { id: serializeIds(id) },
+  });
+  return response.data.data;
+}
+
+export async function declineContentColumn(id: IdInput) {
+  const response = await client.get<ApiEnvelope<null>>('/ContentColumn/decline', {
     params: { id: serializeIds(id) },
   });
   return response.data.data;

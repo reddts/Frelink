@@ -66,6 +66,12 @@ const routes = [
         meta: { title: '公告管理' },
       },
       {
+        path: 'content/columns',
+        name: 'content-columns',
+        component: () => import('@/views/ContentColumnsView.vue'),
+        meta: { title: '专栏管理' },
+      },
+      {
         path: 'system/auths',
         name: 'system-auths',
         component: () => import('@/views/SystemAuthsView.vue'),

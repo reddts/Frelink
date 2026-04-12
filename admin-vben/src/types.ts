@@ -578,6 +578,35 @@ export interface ContentAnnounceOverviewPayload {
   list: ContentAnnounceItem[];
 }
 
+export interface ContentColumnItem {
+  id: number;
+  uid: number;
+  name: string;
+  cover: string;
+  verify: number;
+  recommend: number;
+  sort: number;
+  post_count: number;
+  focus_count: number;
+  view_count: number;
+  user_name: string;
+  url_token: string;
+  preview_url: string;
+  create_time_text: string;
+  flags: string[];
+}
+
+export interface ContentColumnDetail extends ContentColumnItem {
+  description: string;
+  detail_fields: DetailFieldItem[];
+}
+
+export interface ContentColumnOverviewPayload {
+  verify: number;
+  tabs: ContentStatusTab[];
+  list: ContentColumnItem[];
+}
+
 export interface ContentAnswerItem {
   id: number;
   uid: number;
