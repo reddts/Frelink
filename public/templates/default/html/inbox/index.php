@@ -1,5 +1,30 @@
 {extend name="$theme_block" /}
 {block name="main"}
+<script>
+    window.__openInboxDialogSafe = function (recipient) {
+        var name = recipient || '';
+        var remain = 120;
+
+        function run() {
+            if (window.AWS && AWS.User && typeof AWS.User.inbox === 'function') {
+                AWS.User.inbox(name);
+                return;
+            }
+
+            if (remain <= 0) {
+                if (window.layer && layer.msg) {
+                    layer.msg('页面资源加载中，请稍后重试');
+                }
+                return;
+            }
+
+            remain -= 1;
+            window.setTimeout(run, 50);
+        }
+
+        run();
+    };
+</script>
 <div class="aw-wrap mt-2">
     <div class="container">
         <div class="row">
@@ -9,7 +34,7 @@
                     <div class="block-header">
                         <b>{:L('对话列表')}</b>
                         <div class="float-right notefun">
-                            <a href="javascript:;" onclick="AWS.User.inbox()" class="text-muted mr-3">{:L('新私信')}</a>
+                            <a href="javascript:;" onclick="__openInboxDialogSafe(); return false;" class="text-muted mr-3">{:L('新私信')}</a>
                             <a href="{:url('setting/notify')}" class="text-muted"><i class="icon-settings"></i> {:L('私信设置')}</a>
                         </div>
                     </div>
@@ -26,10 +51,10 @@
                         </dt>
                         <dd class="float-right" style="width: calc(100% - 61px)">
                             <p class="text-muted font-9">{$v['user']['name']} · {:date_friendly($v['update_time'])}</p>
-                            <p class="aw-one-line cursor-pointer {$v['unread']  ? 'text-primary' : 'text-muted'}" onclick="AWS.User.inbox('{$v.user.nick_name}')">{:get_username($v['last_message_uid'])}:{$v['last_message']}</p>
+                            <p class="aw-one-line cursor-pointer {$v['unread']  ? 'text-primary' : 'text-muted'}" onclick="__openInboxDialogSafe('{$v.user.nick_name}'); return false;">{:get_username($v['last_message_uid'])}:{$v['last_message']}</p>
                         </dd>
                         <div class="font-8 position-absolute" style="top: 1rem;right: 0">
-                            <a href="javascript:;" class="text-primary" onclick="AWS.User.inbox('{$v.user.nick_name}')">{:L('共 %s 条对话',$v.count)}</a>
+                            <a href="javascript:;" class="text-primary" onclick="__openInboxDialogSafe('{$v.user.nick_name}'); return false;">{:L('共 %s 条对话',$v.count)}</a>
                        </div>
                     </dl>
                     {/volist}

@@ -2,6 +2,36 @@
 
 ## 2026-04-15
 
+### 里程碑：再次修复 inbox 页面内联调用导致的 `AWS is not defined`
+
+- 问题现象：
+  - 页面：`https://www.frelink.top/inbox/`
+  - 仍出现：`Uncaught ReferenceError: AWS is not defined`（内联 `AWS.User.inbox()` 调用）
+- 根因：
+  - `inbox` 模板里多个 `onclick="AWS.User.inbox(...)"` 在极端时序下仍可能先触发，导致全局 `AWS` 未就绪时报错。
+- 修复内容：
+  - [index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/inbox/index.php)
+    - 新增 `__openInboxDialogSafe()`，轮询等待 `AWS.User.inbox` 可用后再执行；
+    - 页面内所有内联 `AWS.User.inbox(...)` 改为 `__openInboxDialogSafe(...)`。
+  - [version.php](/mnt/f/workwww/knowlege-github/config/version.php)
+    - 静态版本从 `4.1.3` 升级到 `4.1.4`，降低缓存旧脚本概率。
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（inbox 二次修复批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-15 16:00:57-16:01:43 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh sync`
+  - `bash scripts/deploy.sh verify`
+- 远程验证结果：
+  - `php/composer/think/clear/api:doc/smoke` 全链路通过
+  - 站点静态版本已更新：`aws.js?v=4.1.4`、`app.js?v=4.1.4`
+- 说明：
+  - 匿名访问 `/inbox/` 会重定向到首页，需登录态浏览器确认点击“新私信/对话项”时不再抛 `AWS is not defined`。
+
 ### 里程碑：修复 `inbox` 页面 `AWS is not defined` 脚本时序问题
 
 - 问题现象：
