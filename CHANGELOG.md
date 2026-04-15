@@ -4199,3 +4199,16 @@
   - 2026-04-15 17:22 CST 同步到 `production`，完成远端批处理与 smoke
 - 实际结果：
   - 非对话容器场景发送私信后，父页面/父列表会同步刷新，不再只关闭弹窗
+
+### 里程碑补充：修复私信弹窗初始化误触发父页刷新
+
+- 本地修改：
+  - `public/templates/default/static/js/ajax/inbox.js`
+  - `refreshInboxDialog` 新增 `options.allowParentFallback` 开关
+  - 仅“发送成功后的刷新调用”传入 `allowParentFallback: true`
+  - 页面初始化阶段 `whenAwsReady -> refreshInboxDialog()` 不再触发父页面/父列表刷新
+- 真实部署批次：
+  - 2026-04-15 17:24 CST 同步到 `production`，完成远端批处理与 smoke
+- 实际结果：
+  - 修复“点击打开弹窗即关闭”的回归问题
+  - 保留“发送成功且无容器时刷新父页面/父列表”的预期行为

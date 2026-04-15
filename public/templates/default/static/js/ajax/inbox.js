@@ -66,11 +66,15 @@ function refreshParentInboxContext() {
     }
 }
 
-function refreshInboxDialog(done) {
+function refreshInboxDialog(done, options) {
+    options = options || {};
+    var allowParentFallback = !!options.allowParentFallback;
     var recipient = getRecipient();
     var $container = $('#inbox-dialog-container');
     if (!recipient || !$container.length) {
-        refreshParentInboxContext();
+        if (allowParentFallback) {
+            refreshParentInboxContext();
+        }
         if (typeof done === 'function') {
             done();
         }
@@ -182,7 +186,7 @@ $(document).on('click', '.aw-ajax-submit', function (e) {
                 $('textarea[name=message]').val('');
                 refreshInboxDialog(function () {
                     closeInboxLayerIfPresent(that);
-                });
+                }, { allowParentFallback: true });
             } else {
                 layer.msg(result.msg);
             }
