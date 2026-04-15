@@ -179,9 +179,19 @@ class Ajax extends Frontend
      */
     public function dialog()
     {
-        $user_name = $this->request->param('recipient_uid','');
+        $user_name = trim($this->request->param('recipient_uid',''));
         $page = $this->request->param('page',1);
-        $recipient_uid = db('users')->where('nick_name',$user_name)->value('uid');
+        $recipient_uid = 0;
+        if ($user_name !== '') {
+            if (is_numeric($user_name)) {
+                $recipient_uid = (int)$user_name;
+            } else {
+                $recipient_uid = (int) db('users')
+                    ->where('nick_name', $user_name)
+                    ->whereOr('user_name', $user_name)
+                    ->value('uid');
+            }
+        }
         $dialog_info = InboxModel::getDialogByUser($this->user_id, $recipient_uid);
         $list = $dialog_info ? InboxModel::getMessageByDialogId($dialog_info['id'],$this->user_id,intval($page)) : [];
         if($this->user_info['inbox_unread'] && $dialog_info)

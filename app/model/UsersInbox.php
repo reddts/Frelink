@@ -199,7 +199,11 @@ class UsersInbox extends BaseModel
 
 		if(is_string($recipient_uid))
         {
-            $recipient_uid = db('users')->where('nick_name',trim($recipient_uid))->value('uid');
+            $recipient = trim($recipient_uid);
+            $recipient_uid = (int) db('users')
+                ->where('nick_name', $recipient)
+                ->whereOr('user_name', $recipient)
+                ->value('uid');
         }
 
 		if (trim($message) == '')

@@ -1579,50 +1579,65 @@ var AWS = {
 
             AWS.config.dropdown_list_xhr = $.get(url, function (result)
             {
-                if (result.length != 0 && AWS.config.dropdown_list_xhr != undefined)
+                if (AWS.config.dropdown_list_xhr == undefined)
                 {
-                    $(selector).parent().find('.aw-dropdown-list').html(''); // 清空内容
-                    switch (type)
-                    {
-                        case 'search' :
+                    return;
+                }
+
+                var hasResult = false;
+                $(selector).parent().find('.aw-dropdown-list').html(''); // 清空内容
+                switch (type)
+                {
+                    case 'search' :
+                        hasResult = !!(result && result.length);
+                        if (hasResult)
+                        {
                             $(selector).parent().find('.aw-dropdown-list').html(result);
-                            break;
-                        case 'inbox' :
-                        case 'invite' :
+                        }
+                        break;
+                    case 'inbox' :
+                    case 'invite' :
+                        var users = (result && result.data && result.data.list) ? result.data.list : [];
+                        hasResult = users.length > 0;
+                        if (hasResult)
+                        {
                             var html = '<ul>';
-                            $.each(result.data.list, function (i, a)
+                            $.each(users, function (i, a)
                             {
-                                html+='<li class="user py-1"><a data-url="'+a.url+'" data-id="'+a.uid+'" style="cursor: pointer"><img class="img" src="'+a.avatar+'" style="width: 16px;height: 16px"/> '+a.nick_name+'</a></li>'
+                                var account = a.user_name ? a.user_name : a.nick_name;
+                                html += '<li class="user py-1"><a data-url="' + a.url + '" data-id="' + a.uid + '" data-account="' + account + '" style="cursor: pointer"><img class="img" src="' + a.avatar + '" style="width: 16px;height: 16px"/> ' + a.nick_name + '</a></li>';
                             });
-                            html+='</ul>';
+                            html += '</ul>';
                             $(selector).parent().find('.aw-dropdown-list').html(html);
                             $(selector).parent().find('.aw-dropdown .aw-dropdown-list li a').click(function ()
                             {
-                                var text = $(this).text();
-                                $(selector).val(text);
+                                var account = $(this).data('account');
+                                $(selector).val(account ? account : $(this).text());
                             });
-                            break;
-
-                        case 'publish':
-                            if(result.data.list)
+                        }
+                        break;
+                    case 'publish':
+                        hasResult = !!(result && result.data && result.data.list);
+                        if (hasResult)
+                        {
+                            $(selector).parent().find('.aw-dropdown').show();
+                            var html = '<ul>';
+                            $.each(result.data.list, function (i, a)
                             {
-                                $(selector).parent().find('.aw-dropdown').show();
-                                var html = '<ul>';
-                                $.each(result.data.list, function (i, a)
-                                {
-                                    html+='<li class="user py-1"><a href="'+a.url+'" style="cursor: pointer">'+a.title+'</a></li>'
-                                });
-                                html+='</ul>';
-                                $(selector).parent().find('.aw-dropdown-list').html(html);
-                            }else{
-                                $(selector).parent().find('.aw-dropdown').hide();
-                            }
-                            break;
-                    }
+                                html+='<li class="user py-1"><a href="'+a.url+'" style="cursor: pointer">'+a.title+'</a></li>'
+                            });
+                            html+='</ul>';
+                            $(selector).parent().find('.aw-dropdown-list').html(html);
+                        }else{
+                            $(selector).parent().find('.aw-dropdown').hide();
+                        }
+                        break;
+                }
+                if (hasResult)
+                {
                     $(selector).parent().find('.aw-dropdown, .aw-dropdown-list').show().children().show();
                     $(selector).parent().find('.title').hide();
-                }else
-                {
+                } else {
                     $(selector).parent().find('.aw-dropdown').show().end().find('.title').html('没有找到相关结果').show();
                 }
             }, 'json');

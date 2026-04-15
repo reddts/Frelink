@@ -40,6 +40,50 @@
   - `curl -I https://www.frelink.top/inbox/index.html`：返回 `HTTP/2 302`（未登录重定向到 `/`），未再出现 `500`
   - smoke：`/`、`/questions/`、`/articles/` 全部通过
 
+### 里程碑：修复 inbox 新私信“搜索用户 + 发送链路”异常
+
+- 问题现象：
+  - 新私信弹窗中，搜索用户结果不显示或不可用；
+  - 发送后对话列表刷新使用了旧收件人值，导致发送/刷新链路异常。
+- 修复内容：
+  - [aws.js](/mnt/f/workwww/knowlege-github/public/static/common/js/aws.js)
+    - 修复 `inbox/invite` 下拉搜索对 JSON 结果的处理逻辑，避免把对象当字符串长度判断；
+    - 新增 `data-account`（优先 `user_name`，回退 `nick_name`）填充输入框，降低昵称匹配失败概率。
+  - [inbox.js](/mnt/f/workwww/knowlege-github/public/templates/default/static/js/ajax/inbox.js)
+    - 改为实时读取收件人并刷新对话；
+    - 增加发送前校验（收件人与内容不能为空）；
+    - 发送成功后按当前收件人刷新消息列表。
+  - [Ajax.php](/mnt/f/workwww/knowlege-github/app/frontend/Ajax.php)
+    - `dialog` 支持通过 `uid/user_name/nick_name` 解析收件人。
+  - [UsersInbox.php](/mnt/f/workwww/knowlege-github/app/model/UsersInbox.php)
+  - [UsersInbox.php](/mnt/f/workwww/knowlege-github/app/model/api/v1/UsersInbox.php)
+    - 发送私信时字符串收件人支持 `user_name` 与 `nick_name` 双通道匹配。
+- 本地验证：
+  - `php -l app/frontend/Ajax.php`：通过
+  - `php -l app/model/UsersInbox.php`：通过
+  - `php -l app/model/api/v1/UsersInbox.php`：通过
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（inbox 新私信修复批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-15 11:45:49-11:46:27 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh deploy`
+- 远程验证结果：
+  - `php -v`、`composer --version`、`composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader`：通过
+  - `php think --version`、`php think worker --help`：通过
+  - `php -l app/function.inc.php`、`php -l app/frontend/Article.php`：通过
+  - `sudo -n php think clear`：通过
+  - `sudo -n php think api:doc --output docs/api-v1.md`：通过
+  - `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`：通过
+- 页面 / 接口检查：
+  - `curl -I https://www.frelink.top/inbox/index.html`：`HTTP/2 302`（未登录重定向正常）
+  - `GET /ajax.search/search_result/?type=users&q=a&limit=3`（XHR）返回 `code=1` 且包含 `data.list`，用户搜索结果链路恢复
+  - smoke：`/`、`/questions/`、`/articles/` 通过
+
 ## 2026-04-12
 
 ### 里程碑：按 P1 迁移管理端专栏模块（Column）首版
