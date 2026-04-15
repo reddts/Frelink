@@ -84,6 +84,21 @@
   - `GET /ajax.search/search_result/?type=users&q=a&limit=3`（XHR）返回 `code=1` 且包含 `data.list`，用户搜索结果链路恢复
   - smoke：`/`、`/questions/`、`/articles/` 通过
 
+### 里程碑：修复线上“看不到变化”的静态缓存问题（inbox 修复生效保障）
+
+- 问题定位：
+  - 线上页面脚本 URL 版本固定为 `v=4.1`，浏览器持续命中旧缓存，导致已修复脚本未生效。
+- 修复内容：
+  - [version.php](/mnt/f/workwww/knowlege-github/config/version.php)
+    - `version` 从 `4.1` 升级到 `4.1.1`
+    - `build` 更新为 `20260415`
+  - 使 `aws.js/app.js` 资源 URL 变更为 `?v=4.1.1`，强制客户端拉取新包。
+- 部署与验证：
+  - 执行 `bash scripts/deploy.sh deploy`
+  - 线上检查：`https://www.frelink.top/ajax/inbox` 输出
+    - `aws.js?v=4.1.1`
+    - `app.js?v=4.1.1`
+
 ## 2026-04-12
 
 ### 里程碑：按 P1 迁移管理端专栏模块（Column）首版
