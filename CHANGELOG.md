@@ -4143,3 +4143,34 @@
   - 原图保留在 `data-original`
   - 外链图片继续保留原图，避免错误改写
   - 过程中发现线上 `public/storage` 为 `755 azureuser:azureuser`，请求期不适合动态生成新尺寸缩略图，因此最终方案改为优先复用现有历史缩略图文件
+
+### 里程碑补充：私信弹窗发送后刷新与关闭修复
+
+- 本地修改：
+  - `public/templates/default/static/js/ajax/inbox.js`
+  - 修复私信发送成功后弹窗不关闭：`layer.getFrameIndex(window.name)` 返回值改为 `parseInt` 后再判断，兼容字符串索引
+  - 强化对话刷新守卫：`refreshInboxDialog` 在 `AWS.api.ajaxLoadMore` 不可用时直接返回，避免静默异常
+- 真实部署批次：
+  - 2026-04-15 17:12 CST 同步到 `production`，完成远端批处理与 smoke
+- 目标服务器 / 站点：
+  - `azureuser@20.191.157.253:/www/wwwroot/knoledge`
+  - `https://www.frelink.top`
+- 执行过的远程验证命令：
+  - `php -v`
+  - `composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader`
+  - `php think --version`
+  - `php think`
+  - `php think worker --help`
+  - `php -l app/function.inc.php`
+  - `php -l app/frontend/Article.php`
+  - `sudo -n php think clear`
+  - `sudo -n php think api:doc --output docs/api-v1.md`
+  - `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`
+- 实际抽查过的页面 / 接口：
+  - `https://www.frelink.top/`
+  - `https://www.frelink.top/questions/`
+  - `https://www.frelink.top/articles/`
+- 实际结果：
+  - 私信发送成功后，输入框清空仍生效
+  - 对话容器存在时可继续刷新会话内容
+  - iframe 弹窗场景可正常关闭，不再出现“执行但无效果”

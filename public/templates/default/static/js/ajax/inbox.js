@@ -5,8 +5,9 @@ function getRecipient() {
 function closeInboxLayerIfPresent(triggerElement) {
     // inbox 弹窗默认通过 AWS.api.open(type=2) 以 iframe 打开，需在父窗口关闭
     if (window.parent && window.parent !== window && window.parent.layer && window.name) {
-        var parentIndex = window.parent.layer.getFrameIndex(window.name);
-        if (typeof parentIndex === 'number' && parentIndex >= 0) {
+        var parentIndexRaw = window.parent.layer.getFrameIndex(window.name);
+        var parentIndex = parseInt(parentIndexRaw, 10);
+        if (!isNaN(parentIndex) && parentIndex >= 0) {
             window.parent.layer.close(parentIndex);
             return;
         }
@@ -32,7 +33,7 @@ function closeInboxLayerIfPresent(triggerElement) {
 
 function refreshInboxDialog() {
     var recipient = getRecipient();
-    if (!recipient || !$('#inbox-dialog-container').length) {
+    if (!recipient || !$('#inbox-dialog-container').length || !window.AWS || !window.AWS.api || typeof window.AWS.api.ajaxLoadMore !== 'function') {
         return;
     }
     $('#inbox-dialog-container').empty();
