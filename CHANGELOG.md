@@ -1,5 +1,45 @@
 # Frelink 项目更新日志
 
+## 2026-04-15
+
+### 里程碑：修复 inbox 页面 `assign(bool)` 导致的 500
+
+- 问题现象：
+  - 页面：`https://www.frelink.top/inbox/index.html`
+  - 错误：`think\View::assign(): Argument #1 ($name) must be of type array|string, bool given`
+- 根因：
+  - [UsersInbox.php](/mnt/f/workwww/knowlege-github/app/model/UsersInbox.php) 的 `getDialogListByUid()` 在无私信会话时返回 `false`，控制器 `assign($dialogList)` 触发类型错误。
+- 修复内容：
+  - [UsersInbox.php](/mnt/f/workwww/knowlege-github/app/model/UsersInbox.php) 将空结果返回值从 `false` 调整为稳定结构：
+    - `['list' => [], 'page' => '', 'total' => 0]`
+  - 保证 `Inbox::index()` 的模板赋值参数始终为数组。
+- 本地验证：
+  - `php -l app/model/UsersInbox.php`：通过
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（inbox 修复批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-15 11:37:24-11:38:01 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh deploy`
+- 远程验证结果：
+  - `php -v`：`PHP 8.2.28`
+  - `composer --version`：`2.9.5`
+  - `composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader`：通过
+  - `php think --version`：`8.1.4`
+  - `php think worker --help`：通过
+  - `php -l app/function.inc.php`：通过
+  - `php -l app/frontend/Article.php`：通过
+  - `sudo -n php think clear`：通过
+  - `sudo -n php think api:doc --output docs/api-v1.md`：通过
+  - `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`：通过
+- 页面检查：
+  - `curl -I https://www.frelink.top/inbox/index.html`：返回 `HTTP/2 302`（未登录重定向到 `/`），未再出现 `500`
+  - smoke：`/`、`/questions/`、`/articles/` 全部通过
+
 ## 2026-04-12
 
 ### 里程碑：按 P1 迁移管理端专栏模块（Column）首版

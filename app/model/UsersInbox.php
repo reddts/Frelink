@@ -52,7 +52,7 @@ class UsersInbox extends BaseModel
 
 		if (!$dialogUidArr || !$dialogIds)
 		{
-			return false;
+			return ['list' => [], 'page' => '', 'total' => 0];
 		}
 
 		$userInfos =Users::getUserInfoByIds($dialogUidArr,'',99);
