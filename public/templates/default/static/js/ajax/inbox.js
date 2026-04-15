@@ -8,14 +8,14 @@ function refreshInboxDialog() {
         return;
     }
     $('#inbox-dialog-container').empty();
-    AWS.api.ajaxLoadMore('#inbox-dialog-container', baseUrl + "/ajax/dialog", { recipient_uid: recipient });
+    window.AWS.api.ajaxLoadMore('#inbox-dialog-container', baseUrl + "/ajax/dialog", { recipient_uid: recipient });
 }
 
 function whenAwsReady(callback, attempts) {
     var remaining = typeof attempts === 'number' ? attempts : 120;
 
     function run() {
-        if (window.AWS && AWS.api && window.jQuery) {
+        if (window.AWS && window.AWS.api && window.jQuery) {
             callback();
             return;
         }
@@ -71,7 +71,11 @@ $(document).on('click', '.aw-ajax-submit', function (e) {
         error: function (error) {
             if ($.trim(error.responseText) !== '') {
                 layer.closeAll();
-                AWS.api.error('发生错误, 返回的信息:' + ' ' + error.responseText);
+                if (window.AWS && window.AWS.api) {
+                    window.AWS.api.error('发生错误, 返回的信息:' + ' ' + error.responseText);
+                } else {
+                    layer.msg('发生错误: ' + error.responseText);
+                }
             }
         }
     });

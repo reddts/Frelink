@@ -2,6 +2,38 @@
 
 ## 2026-04-15
 
+### 里程碑：修复 inbox 页面 `_ajax_open=1` 场景下 `AWS is not defined`
+
+- 问题现象：
+  - 页面：`https://www.frelink.top/inbox/index.html`（含 `_ajax_open=1`）
+  - 点击“新私信”触发 `__openInboxDialogSafe()` 仍报：`Uncaught ReferenceError: AWS is not defined`
+- 根因：
+  - 防护代码中仍混用了裸 `AWS` 标识符（如 `window.AWS && AWS.User`），在部分上下文里全局标识符未建立时会直接抛错。
+- 修复内容：
+  - [inbox/index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/inbox/index.php)
+    - `__openInboxDialogSafe` 统一改为 `window.AWS.User.inbox(...)` 访问。
+  - [ajax/inbox.js](/mnt/f/workwww/knowlege-github/public/templates/default/static/js/ajax/inbox.js)
+    - `refreshInboxDialog`、`whenAwsReady`、异常处理统一改为 `window.AWS.api` 访问；
+    - 增加 `window.AWS` 不可用时的 `layer.msg` 兜底提示。
+  - [version.php](/mnt/f/workwww/knowlege-github/config/version.php)
+    - 静态版本升级到 `4.1.6`，强制客户端更新脚本缓存。
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（inbox 全局引用修复批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-15 16:13:19-16:13:57 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh sync`
+  - `bash scripts/deploy.sh verify`
+- 远程验证结果：
+  - `php/composer/think/clear/api:doc/smoke` 全链路通过
+- 页面 / 资源抽检：
+  - `GET /inbox/index.html`：已引用 `aws.js?v=4.1.6`、`app.js?v=4.1.6`
+  - `GET /templates/default/static/js/ajax/inbox.js?v=4.1.6`：已是 `window.AWS` 访问方式
+
 ### 里程碑：修复 `/inbox/send.html` 表单 `searchUser` 回车触发参数错误
 
 - 问题现象：

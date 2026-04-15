@@ -6,8 +6,8 @@
         var remain = 120;
 
         function run() {
-            if (window.AWS && AWS.User && typeof AWS.User.inbox === 'function') {
-                AWS.User.inbox(name);
+            if (window.AWS && window.AWS.User && typeof window.AWS.User.inbox === 'function') {
+                window.AWS.User.inbox(name);
                 return;
             }
 
