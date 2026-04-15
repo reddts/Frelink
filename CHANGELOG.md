@@ -2,6 +2,37 @@
 
 ## 2026-04-15
 
+### 里程碑：修复新私信弹窗 `bind_dropdown_list` 未就绪报错
+
+- 问题现象：
+  - 页面：`https://www.frelink.top/inbox/index.html`
+  - 点击“新私信”后弹窗内报错：
+    - `Uncaught TypeError: Cannot read properties of undefined (reading 'bind_dropdown_list')`
+- 根因：
+  - 弹窗模板 [ajax/inbox.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/ajax/inbox.php) 直接执行 `AWS.Dropdown.bind_dropdown_list(...)`，
+    在部分时序下 `AWS.Dropdown` 尚未初始化。
+- 修复内容：
+  - [ajax/inbox.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/ajax/inbox.php)
+    - 将直接调用改为 `bindInboxSearchUser` 轮询绑定：等待 `window.AWS.Dropdown.bind_dropdown_list` 就绪后再执行。
+  - [version.php](/mnt/f/workwww/knowlege-github/config/version.php)
+    - 静态版本升级到 `4.1.9`。
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（新私信弹窗绑定修复批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-15 16:45:24-16:46:19 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh sync`
+  - `bash scripts/deploy.sh verify`
+- 远程验证结果：
+  - `php/composer/think/clear/api:doc/smoke` 全链路通过
+- 页面 / 资源抽检：
+  - `GET /inbox/index.html` 已引用 `aws.js?v=4.1.9`、`app.js?v=4.1.9`
+  - `GET /ajax/inbox.html?_ajax_open=1` 已包含 `bindInboxSearchUser` 与延迟绑定逻辑
+
 ### 里程碑：修复首页脚本拼接错误导致的 `\"0\" is not a function` 与 `cronEnable is not defined`
 
 - 问题现象：

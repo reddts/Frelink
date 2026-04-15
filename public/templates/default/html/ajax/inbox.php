@@ -87,7 +87,21 @@
                 <div class="aw-dropdown-list aw-overflow-auto text-left"></div>
             </div>
             <script>
-                AWS.Dropdown.bind_dropdown_list('#searchUser', 'inbox');
+                (function bindInboxSearchUser() {
+                    var remain = 120;
+                    function run() {
+                        if (window.AWS && window.AWS.Dropdown && typeof window.AWS.Dropdown.bind_dropdown_list === 'function') {
+                            window.AWS.Dropdown.bind_dropdown_list('#searchUser', 'inbox');
+                            return;
+                        }
+                        if (remain <= 0) {
+                            return;
+                        }
+                        remain -= 1;
+                        window.setTimeout(run, 50);
+                    }
+                    run();
+                })();
             </script>
         </div>
 
