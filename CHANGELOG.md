@@ -2,6 +2,49 @@
 
 ## 2026-04-15
 
+### 里程碑：People 个人主页 PC 视觉对齐（两栏卡片样式）
+
+- 改造范围：
+  - 仅 `People/index`（PC 端），不涉及 `People/lists` 与移动端模板。
+- 主要变更：
+  - [People.php](/mnt/f/workwww/knowlege-github/app/frontend/People.php)
+    - 新增 `type` 白名单归一化（非法值回退 `dynamic`）。
+    - 新增模板友好赋值：`profile_stats`、`post_tabs`，减少模板内拼装逻辑。
+  - [index.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/people/index.php)
+    - 重构为统一结构：用户信息头卡片 + Tabs 卡片 + 主内容卡片 + 右侧成就卡片。
+    - 移除原内联样式，保留关注/私信/编辑资料、`hook`、`widget`、`pjax` 交互。
+  - [index.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/people/index.css)
+    - 补齐页面样式收口：头像、信息统计、tab 激活态、右侧成就、内容区 `topic-item` 样式。
+- 本地验证：
+  - `php -l app/frontend/People.php`：通过
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（People 个人主页样式批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-15 15:21:07-15:21:50 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh show-config`
+  - `bash scripts/deploy.sh sync`
+  - `bash scripts/deploy.sh verify`
+- 远程验证结果：
+  - `php -v`：`PHP 8.2.28`
+  - `composer --version`：`2.9.5`
+  - `composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader`：通过
+  - `php think --version`：`8.1.4`
+  - `php think worker --help`：通过
+  - `php -l app/function.inc.php`：通过
+  - `php -l app/frontend/Article.php`：通过
+  - `sudo -n php think clear`：通过
+  - `sudo -n php think api:doc --output docs/api-v1.md`：通过（`Controllers: 23`、`Endpoints: 154`）
+  - `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`：通过
+- 页面 / 参数检查：
+  - `GET https://www.frelink.top/people/johnfrelinktop/` 返回新版结构标记：`people-page-wrap`、`people-profile-card`、`people-achievement-card`
+  - `GET https://www.frelink.top/people/johnfrelinktop/?type=__bad__`：标签自动回退 `dynamic`（`nav-link active` 指向 dynamic）
+  - smoke：`/`、`/questions/`、`/articles/` 全部通过
+
 ### 里程碑：修复 inbox 页面 `assign(bool)` 导致的 500
 
 - 问题现象：

@@ -12,7 +12,6 @@
 namespace app\frontend;
 use app\common\controller\Frontend;
 use app\common\library\helper\LogHelper;
-use app\common\library\helper\StringHelper;
 use app\logic\common\FocusLogic;
 use app\model\Users as UsersModel;
 
@@ -23,6 +22,7 @@ use app\model\Users as UsersModel;
 class People extends Frontend
 {
     protected $needLogin = [];
+    protected $allowedTypes = ['dynamic', 'question', 'answer', 'article', 'friend', 'fans', 'column', 'topic'];
 	public function index()
 	{
 	    $url = $this->request->param('name');
@@ -55,12 +55,37 @@ class People extends Frontend
         $user['has_focus'] = FocusLogic::checkUserIsFocus($this->user_id,'user',$user['uid']);
 
         $type = $this->request->param('type','dynamic');
-        $this->assign('type',$type);
+        if (!in_array($type, $this->allowedTypes, true))
+        {
+            $type = 'dynamic';
+        }
 
-        $this->assign('question_count',LogHelper::getActionLogCount('publish_question',$user['uid'],$this->user_id));
-        $this->assign('answer_count',LogHelper::getActionLogCount('publish_answer',$user['uid'],$this->user_id));
-        $this->assign('article_count',LogHelper::getActionLogCount('publish_article',$user['uid'],$this->user_id));
+        $questionCount = LogHelper::getActionLogCount('publish_question',$user['uid'],$this->user_id);
+        $answerCount = LogHelper::getActionLogCount('publish_answer',$user['uid'],$this->user_id);
+        $articleCount = LogHelper::getActionLogCount('publish_article',$user['uid'],$this->user_id);
+
+        $this->assign('type',$type);
+        $this->assign('question_count',$questionCount);
+        $this->assign('answer_count',$answerCount);
+        $this->assign('article_count',$articleCount);
         $this->assign('user',$user);
+        $this->assign('profile_stats', [
+            ['label' => L('关注'), 'value' => (int)$user['friend_count']],
+            ['label' => L('粉丝'), 'value' => (int)$user['fans_count']],
+            ['label' => L($this->settings['score_unit']), 'value' => (int)$user['integral']],
+            ['label' => L($this->settings['power_unit']), 'value' => (int)$user['reputation']],
+            ['label' => L('访问'), 'value' => (int)$user['views_count']],
+        ]);
+        $this->assign('post_tabs', [
+            ['type' => 'dynamic', 'label' => L('动态')],
+            ['type' => 'question', 'label' => L('FAQ'), 'count' => (int)$questionCount],
+            ['type' => 'answer', 'label' => L('补充'), 'count' => (int)$answerCount],
+            ['type' => 'article', 'label' => L('内容'), 'count' => (int)$articleCount],
+            ['type' => 'friend', 'label' => L('关注的人')],
+            ['type' => 'fans', 'label' => L('关注TA的')],
+            ['type' => 'column', 'label' => L('关注的专栏')],
+            ['type' => 'topic', 'label' => L('关注的话题')],
+        ]);
 
         $seo_title = trim(strip_tags($user['nick_name'])) . '的主页动态、问答与文章内容';
         $this->TDK($seo_title);

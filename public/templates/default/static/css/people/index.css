@@ -1,17 +1,178 @@
-.authorBox .bgstyle{ position: absolute; z-index: 1}
-.authorAvatar{
+.people-page-wrap .authorAvatar {
     background: #fff;
-    padding: 5px;
-    width: 139px;
-    height: 139px;
-    overflow: hidden;
+    border: 1px solid #edf0f3;
     border-radius: 50%;
+    flex: 0 0 112px;
+    height: 112px;
+    overflow: hidden;
+    padding: 4px;
+    width: 112px;
 }
-.authorAvatar img{border-radius:100px;width: 139px;height: 139px;}
-.autobox{ position: relative; z-index: 666; top:50px; left:60px; width:70%; height:200px; padding:30px; background: url("../../images/apher2.png")}
-.authorInfo{
+
+.people-page-wrap .authorAvatar img {
+    border-radius: 50%;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+
+.people-profile-card,
+.people-tabs-card,
+.people-content-card,
+.people-achievement-card {
+    border: 1px solid #edf0f3;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.people-profile-main {
+    align-items: flex-start;
+}
+
+.people-profile-title {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 1.125rem;
+    line-height: 1.4;
+}
+
+.people-verified-icon {
+    height: 18px;
+    margin-left: 0.4rem;
+    width: 18px;
+}
+
+.people-profile-signature,
+.people-profile-sex,
+.people-profile-stats {
+    font-size: 0.875rem;
+}
+
+.people-profile-signature,
+.people-profile-sex {
+    color: #6c757d;
+}
+
+.people-profile-stats {
+    color: #495057;
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: 280px;
+}
+
+.people-stat-item {
+    margin-right: 1rem;
+    position: relative;
+}
+
+.people-stat-item::after {
+    color: #ced4da;
+    content: '|';
+    margin-left: 1rem;
+}
+
+.people-stat-item:last-child::after {
+    content: '';
+    margin: 0;
+}
+
+.people-action-bar {
+    align-items: center;
+    bottom: 0;
+    display: inline-flex;
+    gap: 0.5rem;
+    position: absolute;
+    right: 0;
+}
+
+.people-tabs-card {
+    margin-bottom: 0.5rem;
+}
+
+.people-nav-tabs {
+    flex-wrap: nowrap;
+}
+
+.people-page-wrap .swiper-slide {
+    width: auto !important;
+}
+
+.people-page-wrap .aw-pjax-tabs .nav-link {
+    border-bottom: 2px solid transparent;
+    color: #495057;
+    font-size: 0.95rem;
+    padding: 0.9rem 0.6rem;
+}
+
+.people-page-wrap .aw-pjax-tabs .nav-link.active {
+    border-bottom-color: #007bff;
+    color: #007bff;
+    font-weight: 600;
+}
+
+.people-content-card {
+    min-height: 14rem;
+}
+
+.people-achievement-list {
+    color: #6c757d;
+    font-size: 0.875rem;
+    list-style: none;
+    padding-left: 0.2rem;
+}
+
+.people-achievement-list li {
+    margin-bottom: 0.5rem;
+}
+
+.people-achievement-list li:last-child {
+    margin-bottom: 0;
+}
+
+.people-achievement-list .iconfont {
+    margin-right: 0.3rem;
+}
+
+.people-content-card .topic-item dl {
+    border-bottom: 1px solid #efefef;
+    margin-bottom: 0;
+    overflow: hidden;
+    padding: 0.75rem 0;
+}
+
+.people-content-card .topic-item dl:last-child {
+    border-bottom: 0;
+}
+
+.people-content-card .topic-item dt {
     float: left;
-    padding-left:20px;
-    width:60%;
+    height: 74px;
+    width: 74px;
 }
-.authorInfo dd, .authorInfo dd h2 a{ color: #ffffff;}
+
+.people-content-card .topic-item dt img {
+    height: 74px !important;
+    width: 74px !important;
+}
+
+.people-content-card .topic-item dd {
+    float: right;
+    height: 74px;
+    margin-bottom: 0;
+    width: calc(100% - 84px);
+}
+
+.people-content-card .topic-item dd p {
+    color: #999;
+}
+
+@media (max-width: 1199px) {
+    .people-profile-stats {
+        margin-right: 0;
+    }
+
+    .people-action-bar {
+        margin-top: 0.75rem;
+        position: static;
+    }
+}
