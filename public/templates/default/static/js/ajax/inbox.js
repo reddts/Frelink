@@ -2,6 +2,27 @@ function getRecipient() {
     return $.trim($('input[name=recipient_uid]').val() || '');
 }
 
+function closeInboxLayerIfPresent(triggerElement) {
+    if (!window.layer || !window.jQuery) {
+        return;
+    }
+
+    var $trigger = $(triggerElement);
+    var $layer = $trigger.closest('.layui-layer');
+    if (!$layer.length) {
+        $layer = $trigger.parents().find('.layui-layer').first();
+    }
+    if (!$layer.length) {
+        return;
+    }
+
+    var layerId = $layer.attr('id') || '';
+    var layerIndex = parseInt(layerId.replace('layui-layer', ''), 10);
+    if (!isNaN(layerIndex)) {
+        layer.close(layerIndex);
+    }
+}
+
 function refreshInboxDialog() {
     var recipient = getRecipient();
     if (!recipient || !$('#inbox-dialog-container').length) {
@@ -64,6 +85,7 @@ $(document).on('click', '.aw-ajax-submit', function (e) {
             if (result.code > 0) {
                 $('textarea[name=message]').val('');
                 refreshInboxDialog();
+                closeInboxLayerIfPresent(that);
             } else {
                 layer.msg(result.msg);
             }

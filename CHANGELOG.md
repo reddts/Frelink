@@ -2,6 +2,37 @@
 
 ## 2026-04-15
 
+### 里程碑：私信发送成功后自动关闭弹层（`layui-layer4`）
+
+- 需求：
+  - 页面：`https://www.frelink.top/inbox/index.html`
+  - 点击“发送私信”成功后，关闭当前私信弹层（例如 `id="layui-layer4"`）。
+- 实现：
+  - [inbox.js](/mnt/f/workwww/knowlege-github/public/templates/default/static/js/ajax/inbox.js)
+    - 新增 `closeInboxLayerIfPresent(triggerElement)`：
+      - 从按钮向上定位当前 `.layui-layer`
+      - 解析 `id=layui-layerN` 的层索引并调用 `layer.close(N)`
+    - 在发送成功分支（`result.code > 0`）中调用关闭逻辑。
+  - [version.php](/mnt/f/workwww/knowlege-github/config/version.php)
+    - 静态版本升级到 `4.1.10`，确保前端命中新脚本。
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（私信发送关闭弹层批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-15 16:51:40-16:52:38 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh sync`
+  - `bash scripts/deploy.sh verify`
+- 远程验证结果：
+  - `php/composer/think/clear/api:doc/smoke` 全链路通过
+- 页面 / 资源抽检：
+  - `GET /inbox/index.html` 已引用 `aws.js?v=4.1.10`、`app.js?v=4.1.10`
+  - `GET /templates/default/static/js/ajax/inbox.js?v=4.1.10` 已包含 `closeInboxLayerIfPresent` 与 `layer.close(...)`
+  - `GET /ajax/inbox.html?_ajax_open=1` 仍保持 `bindInboxSearchUser` 延迟绑定逻辑
+
 ### 里程碑：修复新私信弹窗 `bind_dropdown_list` 未就绪报错
 
 - 问题现象：
