@@ -2,6 +2,41 @@
 
 ## 2026-04-15
 
+### 里程碑：修复首页脚本拼接错误导致的 `\"0\" is not a function` 与 `cronEnable is not defined`
+
+- 问题现象：
+  - 页面：`https://www.frelink.top/`
+  - 报错：
+    - `Uncaught TypeError: "0" is not a function`
+    - `Uncaught ReferenceError: cronEnable is not defined`
+- 根因：
+  - 在全局变量注入段新增 IIFE 时，`window.cronEnable = "0"` 后缺少分号，导致被解释为 `"0"(function(){...})`；
+  - 脚本中断后 `cronEnable` 全局变量未建立，`app.js` 引用时报错。
+- 修复内容：
+  - [block.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/block.php)
+    - 补全 `window.cronEnable` 行尾分号；
+    - 增加显式映射：`var pjaxEnable = window.pjaxEnable;`、`var cronEnable = window.cronEnable;`
+  - [version.php](/mnt/f/workwww/knowlege-github/config/version.php)
+    - 静态版本升级到 `4.1.8`。
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（首页脚本修复批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-15 16:39:09-16:39:46 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh sync`
+  - `bash scripts/deploy.sh verify`
+- 远程验证结果：
+  - `php/composer/think/clear/api:doc/smoke` 全链路通过
+- 页面 / 资源抽检：
+  - 首页已输出：
+    - `window.cronEnable = "0";`
+    - `var cronEnable = window.cronEnable;`
+  - 首页已引用 `aws.js?v=4.1.8`、`app.js?v=4.1.8`
+
 ### 里程碑：新增全局 AWS 早期兜底，修复 inbox 新私信点击仍报 `AWS is not defined`
 
 - 问题现象：

@@ -111,7 +111,9 @@
         window.isAjax = parseInt("{$_ajax?1:0}");
         window.isAjaxOpen = parseInt("{$_ajax_open?1:0}");
         window.pjaxEnable =  "{$setting.pjax_enable=='Y' ? 1 : 0}" ;
-        window.cronEnable = "{$setting.cron_enable=='Y' ? 1 : 0}"
+        window.cronEnable = "{$setting.cron_enable=='Y' ? 1 : 0}";
+        var pjaxEnable = window.pjaxEnable;
+        var cronEnable = window.cronEnable;
         // 兜底：在 aws.js 完成初始化前，避免任何内联 AWS.User.inbox 调用抛出 ReferenceError
         (function () {
             var retryFn = function (recipient) {
