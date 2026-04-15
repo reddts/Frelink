@@ -2,6 +2,36 @@
 
 ## 2026-04-15
 
+### 里程碑：修复 `/inbox/send.html` 表单 `searchUser` 回车触发参数错误
+
+- 问题现象：
+  - 在私信弹窗（`action="/inbox/send.html"`）的 `searchUser` 输入框按回车时，表单被直接提交，后端返回参数错误。
+- 根因：
+  - `AWS.Dropdown.bind_dropdown_list(..., 'inbox')` 未拦截回车键，输入框位于表单内时触发表单默认提交。
+- 修复内容：
+  - [aws.js](/mnt/f/workwww/knowlege-github/public/static/common/js/aws.js)
+    - 在 `bind_dropdown_list` 中为 `inbox/invite` 类型新增 `keydown` 回车拦截；
+    - 回车时优先选中候选项（`active` 或首项）写回输入框，并隐藏下拉；
+    - 阻止默认提交，避免请求落到 `/inbox/send.html` 的错误参数场景。
+  - [version.php](/mnt/f/workwww/knowlege-github/config/version.php)
+    - 静态版本升级到 `4.1.5`，确保客户端拉取修复脚本。
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（searchUser 回车修复批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-15 16:10:49-16:11:33 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh sync`
+  - `bash scripts/deploy.sh verify`
+- 远程验证结果：
+  - `php/composer/think/clear/api:doc/smoke` 全链路通过
+- 页面 / 资源抽检：
+  - `GET /static/common/js/aws.js?v=4.1.5`：已包含 `inbox/invite` 回车拦截逻辑
+  - `GET /inbox/`：已引用 `aws.js?v=4.1.5`
+
 ### 里程碑：再次修复 inbox 页面内联调用导致的 `AWS is not defined`
 
 - 问题现象：

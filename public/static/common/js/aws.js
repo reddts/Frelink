@@ -1404,6 +1404,27 @@ var AWS = {
                 });
             }
 
+            // 防止 inbox/invite 输入框回车直接触发表单提交，导致 /inbox/send 参数错误
+            $(selector).on('keydown', function (e)
+            {
+                if ((type === 'inbox' || type === 'invite') && e.which === 13)
+                {
+                    var root = $(selector).parent();
+                    var activeItem = root.find('.aw-dropdown .aw-dropdown-list li.active a');
+                    var targetItem = activeItem.length ? activeItem : root.find('.aw-dropdown .aw-dropdown-list li a').first();
+
+                    if (targetItem.length)
+                    {
+                        var account = targetItem.data('account');
+                        $(selector).val(account ? account : targetItem.text());
+                    }
+
+                    root.find('.aw-dropdown').hide();
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
             $(selector).bind('compositionstart', function (e) {
                 e.target.composing = true
             })
