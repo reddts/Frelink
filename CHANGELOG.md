@@ -2,6 +2,33 @@
 
 ## 2026-04-15
 
+### 里程碑：新增全局 AWS 早期兜底，修复 inbox 新私信点击仍报 `AWS is not defined`
+
+- 问题现象：
+  - 页面：`https://www.frelink.top/inbox/index.html`
+  - 元素：`<a class="text-muted mr-3">新私信</a>`
+  - 点击触发 `__openInboxDialogSafe()` 仍偶发 `Uncaught ReferenceError: AWS is not defined`
+- 修复策略：
+  - 在 [block.php](/mnt/f/workwww/knowlege-github/public/templates/default/html/block.php) 的全局初始化脚本中新增 `window.AWS.User.inbox` 早期兜底占位函数；
+  - 在 `aws.js` 真实加载完成前，任何提前触发的 `AWS.User.inbox(...)` 都不会抛错，而是轮询等待真实方法就绪后再执行。
+  - [version.php](/mnt/f/workwww/knowlege-github/config/version.php) 静态版本升级到 `4.1.7`。
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（AWS 全局兜底批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-15 16:30:49-16:31:34 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh sync`
+  - `bash scripts/deploy.sh verify`
+- 远程验证结果：
+  - `php/composer/think/clear/api:doc/smoke` 全链路通过
+- 页面 / 资源抽检：
+  - `GET /inbox/index.html` 已引用 `aws.js?v=4.1.7`、`app.js?v=4.1.7`
+  - 首页输出脚本已包含 `window.AWS.User.inbox = retryFn` 兜底逻辑
+
 ### 里程碑：修复 inbox 页面 `_ajax_open=1` 场景下 `AWS is not defined`
 
 - 问题现象：

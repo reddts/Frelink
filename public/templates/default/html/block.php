@@ -112,6 +112,32 @@
         window.isAjaxOpen = parseInt("{$_ajax_open?1:0}");
         window.pjaxEnable =  "{$setting.pjax_enable=='Y' ? 1 : 0}" ;
         window.cronEnable = "{$setting.cron_enable=='Y' ? 1 : 0}"
+        // 兜底：在 aws.js 完成初始化前，避免任何内联 AWS.User.inbox 调用抛出 ReferenceError
+        (function () {
+            var retryFn = function (recipient) {
+                var remain = 120;
+                function run() {
+                    if (window.AWS && window.AWS.User && window.AWS.User.inbox && window.AWS.User.inbox !== retryFn) {
+                        window.AWS.User.inbox(recipient);
+                        return;
+                    }
+                    if (remain <= 0) {
+                        if (window.layer && layer.msg) {
+                            layer.msg('页面资源加载中，请稍后重试');
+                        }
+                        return;
+                    }
+                    remain -= 1;
+                    window.setTimeout(run, 50);
+                }
+                run();
+            };
+            window.AWS = window.AWS || {};
+            window.AWS.User = window.AWS.User || {};
+            if (typeof window.AWS.User.inbox !== 'function') {
+                window.AWS.User.inbox = retryFn;
+            }
+        })();
         // 代码高亮（依赖 hljs）
         window.__onDomReady(function () {
             if (!window.hljs) return;
