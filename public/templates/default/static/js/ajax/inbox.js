@@ -3,23 +3,30 @@ function getRecipient() {
 }
 
 function closeInboxLayerIfPresent(triggerElement) {
-    if (!window.layer || !window.jQuery) {
-        return;
+    // inbox 弹窗默认通过 AWS.api.open(type=2) 以 iframe 打开，需在父窗口关闭
+    if (window.parent && window.parent !== window && window.parent.layer && window.name) {
+        var parentIndex = window.parent.layer.getFrameIndex(window.name);
+        if (typeof parentIndex === 'number' && parentIndex >= 0) {
+            window.parent.layer.close(parentIndex);
+            return;
+        }
     }
 
-    var $trigger = $(triggerElement);
-    var $layer = $trigger.closest('.layui-layer');
-    if (!$layer.length) {
-        $layer = $trigger.parents().find('.layui-layer').first();
-    }
-    if (!$layer.length) {
-        return;
-    }
+    if (window.layer && window.jQuery) {
+        var $trigger = $(triggerElement);
+        var $layer = $trigger.closest('.layui-layer');
+        if (!$layer.length) {
+            $layer = $trigger.parents().find('.layui-layer').first();
+        }
+        if (!$layer.length) {
+            return;
+        }
 
-    var layerId = $layer.attr('id') || '';
-    var layerIndex = parseInt(layerId.replace('layui-layer', ''), 10);
-    if (!isNaN(layerIndex)) {
-        layer.close(layerIndex);
+        var layerId = $layer.attr('id') || '';
+        var layerIndex = parseInt(layerId.replace('layui-layer', ''), 10);
+        if (!isNaN(layerIndex)) {
+            layer.close(layerIndex);
+        }
     }
 }
 

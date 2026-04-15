@@ -2,6 +2,38 @@
 
 ## 2026-04-15
 
+### 里程碑：修复私信发送后弹层未关闭（iframe 层关闭逻辑）
+
+- 问题现象：
+  - 发送私信成功后弹层未关闭（例如 `layui-layer4` 仍在）。
+- 根因：
+  - 私信弹窗由 `AWS.api.open` 以 `type: 2`（iframe）打开；
+  - 之前仅在子页面内查找 `.layui-layer` 关闭，无法准确关闭父页面中的 iframe 层容器。
+- 修复内容：
+  - [inbox.js](/mnt/f/workwww/knowlege-github/public/templates/default/static/js/ajax/inbox.js)
+    - `closeInboxLayerIfPresent` 优先走 iframe 关闭路径：
+      - `parent.layer.getFrameIndex(window.name)`
+      - `parent.layer.close(index)`
+    - 保留原页面内关闭作为回退逻辑。
+  - [version.php](/mnt/f/workwww/knowlege-github/config/version.php)
+    - 静态版本升级到 `4.1.11`。
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（私信弹层关闭二次修复批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-15 16:58:25-16:59:13 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh sync`
+  - `bash scripts/deploy.sh verify`
+- 远程验证结果：
+  - `php/composer/think/clear/api:doc/smoke` 全链路通过
+- 页面 / 资源抽检：
+  - `GET /inbox/index.html` 已引用 `aws.js?v=4.1.11`、`app.js?v=4.1.11`
+  - `GET /templates/default/static/js/ajax/inbox.js?v=4.1.11` 已包含 `getFrameIndex(window.name)` 与 `parent.layer.close(...)`
+
 ### 里程碑：私信发送成功后自动关闭弹层（`layui-layer4`）
 
 - 需求：
