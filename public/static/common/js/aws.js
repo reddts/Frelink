@@ -1949,6 +1949,7 @@ var AWS = {
          * @param path 上传路径
          */
         webUpload : function (filePicker, preview, field, path, type, more, listContainer) {
+            var initArgs = arguments;
             type = type || 'img';
             path = path || 'common';
             let upload_allowExt,size;
@@ -1963,6 +1964,27 @@ var AWS = {
                 size = upload_image_size * 1024;
             } else {
                 size = upload_file_size * 1024;
+            }
+
+            if (typeof WebUploader === 'undefined') {
+                var uploaderScript = (window.staticUrl || '/static/') + 'libs/webuploader/webuploader.js';
+                window.__awWebUploaderReady = window.__awWebUploaderReady || $.getScript(uploaderScript);
+
+                window.__awWebUploaderReady
+                    .done(function () {
+                        AWS.upload.webUpload.apply(AWS.upload, initArgs);
+                    })
+                    .fail(function () {
+                        if (window.layer && layer.msg) {
+                            layer.msg('上传组件加载失败，请刷新页面后重试');
+                        } else {
+                            alert('上传组件加载失败，请刷新页面后重试');
+                        }
+                    })
+                    .always(function () {
+                        window.__awWebUploaderReady = null;
+                    });
+                return;
             }
 
             var $list = $("#" + listContainer + "");

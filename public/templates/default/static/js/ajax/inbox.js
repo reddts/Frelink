@@ -11,7 +11,33 @@ function refreshInboxDialog() {
     AWS.api.ajaxLoadMore('#inbox-dialog-container', baseUrl + "/ajax/dialog", { recipient_uid: recipient });
 }
 
-refreshInboxDialog();
+function whenAwsReady(callback, attempts) {
+    var remaining = typeof attempts === 'number' ? attempts : 120;
+
+    function run() {
+        if (window.AWS && AWS.api && window.jQuery) {
+            callback();
+            return;
+        }
+
+        if (remaining <= 0) {
+            return;
+        }
+
+        remaining -= 1;
+        window.setTimeout(run, 50);
+    }
+
+    if (typeof window.__onDomReady === 'function') {
+        window.__onDomReady(run);
+    } else {
+        run();
+    }
+}
+
+whenAwsReady(function () {
+    refreshInboxDialog();
+});
 
 $(document).on('click', '.aw-ajax-submit', function (e) {
     var that = this;

@@ -2,6 +2,59 @@
 
 ## 2026-04-15
 
+### 里程碑：修复 `inbox` 页面 `AWS is not defined` 脚本时序问题
+
+- 问题现象：
+  - 页面：`https://www.frelink.top/inbox/`
+  - 报错：`Uncaught ReferenceError: AWS is not defined`（`inbox.js` 初始化阶段）
+- 根因：
+  - [inbox.js](/mnt/f/workwww/knowlege-github/public/templates/default/static/js/ajax/inbox.js) 属于自动加载脚本（非 `defer`），在部分加载时序下先于 `aws.js` 执行，直接调用 `AWS.api` 触发未定义错误。
+- 修复内容：
+  - [inbox.js](/mnt/f/workwww/knowlege-github/public/templates/default/static/js/ajax/inbox.js)
+    - 新增 `whenAwsReady` 轮询就绪函数；
+    - 首次 `refreshInboxDialog()` 改为等待 `AWS + jQuery` 就绪后再执行。
+
+### 里程碑：修复 `setting/profile` 头像上传 `WebUploader is not defined` 并移除 People 指定 padding
+
+- 问题现象：
+  - 页面：`https://www.frelink.top/setting/profile.html`
+  - 报错：`Uncaught ReferenceError: WebUploader is not defined`（`AWS.upload.webUpload`）
+- 修复内容：
+  - [aws.js](/mnt/f/workwww/knowlege-github/public/static/common/js/aws.js)
+    - 在 `AWS.upload.webUpload()` 中增加 `WebUploader` 缺失兜底：动态加载 `libs/webuploader/webuploader.js` 后自动重试初始化；
+    - 加载失败时增加前端提示。
+  - [index.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/people/index.css)
+    - 按需求移除 `.people-page-wrap .aw-pjax-tabs .nav-link` 的 `padding: 0.9rem 0.6rem;`。
+  - [version.php](/mnt/f/workwww/knowlege-github/config/version.php)
+    - 静态资源版本升级到 `4.1.3`，确保客户端拉取新 JS/CSS。
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（inbox/profile/people 修复批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-15 15:55:22-15:56:16 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh sync`
+  - `bash scripts/deploy.sh verify`
+- 远程验证结果：
+  - `php -v`：`PHP 8.2.28`
+  - `composer --version`：`2.9.5`
+  - `composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader`：通过
+  - `php think --version`：`8.1.4`
+  - `php think worker --help`：通过
+  - `php -l app/function.inc.php`：通过
+  - `php -l app/frontend/Article.php`：通过
+  - `sudo -n php think clear`：通过
+  - `sudo -n php think api:doc --output docs/api-v1.md`：通过（`Controllers: 23`、`Endpoints: 154`）
+  - `sudo -n php think api:doc --format=openapi --output public/docs/api-v1.openapi.json`：通过
+- 页面 / 资源抽检：
+  - `GET https://www.frelink.top/inbox/`：已输出 `aws.js?v=4.1.3`、`app.js?v=4.1.3`
+  - `GET /templates/default/static/js/ajax/inbox.js?v=4.1.3`：已包含 `whenAwsReady`
+  - `GET /templates/default/static/css/people/index.css?v=4.1.3`：不再包含 `padding: 0.9rem 0.6rem`
+  - smoke：`/`、`/questions/`、`/articles/` 全部通过
+
 ### 里程碑：People 个人主页 PC 视觉对齐（两栏卡片样式）
 
 - 改造范围：
