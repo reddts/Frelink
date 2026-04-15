@@ -4174,3 +4174,14 @@
   - 私信发送成功后，输入框清空仍生效
   - 对话容器存在时可继续刷新会话内容
   - iframe 弹窗场景可正常关闭，不再出现“执行但无效果”
+
+### 里程碑补充：私信发送后刷新与关闭执行顺序加固
+
+- 本地修改：
+  - `public/templates/default/static/js/ajax/inbox.js`
+  - `refreshInboxDialog` 增加回调机制，发送成功后改为“刷新完成再关闭弹窗”
+  - 新增刷新降级路径：`AWS.api.ajaxLoadMore` 不可用或执行异常时，自动回退到 `$.ajax` 拉取第一页对话
+- 真实部署批次：
+  - 2026-04-15 17:16 CST 同步到 `production`，完成远端批处理与 smoke
+- 实际结果：
+  - `closeInboxLayerIfPresent(that)` 与 `refreshInboxDialog()` 可串行生效，不再因 iframe 提前关闭导致刷新中断

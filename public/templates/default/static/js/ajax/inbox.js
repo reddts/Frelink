@@ -31,13 +31,65 @@ function closeInboxLayerIfPresent(triggerElement) {
     }
 }
 
-function refreshInboxDialog() {
+function refreshInboxDialog(done) {
     var recipient = getRecipient();
-    if (!recipient || !$('#inbox-dialog-container').length || !window.AWS || !window.AWS.api || typeof window.AWS.api.ajaxLoadMore !== 'function') {
+    var $container = $('#inbox-dialog-container');
+    if (!recipient || !$container.length) {
+        if (typeof done === 'function') {
+            done();
+        }
         return;
     }
-    $('#inbox-dialog-container').empty();
-    window.AWS.api.ajaxLoadMore('#inbox-dialog-container', baseUrl + "/ajax/dialog", { recipient_uid: recipient });
+
+    var finished = false;
+    function finish() {
+        if (finished) {
+            return;
+        }
+        finished = true;
+        if (typeof done === 'function') {
+            done();
+        }
+    }
+
+    function fallbackRefresh() {
+        $.ajax({
+            url: baseUrl + "/ajax/dialog",
+            type: 'post',
+            dataType: 'html',
+            data: {
+                recipient_uid: recipient,
+                page: 1,
+                _ajax: 1
+            },
+            success: function (html) {
+                $container.html(html);
+                finish();
+            },
+            error: function () {
+                finish();
+            }
+        });
+    }
+
+    $container.empty();
+
+    if (window.AWS && window.AWS.api && typeof window.AWS.api.ajaxLoadMore === 'function') {
+        try {
+            window.AWS.api.ajaxLoadMore('#inbox-dialog-container', baseUrl + "/ajax/dialog", { recipient_uid: recipient }, function (res, page, next) {
+                var html = (res && res.data && typeof res.data.html !== 'undefined') ? res.data.html : res;
+                var total = (res && res.data && res.data.last_page) ? res.data.last_page : ($($(html)[0]).data('total') || 1);
+                next(html, page < total);
+                finish();
+            });
+            return;
+        } catch (e) {
+            fallbackRefresh();
+            return;
+        }
+    }
+
+    fallbackRefresh();
 }
 
 function whenAwsReady(callback, attempts) {
@@ -92,8 +144,9 @@ $(document).on('click', '.aw-ajax-submit', function (e) {
         success: function (result) {
             if (result.code > 0) {
                 $('textarea[name=message]').val('');
-                refreshInboxDialog();
-                closeInboxLayerIfPresent(that);
+                refreshInboxDialog(function () {
+                    closeInboxLayerIfPresent(that);
+                });
             } else {
                 layer.msg(result.msg);
             }
