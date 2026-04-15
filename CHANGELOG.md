@@ -4185,3 +4185,17 @@
   - 2026-04-15 17:16 CST 同步到 `production`，完成远端批处理与 smoke
 - 实际结果：
   - `closeInboxLayerIfPresent(that)` 与 `refreshInboxDialog()` 可串行生效，不再因 iframe 提前关闭导致刷新中断
+
+### 里程碑补充：私信无容器场景刷新父页面/父列表
+
+- 本地修改：
+  - `public/templates/default/static/js/ajax/inbox.js`
+  - 新增 `refreshParentInboxContext()`：
+    - 弹窗页无 `#inbox-dialog-container` 时，优先刷新父窗口顶部私信列表 `#topInboxBox`
+    - 若父窗口当前是私信页（路径含 `/inbox`），直接刷新父页面
+    - 无法命中上述场景时兜底 `parent.location.reload()`
+  - `refreshInboxDialog` 在“收件人为空或容器不存在”分支改为调用父上下文刷新，不再静默返回
+- 真实部署批次：
+  - 2026-04-15 17:22 CST 同步到 `production`，完成远端批处理与 smoke
+- 实际结果：
+  - 非对话容器场景发送私信后，父页面/父列表会同步刷新，不再只关闭弹窗

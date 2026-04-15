@@ -31,10 +31,46 @@ function closeInboxLayerIfPresent(triggerElement) {
     }
 }
 
+function refreshParentInboxContext() {
+    var targetWindow = (window.parent && window.parent !== window) ? window.parent : window;
+    var refreshed = false;
+
+    try {
+        if (targetWindow.jQuery && targetWindow.baseUrl) {
+            var $target = targetWindow.jQuery;
+
+            if ($target('#topInboxBox').length) {
+                $target.ajax({
+                    url: targetWindow.baseUrl + '/inbox/index?header=1',
+                    type: 'GET',
+                    dataType: 'html',
+                    success: function (ret) {
+                        $target('#topInboxBox').html(ret);
+                    }
+                });
+                refreshed = true;
+            }
+
+            var path = (targetWindow.location && targetWindow.location.pathname) ? targetWindow.location.pathname.toLowerCase() : '';
+            if (path.indexOf('/inbox') !== -1) {
+                targetWindow.location.reload();
+                refreshed = true;
+            }
+        }
+    } catch (e) {}
+
+    if (!refreshed) {
+        try {
+            targetWindow.location.reload();
+        } catch (e) {}
+    }
+}
+
 function refreshInboxDialog(done) {
     var recipient = getRecipient();
     var $container = $('#inbox-dialog-container');
     if (!recipient || !$container.length) {
+        refreshParentInboxContext();
         if (typeof done === 'function') {
             done();
         }
