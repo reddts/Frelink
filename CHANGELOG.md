@@ -99,6 +99,22 @@
     - `aws.js?v=4.1.1`
     - `app.js?v=4.1.1`
 
+### 里程碑：修复私信发送 `Undefined array key "inbox_setting"` 报错
+
+- 问题现象：
+  - 新私信发送时报错：`{"code":2,"message":"Undefined array key \"inbox_setting\""}`。
+- 根因：
+  - [UsersInbox.php](/mnt/f/workwww/knowlege-github/app/model/UsersInbox.php) 与 [UsersInbox.php](/mnt/f/workwww/knowlege-github/app/model/api/v1/UsersInbox.php) 直接访问 `$recipient_user['inbox_setting']`，当用户扩展配置缺失时触发未定义数组键。
+- 修复内容：
+  - 增加兜底：`$inboxSetting = $recipient_user['inbox_setting'] ?? 'all'`
+  - 后续权限判断改为基于 `$inboxSetting`，避免缺字段时报错。
+- 本地验证：
+  - `php -l app/model/UsersInbox.php`：通过
+  - `php -l app/model/api/v1/UsersInbox.php`：通过
+- 部署与远程验证：
+  - 执行 `bash scripts/deploy.sh deploy`
+  - 远程 `composer/think/clear/api:doc/smoke` 全部通过
+
 ## 2026-04-12
 
 ### 里程碑：按 P1 迁移管理端专栏模块（Column）首版

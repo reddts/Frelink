@@ -218,7 +218,8 @@ class UsersInbox extends BaseModel
             return false;
 		}
 
-        if($recipient_user['inbox_setting']!='all' && !db('users_follow')->where(['fans_uid'=>$recipient_uid,'friend_uid'=>$sender_uid])->value('id'))
+        $inboxSetting = $recipient_user['inbox_setting'] ?? 'all';
+        if($inboxSetting!='all' && !db('users_follow')->where(['fans_uid'=>$recipient_uid,'friend_uid'=>$sender_uid])->value('id'))
         {
             self::setError('对方已拒绝陌生人发送的私信');
             return false;
