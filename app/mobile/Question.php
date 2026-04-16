@@ -347,7 +347,7 @@ class Question extends Frontend
             'suggested_help_chapters'=>$suggestedHelpChapters,
             'access_key'=>$access_key,
             'attach_list'=>Attach::getAttach('question_attach',$question_id),
-            'publish_insight'=>checkTableExist('analytics_event') ? InsightModel::getPublishAssist('question', 7, 4) : []
+            'publish_insight'=>($this->userCanAccessInsight() && checkTableExist('analytics_event')) ? InsightModel::getPublishAssist('question', 7, 4) : []
         ]);
 
         /**

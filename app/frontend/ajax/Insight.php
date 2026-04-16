@@ -12,6 +12,10 @@ class Insight extends Frontend
 
     public function agent_draft()
     {
+        if (!$this->userCanAccessInsight()) {
+            $this->error('您没有查看运营洞察的权限');
+        }
+
         $itemType = trim((string)$this->request->post('item_type', 'article'));
         $days = intval($this->request->post('days', 7));
         $limit = intval($this->request->post('limit', 3));

@@ -260,6 +260,19 @@ abstract class Api
         return get_user_permission($permission, $this->user_id);
     }
 
+    protected function currentUserCanAccessInsight(): bool
+    {
+        if (!$this->user_id) {
+            return false;
+        }
+
+        if ($this->currentUserIsAdmin()) {
+            return true;
+        }
+
+        return $this->currentUserPermission('recommend_post') === 'Y';
+    }
+
     /**
      * 微信小程序内容安全检测
      * @param mixed $content

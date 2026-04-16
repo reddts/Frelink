@@ -336,7 +336,7 @@ class Article extends Frontend
         }
         $publishInsight = [];
         $weeklyExecution = [];
-        if (checkTableExist('analytics_event')) {
+        if ($this->userCanAccessInsight() && checkTableExist('analytics_event')) {
             try {
                 $publishInsight = InsightModel::getPublishAssist('article', 7, 4);
             } catch (\Throwable $e) {

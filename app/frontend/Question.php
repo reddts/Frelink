@@ -266,7 +266,7 @@ class Question extends Frontend
             'category_list'=>\app\model\Category::getCategoryListByType('question'),
             'access_key'=>$access_key,
             'attach_list'=>Attach::getAttach('question_attach',$question_id),
-            'publish_insight'=>checkTableExist('analytics_event') ? InsightModel::getPublishAssist('question', 7, 5) : [],
+            'publish_insight'=>($this->userCanAccessInsight() && checkTableExist('analytics_event')) ? InsightModel::getPublishAssist('question', 7, 5) : [],
             'help_chapter_options'=>$helpChapterOptions,
             'selected_help_chapter_ids'=>$selectedHelpChapterIds,
             'suggested_help_chapters'=>$suggestedHelpChapters,

@@ -649,36 +649,93 @@ SVG;
         if (isset($groups[$uid])) {
             return $groups[$uid];
         }
-        // 执行查询
-        //$map[] = ['status', '=', 1];
-        $map[] = ['uid', '=', $uid];
+        $user_info = db('users')
+            ->where('uid', $uid)
+            ->field('reputation_group_id,group_id,integral_group_id')
+            ->find();
 
-        $user_info = db('users')->where($map)->field('reputation_group_id,group_id,integral_group_id')->find();
-
-        //判断前台使用的分组类型
-        if(get_setting('frontend_group_type')=='reputation')
-        {
-            $user_groups = db('users_reputation_group')->where("id", intval($user_info['reputation_group_id']))->field('title as group_name,permission,group_icon')->find();
-        }else{
-            $user_groups = db('users_integral_group')->where("id", intval($user_info['integral_group_id']))->field('title as group_name,permission,group_icon')->find();
+        if (!$user_info) {
+            return [
+                'group_name' => '未知组',
+                'permission' => self::getPermissionDefaultsByGroups(['common']),
+            ];
         }
-        //非普通用户使用系统组权限
-        if(intval($user_info['group_id'])!=4)
-        {
-            $permission = db('admin_group')->where("id", intval($user_info['group_id']))->field('permission,title')->find();
-            $user_groups['permission'] = $permission['permission'];
-            $user_groups['group_name'] = $permission['title'];
-            $user_groups['permission'] = json_decode($user_groups['permission'],true);
-            $list = db('users_permission')->whereRaw("`group`='common' OR `group`='system'")->column('value','name');
-        }else{
-            $user_groups['permission'] = isset($user_groups['permission']) ? json_decode($user_groups['permission'],true) : [];
-            $list = db('users_permission')->whereRaw("`group` = 'common' OR `group`='".get_setting('frontend_group_type')."'")->column('value','name');
-        }
-        $user_groups['group_name'] = $user_groups['group_name'] ?? '未知组';
-        $user_groups['permission'] = array_merge($list,$user_groups['permission']);
 
-        $groups[$uid] = $user_groups ?: [];
+        $frontendGroupType = self::getFrontendGroupType();
+        $frontendGroup = $frontendGroupType === 'reputation'
+            ? db('users_reputation_group')->where('id', intval($user_info['reputation_group_id']))->field('title as group_name,permission,group_icon')->find()
+            : db('users_integral_group')->where('id', intval($user_info['integral_group_id']))->field('title as group_name,permission,group_icon')->find();
+
+        $systemGroup = db('admin_group')->where('id', intval($user_info['group_id']))->field('permission,title')->find();
+        $systemPermission = self::decodePermissionMap($systemGroup['permission'] ?? '');
+        $frontendPermission = self::decodePermissionMap($frontendGroup['permission'] ?? '');
+        $isNormalUser = intval($user_info['group_id']) === 4;
+
+        if (!$isNormalUser) {
+            $permission = array_merge(
+                self::getPermissionDefaultsByGroups(['common', 'system']),
+                $systemPermission
+            );
+            $groupName = $systemGroup['title'] ?? '未知组';
+        } else {
+            $permission = array_merge(
+                self::getPermissionDefaultsByGroups(['common', $frontendGroupType]),
+                $frontendPermission
+            );
+            // 普通用户保留前台分组能力，同时继承系统组(system)权限键，避免 API/前台端口径不一致。
+            $systemPermissionNames = self::getPermissionNamesByGroup('system');
+            $systemPermissionNameMap = array_flip($systemPermissionNames);
+            foreach ($systemPermission as $permissionName => $permissionValue) {
+                // system 组权限始终透传；未知键在前台组缺失时也保留，避免新增权限键在跨端丢失。
+                if (isset($systemPermissionNameMap[$permissionName]) || !array_key_exists($permissionName, $permission)) {
+                    $permission[$permissionName] = $permissionValue;
+                }
+            }
+            $groupName = $frontendGroup['group_name'] ?? ($systemGroup['title'] ?? '未知组');
+        }
+
+        $user_groups = [
+            'group_name' => $groupName,
+            'group_icon' => $frontendGroup['group_icon'] ?? '',
+            'permission' => $permission,
+        ];
+
+        $groups[$uid] = $user_groups;
         return $user_groups;
+    }
+
+    protected static function getFrontendGroupType(): string
+    {
+        return get_setting('frontend_group_type') === 'reputation' ? 'reputation' : 'integral';
+    }
+
+    protected static function getPermissionDefaultsByGroups(array $groups): array
+    {
+        $groups = array_values(array_intersect($groups, ['common', 'system', 'reputation', 'integral']));
+        if (!$groups) {
+            return [];
+        }
+        return db('users_permission')->whereIn('group', $groups)->column('value', 'name');
+    }
+
+    protected static function getPermissionNamesByGroup(string $group): array
+    {
+        if (!in_array($group, ['common', 'system', 'reputation', 'integral'], true)) {
+            return [];
+        }
+        return db('users_permission')->where('group', $group)->column('name');
+    }
+
+    protected static function decodePermissionMap($permission): array
+    {
+        if (is_array($permission)) {
+            return $permission;
+        }
+        if (!is_string($permission) || $permission === '') {
+            return [];
+        }
+        $decoded = json_decode($permission, true);
+        return is_array($decoded) ? $decoded : [];
     }
 
     /**
@@ -878,7 +935,7 @@ SVG;
                 {
                     $result[$value['uid']]['group_name'] = db('users_reputation_group')->where("id", intval($value['reputation_group_id']))->value('title');
                 }else{
-                    $result[$value['uid']]['group_name'] = db('users_integral_group')->where("id", intval($value['reputation_group_id']))->value('title');
+                    $result[$value['uid']]['group_name'] = db('users_integral_group')->where("id", intval($value['integral_group_id']))->value('title');
                 }
             }
         }

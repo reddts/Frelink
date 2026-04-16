@@ -1,5 +1,63 @@
 # Frelink 项目更新日志
 
+## 2026-04-16
+
+### 里程碑：修复普通用户 `Insight` 权限误拒绝并统一三端鉴权口径
+
+- 问题现象：
+  - 新创建普通会员在已配置放行后，访问 `app/api/v1/Insight.php` 仍提示“您没有查看运营洞察的权限”。
+- 根因：
+  - `recommend_post` 权限项定义在 `system` 组；
+  - 旧逻辑下 `group_id=4` 普通用户仅合并 `common + 前台组(reputation/integral)`，未继承 `system` 权限键；
+  - `app/api`、`app/frontend`、`app/mobile` 对 Insight 能力入口的校验口径存在分散。
+- 修复内容：
+  - [Users.php](/mnt/f/workwww/knowlege-github/app/model/Users.php)
+    - 重构 `getUserGroupInfo` 权限合并：
+      - 非普通用户：`common + system`
+      - 普通用户：`common + 前台组` 并继承 `system` 权限键（含 `recommend_post`）
+    - 新增权限默认值/分组名/JSON 解码辅助方法，降低新增权限键时的跨端缺失风险。
+    - 修复用户列表积分组名称取值错误（`integral_group_id`）。
+  - [Api.php](/mnt/f/workwww/knowlege-github/app/common/controller/Api.php)
+    - 新增 `currentUserCanAccessInsight()` 统一 API 侧 Insight 鉴权入口。
+  - [Insight.php](/mnt/f/workwww/knowlege-github/app/api/v1/Insight.php)
+    - `authorizeInsightAccess` 改为调用统一鉴权方法。
+  - [Frontend.php](/mnt/f/workwww/knowlege-github/app/common/controller/Frontend.php)
+    - 新增 `userCanAccessInsight()`，供前端/移动端统一复用。
+  - [frontend/ajax/Insight.php](/mnt/f/workwww/knowlege-github/app/frontend/ajax/Insight.php)
+    - `agent_draft` 增加 Insight 权限校验。
+  - [frontend/Article.php](/mnt/f/workwww/knowlege-github/app/frontend/Article.php)
+  - [frontend/Question.php](/mnt/f/workwww/knowlege-github/app/frontend/Question.php)
+  - [mobile/Article.php](/mnt/f/workwww/knowlege-github/app/mobile/Article.php)
+  - [mobile/Question.php](/mnt/f/workwww/knowlege-github/app/mobile/Question.php)
+    - 发布页 Insight 数据入口统一按 `userCanAccessInsight()` 判定。
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（Insight 权限修复批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-16 14:45:39-14:46:19 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh show-config`
+  - `bash scripts/deploy.sh deploy`
+- 远程验证结果：
+  - 远程批处理通过：`php -v`、`composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader`、`php think`、`php think clear`、`php think api:doc`（markdown/openapi）
+  - 脚本 smoke 通过：`/`、`/questions/`、`/articles/`
+- 接口实测（含业务目标验证）：
+  - 使用以下 token 分别验证：
+    - `9437919ee238c0827bbbb96d3dd0f0ba`
+    - `57bcf3c212f4e7ed29e0fae862885988`
+    - `046f904a287e6ee1759b4f0f7b33d0f3`
+    - `ff1f4fde8e84b89fadb5df3371bf10c6`
+  - 验证接口：
+    - `GET /api/Account/my`
+    - `GET /api/Insight/summary?days=7`
+    - `GET /api/Insight/agent_brief?days=7&limit=1`
+  - 结果：
+    - 4 个 token 均返回 `group_id=4` 且 `permission.recommend_post=Y`
+    - 2 个 Insight 接口均返回 `code=1`（请求成功），未再出现“没有运营洞察权限”。
+
 ## 2026-04-15
 
 ### 里程碑：修复私信发送后弹层未关闭（iframe 层关闭逻辑）

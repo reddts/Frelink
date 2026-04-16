@@ -287,6 +287,19 @@ class Frontend extends Base
         }
     }
 
+    protected function userCanAccessInsight(): bool
+    {
+        if (!$this->user_id) {
+            return false;
+        }
+
+        if (in_array(intval($this->user_info['group_id'] ?? 0), [1, 2], true)) {
+            return true;
+        }
+
+        return (($this->user_info['permission']['recommend_post'] ?? 'N') === 'Y');
+    }
+
     public function fetch(string $template = '', array $vars = [])
     {
         $view_path = public_path().'templates'.DS.$this->theme.DS.'html'.DS;
