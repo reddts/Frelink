@@ -177,7 +177,7 @@
                         {volist name="next_reads" id="item"}
                         <a class="aw-article-next-read-item d-block py-2 border-bottom text-dark" href="{$item.url}">
                             <div class="aw-article-next-read-title mb-1"><i class="icon-book text-primary mr-1"></i>{$item.title}</div>
-                            {if $item.desc}<div class="aw-article-next-read-desc text-muted font-12">{$item.desc}</div>{/if}
+                            {if $item.desc}<div class="aw-article-next-read-desc text-muted font-10">{$item.desc}</div>{/if}
                         </a>
                         {/volist}
                     </section>
