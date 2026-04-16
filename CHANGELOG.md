@@ -2,6 +2,18 @@
 
 ## 2026-04-16
 
+### 里程碑：微调文章详情正文与列表字号至 `1rem`
+
+- 需求：
+  - 将 `.aw-article-detail-shell .aw-article-content-body p, li, blockquote, td, th` 的字号由 `1.02rem` 调整为 `1rem`，统一正文阅读密度。
+- 修复内容：
+  - [app.min.css](/mnt/f/workwww/knowlege-github/public/templates/default/static/css/app.min.css)
+    - 仅调整上述选择器的 `font-size` 为 `1rem`，其余样式不变。
+- 最小验证（本地）：
+  - `git diff -- public/templates/default/static/css/app.min.css` 确认仅存在目标字号变更。
+- 说明：
+  - 本次为本地提交批次；服务器同步与远程验证在下一次明确部署批次中执行。
+
 ### 里程碑：修复普通用户 API 发文站外链接误拦截并统一权限优先级
 
 - 问题现象：
