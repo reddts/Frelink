@@ -682,14 +682,13 @@ SVG;
                 self::getPermissionDefaultsByGroups(['common', $frontendGroupType]),
                 $frontendPermission
             );
-            // 普通用户保留前台分组能力，同时继承系统组(system)权限键，避免 API/前台端口径不一致。
-            $systemPermissionNames = self::getPermissionNamesByGroup('system');
-            $systemPermissionNameMap = array_flip($systemPermissionNames);
+            // 普通用户权限优先级：
+            // 1. common 默认值
+            // 2. 前台分组（积分组/威望组）配置
+            // 3. 系统组配置（最终覆盖，包含 common/system 等键）
+            // 这样系统组里放行的能力（如 publish_url）会在 API/前台/移动端统一生效。
             foreach ($systemPermission as $permissionName => $permissionValue) {
-                // system 组权限始终透传；未知键在前台组缺失时也保留，避免新增权限键在跨端丢失。
-                if (isset($systemPermissionNameMap[$permissionName]) || !array_key_exists($permissionName, $permission)) {
-                    $permission[$permissionName] = $permissionValue;
-                }
+                $permission[$permissionName] = $permissionValue;
             }
             $groupName = $frontendGroup['group_name'] ?? ($systemGroup['title'] ?? '未知组');
         }
@@ -716,14 +715,6 @@ SVG;
             return [];
         }
         return db('users_permission')->whereIn('group', $groups)->column('value', 'name');
-    }
-
-    protected static function getPermissionNamesByGroup(string $group): array
-    {
-        if (!in_array($group, ['common', 'system', 'reputation', 'integral'], true)) {
-            return [];
-        }
-        return db('users_permission')->where('group', $group)->column('name');
     }
 
     protected static function decodePermissionMap($permission): array

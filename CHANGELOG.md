@@ -2,6 +2,51 @@
 
 ## 2026-04-16
 
+### 里程碑：修复普通用户 API 发文站外链接误拦截并统一权限优先级
+
+- 问题现象：
+  - 新创建普通会员使用 `ApiToken` 发文（问题/文章）时，包含站外链接会报“你所在的用户组不允许发布站外链接”；
+  - 后台已在系统组「普通用户」放行 `publish_url=Y`，但 API 端仍被拒绝。
+- 根因：
+  - `publish_url` 属于 `common` 权限键；
+  - 旧逻辑下 `group_id=4` 普通用户会先取 `common + 前台组(威望/积分)`，系统组仅透传 `system` 分组键，导致系统组对 `publish_url` 的配置无法覆盖前台组结果。
+- 修复内容：
+  - [Users.php](/mnt/f/workwww/knowlege-github/app/model/Users.php)
+    - 调整 `getUserGroupInfo` 普通用户权限合并优先级为：
+      - `common` 默认值
+      - 前台分组（`reputation` / `integral`）
+      - 系统组（最终覆盖，含 `common/system` 全部键）
+    - 使系统组中放行的 `publish_url`、以及后续新增权限键，在 `app/api`、`app/frontend`、`app/mobile` 三端统一生效（均复用同一 `Users::getUserInfo` 权限结果）。
+    - 清理不再使用的 `getPermissionNamesByGroup` 辅助方法。
+- 回归验证（本地语法）：
+  - `php -l app/model/Users.php` 通过。
+- 提供的 API 测试 token（用于线上回归）：
+  - `9437919ee238c0827bbbb96d3dd0f0ba`
+  - `57bcf3c212f4e7ed29e0fae862885988`
+  - `046f904a287e6ee1759b4f0f7b33d0f3`
+  - `ff1f4fde8e84b89fadb5df3371bf10c6`
+
+### 里程碑：按优化规范完成本轮服务器同步与远程验证（外链权限收口批次）
+
+- 部署批次：
+  - 本地时间：`2026-04-16 15:20:24-15:20:57 CST`
+  - 目标服务器：`azureuser@20.191.157.253:22`
+  - 目标目录：`/www/wwwroot/knoledge`
+  - 站点：`https://www.frelink.top`
+- 已执行命令：
+  - `bash scripts/deploy.sh show-config`
+  - `bash scripts/deploy.sh deploy`
+- 远程验证结果：
+  - 远程批处理通过：`php -v`、`composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader`、`php think`、`php think clear`、`php think api:doc`（markdown/openapi）
+  - smoke 通过：`/`、`/questions/`、`/articles/`
+- 接口回归（你提供的 4 个 token）：
+  - `GET /api/Account/my`（Header：`version: v1` + `ApiToken`）
+  - 结果：
+    - 4 个 token 均返回 `code=1`
+    - 4 个账号均返回 `group_id=4`
+    - 4 个账号均返回 `permission.publish_url=Y`
+    - 线上不再复现“所在用户组不允许发布站外链接”的旧权限态。
+
 ### 里程碑：修复普通用户 `Insight` 权限误拒绝并统一三端鉴权口径
 
 - 问题现象：
